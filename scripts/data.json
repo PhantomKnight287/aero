@@ -1,0 +1,4342 @@
+[
+    {
+        "name": "21 Air",
+        "code": "21 Air",
+        "fleet": "2I / CSB"
+    },
+    {
+        "name": "748 Air Services",
+        "code": "748 Air Services",
+        "fleet": "FE / IHO"
+    },
+    {
+        "name": "9 Air",
+        "code": "9 Air",
+        "fleet": "AQ / JYH"
+    },
+    {
+        "name": "Abakan Air",
+        "code": "Abakan Air",
+        "fleet": "S5 / NKP"
+    },
+    {
+        "name": "ABX Air",
+        "code": "ABX Air",
+        "fleet": "GB / ABX"
+    },
+    {
+        "name": "Advanced Air",
+        "code": "Advanced Air",
+        "fleet": "AN / WSN"
+    },
+    {
+        "name": "Aegean Airlines",
+        "code": "Aegean Airlines",
+        "fleet": "A3 / AEE"
+    },
+    {
+        "name": "Aer Lingus",
+        "code": "Aer Lingus",
+        "fleet": "EI / EIN"
+    },
+    {
+        "name": "AerCaribe Cargo",
+        "code": "AerCaribe Cargo",
+        "fleet": "JK / ACL"
+    },
+    {
+        "name": "Aero",
+        "code": "Aero",
+        "fleet": "5E / BLK"
+    },
+    {
+        "name": "Aero",
+        "code": "Aero",
+        "fleet": "N2 / NIG"
+    },
+    {
+        "name": "Aero Dili",
+        "code": "Aero Dili",
+        "fleet": "8G / DTL"
+    },
+    {
+        "name": "Aero K",
+        "code": "Aero K",
+        "fleet": "RF / EOK"
+    },
+    {
+        "name": "Aero Mongolia",
+        "code": "Aero Mongolia",
+        "fleet": "M0 / MNG"
+    },
+    {
+        "name": "Aero Nomad",
+        "code": "Aero Nomad",
+        "fleet": "KA / ANK"
+    },
+    {
+        "name": "Aeroflot",
+        "code": "Aeroflot",
+        "fleet": "SU / AFL"
+    },
+    {
+        "name": "Aeroitalia",
+        "code": "Aeroitalia",
+        "fleet": "XZ / AEZ"
+    },
+    {
+        "name": "Aeroitalia Regional",
+        "code": "Aeroitalia Regional",
+        "fleet": "KS / KON"
+    },
+    {
+        "name": "Aerolineas Argentinas",
+        "code": "Aerolineas Argentinas",
+        "fleet": "AR / ARG"
+    },
+    {
+        "name": "Aerolineas Sosa",
+        "code": "Aerolineas Sosa",
+        "fleet": "P4 / NSO"
+    },
+    {
+        "name": "AeroLogic",
+        "code": "AeroLogic",
+        "fleet": "3S / BOX"
+    },
+    {
+        "name": "Aeromexico",
+        "code": "Aeromexico",
+        "fleet": "AM / AMX"
+    },
+    {
+        "name": "Aeromexico Connect",
+        "code": "Aeromexico Connect",
+        "fleet": "5D / SLI"
+    },
+    {
+        "name": "Aeroregional",
+        "code": "Aeroregional",
+        "fleet": "6G / RER"
+    },
+    {
+        "name": "Aerosucre",
+        "code": "Aerosucre",
+        "fleet": "A4 / KRE"
+    },
+    {
+        "name": "Aerotranscargo",
+        "code": "Aerotranscargo",
+        "fleet": "F5 / ATG"
+    },
+    {
+        "name": "AeroUnion",
+        "code": "AeroUnion",
+        "fleet": "6R / TNO"
+    },
+    {
+        "name": "Aerovias DAP",
+        "code": "Aerovias DAP",
+        "fleet": "V5 / DAP"
+    },
+    {
+        "name": "Aerus",
+        "code": "Aerus",
+        "fleet": "ZV / RFD"
+    },
+    {
+        "name": "Africa World Airlines",
+        "code": "Africa World Airlines",
+        "fleet": "AW / AFW"
+    },
+    {
+        "name": "African Express Airways",
+        "code": "African Express Airways",
+        "fleet": "XU / AXK"
+    },
+    {
+        "name": "Afrijet",
+        "code": "Afrijet",
+        "fleet": "J7 / ABS"
+    },
+    {
+        "name": "Afriqiyah Airways",
+        "code": "Afriqiyah Airways",
+        "fleet": "8U / AAW"
+    },
+    {
+        "name": "Air Albania",
+        "code": "Air Albania",
+        "fleet": "ZB / ABN"
+    },
+    {
+        "name": "Air Algerie",
+        "code": "Air Algerie",
+        "fleet": "AH / DAH"
+    },
+    {
+        "name": "Air Alsie",
+        "code": "Air Alsie",
+        "fleet": "6I / MMD"
+    },
+    {
+        "name": "Air Anka",
+        "code": "Air Anka",
+        "fleet": "6K / TAH"
+    },
+    {
+        "name": "Air Arabia",
+        "code": "Air Arabia",
+        "fleet": "G9 / ABY"
+    },
+    {
+        "name": "Air Astana",
+        "code": "Air Astana",
+        "fleet": "KC / KZR"
+    },
+    {
+        "name": "Air Astra",
+        "code": "Air Astra",
+        "fleet": "2A / AWA"
+    },
+    {
+        "name": "Air Austral",
+        "code": "Air Austral",
+        "fleet": "UU / REU"
+    },
+    {
+        "name": "Air Baltic",
+        "code": "Air Baltic",
+        "fleet": "BT / BTI"
+    },
+    {
+        "name": "Air Botswana",
+        "code": "Air Botswana",
+        "fleet": "BP / BOT"
+    },
+    {
+        "name": "Air Burkina",
+        "code": "Air Burkina",
+        "fleet": "2J / VBW"
+    },
+    {
+        "name": "Air Busan",
+        "code": "Air Busan",
+        "fleet": "BX / ABL"
+    },
+    {
+        "name": "Air Cairo",
+        "code": "Air Cairo",
+        "fleet": "SM / MSC"
+    },
+    {
+        "name": "Air Caledonie",
+        "code": "Air Caledonie",
+        "fleet": "TY / TPC"
+    },
+    {
+        "name": "Air Cambodia",
+        "code": "Air Cambodia",
+        "fleet": "K6 / KHV"
+    },
+    {
+        "name": "Air Canada",
+        "code": "Air Canada",
+        "fleet": "AC / ACA"
+    },
+    {
+        "name": "Air Canada Rouge",
+        "code": "Air Canada Rouge",
+        "fleet": "RV / ROU"
+    },
+    {
+        "name": "Air Caraibes",
+        "code": "Air Caraibes",
+        "fleet": "TX / FWI"
+    },
+    {
+        "name": "Air Cargo Carriers",
+        "code": "Air Cargo Carriers",
+        "fleet": "2Q / SNC"
+    },
+    {
+        "name": "Air Central",
+        "code": "Air Central",
+        "fleet": "GI / LHA"
+    },
+    {
+        "name": "Air Century",
+        "code": "Air Century",
+        "fleet": "Y2 / CEY"
+    },
+    {
+        "name": "Air Changan",
+        "code": "Air Changan",
+        "fleet": "9H / CGN"
+    },
+    {
+        "name": "Air Chathams",
+        "code": "Air Chathams",
+        "fleet": "3C / CVA"
+    },
+    {
+        "name": "Air China",
+        "code": "Air China",
+        "fleet": "CA / CCA"
+    },
+    {
+        "name": "Air Corsica",
+        "code": "Air Corsica",
+        "fleet": "XK / CCM"
+    },
+    {
+        "name": "Air Côte d'Ivoire",
+        "code": "Air Côte d'Ivoire",
+        "fleet": "HF / VRE"
+    },
+    {
+        "name": "Air Creebec",
+        "code": "Air Creebec",
+        "fleet": "YN / CRQ"
+    },
+    {
+        "name": "Air Dilijans",
+        "code": "Air Dilijans",
+        "fleet": "RM / NGT"
+    },
+    {
+        "name": "Air Do",
+        "code": "Air Do",
+        "fleet": "HD / ADO"
+    },
+    {
+        "name": "Air Dolomiti",
+        "code": "Air Dolomiti",
+        "fleet": "EN / DLA"
+    },
+    {
+        "name": "Air Europa",
+        "code": "Air Europa",
+        "fleet": "UX / AEA"
+    },
+    {
+        "name": "Air Falcon",
+        "code": "Air Falcon",
+        "fleet": "FS / FPK"
+    },
+    {
+        "name": "Air Flamenco",
+        "code": "Air Flamenco",
+        "fleet": "F4 / WAF"
+    },
+    {
+        "name": "Air France",
+        "code": "Air France",
+        "fleet": "AF / AFR"
+    },
+    {
+        "name": "Air Greenland",
+        "code": "Air Greenland",
+        "fleet": "GL / GRL"
+    },
+    {
+        "name": "Air Guilin",
+        "code": "Air Guilin",
+        "fleet": "GT / CGH"
+    },
+    {
+        "name": "Air Horizont",
+        "code": "Air Horizont",
+        "fleet": "HT / HAT"
+    },
+    {
+        "name": "Air Incheon",
+        "code": "Air Incheon",
+        "fleet": "KJ / AIH"
+    },
+    {
+        "name": "Air India",
+        "code": "Air India",
+        "fleet": "AI / AIC"
+    },
+    {
+        "name": "Air India Express",
+        "code": "Air India Express",
+        "fleet": "IX / AXB"
+    },
+    {
+        "name": "Air Inuit",
+        "code": "Air Inuit",
+        "fleet": "3H / AIE"
+    },
+    {
+        "name": "Air Japan",
+        "code": "Air Japan",
+        "fleet": "NQ / AJX"
+    },
+    {
+        "name": "Air Kiribati",
+        "code": "Air Kiribati",
+        "fleet": "IK / AKL"
+    },
+    {
+        "name": "Air Koryo",
+        "code": "Air Koryo",
+        "fleet": "JS / KOR"
+    },
+    {
+        "name": "Air Liaison",
+        "code": "Air Liaison",
+        "fleet": "DU / LSJ"
+    },
+    {
+        "name": "Air Libya",
+        "code": "Air Libya",
+        "fleet": "7I / TLR"
+    },
+    {
+        "name": "Air Macau",
+        "code": "Air Macau",
+        "fleet": "NX / AMU"
+    },
+    {
+        "name": "Air Manas",
+        "code": "Air Manas",
+        "fleet": "ZM / MBB"
+    },
+    {
+        "name": "Air Mauritius",
+        "code": "Air Mauritius",
+        "fleet": "MK / MAU"
+    },
+    {
+        "name": "Air Mediterranean",
+        "code": "Air Mediterranean",
+        "fleet": "MV / MAR"
+    },
+    {
+        "name": "Air Moana",
+        "code": "Air Moana",
+        "fleet": "NM / NTR"
+    },
+    {
+        "name": "Air Montenegro",
+        "code": "Air Montenegro",
+        "fleet": "4O / MNE"
+    },
+    {
+        "name": "Air New Zealand",
+        "code": "Air New Zealand",
+        "fleet": "NZ / ANZ"
+    },
+    {
+        "name": "Air Niugini",
+        "code": "Air Niugini",
+        "fleet": "PX / ANG"
+    },
+    {
+        "name": "Air North",
+        "code": "Air North",
+        "fleet": "4N / ANT"
+    },
+    {
+        "name": "Air Panama",
+        "code": "Air Panama",
+        "fleet": "7P / PST"
+    },
+    {
+        "name": "Air Peace",
+        "code": "Air Peace",
+        "fleet": "P4 / APK"
+    },
+    {
+        "name": "Air Premia",
+        "code": "Air Premia",
+        "fleet": "YP / APZ"
+    },
+    {
+        "name": "Air Rarotonga",
+        "code": "Air Rarotonga",
+        "fleet": "GZ / RAR"
+    },
+    {
+        "name": "Air Saint-Pierre",
+        "code": "Air Saint-Pierre",
+        "fleet": "PJ / SPM"
+    },
+    {
+        "name": "Air Samarkand",
+        "code": "Air Samarkand",
+        "fleet": "9S / UZS"
+    },
+    {
+        "name": "Air Senegal",
+        "code": "Air Senegal",
+        "fleet": "HC / SZN"
+    },
+    {
+        "name": "Air Seoul",
+        "code": "Air Seoul",
+        "fleet": "RS / ASV"
+    },
+    {
+        "name": "Air Seychelles",
+        "code": "Air Seychelles",
+        "fleet": "HM / SEY"
+    },
+    {
+        "name": "Air Tahiti",
+        "code": "Air Tahiti",
+        "fleet": "VT / VTA"
+    },
+    {
+        "name": "Air Tahiti Nui",
+        "code": "Air Tahiti Nui",
+        "fleet": "TN / THT"
+    },
+    {
+        "name": "Air Tanzania",
+        "code": "Air Tanzania",
+        "fleet": "TC / ATC"
+    },
+    {
+        "name": "Air Thanlwin",
+        "code": "Air Thanlwin",
+        "fleet": "ST / RTL"
+    },
+    {
+        "name": "Air Tindi",
+        "code": "Air Tindi",
+        "fleet": "8T / TIN"
+    },
+    {
+        "name": "Air Transat",
+        "code": "Air Transat",
+        "fleet": "TS / TSC"
+    },
+    {
+        "name": "Air Transport International",
+        "code": "Air Transport International",
+        "fleet": "8C / ATN"
+    },
+    {
+        "name": "Air Travel",
+        "code": "Air Travel",
+        "fleet": "A6 / OTC"
+    },
+    {
+        "name": "Air Urga",
+        "code": "Air Urga",
+        "fleet": "3N / URG"
+    },
+    {
+        "name": "Air Vanuatu",
+        "code": "Air Vanuatu",
+        "fleet": "NF / AVN"
+    },
+    {
+        "name": "Air Wisconsin",
+        "code": "Air Wisconsin",
+        "fleet": "ZW / AWI"
+    },
+    {
+        "name": "Air Zimbabwe",
+        "code": "Air Zimbabwe",
+        "fleet": "UM / AZW"
+    },
+    {
+        "name": "AirACT",
+        "code": "AirACT",
+        "fleet": "9T / RUN"
+    },
+    {
+        "name": "AirAsia",
+        "code": "AirAsia",
+        "fleet": "AK / AXM"
+    },
+    {
+        "name": "AirAsia X",
+        "code": "AirAsia X",
+        "fleet": "D7 / XAX"
+    },
+    {
+        "name": "airblue",
+        "code": "airblue",
+        "fleet": "PA / ABQ"
+    },
+    {
+        "name": "AirBridgeCargo Airlines",
+        "code": "AirBridgeCargo Airlines",
+        "fleet": "RU / ABW"
+    },
+    {
+        "name": "Airbus Transport International",
+        "code": "Airbus Transport International",
+        "fleet": "4Y / BGA"
+    },
+    {
+        "name": "Aircalin",
+        "code": "Aircalin",
+        "fleet": "SB / ACI"
+    },
+    {
+        "name": "AirExplore",
+        "code": "AirExplore",
+        "fleet": "ED / AXE"
+    },
+    {
+        "name": "Airfast Indonesia",
+        "code": "Airfast Indonesia",
+        "fleet": "FS / AFE"
+    },
+    {
+        "name": "airHaifa",
+        "code": "airHaifa",
+        "fleet": "E2 / HFA"
+    },
+    {
+        "name": "Airhub Airlines",
+        "code": "Airhub Airlines",
+        "fleet": "RE / GJM"
+    },
+    {
+        "name": "Airkenya Express",
+        "code": "Airkenya Express",
+        "fleet": "P2 / XAK"
+    },
+    {
+        "name": "Airlink",
+        "code": "Airlink",
+        "fleet": "4Z / LNK"
+    },
+    {
+        "name": "AirMaster",
+        "code": "AirMaster",
+        "fleet": "MR / RMX"
+    },
+    {
+        "name": "Airnorth",
+        "code": "Airnorth",
+        "fleet": "TL / ANO"
+    },
+    {
+        "name": "AirSERBIA",
+        "code": "AirSERBIA",
+        "fleet": "JU / ASL"
+    },
+    {
+        "name": "AirSial",
+        "code": "AirSial",
+        "fleet": "PF / SIF"
+    },
+    {
+        "name": "AirSWIFT",
+        "code": "AirSWIFT",
+        "fleet": "T6 / ATX"
+    },
+    {
+        "name": "AirTanker",
+        "code": "AirTanker",
+        "fleet": "9L / TOW"
+    },
+    {
+        "name": "AJet",
+        "code": "AJet",
+        "fleet": "VF / TKJ"
+    },
+    {
+        "name": "Akasa Air",
+        "code": "Akasa Air",
+        "fleet": "QP / AKJ"
+    },
+    {
+        "name": "Alaska Airlines",
+        "code": "Alaska Airlines",
+        "fleet": "AS / ASA"
+    },
+    {
+        "name": "Alaska Central Express",
+        "code": "Alaska Central Express",
+        "fleet": "KO / AER"
+    },
+    {
+        "name": "Albatros Airlines",
+        "code": "Albatros Airlines",
+        "fleet": "G0 / GAL"
+    },
+    {
+        "name": "Alexandria Airlines",
+        "code": "Alexandria Airlines",
+        "fleet": "DQ / KHH"
+    },
+    {
+        "name": "Alfa Airlines",
+        "code": "Alfa Airlines",
+        "fleet": "5E / AAJ"
+    },
+    {
+        "name": "Alidaunia",
+        "code": "Alidaunia",
+        "fleet": "D4 / LID"
+    },
+    {
+        "name": "AlisCargo Airlines",
+        "code": "AlisCargo Airlines",
+        "fleet": "CP / LSI"
+    },
+    {
+        "name": "All Nippon Airways",
+        "code": "All Nippon Airways",
+        "fleet": "NH / ANA"
+    },
+    {
+        "name": "Allegiant Air",
+        "code": "Allegiant Air",
+        "fleet": "G4 / AAY"
+    },
+    {
+        "name": "Alliance Air",
+        "code": "Alliance Air",
+        "fleet": "9I / LLR"
+    },
+    {
+        "name": "Alliance Airlines",
+        "code": "Alliance Airlines",
+        "fleet": "QQ / UTY"
+    },
+    {
+        "name": "Allied Air",
+        "code": "Allied Air",
+        "fleet": "4W / AJK"
+    },
+    {
+        "name": "AlMasria Universal Airlines",
+        "code": "AlMasria Universal Airlines",
+        "fleet": "UJ / LMU"
+    },
+    {
+        "name": "Aloha Air Cargo",
+        "code": "Aloha Air Cargo",
+        "fleet": "KH / AAH"
+    },
+    {
+        "name": "AlpAvia",
+        "code": "AlpAvia",
+        "fleet": "AL / APP"
+    },
+    {
+        "name": "Alphaland Aviation",
+        "code": "Alphaland Aviation",
+        "fleet": "0A / BIC"
+    },
+    {
+        "name": "AlphaSky",
+        "code": "AlphaSky",
+        "fleet": "AS / JAG"
+    },
+    {
+        "name": "Alpine Air Express",
+        "code": "Alpine Air Express",
+        "fleet": "5A / AIP"
+    },
+    {
+        "name": "Alrosa",
+        "code": "Alrosa",
+        "fleet": "6R / DRU"
+    },
+    {
+        "name": "Amakusa Airlines",
+        "code": "Amakusa Airlines",
+        "fleet": "MZ / AHX"
+    },
+    {
+        "name": "Amelia",
+        "code": "Amelia",
+        "fleet": "8R / AIA"
+    },
+    {
+        "name": "American Airlines",
+        "code": "American Airlines",
+        "fleet": "AA / AAL"
+    },
+    {
+        "name": "Ameriflight",
+        "code": "Ameriflight",
+        "fleet": "A8 / AMF"
+    },
+    {
+        "name": "Amerijet International",
+        "code": "Amerijet International",
+        "fleet": "M6 / AJT"
+    },
+    {
+        "name": "Ameristar",
+        "code": "Ameristar",
+        "fleet": "7Z / AJI"
+    },
+    {
+        "name": "Andes Lineas Aereas",
+        "code": "Andes Lineas Aereas",
+        "fleet": "O4 / ANS"
+    },
+    {
+        "name": "Anguilla Air Services",
+        "code": "Anguilla Air Services",
+        "fleet": "Q3 / AXL"
+    },
+    {
+        "name": "Animawings",
+        "code": "Animawings",
+        "fleet": "A2 / AWG"
+    },
+    {
+        "name": "APG Airlines",
+        "code": "APG Airlines",
+        "fleet": "GP / RIV"
+    },
+    {
+        "name": "Arajet",
+        "code": "Arajet",
+        "fleet": "DM / DWI"
+    },
+    {
+        "name": "Ariana Afghan Airlines",
+        "code": "Ariana Afghan Airlines",
+        "fleet": "FG / AFG"
+    },
+    {
+        "name": "Arik Air",
+        "code": "Arik Air",
+        "fleet": "W3 / ARA"
+    },
+    {
+        "name": "Arkia Israeli Airlines",
+        "code": "Arkia Israeli Airlines",
+        "fleet": "IZ / AIZ"
+    },
+    {
+        "name": "Armenia Airways",
+        "code": "Armenia Airways",
+        "fleet": "6A / AMW"
+    },
+    {
+        "name": "Armenian Airlines",
+        "code": "Armenian Airlines",
+        "fleet": "JI / AAG"
+    },
+    {
+        "name": "Aruba Airlines",
+        "code": "Aruba Airlines",
+        "fleet": "AG / ARU"
+    },
+    {
+        "name": "Ascend Airways",
+        "code": "Ascend Airways",
+        "fleet": "YD / SYG"
+    },
+    {
+        "name": "Asia Pacific Airlines",
+        "code": "Asia Pacific Airlines",
+        "fleet": "P9 / MGE"
+    },
+    {
+        "name": "Asia Union Airlines",
+        "code": "Asia Union Airlines",
+        "fleet": "7Q / AUV"
+    },
+    {
+        "name": "Asian Express Airlines",
+        "code": "Asian Express Airlines",
+        "fleet": "RS / TXP"
+    },
+    {
+        "name": "Asiana Airlines",
+        "code": "Asiana Airlines",
+        "fleet": "OZ / AAR"
+    },
+    {
+        "name": "ASKY Airlines",
+        "code": "ASKY Airlines",
+        "fleet": "KP / SKK"
+    },
+    {
+        "name": "ASL Airlines",
+        "code": "ASL Airlines",
+        "fleet": "5H / ABR"
+    },
+    {
+        "name": "ASL Airlines Belgium",
+        "code": "ASL Airlines Belgium",
+        "fleet": "3V / TAY"
+    },
+    {
+        "name": "Asta Linhas Aereas",
+        "code": "Asta Linhas Aereas",
+        "fleet": "0A / SUL"
+    },
+    {
+        "name": "Astral Aviation",
+        "code": "Astral Aviation",
+        "fleet": "8V / ACP"
+    },
+    {
+        "name": "ATA Airlines",
+        "code": "ATA Airlines",
+        "fleet": "I3 / TBZ"
+    },
+    {
+        "name": "Atlantic Airways",
+        "code": "Atlantic Airways",
+        "fleet": "RC / FLI"
+    },
+    {
+        "name": "Atlas Air",
+        "code": "Atlas Air",
+        "fleet": "5Y / GTI"
+    },
+    {
+        "name": "Atran",
+        "code": "Atran",
+        "fleet": "V8 / VAS"
+    },
+    {
+        "name": "Atsa Airlines",
+        "code": "Atsa Airlines",
+        "fleet": "4A / AMP"
+    },
+    {
+        "name": "Auric Air",
+        "code": "Auric Air",
+        "fleet": "UI / AUK"
+    },
+    {
+        "name": "Aurigny Air Services",
+        "code": "Aurigny Air Services",
+        "fleet": "GR / AUR"
+    },
+    {
+        "name": "Aurora",
+        "code": "Aurora",
+        "fleet": "HZ / SHU"
+    },
+    {
+        "name": "Austrian Airlines",
+        "code": "Austrian Airlines",
+        "fleet": "OS / AUA"
+    },
+    {
+        "name": "Avelo Airlines",
+        "code": "Avelo Airlines",
+        "fleet": "XP / VXP"
+    },
+    {
+        "name": "Avia Traffic",
+        "code": "Avia Traffic",
+        "fleet": "YK / AVJ"
+    },
+    {
+        "name": "Aviacon Zitotrans",
+        "code": "Aviacon Zitotrans",
+        "fleet": "ZR / AZS"
+    },
+    {
+        "name": "Avianca",
+        "code": "Avianca",
+        "fleet": "AV / AVA"
+    },
+    {
+        "name": "Avianca Cargo",
+        "code": "Avianca Cargo",
+        "fleet": "QT / TPA"
+    },
+    {
+        "name": "Aviastar-TU",
+        "code": "Aviastar-TU",
+        "fleet": "4B / TUP"
+    },
+    {
+        "name": "Aviation Horizons",
+        "code": "Aviation Horizons",
+        "fleet": "ZS / HZS"
+    },
+    {
+        "name": "Avion Express",
+        "code": "Avion Express",
+        "fleet": "X9 / NVD"
+    },
+    {
+        "name": "Avior Airlines",
+        "code": "Avior Airlines",
+        "fleet": "9V / ROI"
+    },
+    {
+        "name": "Awesome Cargo",
+        "code": "Awesome Cargo",
+        "fleet": "A7 / WIN"
+    },
+    {
+        "name": "Azerbaijan Airlines",
+        "code": "Azerbaijan Airlines",
+        "fleet": "J2 / AHY"
+    },
+    {
+        "name": "Azimuth",
+        "code": "Azimuth",
+        "fleet": "A4 / AZO"
+    },
+    {
+        "name": "Azman Air",
+        "code": "Azman Air",
+        "fleet": "ZU / AZM"
+    },
+    {
+        "name": "Azores Airlines",
+        "code": "Azores Airlines",
+        "fleet": "S4 / RZO"
+    },
+    {
+        "name": "Aztec Airways",
+        "code": "Aztec Airways",
+        "fleet": "AJ / AZY"
+    },
+    {
+        "name": "Azul",
+        "code": "Azul",
+        "fleet": "AD / AZU"
+    },
+    {
+        "name": "Azul Conecta",
+        "code": "Azul Conecta",
+        "fleet": "2F / ACN"
+    },
+    {
+        "name": "Azur Air",
+        "code": "Azur Air",
+        "fleet": "ZF / AZV"
+    },
+    {
+        "name": "Badr Airlines",
+        "code": "Badr Airlines",
+        "fleet": "J4 / BDR"
+    },
+    {
+        "name": "Bahamasair",
+        "code": "Bahamasair",
+        "fleet": "UP / BHS"
+    },
+    {
+        "name": "Bamboo Airways",
+        "code": "Bamboo Airways",
+        "fleet": "QH / BAV"
+    },
+    {
+        "name": "Bangkok Airways",
+        "code": "Bangkok Airways",
+        "fleet": "PG / BKP"
+    },
+    {
+        "name": "Bassaka Air",
+        "code": "Bassaka Air",
+        "fleet": "5B / BSX"
+    },
+    {
+        "name": "Batik Air",
+        "code": "Batik Air",
+        "fleet": "ID / BTK"
+    },
+    {
+        "name": "BBN Airlines",
+        "code": "BBN Airlines",
+        "fleet": "B5 / BBT"
+    },
+    {
+        "name": "BBN Airlines Indonesia",
+        "code": "BBN Airlines Indonesia",
+        "fleet": "0B / BBL"
+    },
+    {
+        "name": "Bees Airlines",
+        "code": "Bees Airlines",
+        "fleet": "E8 / BES"
+    },
+    {
+        "name": "Belavia",
+        "code": "Belavia",
+        "fleet": "B2 / BRU"
+    },
+    {
+        "name": "Bemidji Airlines",
+        "code": "Bemidji Airlines",
+        "fleet": "CH / BMJ"
+    },
+    {
+        "name": "beOnd",
+        "code": "beOnd",
+        "fleet": "B4 / BYD"
+    },
+    {
+        "name": "Bering Air",
+        "code": "Bering Air",
+        "fleet": "8E / BRG"
+    },
+    {
+        "name": "Berjaya Air",
+        "code": "Berjaya Air",
+        "fleet": "J8 / BVT"
+    },
+    {
+        "name": "BermudAir",
+        "code": "BermudAir",
+        "fleet": "2T / BMA"
+    },
+    {
+        "name": "Berniq Airways",
+        "code": "Berniq Airways",
+        "fleet": "NB / BNL"
+    },
+    {
+        "name": "BH Air",
+        "code": "BH Air",
+        "fleet": "8H / BGH"
+    },
+    {
+        "name": "Bhutan Airlines",
+        "code": "Bhutan Airlines",
+        "fleet": "B3 / BTN"
+    },
+    {
+        "name": "Biman Bangladesh Airlines",
+        "code": "Biman Bangladesh Airlines",
+        "fleet": "BG / BBC"
+    },
+    {
+        "name": "Binter Canarias",
+        "code": "Binter Canarias",
+        "fleet": "NT / IBB"
+    },
+    {
+        "name": "Blue Dart Aviation",
+        "code": "Blue Dart Aviation",
+        "fleet": "BZ / BDA"
+    },
+    {
+        "name": "Blue Islands",
+        "code": "Blue Islands",
+        "fleet": "SI / BCI"
+    },
+    {
+        "name": "Bluebird Airways",
+        "code": "Bluebird Airways",
+        "fleet": "BZ / BBG"
+    },
+    {
+        "name": "Boliviana de Aviacion",
+        "code": "Boliviana de Aviacion",
+        "fleet": "OB / BOV"
+    },
+    {
+        "name": "Boutique Air",
+        "code": "Boutique Air",
+        "fleet": "4B / BTQ"
+    },
+    {
+        "name": "BRA",
+        "code": "BRA",
+        "fleet": "TF / BRX"
+    },
+    {
+        "name": "Breeze Airways",
+        "code": "Breeze Airways",
+        "fleet": "MX / MXY"
+    },
+    {
+        "name": "British Airways",
+        "code": "British Airways",
+        "fleet": "BA / BAW"
+    },
+    {
+        "name": "Brussels Airlines",
+        "code": "Brussels Airlines",
+        "fleet": "SN / BEL"
+    },
+    {
+        "name": "Budapest Aircraft Service",
+        "code": "Budapest Aircraft Service",
+        "fleet": "RP / BPS"
+    },
+    {
+        "name": "Buddha Air",
+        "code": "Buddha Air",
+        "fleet": "U4 / BHA"
+    },
+    {
+        "name": "Buffalo Airways",
+        "code": "Buffalo Airways",
+        "fleet": "J0 / BFL"
+    },
+    {
+        "name": "Bul Air",
+        "code": "Bul Air",
+        "fleet": "LB / BVL"
+    },
+    {
+        "name": "Bulgaria Air",
+        "code": "Bulgaria Air",
+        "fleet": "FB / LZB"
+    },
+    {
+        "name": "Buraq Air",
+        "code": "Buraq Air",
+        "fleet": "UZ / BRQ"
+    },
+    {
+        "name": "Business Aviation Asia",
+        "code": "Business Aviation Asia",
+        "fleet": "UN / UNA"
+    },
+    {
+        "name": "Buzz",
+        "code": "Buzz",
+        "fleet": "RR / RYS"
+    },
+    {
+        "name": "CAA",
+        "code": "CAA",
+        "fleet": "BU / DBP"
+    },
+    {
+        "name": "Cabo Verde Airlines",
+        "code": "Cabo Verde Airlines",
+        "fleet": "VR / TCV"
+    },
+    {
+        "name": "Caicos Express Airways",
+        "code": "Caicos Express Airways",
+        "fleet": "9Q / CXE"
+    },
+    {
+        "name": "Calm Air",
+        "code": "Calm Air",
+        "fleet": "MO / CAV"
+    },
+    {
+        "name": "Camair-Co",
+        "code": "Camair-Co",
+        "fleet": "QC / CRC"
+    },
+    {
+        "name": "Cambodia Airways",
+        "code": "Cambodia Airways",
+        "fleet": "KR / KME"
+    },
+    {
+        "name": "CAMEX Airlines",
+        "code": "CAMEX Airlines",
+        "fleet": "Z7 / CMS"
+    },
+    {
+        "name": "Canadian North",
+        "code": "Canadian North",
+        "fleet": "5T / AKT"
+    },
+    {
+        "name": "CanaryFly",
+        "code": "CanaryFly",
+        "fleet": "PM / CNF"
+    },
+    {
+        "name": "Cape Air",
+        "code": "Cape Air",
+        "fleet": "9K / KAP"
+    },
+    {
+        "name": "Capital Airlines",
+        "code": "Capital Airlines",
+        "fleet": "JD / CBJ"
+    },
+    {
+        "name": "Cardig Air",
+        "code": "Cardig Air",
+        "fleet": "7D / CAD"
+    },
+    {
+        "name": "Cargojet Airways",
+        "code": "Cargojet Airways",
+        "fleet": "W8 / CJT"
+    },
+    {
+        "name": "Cargolux",
+        "code": "Cargolux",
+        "fleet": "CV / CLX"
+    },
+    {
+        "name": "Caribbean Airlines",
+        "code": "Caribbean Airlines",
+        "fleet": "BW / BWA"
+    },
+    {
+        "name": "Carpatair",
+        "code": "Carpatair",
+        "fleet": "V3 / KRP"
+    },
+    {
+        "name": "Caspian Airlines",
+        "code": "Caspian Airlines",
+        "fleet": "IV / CPN"
+    },
+    {
+        "name": "Cathay Pacific",
+        "code": "Cathay Pacific",
+        "fleet": "CX / CPA"
+    },
+    {
+        "name": "Cayman Airways",
+        "code": "Cayman Airways",
+        "fleet": "KX / CAY"
+    },
+    {
+        "name": "Cebu Pacific",
+        "code": "Cebu Pacific",
+        "fleet": "5J / CEB"
+    },
+    {
+        "name": "CemAir",
+        "code": "CemAir",
+        "fleet": "5Z / KEM"
+    },
+    {
+        "name": "Central Airlines",
+        "code": "Central Airlines",
+        "fleet": "I9 / HLF"
+    },
+    {
+        "name": "Central Mountain Air",
+        "code": "Central Mountain Air",
+        "fleet": "9M / GLR"
+    },
+    {
+        "name": "Chair Airlines",
+        "code": "Chair Airlines",
+        "fleet": "GM / GSW"
+    },
+    {
+        "name": "Chalair Aviation",
+        "code": "Chalair Aviation",
+        "fleet": "CE / CLG"
+    },
+    {
+        "name": "Challenge Airlines BE",
+        "code": "Challenge Airlines BE",
+        "fleet": "X7 / CHG"
+    },
+    {
+        "name": "Chengdu Airlines",
+        "code": "Chengdu Airlines",
+        "fleet": "EU / UEA"
+    },
+    {
+        "name": "China Airlines",
+        "code": "China Airlines",
+        "fleet": "CI / CAL"
+    },
+    {
+        "name": "China Cargo Airlines",
+        "code": "China Cargo Airlines",
+        "fleet": "CK / CKK"
+    },
+    {
+        "name": "China Eastern Airlines",
+        "code": "China Eastern Airlines",
+        "fleet": "MU / CES"
+    },
+    {
+        "name": "China Express Airlines",
+        "code": "China Express Airlines",
+        "fleet": "G5 / HXA"
+    },
+    {
+        "name": "China Postal Airlines",
+        "code": "China Postal Airlines",
+        "fleet": "CF / CYZ"
+    },
+    {
+        "name": "China Southern Airlines",
+        "code": "China Southern Airlines",
+        "fleet": "CZ / CSN"
+    },
+    {
+        "name": "China United Airlines",
+        "code": "China United Airlines",
+        "fleet": "KN / CUA"
+    },
+    {
+        "name": "Chongqing Airlines",
+        "code": "Chongqing Airlines",
+        "fleet": "OQ / CQN"
+    },
+    {
+        "name": "Chrono Aviation",
+        "code": "Chrono Aviation",
+        "fleet": "MB / NDL"
+    },
+    {
+        "name": "Chrono Jet",
+        "code": "Chrono Jet",
+        "fleet": "MB / MBK"
+    },
+    {
+        "name": "Citilink",
+        "code": "Citilink",
+        "fleet": "QG / CTV"
+    },
+    {
+        "name": "CityJet",
+        "code": "CityJet",
+        "fleet": "WX / BCY"
+    },
+    {
+        "name": "Clic",
+        "code": "Clic",
+        "fleet": "VE / EFY"
+    },
+    {
+        "name": "CM Airlines",
+        "code": "CM Airlines",
+        "fleet": "H5 / OMT"
+    },
+    {
+        "name": "CMA CGM Air Cargo",
+        "code": "CMA CGM Air Cargo",
+        "fleet": "2C / CMA"
+    },
+    {
+        "name": "Coastal Aviation",
+        "code": "Coastal Aviation",
+        "fleet": "CQ / CSV"
+    },
+    {
+        "name": "Colorful Guizhou Airlines",
+        "code": "Colorful Guizhou Airlines",
+        "fleet": "GY / CGZ"
+    },
+    {
+        "name": "CommuteAir",
+        "code": "CommuteAir",
+        "fleet": "C5 / UCA"
+    },
+    {
+        "name": "Compass Air Cargo",
+        "code": "Compass Air Cargo",
+        "fleet": "HQ / ADZ"
+    },
+    {
+        "name": "Condor",
+        "code": "Condor",
+        "fleet": "DE / CFG"
+    },
+    {
+        "name": "Conquest Air",
+        "code": "Conquest Air",
+        "fleet": "C4 / QAI"
+    },
+    {
+        "name": "Contour Aviation",
+        "code": "Contour Aviation",
+        "fleet": "LF / VTE"
+    },
+    {
+        "name": "Conviasa",
+        "code": "Conviasa",
+        "fleet": "V0 / VCV"
+    },
+    {
+        "name": "Copa Airlines",
+        "code": "Copa Airlines",
+        "fleet": "CM / CMP"
+    },
+    {
+        "name": "Corendon Airlines",
+        "code": "Corendon Airlines",
+        "fleet": "XC / CAI"
+    },
+    {
+        "name": "Corsair",
+        "code": "Corsair",
+        "fleet": "SS / CRL"
+    },
+    {
+        "name": "Costa Rica Green Airways",
+        "code": "Costa Rica Green Airways",
+        "fleet": "GW / CRG"
+    },
+    {
+        "name": "Croatia Airlines",
+        "code": "Croatia Airlines",
+        "fleet": "OU / CTN"
+    },
+    {
+        "name": "Cronos Airlines",
+        "code": "Cronos Airlines",
+        "fleet": "C8 / CRA"
+    },
+    {
+        "name": "Crown Airlines",
+        "code": "Crown Airlines",
+        "fleet": "FQ / CWN"
+    },
+    {
+        "name": "Cubana",
+        "code": "Cubana",
+        "fleet": "CU / CUB"
+    },
+    {
+        "name": "Cyprus Airways",
+        "code": "Cyprus Airways",
+        "fleet": "CY / CYP"
+    },
+    {
+        "name": "Daallo Airlines",
+        "code": "Daallo Airlines",
+        "fleet": "D3 / DAO"
+    },
+    {
+        "name": "Dan Air",
+        "code": "Dan Air",
+        "fleet": "DN / DNA"
+    },
+    {
+        "name": "Dana Air",
+        "code": "Dana Air",
+        "fleet": "9J / DAN"
+    },
+    {
+        "name": "DAT",
+        "code": "DAT",
+        "fleet": "DX / DTR"
+    },
+    {
+        "name": "Delta Air Lines",
+        "code": "Delta Air Lines",
+        "fleet": "DL / DAL"
+    },
+    {
+        "name": "DHL Air",
+        "code": "DHL Air",
+        "fleet": "D0 / DHK"
+    },
+    {
+        "name": "Discover Airlines",
+        "code": "Discover Airlines",
+        "fleet": "4Y / OCN"
+    },
+    {
+        "name": "Divi Divi Air",
+        "code": "Divi Divi Air",
+        "fleet": "3R / DVR"
+    },
+    {
+        "name": "Donghai Airlines",
+        "code": "Donghai Airlines",
+        "fleet": "DZ / EPA"
+    },
+    {
+        "name": "Dornier Aviation Nigeria Aiep",
+        "code": "Dornier Aviation Nigeria Aiep",
+        "fleet": "DO / DAV"
+    },
+    {
+        "name": "DRF Luftrettung",
+        "code": "DRF Luftrettung",
+        "fleet": "1I / AMB"
+    },
+    {
+        "name": "Druk Air",
+        "code": "Druk Air",
+        "fleet": "KB / DRK"
+    },
+    {
+        "name": "E-Cargo Airlines",
+        "code": "E-Cargo Airlines",
+        "fleet": "RF / ERF"
+    },
+    {
+        "name": "Eastar Jet",
+        "code": "Eastar Jet",
+        "fleet": "ZE / ESR"
+    },
+    {
+        "name": "Eastern Airlines",
+        "code": "Eastern Airlines",
+        "fleet": "2D / EAL"
+    },
+    {
+        "name": "Eastern Airways",
+        "code": "Eastern Airways",
+        "fleet": "T3 / EZE"
+    },
+    {
+        "name": "Easy Charter",
+        "code": "Easy Charter",
+        "fleet": "RD / LOL"
+    },
+    {
+        "name": "easyJet",
+        "code": "easyJet",
+        "fleet": "U2 / EZY"
+    },
+    {
+        "name": "EcoJet",
+        "code": "EcoJet",
+        "fleet": "8J / ECO"
+    },
+    {
+        "name": "Edelweiss Air",
+        "code": "Edelweiss Air",
+        "fleet": "WK / EDW"
+    },
+    {
+        "name": "Egyptair",
+        "code": "Egyptair",
+        "fleet": "MS / MSR"
+    },
+    {
+        "name": "El Al",
+        "code": "El Al",
+        "fleet": "LY / ELY"
+    },
+    {
+        "name": "Electra Airways",
+        "code": "Electra Airways",
+        "fleet": "3E / EAF"
+    },
+    {
+        "name": "Elitavia Malta",
+        "code": "Elitavia Malta",
+        "fleet": "MA / EAU"
+    },
+    {
+        "name": "Elite Airways",
+        "code": "Elite Airways",
+        "fleet": "7Q / MNU"
+    },
+    {
+        "name": "Emirates",
+        "code": "Emirates",
+        "fleet": "EK / UAE"
+    },
+    {
+        "name": "Enter Air",
+        "code": "Enter Air",
+        "fleet": "E4 / ENT"
+    },
+    {
+        "name": "Estafeta",
+        "code": "Estafeta",
+        "fleet": "E7 / ESF"
+    },
+    {
+        "name": "Estelar",
+        "code": "Estelar",
+        "fleet": "ES / ETR"
+    },
+    {
+        "name": "Eswatini Air",
+        "code": "Eswatini Air",
+        "fleet": "RN / SZL"
+    },
+    {
+        "name": "ETF Airways",
+        "code": "ETF Airways",
+        "fleet": "2F / EZZ"
+    },
+    {
+        "name": "Ethiopian Airlines",
+        "code": "Ethiopian Airlines",
+        "fleet": "ET / ETH"
+    },
+    {
+        "name": "Etihad Airways",
+        "code": "Etihad Airways",
+        "fleet": "EY / ETD"
+    },
+    {
+        "name": "Euro-Asia Air",
+        "code": "Euro-Asia Air",
+        "fleet": "5B / EAK"
+    },
+    {
+        "name": "EuroAtlantic Airways",
+        "code": "EuroAtlantic Airways",
+        "fleet": "YU / MMZ"
+    },
+    {
+        "name": "Euroavia Airlines",
+        "code": "Euroavia Airlines",
+        "fleet": "M8 / SEB"
+    },
+    {
+        "name": "European Air Charter",
+        "code": "European Air Charter",
+        "fleet": "H6 / BUC"
+    },
+    {
+        "name": "European Cargo",
+        "code": "European Cargo",
+        "fleet": "SE / URO"
+    },
+    {
+        "name": "Eurowings",
+        "code": "Eurowings",
+        "fleet": "EW / EWG"
+    },
+    {
+        "name": "EVA Air",
+        "code": "EVA Air",
+        "fleet": "BR / EVA"
+    },
+    {
+        "name": "Everts Air Alaska",
+        "code": "Everts Air Alaska",
+        "fleet": "5V / VTS"
+    },
+    {
+        "name": "EWA Air",
+        "code": "EWA Air",
+        "fleet": "ZD / EWR"
+    },
+    {
+        "name": "Express Air Cargo",
+        "code": "Express Air Cargo",
+        "fleet": "7A / XRC"
+    },
+    {
+        "name": "Eznis Airways",
+        "code": "Eznis Airways",
+        "fleet": "MG / EZA"
+    },
+    {
+        "name": "Fanjet Express",
+        "code": "Fanjet Express",
+        "fleet": "7F / FJE"
+    },
+    {
+        "name": "Fastjet",
+        "code": "Fastjet",
+        "fleet": "FN / FJW"
+    },
+    {
+        "name": "Federal Airlines",
+        "code": "Federal Airlines",
+        "fleet": "C8 / FDR"
+    },
+    {
+        "name": "FedEx",
+        "code": "FedEx",
+        "fleet": "FX / FDX"
+    },
+    {
+        "name": "Fiji Airways",
+        "code": "Fiji Airways",
+        "fleet": "FJ / FJI"
+    },
+    {
+        "name": "Finnair",
+        "code": "Finnair",
+        "fleet": "AY / FIN"
+    },
+    {
+        "name": "Firefly",
+        "code": "Firefly",
+        "fleet": "FY / FFM"
+    },
+    {
+        "name": "FitsAir",
+        "code": "FitsAir",
+        "fleet": "8D / EXV"
+    },
+    {
+        "name": "Flair Airlines",
+        "code": "Flair Airlines",
+        "fleet": "F8 / FLE"
+    },
+    {
+        "name": "Flexflight",
+        "code": "Flexflight",
+        "fleet": "W2 / FXT"
+    },
+    {
+        "name": "Flightlink",
+        "code": "Flightlink",
+        "fleet": "YS / FLZ"
+    },
+    {
+        "name": "Fly AllWays",
+        "code": "Fly AllWays",
+        "fleet": "8W / EDR"
+    },
+    {
+        "name": "Fly Angola",
+        "code": "Fly Angola",
+        "fleet": "EQ / FLA"
+    },
+    {
+        "name": "Fly Baghdad",
+        "code": "Fly Baghdad",
+        "fleet": "IF / FBA"
+    },
+    {
+        "name": "Fly Jinnah",
+        "code": "Fly Jinnah",
+        "fleet": "9P / FJL"
+    },
+    {
+        "name": "Fly Khiva",
+        "code": "Fly Khiva",
+        "fleet": "2U / FKH"
+    },
+    {
+        "name": "Fly OYA",
+        "code": "Fly OYA",
+        "fleet": "YI / OYA"
+    },
+    {
+        "name": "Fly Pro",
+        "code": "Fly Pro",
+        "fleet": "FP / PVV"
+    },
+    {
+        "name": "Fly2Sky",
+        "code": "Fly2Sky",
+        "fleet": "F6 / VAW"
+    },
+    {
+        "name": "Fly4 Airlines",
+        "code": "Fly4 Airlines",
+        "fleet": "F4 / FFA"
+    },
+    {
+        "name": "Fly540",
+        "code": "Fly540",
+        "fleet": "5H / FFV"
+    },
+    {
+        "name": "Fly91",
+        "code": "Fly91",
+        "fleet": "IC / GOA"
+    },
+    {
+        "name": "flyadeal",
+        "code": "flyadeal",
+        "fleet": "F3 / FAD"
+    },
+    {
+        "name": "FlyArystan",
+        "code": "FlyArystan",
+        "fleet": "FS / AYN"
+    },
+    {
+        "name": "FlyBig",
+        "code": "FlyBig",
+        "fleet": "S9 / FLG"
+    },
+    {
+        "name": "Flybondi",
+        "code": "Flybondi",
+        "fleet": "FO / FBZ"
+    },
+    {
+        "name": "flydubai",
+        "code": "flydubai",
+        "fleet": "FZ / FDB"
+    },
+    {
+        "name": "FLYGTA Airlines",
+        "code": "FLYGTA Airlines",
+        "fleet": "SX / TOR"
+    },
+    {
+        "name": "Flylili",
+        "code": "Flylili",
+        "fleet": "FL / LIL"
+    },
+    {
+        "name": "FlyMe",
+        "code": "FlyMe",
+        "fleet": "VP / VQI"
+    },
+    {
+        "name": "FlyMontserrat",
+        "code": "FlyMontserrat",
+        "fleet": "5M / MNT"
+    },
+    {
+        "name": "FlyNamibia",
+        "code": "FlyNamibia",
+        "fleet": "WV / FLN"
+    },
+    {
+        "name": "flynas",
+        "code": "flynas",
+        "fleet": "XY / KNE"
+    },
+    {
+        "name": "FlyOne",
+        "code": "FlyOne",
+        "fleet": "5F / FIA"
+    },
+    {
+        "name": "FlyPelican",
+        "code": "FlyPelican",
+        "fleet": "FP / FRE"
+    },
+    {
+        "name": "FlySafair",
+        "code": "FlySafair",
+        "fleet": "FA / SFR"
+    },
+    {
+        "name": "Flyyo",
+        "code": "Flyyo",
+        "fleet": "4D / DIR"
+    },
+    {
+        "name": "Freebird Airlines",
+        "code": "Freebird Airlines",
+        "fleet": "FH / FHY"
+    },
+    {
+        "name": "Freedom Airline Express",
+        "code": "Freedom Airline Express",
+        "fleet": "4F / FDT"
+    },
+    {
+        "name": "French bee",
+        "code": "French bee",
+        "fleet": "BF / FBU"
+    },
+    {
+        "name": "Frontier Airlines",
+        "code": "Frontier Airlines",
+        "fleet": "F9 / FFT"
+    },
+    {
+        "name": "FTL Airlines",
+        "code": "FTL Airlines",
+        "fleet": "C0 / FGO"
+    },
+    {
+        "name": "Fuji Dream Airlines",
+        "code": "Fuji Dream Airlines",
+        "fleet": "JH / FDA"
+    },
+    {
+        "name": "Fuzhou Airlines",
+        "code": "Fuzhou Airlines",
+        "fleet": "FU / FZA"
+    },
+    {
+        "name": "Galistair Infinite Aviation",
+        "code": "Galistair Infinite Aviation",
+        "fleet": "8S / GTR"
+    },
+    {
+        "name": "Garuda Indonesia",
+        "code": "Garuda Indonesia",
+        "fleet": "GA / GIA"
+    },
+    {
+        "name": "Gazpromavia",
+        "code": "Gazpromavia",
+        "fleet": "4G / GZP"
+    },
+    {
+        "name": "Genghis Khan Airlines",
+        "code": "Genghis Khan Airlines",
+        "fleet": "9D / NMG"
+    },
+    {
+        "name": "Georgian Airlines",
+        "code": "Georgian Airlines",
+        "fleet": "GH / IGT"
+    },
+    {
+        "name": "Georgian Airways",
+        "code": "Georgian Airways",
+        "fleet": "A9 / TGZ"
+    },
+    {
+        "name": "Geosky",
+        "code": "Geosky",
+        "fleet": "D4 / GEL"
+    },
+    {
+        "name": "German Airways",
+        "code": "German Airways",
+        "fleet": "ZQ / GER"
+    },
+    {
+        "name": "Getjet Airlines",
+        "code": "Getjet Airlines",
+        "fleet": "GW / GJT"
+    },
+    {
+        "name": "Ghadames Air Transport",
+        "code": "Ghadames Air Transport",
+        "fleet": "NJ / GMS"
+    },
+    {
+        "name": "Global Air Transport",
+        "code": "Global Air Transport",
+        "fleet": "5S / GAK"
+    },
+    {
+        "name": "GlobalX",
+        "code": "GlobalX",
+        "fleet": "G6 / GXA"
+    },
+    {
+        "name": "Go First",
+        "code": "Go First",
+        "fleet": "G8 / GOW"
+    },
+    {
+        "name": "Go2Sky",
+        "code": "Go2Sky",
+        "fleet": "6G / RLX"
+    },
+    {
+        "name": "GOL Linhas Aereas",
+        "code": "GOL Linhas Aereas",
+        "fleet": "G3 / GLO"
+    },
+    {
+        "name": "GP Aviation",
+        "code": "GP Aviation",
+        "fleet": "IV / GPX"
+    },
+    {
+        "name": "Grand Canyon Airlines",
+        "code": "Grand Canyon Airlines",
+        "fleet": "YR / CVU"
+    },
+    {
+        "name": "Grand China Air",
+        "code": "Grand China Air",
+        "fleet": "CN / GDC"
+    },
+    {
+        "name": "Grant Aviation",
+        "code": "Grant Aviation",
+        "fleet": "GV / GUN"
+    },
+    {
+        "name": "Greater Bay Airlines",
+        "code": "Greater Bay Airlines",
+        "fleet": "HB / HGB"
+    },
+    {
+        "name": "Green Africa Airways",
+        "code": "Green Africa Airways",
+        "fleet": "Q9 / GWG"
+    },
+    {
+        "name": "Gulf Air",
+        "code": "Gulf Air",
+        "fleet": "GF / GFA"
+    },
+    {
+        "name": "GullivAir",
+        "code": "GullivAir",
+        "fleet": "G2 / GBG"
+    },
+    {
+        "name": "GX Airlines",
+        "code": "GX Airlines",
+        "fleet": "GX / CBG"
+    },
+    {
+        "name": "Hahn Air",
+        "code": "Hahn Air",
+        "fleet": "HR / HHN"
+    },
+    {
+        "name": "Hainan Airlines",
+        "code": "Hainan Airlines",
+        "fleet": "HU / CHH"
+    },
+    {
+        "name": "Hala Air",
+        "code": "Hala Air",
+        "fleet": "HG / HTP"
+    },
+    {
+        "name": "Hawaiian Airlines",
+        "code": "Hawaiian Airlines",
+        "fleet": "HA / HAL"
+    },
+    {
+        "name": "Hayways",
+        "code": "Hayways",
+        "fleet": "Y5 / HYY"
+    },
+    {
+        "name": "Hebei Airlines",
+        "code": "Hebei Airlines",
+        "fleet": "NS / HBH"
+    },
+    {
+        "name": "Heli Air Monaco",
+        "code": "Heli Air Monaco",
+        "fleet": "YO / MCM"
+    },
+    {
+        "name": "Heli Securite",
+        "code": "Heli Securite",
+        "fleet": "HS / HLI"
+    },
+    {
+        "name": "Hello Jets",
+        "code": "Hello Jets",
+        "fleet": "H3 / HLJ"
+    },
+    {
+        "name": "Helvetic Airways",
+        "code": "Helvetic Airways",
+        "fleet": "2L / OAW"
+    },
+    {
+        "name": "Heston Airlines",
+        "code": "Heston Airlines",
+        "fleet": "HN / HST"
+    },
+    {
+        "name": "Hi Fly",
+        "code": "Hi Fly",
+        "fleet": "5K / HFY"
+    },
+    {
+        "name": "Himalaya Airlines",
+        "code": "Himalaya Airlines",
+        "fleet": "H9 / HIM"
+    },
+    {
+        "name": "Hinterland Aviation",
+        "code": "Hinterland Aviation",
+        "fleet": "OI / HND"
+    },
+    {
+        "name": "HiSky",
+        "code": "HiSky",
+        "fleet": "H7 / HYM"
+    },
+    {
+        "name": "HK express",
+        "code": "HK express",
+        "fleet": "UO / HKE"
+    },
+    {
+        "name": "Hong Kong Air Cargo",
+        "code": "Hong Kong Air Cargo",
+        "fleet": "RH / HKC"
+    },
+    {
+        "name": "Hong Kong Airlines",
+        "code": "Hong Kong Airlines",
+        "fleet": "HX / CRK"
+    },
+    {
+        "name": "Hunnu Air",
+        "code": "Hunnu Air",
+        "fleet": "MR / MML"
+    },
+    {
+        "name": "Hydro-Québec",
+        "code": "Hydro-Québec",
+        "fleet": "0Q / HYD"
+    },
+    {
+        "name": "I-Fly",
+        "code": "I-Fly",
+        "fleet": "F7 / RSY"
+    },
+    {
+        "name": "IBC Airways",
+        "code": "IBC Airways",
+        "fleet": "II / CSQ"
+    },
+    {
+        "name": "Iberia",
+        "code": "Iberia",
+        "fleet": "IB / IBE"
+    },
+    {
+        "name": "Iberia Express",
+        "code": "Iberia Express",
+        "fleet": "I2 / IBS"
+    },
+    {
+        "name": "Iberojet",
+        "code": "Iberojet",
+        "fleet": "E9 / EVE"
+    },
+    {
+        "name": "Ibex Airlines",
+        "code": "Ibex Airlines",
+        "fleet": "FW / IBX"
+    },
+    {
+        "name": "Ibom Air",
+        "code": "Ibom Air",
+        "fleet": "QI / IAN"
+    },
+    {
+        "name": "Icelandair",
+        "code": "Icelandair",
+        "fleet": "FI / ICE"
+    },
+    {
+        "name": "Ikar",
+        "code": "Ikar",
+        "fleet": "EO / KAR"
+    },
+    {
+        "name": "IndiaOne Air",
+        "code": "IndiaOne Air",
+        "fleet": "I7 / IOA"
+    },
+    {
+        "name": "IndiGo",
+        "code": "IndiGo",
+        "fleet": "6E / IGO"
+    },
+    {
+        "name": "InterCaribbean Airways",
+        "code": "InterCaribbean Airways",
+        "fleet": "JY / IWY"
+    },
+    {
+        "name": "InterJet West",
+        "code": "InterJet West",
+        "fleet": "K8 / IJW"
+    },
+    {
+        "name": "IrAero",
+        "code": "IrAero",
+        "fleet": "IO / IAE"
+    },
+    {
+        "name": "Iran Air",
+        "code": "Iran Air",
+        "fleet": "IR / IRA"
+    },
+    {
+        "name": "Iran Airtour",
+        "code": "Iran Airtour",
+        "fleet": "B9 / IRB"
+    },
+    {
+        "name": "Iran Aseman Airlines",
+        "code": "Iran Aseman Airlines",
+        "fleet": "EP / IRC"
+    },
+    {
+        "name": "Iraqi Airways",
+        "code": "Iraqi Airways",
+        "fleet": "IA / IAW"
+    },
+    {
+        "name": "Israir Airlines",
+        "code": "Israir Airlines",
+        "fleet": "6H / ISR"
+    },
+    {
+        "name": "ITA Airways",
+        "code": "ITA Airways",
+        "fleet": "AZ / ITY"
+    },
+    {
+        "name": "Izhavia",
+        "code": "Izhavia",
+        "fleet": "I8 / IZA"
+    },
+    {
+        "name": "Jambojet",
+        "code": "Jambojet",
+        "fleet": "JM / JMA"
+    },
+    {
+        "name": "Japan Air Commuter",
+        "code": "Japan Air Commuter",
+        "fleet": "JC / JAC"
+    },
+    {
+        "name": "Japan Airlines",
+        "code": "Japan Airlines",
+        "fleet": "JL / JAL"
+    },
+    {
+        "name": "Japan Transocean Air",
+        "code": "Japan Transocean Air",
+        "fleet": "NU / JTA"
+    },
+    {
+        "name": "Jazeera Airways",
+        "code": "Jazeera Airways",
+        "fleet": "J9 / JZR"
+    },
+    {
+        "name": "JDL Airlines",
+        "code": "JDL Airlines",
+        "fleet": "JG / JDL"
+    },
+    {
+        "name": "Jeju Air",
+        "code": "Jeju Air",
+        "fleet": "7C / JJA"
+    },
+    {
+        "name": "Jet Aviation Business Jets",
+        "code": "Jet Aviation Business Jets",
+        "fleet": "PP / PJS"
+    },
+    {
+        "name": "Jet Linx Aviation",
+        "code": "Jet Linx Aviation",
+        "fleet": "JL / JTL"
+    },
+    {
+        "name": "Jet Sky Airways",
+        "code": "Jet Sky Airways",
+        "fleet": "JK / JTK"
+    },
+    {
+        "name": "Jet2",
+        "code": "Jet2",
+        "fleet": "LS / EXS"
+    },
+    {
+        "name": "JetBlue",
+        "code": "JetBlue",
+        "fleet": "B6 / JBU"
+    },
+    {
+        "name": "JetSMART",
+        "code": "JetSMART",
+        "fleet": "JA / JAT"
+    },
+    {
+        "name": "Jetstar",
+        "code": "Jetstar",
+        "fleet": "JQ / JST"
+    },
+    {
+        "name": "Jetstar Asia",
+        "code": "Jetstar Asia",
+        "fleet": "3K / JSA"
+    },
+    {
+        "name": "Jettime",
+        "code": "Jettime",
+        "fleet": "JP / JTD"
+    },
+    {
+        "name": "Jetways Airlines",
+        "code": "Jetways Airlines",
+        "fleet": "WU / JWX"
+    },
+    {
+        "name": "Jiangxi Air",
+        "code": "Jiangxi Air",
+        "fleet": "RY / CJX"
+    },
+    {
+        "name": "Jin Air",
+        "code": "Jin Air",
+        "fleet": "LJ / JNA"
+    },
+    {
+        "name": "Jordan Aviation",
+        "code": "Jordan Aviation",
+        "fleet": "R5 / JAV"
+    },
+    {
+        "name": "JoyAir",
+        "code": "JoyAir",
+        "fleet": "JR / JOY"
+    },
+    {
+        "name": "JSX",
+        "code": "JSX",
+        "fleet": "XE / JSX"
+    },
+    {
+        "name": "Juneyao Air",
+        "code": "Juneyao Air",
+        "fleet": "HO / DKH"
+    },
+    {
+        "name": "K-Mile Air",
+        "code": "K-Mile Air",
+        "fleet": "8K / KMI"
+    },
+    {
+        "name": "Kalitta Air",
+        "code": "Kalitta Air",
+        "fleet": "K4 / CKS"
+    },
+    {
+        "name": "Kalitta Charters",
+        "code": "Kalitta Charters",
+        "fleet": "K9 / KFS"
+    },
+    {
+        "name": "Kalitta Charters II",
+        "code": "Kalitta Charters II",
+        "fleet": "K5 / KII"
+    },
+    {
+        "name": "Kam Air",
+        "code": "Kam Air",
+        "fleet": "RQ / KMF"
+    },
+    {
+        "name": "Keewatin Air",
+        "code": "Keewatin Air",
+        "fleet": "FK / KEW"
+    },
+    {
+        "name": "Kelowna Flightcraft Air",
+        "code": "Kelowna Flightcraft Air",
+        "fleet": "FK / KFA"
+    },
+    {
+        "name": "Kenmore Air",
+        "code": "Kenmore Air",
+        "fleet": "M5 / KEN"
+    },
+    {
+        "name": "Kenn Borek Air",
+        "code": "Kenn Borek Air",
+        "fleet": "4K / KBA"
+    },
+    {
+        "name": "Kenya Airways",
+        "code": "Kenya Airways",
+        "fleet": "KQ / KQA"
+    },
+    {
+        "name": "Key Lime Air",
+        "code": "Key Lime Air",
+        "fleet": "KG / LYM"
+    },
+    {
+        "name": "KLM",
+        "code": "KLM",
+        "fleet": "KL / KLM"
+    },
+    {
+        "name": "KM Malta Airlines",
+        "code": "KM Malta Airlines",
+        "fleet": "KM / KMM"
+    },
+    {
+        "name": "Korean Air",
+        "code": "Korean Air",
+        "fleet": "KE / KAL"
+    },
+    {
+        "name": "Krasavia",
+        "code": "Krasavia",
+        "fleet": "KV / SSJ"
+    },
+    {
+        "name": "Kunming Airlines",
+        "code": "Kunming Airlines",
+        "fleet": "KY / KNA"
+    },
+    {
+        "name": "Kuwait Airways",
+        "code": "Kuwait Airways",
+        "fleet": "KU / KAC"
+    },
+    {
+        "name": "La Compagnie",
+        "code": "La Compagnie",
+        "fleet": "B0 / DJT"
+    },
+    {
+        "name": "La Costena",
+        "code": "La Costena",
+        "fleet": "LC / NIS"
+    },
+    {
+        "name": "LAM",
+        "code": "LAM",
+        "fleet": "TM / LAM"
+    },
+    {
+        "name": "Lao Airlines",
+        "code": "Lao Airlines",
+        "fleet": "QV / LAO"
+    },
+    {
+        "name": "Lao Skyway",
+        "code": "Lao Skyway",
+        "fleet": "LK / LLL"
+    },
+    {
+        "name": "LAS Cargo",
+        "code": "LAS Cargo",
+        "fleet": "4L / LAU"
+    },
+    {
+        "name": "Laser Airlines",
+        "code": "Laser Airlines",
+        "fleet": "QL / LER"
+    },
+    {
+        "name": "LATAM Airlines",
+        "code": "LATAM Airlines",
+        "fleet": "LA / LAN"
+    },
+    {
+        "name": "LATAM Cargo",
+        "code": "LATAM Cargo",
+        "fleet": "UC / LCO"
+    },
+    {
+        "name": "Lauda Europe",
+        "code": "Lauda Europe",
+        "fleet": "LW / LDA"
+    },
+    {
+        "name": "LEAV Aviation",
+        "code": "LEAV Aviation",
+        "fleet": "KK / NGN"
+    },
+    {
+        "name": "Legend Airlines",
+        "code": "Legend Airlines",
+        "fleet": "LZ / LAL"
+    },
+    {
+        "name": "Level",
+        "code": "Level",
+        "fleet": "LL / LVL"
+    },
+    {
+        "name": "Libyan Airlines",
+        "code": "Libyan Airlines",
+        "fleet": "LN / LAA"
+    },
+    {
+        "name": "Libyan Wings",
+        "code": "Libyan Wings",
+        "fleet": "YL / LWA"
+    },
+    {
+        "name": "Lift",
+        "code": "Lift",
+        "fleet": "GE / GBB"
+    },
+    {
+        "name": "Linkasia",
+        "code": "Linkasia",
+        "fleet": "9L / LAI"
+    },
+    {
+        "name": "Lion Air",
+        "code": "Lion Air",
+        "fleet": "JT / LNI"
+    },
+    {
+        "name": "Lipican Aer",
+        "code": "Lipican Aer",
+        "fleet": "8I / LIP"
+    },
+    {
+        "name": "Liz Aviation",
+        "code": "Liz Aviation",
+        "fleet": "L0 / LAZ"
+    },
+    {
+        "name": "Loganair",
+        "code": "Loganair",
+        "fleet": "LM / LOG"
+    },
+    {
+        "name": "LongJiang Airlines",
+        "code": "LongJiang Airlines",
+        "fleet": "LT / SNG"
+    },
+    {
+        "name": "Longtail Aviation",
+        "code": "Longtail Aviation",
+        "fleet": "6T / LGT"
+    },
+    {
+        "name": "Loong Air",
+        "code": "Loong Air",
+        "fleet": "GJ / CDC"
+    },
+    {
+        "name": "LOT",
+        "code": "LOT",
+        "fleet": "LO / LOT"
+    },
+    {
+        "name": "Lucky Air",
+        "code": "Lucky Air",
+        "fleet": "8L / LKE"
+    },
+    {
+        "name": "Lufthansa",
+        "code": "Lufthansa",
+        "fleet": "LH / DLH"
+    },
+    {
+        "name": "Lufthansa City",
+        "code": "Lufthansa City",
+        "fleet": "VL / LHX"
+    },
+    {
+        "name": "Lumiwings",
+        "code": "Lumiwings",
+        "fleet": "L9 / LWI"
+    },
+    {
+        "name": "Luxair",
+        "code": "Luxair",
+        "fleet": "LG / LGL"
+    },
+    {
+        "name": "Luxwing",
+        "code": "Luxwing",
+        "fleet": "BN / LWG"
+    },
+    {
+        "name": "Lynden Air Cargo",
+        "code": "Lynden Air Cargo",
+        "fleet": "L2 / LYC"
+    },
+    {
+        "name": "MAE Aircraft Management",
+        "code": "MAE Aircraft Management",
+        "fleet": "MA / MEN"
+    },
+    {
+        "name": "Maersk Air Cargo",
+        "code": "Maersk Air Cargo",
+        "fleet": "DJ / SRR"
+    },
+    {
+        "name": "Magnicharters",
+        "code": "Magnicharters",
+        "fleet": "UJ / GMT"
+    },
+    {
+        "name": "Mahan Air",
+        "code": "Mahan Air",
+        "fleet": "W5 / IRM"
+    },
+    {
+        "name": "Malawi Airlines",
+        "code": "Malawi Airlines",
+        "fleet": "3W / MWI"
+    },
+    {
+        "name": "Malaysia Airlines",
+        "code": "Malaysia Airlines",
+        "fleet": "MH / MAS"
+    },
+    {
+        "name": "Maldivian",
+        "code": "Maldivian",
+        "fleet": "Q2 / DQA"
+    },
+    {
+        "name": "Maleth-Aero",
+        "code": "Maleth-Aero",
+        "fleet": "DB / MLT"
+    },
+    {
+        "name": "Malta Air",
+        "code": "Malta Air",
+        "fleet": "MW / MAY"
+    },
+    {
+        "name": "Malta MedAir",
+        "code": "Malta MedAir",
+        "fleet": "MT / MMO"
+    },
+    {
+        "name": "Manasik Aviation",
+        "code": "Manasik Aviation",
+        "fleet": "XN / MNM"
+    },
+    {
+        "name": "Mandarin Airlines",
+        "code": "Mandarin Airlines",
+        "fleet": "AE / MDA"
+    },
+    {
+        "name": "Mann Yadanarpon Airlines",
+        "code": "Mann Yadanarpon Airlines",
+        "fleet": "7Y / MYP"
+    },
+    {
+        "name": "Manta Air",
+        "code": "Manta Air",
+        "fleet": "NR / MAV"
+    },
+    {
+        "name": "Map Linhas Aereas",
+        "code": "Map Linhas Aereas",
+        "fleet": "7M / PAM"
+    },
+    {
+        "name": "Marabu",
+        "code": "Marabu",
+        "fleet": "DI / MBU"
+    },
+    {
+        "name": "Marathon Airlines",
+        "code": "Marathon Airlines",
+        "fleet": "O8 / MTO"
+    },
+    {
+        "name": "Martinair",
+        "code": "Martinair",
+        "fleet": "MP / MPH"
+    },
+    {
+        "name": "mas",
+        "code": "mas",
+        "fleet": "M7 / MAA"
+    },
+    {
+        "name": "MASwings",
+        "code": "MASwings",
+        "fleet": "MY / MWG"
+    },
+    {
+        "name": "Mauritania Airlines",
+        "code": "Mauritania Airlines",
+        "fleet": "L6 / MAI"
+    },
+    {
+        "name": "Mavi Gök Airlines",
+        "code": "Mavi Gök Airlines",
+        "fleet": "4M / MGH"
+    },
+    {
+        "name": "Max Air",
+        "code": "Max Air",
+        "fleet": "VM / NGL"
+    },
+    {
+        "name": "Maximus Airlines",
+        "code": "Maximus Airlines",
+        "fleet": "6M / MXM"
+    },
+    {
+        "name": "Maya Island Air",
+        "code": "Maya Island Air",
+        "fleet": "2M / MYD"
+    },
+    {
+        "name": "MEA",
+        "code": "MEA",
+        "fleet": "ME / MEA"
+    },
+    {
+        "name": "Medsky Airways",
+        "code": "Medsky Airways",
+        "fleet": "BM / MNS"
+    },
+    {
+        "name": "Mesa Airlines",
+        "code": "Mesa Airlines",
+        "fleet": "YV / ASH"
+    },
+    {
+        "name": "Mexicana",
+        "code": "Mexicana",
+        "fleet": "XN / MXA"
+    },
+    {
+        "name": "MHS Aviation",
+        "code": "MHS Aviation",
+        "fleet": "M2 / MHV"
+    },
+    {
+        "name": "MIAT Mongolian Airlines",
+        "code": "MIAT Mongolian Airlines",
+        "fleet": "OM / MGL"
+    },
+    {
+        "name": "Mingalar",
+        "code": "Mingalar",
+        "fleet": "K7 / KBZ"
+    },
+    {
+        "name": "MJets Air",
+        "code": "MJets Air",
+        "fleet": "WW / KXP"
+    },
+    {
+        "name": "MNG Airlines",
+        "code": "MNG Airlines",
+        "fleet": "MB / MNB"
+    },
+    {
+        "name": "Modern Logistics",
+        "code": "Modern Logistics",
+        "fleet": "WD / MWM"
+    },
+    {
+        "name": "Monacair",
+        "code": "Monacair",
+        "fleet": "QM / MCR"
+    },
+    {
+        "name": "Mongolian Airways",
+        "code": "Mongolian Airways",
+        "fleet": "XF / MGW"
+    },
+    {
+        "name": "Motor Sich Airlines",
+        "code": "Motor Sich Airlines",
+        "fleet": "M9 / MSI"
+    },
+    {
+        "name": "My Freighter",
+        "code": "My Freighter",
+        "fleet": "C6 / MFX"
+    },
+    {
+        "name": "My Indo Airlines",
+        "code": "My Indo Airlines",
+        "fleet": "2Y / MYU"
+    },
+    {
+        "name": "Myanmar Airways International",
+        "code": "Myanmar Airways International",
+        "fleet": "8M / MMA"
+    },
+    {
+        "name": "Myanmar National Airlines",
+        "code": "Myanmar National Airlines",
+        "fleet": "UB / UBA"
+    },
+    {
+        "name": "MyWay Airlines",
+        "code": "MyWay Airlines",
+        "fleet": "MJ / MYW"
+    },
+    {
+        "name": "Nam Air",
+        "code": "Nam Air",
+        "fleet": "IN / LKN"
+    },
+    {
+        "name": "National Jet Express",
+        "code": "National Jet Express",
+        "fleet": "NC / JTE"
+    },
+    {
+        "name": "Nauru Airlines",
+        "code": "Nauru Airlines",
+        "fleet": "ON / RON"
+    },
+    {
+        "name": "Neos",
+        "code": "Neos",
+        "fleet": "NO / NOS"
+    },
+    {
+        "name": "Nepal Airlines",
+        "code": "Nepal Airlines",
+        "fleet": "RA / RNA"
+    },
+    {
+        "name": "Nesma Airlines",
+        "code": "Nesma Airlines",
+        "fleet": "NE / NMA"
+    },
+    {
+        "name": "New England Airlines",
+        "code": "New England Airlines",
+        "fleet": "EJ / NEA"
+    },
+    {
+        "name": "New Pacific Airlines",
+        "code": "New Pacific Airlines",
+        "fleet": "7H / RVF"
+    },
+    {
+        "name": "New Way Cargo Airlines",
+        "code": "New Way Cargo Airlines",
+        "fleet": "NU / NWY"
+    },
+    {
+        "name": "NG Eagle",
+        "code": "NG Eagle",
+        "fleet": "2N / XLE"
+    },
+    {
+        "name": "Nile Air",
+        "code": "Nile Air",
+        "fleet": "NP / NIA"
+    },
+    {
+        "name": "Nippon Cargo Airlines",
+        "code": "Nippon Cargo Airlines",
+        "fleet": "KZ / NCA"
+    },
+    {
+        "name": "Nok Air",
+        "code": "Nok Air",
+        "fleet": "DD / NOK"
+    },
+    {
+        "name": "Nolinor Aviation",
+        "code": "Nolinor Aviation",
+        "fleet": "N5 / NRL"
+    },
+    {
+        "name": "NordStar",
+        "code": "NordStar",
+        "fleet": "Y7 / TYA"
+    },
+    {
+        "name": "Nordwind Airlines",
+        "code": "Nordwind Airlines",
+        "fleet": "N4 / NWS"
+    },
+    {
+        "name": "Norse",
+        "code": "Norse",
+        "fleet": "N0 / NBT"
+    },
+    {
+        "name": "North-West Air Company",
+        "code": "North-West Air Company",
+        "fleet": "0E / NWC"
+    },
+    {
+        "name": "North-Western Cargo International Airlines",
+        "code": "North-Western Cargo International Airlines",
+        "fleet": "CO / CNW"
+    },
+    {
+        "name": "North-Wright Airways",
+        "code": "North-Wright Airways",
+        "fleet": "HW / NWL"
+    },
+    {
+        "name": "Northern Air Cargo",
+        "code": "Northern Air Cargo",
+        "fleet": "NC / NAC"
+    },
+    {
+        "name": "Northwestern Air",
+        "code": "Northwestern Air",
+        "fleet": "J3 / PLR"
+    },
+    {
+        "name": "Norwegian",
+        "code": "Norwegian",
+        "fleet": "DY / NOZ"
+    },
+    {
+        "name": "Nouvelair",
+        "code": "Nouvelair",
+        "fleet": "BJ / LBT"
+    },
+    {
+        "name": "Novair",
+        "code": "Novair",
+        "fleet": "NG / NAI"
+    },
+    {
+        "name": "Novoair",
+        "code": "Novoair",
+        "fleet": "VQ / NVQ"
+    },
+    {
+        "name": "Nyxair",
+        "code": "Nyxair",
+        "fleet": "OJ / NYX"
+    },
+    {
+        "name": "Okay Airways",
+        "code": "Okay Airways",
+        "fleet": "BK / OKA"
+    },
+    {
+        "name": "Olympic Air",
+        "code": "Olympic Air",
+        "fleet": "OA / OAL"
+    },
+    {
+        "name": "Oman Air",
+        "code": "Oman Air",
+        "fleet": "WY / OMA"
+    },
+    {
+        "name": "One Air",
+        "code": "One Air",
+        "fleet": "HC / HGO"
+    },
+    {
+        "name": "Oriental Air Bridge",
+        "code": "Oriental Air Bridge",
+        "fleet": "OC / ORC"
+    },
+    {
+        "name": "Origin Air",
+        "code": "Origin Air",
+        "fleet": "OG / OGN"
+    },
+    {
+        "name": "Overland Airways",
+        "code": "Overland Airways",
+        "fleet": "OF / OLA"
+    },
+    {
+        "name": "Pacific Coastal Airlines",
+        "code": "Pacific Coastal Airlines",
+        "fleet": "8P / PCO"
+    },
+    {
+        "name": "Pakistan International Airlines",
+        "code": "Pakistan International Airlines",
+        "fleet": "PK / PIA"
+    },
+    {
+        "name": "PAL Airlines",
+        "code": "PAL Airlines",
+        "fleet": "PB / PVL"
+    },
+    {
+        "name": "Panorama Airways",
+        "code": "Panorama Airways",
+        "fleet": "5P / UZP"
+    },
+    {
+        "name": "Paranair",
+        "code": "Paranair",
+        "fleet": "ZP / AZP"
+    },
+    {
+        "name": "Pascan Aviation",
+        "code": "Pascan Aviation",
+        "fleet": "P6 / PSC"
+    },
+    {
+        "name": "PassionAir",
+        "code": "PassionAir",
+        "fleet": "OP / DIG"
+    },
+    {
+        "name": "Pattaya Airways",
+        "code": "Pattaya Airways",
+        "fleet": "VV / PTW"
+    },
+    {
+        "name": "Peach",
+        "code": "Peach",
+        "fleet": "MM / APJ"
+    },
+    {
+        "name": "Pecotox Air",
+        "code": "Pecotox Air",
+        "fleet": "P3 / PXA"
+    },
+    {
+        "name": "Pegasus",
+        "code": "Pegasus",
+        "fleet": "PC / PGT"
+    },
+    {
+        "name": "Pelita Air",
+        "code": "Pelita Air",
+        "fleet": "IP / PAS"
+    },
+    {
+        "name": "People's",
+        "code": "People's",
+        "fleet": "PE / PEV"
+    },
+    {
+        "name": "Perimeter Aviation",
+        "code": "Perimeter Aviation",
+        "fleet": "YP / PAG"
+    },
+    {
+        "name": "Petroleum Air Service",
+        "code": "Petroleum Air Service",
+        "fleet": "UF / PER"
+    },
+    {
+        "name": "Philippine Airlines",
+        "code": "Philippine Airlines",
+        "fleet": "PR / PAL"
+    },
+    {
+        "name": "Phoenix Air",
+        "code": "Phoenix Air",
+        "fleet": "PH / GRB"
+    },
+    {
+        "name": "Pivot Airlines",
+        "code": "Pivot Airlines",
+        "fleet": "ZX / GGN"
+    },
+    {
+        "name": "Play",
+        "code": "Play",
+        "fleet": "OG / FPY"
+    },
+    {
+        "name": "Plus Ultra",
+        "code": "Plus Ultra",
+        "fleet": "PU / PUE"
+    },
+    {
+        "name": "PNG Air",
+        "code": "PNG Air",
+        "fleet": "CG / TOK"
+    },
+    {
+        "name": "Pobeda",
+        "code": "Pobeda",
+        "fleet": "DP / PBD"
+    },
+    {
+        "name": "Polar Airlines",
+        "code": "Polar Airlines",
+        "fleet": "PI / RKA"
+    },
+    {
+        "name": "populAir",
+        "code": "populAir",
+        "fleet": "HP / APF"
+    },
+    {
+        "name": "Porter",
+        "code": "Porter",
+        "fleet": "P3 / PTR"
+    },
+    {
+        "name": "Poste Air Cargo",
+        "code": "Poste Air Cargo",
+        "fleet": "M4 / MSA"
+    },
+    {
+        "name": "Pradhaan Air Express",
+        "code": "Pradhaan Air Express",
+        "fleet": "6P / PRX"
+    },
+    {
+        "name": "Precision Air",
+        "code": "Precision Air",
+        "fleet": "PW / PRF"
+    },
+    {
+        "name": "Private Wings",
+        "code": "Private Wings",
+        "fleet": "JW / PWF"
+    },
+    {
+        "name": "Privilege Style",
+        "code": "Privilege Style",
+        "fleet": "P6 / PVG"
+    },
+    {
+        "name": "Proflight Zambia",
+        "code": "Proflight Zambia",
+        "fleet": "P0 / PFZ"
+    },
+    {
+        "name": "Propair",
+        "code": "Propair",
+        "fleet": "PP / PRO"
+    },
+    {
+        "name": "Qanot Sharq",
+        "code": "Qanot Sharq",
+        "fleet": "HH / QNT"
+    },
+    {
+        "name": "Qantas",
+        "code": "Qantas",
+        "fleet": "QF / QFA"
+    },
+    {
+        "name": "Qatar Airways",
+        "code": "Qatar Airways",
+        "fleet": "QR / QTR"
+    },
+    {
+        "name": "Qatar Executive",
+        "code": "Qatar Executive",
+        "fleet": "QE / QQE"
+    },
+    {
+        "name": "Qazaq Air",
+        "code": "Qazaq Air",
+        "fleet": "IQ / QAZ"
+    },
+    {
+        "name": "Qeshm Airlines",
+        "code": "Qeshm Airlines",
+        "fleet": "QB / QSM"
+    },
+    {
+        "name": "Qingdao Airlines",
+        "code": "Qingdao Airlines",
+        "fleet": "QW / QDA"
+    },
+    {
+        "name": "Quikjet Cargo Airlines",
+        "code": "Quikjet Cargo Airlines",
+        "fleet": "QO / FQA"
+    },
+    {
+        "name": "RAF-Avia",
+        "code": "RAF-Avia",
+        "fleet": "MT / MTL"
+    },
+    {
+        "name": "Rano Air",
+        "code": "Rano Air",
+        "fleet": "R4 / RAN"
+    },
+    {
+        "name": "Raya Airways",
+        "code": "Raya Airways",
+        "fleet": "TH / RMY"
+    },
+    {
+        "name": "RED Air",
+        "code": "RED Air",
+        "fleet": "L5 / REA"
+    },
+    {
+        "name": "Red Sea Airlines",
+        "code": "Red Sea Airlines",
+        "fleet": "4S / RSX"
+    },
+    {
+        "name": "Red Wings",
+        "code": "Red Wings",
+        "fleet": "WZ / RWZ"
+    },
+    {
+        "name": "Republic Airways",
+        "code": "Republic Airways",
+        "fleet": "YX / RPA"
+    },
+    {
+        "name": "rex. Regional Express",
+        "code": "rex. Regional Express",
+        "fleet": "ZL / RXA"
+    },
+    {
+        "name": "Rimbun Air",
+        "code": "Rimbun Air",
+        "fleet": "RI / OEY"
+    },
+    {
+        "name": "RiseAir",
+        "code": "RiseAir",
+        "fleet": "4T / WEW"
+    },
+    {
+        "name": "Rossiya",
+        "code": "Rossiya",
+        "fleet": "FV / SDM"
+    },
+    {
+        "name": "Rotana Jet",
+        "code": "Rotana Jet",
+        "fleet": "RG / RJD"
+    },
+    {
+        "name": "Royal Air Maroc",
+        "code": "Royal Air Maroc",
+        "fleet": "AT / RAM"
+    },
+    {
+        "name": "Royal Brunei Airlines",
+        "code": "Royal Brunei Airlines",
+        "fleet": "BI / RBA"
+    },
+    {
+        "name": "Royal Jordanian",
+        "code": "Royal Jordanian",
+        "fleet": "RJ / RJA"
+    },
+    {
+        "name": "Royalair Philippines",
+        "code": "Royalair Philippines",
+        "fleet": "RW / RYL"
+    },
+    {
+        "name": "Ruili Airlines",
+        "code": "Ruili Airlines",
+        "fleet": "DR / RLH"
+    },
+    {
+        "name": "Rusline",
+        "code": "Rusline",
+        "fleet": "7R / RLU"
+    },
+    {
+        "name": "Rutaca Airlines",
+        "code": "Rutaca Airlines",
+        "fleet": "5R / RUC"
+    },
+    {
+        "name": "RwandAir",
+        "code": "RwandAir",
+        "fleet": "WB / RWD"
+    },
+    {
+        "name": "Ryan Air (USA)",
+        "code": "Ryan Air (USA)",
+        "fleet": "7S / RYA"
+    },
+    {
+        "name": "Ryanair",
+        "code": "Ryanair",
+        "fleet": "FR / RYR"
+    },
+    {
+        "name": "S7 Airlines",
+        "code": "S7 Airlines",
+        "fleet": "S7 / SBI"
+    },
+    {
+        "name": "Safarilink Aviation",
+        "code": "Safarilink Aviation",
+        "fleet": "F2 / XLK"
+    },
+    {
+        "name": "SalamAir",
+        "code": "SalamAir",
+        "fleet": "OV / OMS"
+    },
+    {
+        "name": "Samoa Airways",
+        "code": "Samoa Airways",
+        "fleet": "OL / PAO"
+    },
+    {
+        "name": "Sansa",
+        "code": "Sansa",
+        "fleet": "RZ / LRS"
+    },
+    {
+        "name": "Sapsan Airline",
+        "code": "Sapsan Airline",
+        "fleet": "S2 / KGB"
+    },
+    {
+        "name": "SAS",
+        "code": "SAS",
+        "fleet": "SK / SAS"
+    },
+    {
+        "name": "SATA Air Acores",
+        "code": "SATA Air Acores",
+        "fleet": "SP / SAT"
+    },
+    {
+        "name": "SATENA",
+        "code": "SATENA",
+        "fleet": "9R / NSE"
+    },
+    {
+        "name": "Saudia",
+        "code": "Saudia",
+        "fleet": "SV / SVA"
+    },
+    {
+        "name": "SCAT",
+        "code": "SCAT",
+        "fleet": "DV / VSV"
+    },
+    {
+        "name": "Scoot",
+        "code": "Scoot",
+        "fleet": "TR / TGW"
+    },
+    {
+        "name": "SEair International",
+        "code": "SEair International",
+        "fleet": "XO / SGD"
+    },
+    {
+        "name": "Sepehran Airlines",
+        "code": "Sepehran Airlines",
+        "fleet": "IS / SHI"
+    },
+    {
+        "name": "Serene Air",
+        "code": "Serene Air",
+        "fleet": "ER / SEP"
+    },
+    {
+        "name": "Severstal Aircompany",
+        "code": "Severstal Aircompany",
+        "fleet": "D2 / SSF"
+    },
+    {
+        "name": "SF Airlines",
+        "code": "SF Airlines",
+        "fleet": "O3 / CSS"
+    },
+    {
+        "name": "Shandong Airlines",
+        "code": "Shandong Airlines",
+        "fleet": "SC / CDG"
+    },
+    {
+        "name": "Shanghai Airlines",
+        "code": "Shanghai Airlines",
+        "fleet": "FM / CSH"
+    },
+    {
+        "name": "Shenzhen Airlines",
+        "code": "Shenzhen Airlines",
+        "fleet": "ZH / CSZ"
+    },
+    {
+        "name": "Shirak Avia",
+        "code": "Shirak Avia",
+        "fleet": "5G / SHS"
+    },
+    {
+        "name": "Shree Airlines",
+        "code": "Shree Airlines",
+        "fleet": "N9 / SHA"
+    },
+    {
+        "name": "Siam General Aviation",
+        "code": "Siam General Aviation",
+        "fleet": "5E / SGN"
+    },
+    {
+        "name": "Sichuan Airlines",
+        "code": "Sichuan Airlines",
+        "fleet": "3U / CSC"
+    },
+    {
+        "name": "Sierra Pacific Airlines",
+        "code": "Sierra Pacific Airlines",
+        "fleet": "SI / SPA"
+    },
+    {
+        "name": "Silk Way Airlines",
+        "code": "Silk Way Airlines",
+        "fleet": "ZP / AZQ"
+    },
+    {
+        "name": "Silk Way West Airlines",
+        "code": "Silk Way West Airlines",
+        "fleet": "7L / AZG"
+    },
+    {
+        "name": "Silkavia",
+        "code": "Silkavia",
+        "fleet": "US / USA"
+    },
+    {
+        "name": "Silver Airways",
+        "code": "Silver Airways",
+        "fleet": "3M / SIL"
+    },
+    {
+        "name": "Singapore Airlines",
+        "code": "Singapore Airlines",
+        "fleet": "SQ / SIA"
+    },
+    {
+        "name": "Sirius Aero",
+        "code": "Sirius Aero",
+        "fleet": "SA / CIG"
+    },
+    {
+        "name": "SKS Airways",
+        "code": "SKS Airways",
+        "fleet": "KI / SJB"
+    },
+    {
+        "name": "SKY Airline",
+        "code": "SKY Airline",
+        "fleet": "H2 / SKU"
+    },
+    {
+        "name": "Sky Angkor Airlines",
+        "code": "Sky Angkor Airlines",
+        "fleet": "ZA / SWM"
+    },
+    {
+        "name": "Sky Cana",
+        "code": "Sky Cana",
+        "fleet": "RD / SNA"
+    },
+    {
+        "name": "SKY express",
+        "code": "SKY express",
+        "fleet": "GQ / SEH"
+    },
+    {
+        "name": "Sky Lease Cargo",
+        "code": "Sky Lease Cargo",
+        "fleet": "GG / KYE"
+    },
+    {
+        "name": "Sky Mali",
+        "code": "Sky Mali",
+        "fleet": "ML / FML"
+    },
+    {
+        "name": "Sky Vision Airlines",
+        "code": "Sky Vision Airlines",
+        "fleet": "SE / SVI"
+    },
+    {
+        "name": "SkyAlps",
+        "code": "SkyAlps",
+        "fleet": "BQ / SWU"
+    },
+    {
+        "name": "SKYhigh Dominicana",
+        "code": "SKYhigh Dominicana",
+        "fleet": "DO / SHH"
+    },
+    {
+        "name": "SkyJet Airlines",
+        "code": "SkyJet Airlines",
+        "fleet": "M8 / MSJ"
+    },
+    {
+        "name": "SkyLine Express",
+        "code": "SkyLine Express",
+        "fleet": "QU / UTN"
+    },
+    {
+        "name": "Skymark Airlines",
+        "code": "Skymark Airlines",
+        "fleet": "BC / SKY"
+    },
+    {
+        "name": "Skytrans",
+        "code": "Skytrans",
+        "fleet": "QN / SKP"
+    },
+    {
+        "name": "SkyUp Airlines",
+        "code": "SkyUp Airlines",
+        "fleet": "PQ / SQP"
+    },
+    {
+        "name": "Skyward Express",
+        "code": "Skyward Express",
+        "fleet": "OW / SEW"
+    },
+    {
+        "name": "SkyWest Airlines",
+        "code": "SkyWest Airlines",
+        "fleet": "OO / SKW"
+    },
+    {
+        "name": "SkyWest Charter",
+        "code": "SkyWest Charter",
+        "fleet": "CW / SCW"
+    },
+    {
+        "name": "Smartavia",
+        "code": "Smartavia",
+        "fleet": "5N / AUL"
+    },
+    {
+        "name": "SmartLynx",
+        "code": "SmartLynx",
+        "fleet": "6Y / ART"
+    },
+    {
+        "name": "Smartwings",
+        "code": "Smartwings",
+        "fleet": "QS / TVS"
+    },
+    {
+        "name": "Solaseed Air",
+        "code": "Solaseed Air",
+        "fleet": "6J / SNJ"
+    },
+    {
+        "name": "Solinair",
+        "code": "Solinair",
+        "fleet": "ZS / SOP"
+    },
+    {
+        "name": "Solomon Airlines",
+        "code": "Solomon Airlines",
+        "fleet": "IE / SOL"
+    },
+    {
+        "name": "Somon Air",
+        "code": "Somon Air",
+        "fleet": "SZ / SMR"
+    },
+    {
+        "name": "South African Airways",
+        "code": "South African Airways",
+        "fleet": "SA / SAA"
+    },
+    {
+        "name": "Southern Air Charter",
+        "code": "Southern Air Charter",
+        "fleet": "PL / SOA"
+    },
+    {
+        "name": "Southern Airways Express",
+        "code": "Southern Airways Express",
+        "fleet": "9X / FDY"
+    },
+    {
+        "name": "Southwest Airlines",
+        "code": "Southwest Airlines",
+        "fleet": "WN / SWA"
+    },
+    {
+        "name": "Southwind Airlines",
+        "code": "Southwind Airlines",
+        "fleet": "2S / STW"
+    },
+    {
+        "name": "SpaceBee Airlines",
+        "code": "SpaceBee Airlines",
+        "fleet": "Y3 / UZU"
+    },
+    {
+        "name": "SpiceJet",
+        "code": "SpiceJet",
+        "fleet": "SG / SEJ"
+    },
+    {
+        "name": "Spirit Airlines",
+        "code": "Spirit Airlines",
+        "fleet": "NK / NKS"
+    },
+    {
+        "name": "Spring Airlines",
+        "code": "Spring Airlines",
+        "fleet": "9C / CQH"
+    },
+    {
+        "name": "Spring Japan",
+        "code": "Spring Japan",
+        "fleet": "IJ / SJO"
+    },
+    {
+        "name": "SprintAir",
+        "code": "SprintAir",
+        "fleet": "P8 / SRN"
+    },
+    {
+        "name": "SriLankan Airlines",
+        "code": "SriLankan Airlines",
+        "fleet": "UL / ALK"
+    },
+    {
+        "name": "Sriwijaya Air",
+        "code": "Sriwijaya Air",
+        "fleet": "SJ / SJY"
+    },
+    {
+        "name": "St Barth Commuter",
+        "code": "St Barth Commuter",
+        "fleet": "PV / SBU"
+    },
+    {
+        "name": "St Barth Executive",
+        "code": "St Barth Executive",
+        "fleet": "LE / STB"
+    },
+    {
+        "name": "Star Air",
+        "code": "Star Air",
+        "fleet": "S5 / SDG"
+    },
+    {
+        "name": "Star East Airlines",
+        "code": "Star East Airlines",
+        "fleet": "4R / SEK"
+    },
+    {
+        "name": "Star Peru",
+        "code": "Star Peru",
+        "fleet": "2I / SRU"
+    },
+    {
+        "name": "Starflyer",
+        "code": "Starflyer",
+        "fleet": "7G / SFJ"
+    },
+    {
+        "name": "Starlink Aviation",
+        "code": "Starlink Aviation",
+        "fleet": "Q4 / TLK"
+    },
+    {
+        "name": "Starlux",
+        "code": "Starlux",
+        "fleet": "JX / SJX"
+    },
+    {
+        "name": "Sudan Airways",
+        "code": "Sudan Airways",
+        "fleet": "SD / SUD"
+    },
+    {
+        "name": "Sun Country Airlines",
+        "code": "Sun Country Airlines",
+        "fleet": "SY / SCX"
+    },
+    {
+        "name": "Sun-Air",
+        "code": "Sun-Air",
+        "fleet": "EZ / SUS"
+    },
+    {
+        "name": "Sunclass Airlines",
+        "code": "Sunclass Airlines",
+        "fleet": "DK / VKG"
+    },
+    {
+        "name": "Sundair",
+        "code": "Sundair",
+        "fleet": "SR / SDR"
+    },
+    {
+        "name": "SunExpress",
+        "code": "SunExpress",
+        "fleet": "XQ / SXS"
+    },
+    {
+        "name": "Sunlight Air",
+        "code": "Sunlight Air",
+        "fleet": "2R / RLB"
+    },
+    {
+        "name": "Sunrise Airways",
+        "code": "Sunrise Airways",
+        "fleet": "S6 / KSZ"
+    },
+    {
+        "name": "Sunwing Airlines",
+        "code": "Sunwing Airlines",
+        "fleet": "WG / SWG"
+    },
+    {
+        "name": "Suparna Airlines",
+        "code": "Suparna Airlines",
+        "fleet": "Y8 / YZR"
+    },
+    {
+        "name": "Super Air Jet",
+        "code": "Super Air Jet",
+        "fleet": "IU / SJV"
+    },
+    {
+        "name": "Supernova Airlines",
+        "code": "Supernova Airlines",
+        "fleet": "P7 / NPG"
+    },
+    {
+        "name": "Surinam Airways",
+        "code": "Surinam Airways",
+        "fleet": "PY / SLM"
+    },
+    {
+        "name": "Swiftair",
+        "code": "Swiftair",
+        "fleet": "WT / SWT"
+    },
+    {
+        "name": "Swiss",
+        "code": "Swiss",
+        "fleet": "LX / SWR"
+    },
+    {
+        "name": "Sylt Air",
+        "code": "Sylt Air",
+        "fleet": "7E / AWU"
+    },
+    {
+        "name": "Syrian Air",
+        "code": "Syrian Air",
+        "fleet": "RB / SYR"
+    },
+    {
+        "name": "T'way Air",
+        "code": "T'way Air",
+        "fleet": "TW / TWB"
+    },
+    {
+        "name": "TAAG Angola Airlines",
+        "code": "TAAG Angola Airlines",
+        "fleet": "DT / DTA"
+    },
+    {
+        "name": "TAB Cargo",
+        "code": "TAB Cargo",
+        "fleet": "2L / BOL"
+    },
+    {
+        "name": "TagAirlines",
+        "code": "TagAirlines",
+        "fleet": "5U / TGU"
+    },
+    {
+        "name": "Tailwind Airlines",
+        "code": "Tailwind Airlines",
+        "fleet": "TI / TWI"
+    },
+    {
+        "name": "Tanana Air Service",
+        "code": "Tanana Air Service",
+        "fleet": "Z3 / TNR"
+    },
+    {
+        "name": "TAP Air Portugal",
+        "code": "TAP Air Portugal",
+        "fleet": "TP / TAP"
+    },
+    {
+        "name": "TAR Aerolineas",
+        "code": "TAR Aerolineas",
+        "fleet": "YQ / LCT"
+    },
+    {
+        "name": "Tarco Aviation",
+        "code": "Tarco Aviation",
+        "fleet": "3T / TQQ"
+    },
+    {
+        "name": "Tarom",
+        "code": "Tarom",
+        "fleet": "RO / ROT"
+    },
+    {
+        "name": "Tassili Airlines",
+        "code": "Tassili Airlines",
+        "fleet": "SF / DTH"
+    },
+    {
+        "name": "Tbilisi Airways",
+        "code": "Tbilisi Airways",
+        "fleet": "TD / TBC"
+    },
+    {
+        "name": "Terra Avia",
+        "code": "Terra Avia",
+        "fleet": "T8 / TVR"
+    },
+    {
+        "name": "Tez Jet Airlines",
+        "code": "Tez Jet Airlines",
+        "fleet": "K9 / TEZ"
+    },
+    {
+        "name": "Thai Airways",
+        "code": "Thai Airways",
+        "fleet": "TG / THA"
+    },
+    {
+        "name": "Thai Lion Air",
+        "code": "Thai Lion Air",
+        "fleet": "SL / TLM"
+    },
+    {
+        "name": "Tianjin Air Cargo",
+        "code": "Tianjin Air Cargo",
+        "fleet": "HT / CTJ"
+    },
+    {
+        "name": "Tianjin Airlines",
+        "code": "Tianjin Airlines",
+        "fleet": "GS / GCR"
+    },
+    {
+        "name": "Tibet Airlines",
+        "code": "Tibet Airlines",
+        "fleet": "TV / TBA"
+    },
+    {
+        "name": "Tigerair Taiwan",
+        "code": "Tigerair Taiwan",
+        "fleet": "IT / TTW"
+    },
+    {
+        "name": "Titan Airways",
+        "code": "Titan Airways",
+        "fleet": "ZT / AWC"
+    },
+    {
+        "name": "Toki Air",
+        "code": "Toki Air",
+        "fleet": "BV / TOK"
+    },
+    {
+        "name": "Total Linhas Aereas",
+        "code": "Total Linhas Aereas",
+        "fleet": "0T / TTL"
+    },
+    {
+        "name": "Trade Air",
+        "code": "Trade Air",
+        "fleet": "C3 / TDR"
+    },
+    {
+        "name": "Tradewind Aviation",
+        "code": "Tradewind Aviation",
+        "fleet": "TJ / GPD"
+    },
+    {
+        "name": "Trans Air Congo",
+        "code": "Trans Air Congo",
+        "fleet": "Q8 / TSG"
+    },
+    {
+        "name": "Transair",
+        "code": "Transair",
+        "fleet": "R2 / GTS"
+    },
+    {
+        "name": "Transair",
+        "code": "Transair",
+        "fleet": "R9 / MUI"
+    },
+    {
+        "name": "Transavia",
+        "code": "Transavia",
+        "fleet": "HV / TRA"
+    },
+    {
+        "name": "TransNusa",
+        "code": "TransNusa",
+        "fleet": "8B / TNU"
+    },
+    {
+        "name": "Trigana Air",
+        "code": "Trigana Air",
+        "fleet": "IL / TGN"
+    },
+    {
+        "name": "Tropic Air",
+        "code": "Tropic Air",
+        "fleet": "9N / TOS"
+    },
+    {
+        "name": "Tropic Ocean Airways",
+        "code": "Tropic Ocean Airways",
+        "fleet": "TI / FTO"
+    },
+    {
+        "name": "TUI fly",
+        "code": "TUI fly",
+        "fleet": "X3 / TUI"
+    },
+    {
+        "name": "TUM AeroCarga",
+        "code": "TUM AeroCarga",
+        "fleet": "T2 / MCS"
+    },
+    {
+        "name": "Tunisair",
+        "code": "Tunisair",
+        "fleet": "TU / TAR"
+    },
+    {
+        "name": "Turkish Airlines",
+        "code": "Turkish Airlines",
+        "fleet": "TK / THY"
+    },
+    {
+        "name": "Turkmenistan Airlines",
+        "code": "Turkmenistan Airlines",
+        "fleet": "T5 / TUA"
+    },
+    {
+        "name": "Turpial Airlines",
+        "code": "Turpial Airlines",
+        "fleet": "T9 / VTU"
+    },
+    {
+        "name": "Tus Air",
+        "code": "Tus Air",
+        "fleet": "U8 / CYF"
+    },
+    {
+        "name": "Twin Jet",
+        "code": "Twin Jet",
+        "fleet": "T7 / TJT"
+    },
+    {
+        "name": "Uganda Airlines",
+        "code": "Uganda Airlines",
+        "fleet": "UR / UGD"
+    },
+    {
+        "name": "Ukraine International Airlines",
+        "code": "Ukraine International Airlines",
+        "fleet": "PS / AUI"
+    },
+    {
+        "name": "ULS Airlines Cargo",
+        "code": "ULS Airlines Cargo",
+        "fleet": "GO / KZU"
+    },
+    {
+        "name": "Ultimate Jet",
+        "code": "Ultimate Jet",
+        "fleet": "UE / UJC"
+    },
+    {
+        "name": "UNI Air",
+        "code": "UNI Air",
+        "fleet": "B7 / UIA"
+    },
+    {
+        "name": "United Airlines",
+        "code": "United Airlines",
+        "fleet": "UA / UAL"
+    },
+    {
+        "name": "United Nigeria Airlines",
+        "code": "United Nigeria Airlines",
+        "fleet": "UN / NUA"
+    },
+    {
+        "name": "Universal Air",
+        "code": "Universal Air",
+        "fleet": "VO / UVL"
+    },
+    {
+        "name": "Uniworld Air Cargo",
+        "code": "Uniworld Air Cargo",
+        "fleet": "U7 / UCG"
+    },
+    {
+        "name": "UPS",
+        "code": "UPS",
+        "fleet": "5X / UPS"
+    },
+    {
+        "name": "UR Airlines",
+        "code": "UR Airlines",
+        "fleet": "UD / UBD"
+    },
+    {
+        "name": "Ural Airlines",
+        "code": "Ural Airlines",
+        "fleet": "U6 / SVR"
+    },
+    {
+        "name": "Urumqi Air",
+        "code": "Urumqi Air",
+        "fleet": "UQ / CUH"
+    },
+    {
+        "name": "US-Bangla Airlines",
+        "code": "US-Bangla Airlines",
+        "fleet": "BS / UBG"
+    },
+    {
+        "name": "USA Jet Airlines",
+        "code": "USA Jet Airlines",
+        "fleet": "UJ / JUS"
+    },
+    {
+        "name": "USC",
+        "code": "USC",
+        "fleet": "XG / USY"
+    },
+    {
+        "name": "Utair",
+        "code": "Utair",
+        "fleet": "UT / UTA"
+    },
+    {
+        "name": "UVT Aero",
+        "code": "UVT Aero",
+        "fleet": "RT / UVT"
+    },
+    {
+        "name": "Uzbekistan Airways",
+        "code": "Uzbekistan Airways",
+        "fleet": "HY / UZB"
+    },
+    {
+        "name": "ValueJet",
+        "code": "ValueJet",
+        "fleet": "VK / FVJ"
+    },
+    {
+        "name": "Van Air Europe",
+        "code": "Van Air Europe",
+        "fleet": "V9 / VAA"
+    },
+    {
+        "name": "Vasco",
+        "code": "Vasco",
+        "fleet": "0V / VFC"
+    },
+    {
+        "name": "Venezolana",
+        "code": "Venezolana",
+        "fleet": "WW / VNE"
+    },
+    {
+        "name": "Vieques Air Link",
+        "code": "Vieques Air Link",
+        "fleet": "V4 / VES"
+    },
+    {
+        "name": "VietJet Air",
+        "code": "VietJet Air",
+        "fleet": "VJ / VJC"
+    },
+    {
+        "name": "Vietnam Airlines",
+        "code": "Vietnam Airlines",
+        "fleet": "VN / HVN"
+    },
+    {
+        "name": "Vietravel Airlines",
+        "code": "Vietravel Airlines",
+        "fleet": "VU / VAG"
+    },
+    {
+        "name": "Virgin Atlantic",
+        "code": "Virgin Atlantic",
+        "fleet": "VS / VIR"
+    },
+    {
+        "name": "Virgin Australia",
+        "code": "Virgin Australia",
+        "fleet": "VA / VOZ"
+    },
+    {
+        "name": "VivaAerobus",
+        "code": "VivaAerobus",
+        "fleet": "VB / VIV"
+    },
+    {
+        "name": "VoePass",
+        "code": "VoePass",
+        "fleet": "2Z / PTB"
+    },
+    {
+        "name": "Volaris",
+        "code": "Volaris",
+        "fleet": "Y4 / VOI"
+    },
+    {
+        "name": "Volga-Dnepr Airlines",
+        "code": "Volga-Dnepr Airlines",
+        "fleet": "VI / VDA"
+    },
+    {
+        "name": "Volotea",
+        "code": "Volotea",
+        "fleet": "V7 / VOE"
+    },
+    {
+        "name": "Voyageur Airways",
+        "code": "Voyageur Airways",
+        "fleet": "VC / VAL"
+    },
+    {
+        "name": "Vueling",
+        "code": "Vueling",
+        "fleet": "VY / VLG"
+    },
+    {
+        "name": "Wamos Air",
+        "code": "Wamos Air",
+        "fleet": "EB / PLM"
+    },
+    {
+        "name": "Warbelows Air Ventures",
+        "code": "Warbelows Air Ventures",
+        "fleet": "4W / WAV"
+    },
+    {
+        "name": "Wasaya Airways",
+        "code": "Wasaya Airways",
+        "fleet": "WP / WSG"
+    },
+    {
+        "name": "West Air",
+        "code": "West Air",
+        "fleet": "PN / CHB"
+    },
+    {
+        "name": "Western Air",
+        "code": "Western Air",
+        "fleet": "WU / WST"
+    },
+    {
+        "name": "Western Aircraft",
+        "code": "Western Aircraft",
+        "fleet": "ST / STT"
+    },
+    {
+        "name": "Western Global Airlines",
+        "code": "Western Global Airlines",
+        "fleet": "KD / WGN"
+    },
+    {
+        "name": "WestJet",
+        "code": "WestJet",
+        "fleet": "WS / WJA"
+    },
+    {
+        "name": "White",
+        "code": "White",
+        "fleet": "WI / WHT"
+    },
+    {
+        "name": "Wideroe",
+        "code": "Wideroe",
+        "fleet": "WF / WIF"
+    },
+    {
+        "name": "Winair",
+        "code": "Winair",
+        "fleet": "WM / WIA"
+    },
+    {
+        "name": "Windrose Airlines",
+        "code": "Windrose Airlines",
+        "fleet": "7W / WRC"
+    },
+    {
+        "name": "Wingo",
+        "code": "Wingo",
+        "fleet": "P5 / RPB"
+    },
+    {
+        "name": "Wings Air",
+        "code": "Wings Air",
+        "fleet": "IW / WON"
+    },
+    {
+        "name": "Wizz Air",
+        "code": "Wizz Air",
+        "fleet": "W6 / WZZ"
+    },
+    {
+        "name": "World Atlantic Airlines",
+        "code": "World Atlantic Airlines",
+        "fleet": "WL / WAL"
+    },
+    {
+        "name": "World Cargo Airlines",
+        "code": "World Cargo Airlines",
+        "fleet": "3G / WCM"
+    },
+    {
+        "name": "World2Fly",
+        "code": "World2Fly",
+        "fleet": "2W / WFL"
+    },
+    {
+        "name": "Wright Air Service",
+        "code": "Wright Air Service",
+        "fleet": "8V / WRF"
+    },
+    {
+        "name": "XE Jet",
+        "code": "XE Jet",
+        "fleet": "4U / XEJ"
+    },
+    {
+        "name": "Xiamen Air",
+        "code": "Xiamen Air",
+        "fleet": "MF / CXA"
+    },
+    {
+        "name": "Yakutia Airlines",
+        "code": "Yakutia Airlines",
+        "fleet": "R3 / SYL"
+    },
+    {
+        "name": "Yamal Airlines",
+        "code": "Yamal Airlines",
+        "fleet": "YC / LLM"
+    },
+    {
+        "name": "YanAir",
+        "code": "YanAir",
+        "fleet": "YE / ANR"
+    },
+    {
+        "name": "Yemenia",
+        "code": "Yemenia",
+        "fleet": "IY / IYE"
+    },
+    {
+        "name": "Yeti Airlines",
+        "code": "Yeti Airlines",
+        "fleet": "YT / NYT"
+    },
+    {
+        "name": "YTO Cargo Airlines",
+        "code": "YTO Cargo Airlines",
+        "fleet": "YG / HYT"
+    },
+    {
+        "name": "Z Air",
+        "code": "Z Air",
+        "fleet": "7Z / EZR"
+    },
+    {
+        "name": "Zagros Airlines",
+        "code": "Zagros Airlines",
+        "fleet": "ZO / IZG"
+    },
+    {
+        "name": "Zambia Airways",
+        "code": "Zambia Airways",
+        "fleet": "ZN / AZB"
+    },
+    {
+        "name": "Zetavia",
+        "code": "Zetavia",
+        "fleet": "ZK / ZAV"
+    },
+    {
+        "name": "Zimex Aviation",
+        "code": "Zimex Aviation",
+        "fleet": "XM / IMX"
+    },
+    {
+        "name": "Zipair",
+        "code": "Zipair",
+        "fleet": "ZG / TZP"
+    },
+    {
+        "name": "Zooom",
+        "code": "Zooom",
+        "fleet": "ZO / ZOM"
+    }
+]
