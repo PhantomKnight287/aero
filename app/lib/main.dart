@@ -14,7 +14,9 @@ void main() async {
   final prefs = await SharedPreferences.getInstance();
 
   final store = AsyncAuthStore(
-    save: (String data) async => prefs.setString('pb_auth', data),
+    save: (String data) async {
+      await prefs.setString('pb_auth', data);
+    },
     initial: prefs.getString('pb_auth'),
   );
   pb = PocketBase(
@@ -61,7 +63,7 @@ class MainApp extends StatelessWidget {
           scrolledUnderElevation: 0,
           titleTextStyle: TextStyle(
             fontFamily: "CalSans",
-            fontSize: 24,
+            fontSize: 20,
             color: Colors.black,
           ),
           toolbarHeight: 50,

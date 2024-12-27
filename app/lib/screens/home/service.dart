@@ -90,14 +90,14 @@ class HomeService {
     final response = await pb.collection("airlines").getList(
           perPage: 3000,
           page: 1,
-          filter: "name ~ '%$query%'",
+          filter: "(name ~ '%$query%' || iata ~ '%$query%' || icao ~ '%$query%')",
         );
     return response.items.map((json) => Airline.fromJson(json.data)).toList();
   }
 
   Future<List<Airport>> searchAirports(String query) async {
     final response = await pb.collection("airports").getList(
-      perPage: 20,
+      perPage: 60,
       page: 1,
       query: {
         "filter": "(ident ~ '%$query%' || name ~ '%$query%' || iata_code ~ '%$query%') && type != 'closed' && iata_code != null",

@@ -102,9 +102,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     Text("Don't have an account?"),
                     TextButton(
                       onPressed: () {
-                        context.go("/auth/Login");
+                        context.go("/auth/register");
                       },
-                      child: Text("Login"),
+                      child: Text("Register"),
                     ),
                   ],
                 )

@@ -1,6 +1,8 @@
 /// <reference path="../pb_data/types.d.ts" />
 
 routerAdd("GET", "/flights", (c) => {
+
+  if (!c.auth) return c.json(401, { message: "Please login and try again" })
   // Get query parameters
   const from = c.requestInfo().query["from"]; // departure airport code
   const to = c.requestInfo().query["to"]; // arrival airport code

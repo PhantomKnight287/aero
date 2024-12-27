@@ -26,6 +26,27 @@ class FlightDataService {
     ));
   }
 
+  Future<dynamic> getFlightInfoWithNumber(
+    String iata,
+    String icao, {
+    DateTime? date,
+  }) async {
+    date = date ?? DateTime.now();
+    try {
+      final res = await pb.send(
+        "/flight",
+        query: {
+          "iata": iata,
+          "icao": icao,
+          "date": "${date.year}-${date.month}-${date.day}",
+        },
+      );
+      return res;
+    } catch (e) {
+      return null;
+    }
+  }
+
   Future<List<Flight>> getFlights(
     String from,
     String to,

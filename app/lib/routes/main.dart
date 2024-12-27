@@ -2,6 +2,8 @@ import 'package:aero/screens/auth/login/main.dart';
 import 'package:aero/screens/auth/main.dart';
 import 'package:aero/screens/auth/register/main.dart';
 import 'package:aero/screens/home/main.dart';
+import 'package:aero/screens/profile/main.dart';
+import 'package:aero/screens/wearables/main.dart';
 import 'package:go_router/go_router.dart';
 
 class AeroRouter {
@@ -30,8 +32,20 @@ class AeroRouter {
           return HomeScreen();
         },
       ),
+      GoRoute(
+        path: "/profile",
+        builder: (context, state) {
+          return ProfileScreen();
+        },
+      ),
+      GoRoute(
+        path: "/wearables",
+        builder: (context, state) {
+          return WearablesScreen();
+        },
+      ),
     ],
     debugLogDiagnostics: true,
-    initialLocation: "/auth/register",
+    initialLocation: "/auth/login",
   );
 }
