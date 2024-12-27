@@ -1,7 +1,7 @@
 // ignore_for_file: non_constant_identifier_names
 
-import 'package:aero/client/pocketbase.dart';
-import 'package:aero/models/airline/airline.dart';
+import 'package:plane_pal/client/pocketbase.dart';
+import 'package:plane_pal/models/airline/airline.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'service.g.dart';

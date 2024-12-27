@@ -1,9 +1,9 @@
-import 'package:aero/screens/auth/login/main.dart';
-import 'package:aero/screens/auth/main.dart';
-import 'package:aero/screens/auth/register/main.dart';
-import 'package:aero/screens/home/main.dart';
-import 'package:aero/screens/profile/main.dart';
-import 'package:aero/screens/wearables/main.dart';
+import 'package:plane_pal/screens/auth/login/main.dart';
+import 'package:plane_pal/screens/auth/main.dart';
+import 'package:plane_pal/screens/auth/register/main.dart';
+import 'package:plane_pal/screens/home/main.dart';
+import 'package:plane_pal/screens/profile/main.dart';
+import 'package:plane_pal/screens/wearables/main.dart';
 import 'package:go_router/go_router.dart';
 
 class AeroRouter {

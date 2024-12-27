@@ -1,4 +1,4 @@
-import 'package:aero/screens/home/service.dart';
+import 'package:plane_pal/screens/home/service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_animations/flutter_map_animations.dart';
@@ -15,12 +15,14 @@ class FlightMap extends StatelessWidget {
   final AnimatedMapController mapController;
   final Airport? departureAirport;
   final Airport? arrivalAirport;
+  final List<LatLng> coordinates;
 
   const FlightMap({
     super.key,
     required this.mapController,
     this.arrivalAirport,
     this.departureAirport,
+    required this.coordinates,
   });
 
   @override
@@ -77,6 +79,16 @@ class FlightMap extends StatelessWidget {
               ),
             ],
           ),
+        PolylineLayer(
+          polylines: [
+            Polyline(
+              points: coordinates.map((e) => e).toList(),
+              color: Colors.blue,
+              strokeWidth: 3,
+              pattern: StrokePattern.dotted(),
+            ),
+          ],
+        ),
       ],
     );
   }

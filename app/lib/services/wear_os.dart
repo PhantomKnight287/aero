@@ -25,7 +25,9 @@ class WearOSService {
   /// Get list of connected Wear OS devices
   Future<List<WearOSDevice>> getConnectedDevices() async {
     try {
-      final List<Object?> rawResult = await _channel.invokeMethod('getConnectedWearOsDevices');
+      final List<Object?> rawResult = await _channel.invokeMethod(
+        'getConnectedWearables',
+      );
       final List<Map<Object?, Object?>> result = List<Map<Object?, Object?>>.from(rawResult);
       return result.map((json) => WearOSDevice(id: json['id'] as String, displayName: json['displayName'] as String, isNearby: json['isNearby'] as bool)).toList();
     } on PlatformException catch (e) {

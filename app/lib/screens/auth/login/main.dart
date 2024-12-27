@@ -1,4 +1,4 @@
-import 'package:aero/client/pocketbase.dart';
+import 'package:plane_pal/client/pocketbase.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 

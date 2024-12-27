@@ -10,7 +10,7 @@
     <application
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
-        android:label="aero">
+        android:label="Plane Pal">
         <service
             android:name="com.phantomknight287.planepal.WearMessageReceiver"
             android:exported="true">

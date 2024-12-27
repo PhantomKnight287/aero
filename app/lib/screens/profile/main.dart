@@ -1,5 +1,5 @@
-import 'package:aero/client/pocketbase.dart';
-import 'package:aero/constants/main.dart';
+import 'package:plane_pal/client/pocketbase.dart';
+import 'package:plane_pal/constants/main.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';

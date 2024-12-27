@@ -1,4 +1,4 @@
-# aero
+# PlanePal
 
 To install dependencies:
 

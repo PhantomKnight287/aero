@@ -27,6 +27,7 @@ routerAdd("GET", '/flight', (c) => {
         0
     );
     if (records.length) {
+        console.log("from db")
         return c.json(200, records[0])
     }
     const apiKey = $os.getenv("RAPID_API_KEY")
@@ -42,7 +43,7 @@ routerAdd("GET", '/flight', (c) => {
         }
     })
     const json = res.json
-    console.log(JSON.stringify(json))
+    if (json == null) return c.json(500, { message: "Unable to track the flight" })
 
     const record = new Record(collection)
     record.set("flight_no", json[0].number.replace(/ /g, ''))

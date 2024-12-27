@@ -1,6 +1,7 @@
-import 'package:aero/client/pocketbase.dart';
-import 'package:aero/models/flight/flight.dart';
+import 'package:plane_pal/client/pocketbase.dart';
+import 'package:plane_pal/models/flight/flight.dart';
 import 'package:dio/dio.dart';
+import 'package:plane_pal/models/flight_info/flight_info.dart';
 
 class ApiException implements Exception {
   final String message;
@@ -26,7 +27,7 @@ class FlightDataService {
     ));
   }
 
-  Future<dynamic> getFlightInfoWithNumber(
+  Future<FlightInfo?> getFlightInfoWithNumber(
     String iata,
     String icao, {
     DateTime? date,
@@ -41,8 +42,10 @@ class FlightDataService {
           "date": "${date.year}-${date.month}-${date.day}",
         },
       );
-      return res;
-    } catch (e) {
+      return FlightInfo.fromJson(res);
+    } catch (e, stack) {
+      print(e);
+      print(stack);
       return null;
     }
   }

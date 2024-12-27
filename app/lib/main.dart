@@ -1,8 +1,8 @@
-import 'package:aero/client/pocketbase.dart';
-import 'package:aero/constants/main.dart';
-import 'package:aero/db/main.dart';
-import 'package:aero/routes/main.dart';
-import 'package:aero/screens/home/service.dart';
+import 'package:plane_pal/client/pocketbase.dart';
+import 'package:plane_pal/constants/main.dart';
+import 'package:plane_pal/db/main.dart';
+import 'package:plane_pal/routes/main.dart';
+import 'package:plane_pal/screens/home/service.dart';
 import 'package:flutter/material.dart';
 import 'package:pocketbase/pocketbase.dart';
 import 'package:shared_preferences/shared_preferences.dart';

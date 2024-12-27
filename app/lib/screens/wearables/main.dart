@@ -1,4 +1,4 @@
-import 'package:aero/services/wear_os.dart';
+import 'package:plane_pal/services/wear_os.dart';
 import 'package:flutter/material.dart';
 
 class WearablesScreen extends StatefulWidget {

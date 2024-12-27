@@ -8,7 +8,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class MainActivity : FlutterActivity() {
-    private val CHANNEL = "com.phantomknight287.planepal/aero"
+    private val CHANNEL = "com.phantomknight287.planepal/planepal"
     private lateinit var wearOsDeviceManager: WearOsDeviceManager
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
@@ -18,7 +18,7 @@ class MainActivity : FlutterActivity() {
             CHANNEL
         ).setMethodCallHandler { call, result ->
             when (call.method) {
-                "getConnectedWearOsDevices" -> {
+                "getConnectedWearables" -> {
                     CoroutineScope(Dispatchers.Main).launch {
                         try {
                             val devices = wearOsDeviceManager.getConnectedNodes()

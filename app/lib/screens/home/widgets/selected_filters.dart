@@ -1,5 +1,5 @@
-import 'package:aero/models/airline/airline.dart';
-import 'package:aero/screens/home/service.dart';
+import 'package:plane_pal/models/airline/airline.dart';
+import 'package:plane_pal/screens/home/service.dart';
 import 'package:flutter/material.dart';
 
 class SelectedFilters extends StatelessWidget {
@@ -35,7 +35,7 @@ class SelectedFilters extends StatelessWidget {
               padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               margin: EdgeInsets.only(right: 8),
               decoration: BoxDecoration(
-                color: Colors.grey[200],
+                color: Color(0xffe7e0e8),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
@@ -51,11 +51,11 @@ class SelectedFilters extends StatelessWidget {
               padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               margin: EdgeInsets.only(right: 8),
               decoration: BoxDecoration(
-                color: Colors.grey[200],
+                color: Color(0xffe7e0e8),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
-                selectedFlightNumber!,
+                selectedFlightNumber!.toUpperCase(),
                 style: TextStyle(fontWeight: FontWeight.w500),
               ),
             ),
@@ -67,7 +67,7 @@ class SelectedFilters extends StatelessWidget {
               padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               margin: EdgeInsets.only(right: 8),
               decoration: BoxDecoration(
-                color: Colors.grey[200],
+                color: Color(0xffe7e0e8),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
@@ -83,7 +83,7 @@ class SelectedFilters extends StatelessWidget {
               padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               margin: EdgeInsets.only(right: 8),
               decoration: BoxDecoration(
-                color: Colors.grey[200],
+                color: Color(0xffe7e0e8),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
