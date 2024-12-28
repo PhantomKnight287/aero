@@ -20,7 +20,7 @@ class WearOSDevice {
 }
 
 class WearOSService {
-  static const MethodChannel _channel = MethodChannel('com.phantomknight287.planepal/aero');
+  static const MethodChannel _channel = MethodChannel('com.phantomknight287.planepal/planepal');
 
   /// Get list of connected Wear OS devices
   Future<List<WearOSDevice>> getConnectedDevices() async {

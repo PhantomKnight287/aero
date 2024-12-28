@@ -10,6 +10,8 @@ class FlightInfo {
   String? number;
   String? status;
   String flightNumber;
+  String? image;
+  String id;
 
   FlightInfo({
     this.aircraft,
@@ -22,10 +24,14 @@ class FlightInfo {
     this.lastUpdatedUtc,
     this.number,
     this.status,
+    this.image,
     required this.flightNumber,
+    required this.id,
   });
 
-  FlightInfo.fromJson(Map<String, dynamic> json) : flightNumber = json['flight_no'] {
+  FlightInfo.fromJson(Map<String, dynamic> json)
+      : flightNumber = json['flight_no'],
+        id = json['id'] {
     aircraft = json['aircraft'] != null ? Aircraft.fromJson(json['aircraft']) : null;
     airline = json['airline'] != null ? Airline.fromJson(json['airline']) : null;
     arrival = json['arrival'] != null ? Arrival.fromJson(json['arrival']) : null;
@@ -36,6 +42,7 @@ class FlightInfo {
     lastUpdatedUtc = json['lastUpdatedUtc'];
     number = json['number'];
     status = json['status'];
+    image = json['image'];
   }
 
   Map<String, dynamic> toJson() {
@@ -60,22 +67,33 @@ class FlightInfo {
     data['lastUpdatedUtc'] = lastUpdatedUtc;
     data['number'] = number;
     data['status'] = status;
+    data['image'] = image;
+    data['id'] = id;
     return data;
   }
 }
 
 class Aircraft {
-  String? model;
+  String model;
+  String reg;
+  String modeS;
 
-  Aircraft({this.model});
+  Aircraft({
+    required this.model,
+    required this.modeS,
+    required this.reg,
+  });
 
-  Aircraft.fromJson(Map<String, dynamic> json) {
-    model = json['model'];
-  }
+  Aircraft.fromJson(Map<String, dynamic> json)
+      : model = json['model'],
+        reg = json['reg'],
+        modeS = json['modeS'];
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = Map<String, dynamic>();
     data['model'] = model;
+    data['modeS'] = modeS;
+    data['reg'] = reg;
     return data;
   }
 }
@@ -225,8 +243,17 @@ class Departure {
   PredictedTime? revisedTime;
   PredictedTime? runwayTime;
   PredictedTime? scheduledTime;
+  String? terminal;
 
-  Departure({this.airport, this.gate, this.quality, this.revisedTime, this.runwayTime, this.scheduledTime});
+  Departure({
+    this.airport,
+    this.gate,
+    this.quality,
+    this.revisedTime,
+    this.runwayTime,
+    this.scheduledTime,
+    this.terminal,
+  });
 
   Departure.fromJson(Map<String, dynamic> json) {
     airport = json['airport'] != null ? Airport.fromJson(json['airport']) : null;
@@ -235,6 +262,7 @@ class Departure {
     revisedTime = json['revisedTime'] != null ? PredictedTime.fromJson(json['revisedTime']) : null;
     runwayTime = json['runwayTime'] != null ? PredictedTime.fromJson(json['runwayTime']) : null;
     scheduledTime = json['scheduledTime'] != null ? PredictedTime.fromJson(json['scheduledTime']) : null;
+    terminal = json['terminal'];
   }
 
   Map<String, dynamic> toJson() {
@@ -252,6 +280,9 @@ class Departure {
     }
     if (scheduledTime != null) {
       data['scheduledTime'] = scheduledTime!.toJson();
+    }
+    if (terminal != null) {
+      data['terminal'] = terminal;
     }
     return data;
   }

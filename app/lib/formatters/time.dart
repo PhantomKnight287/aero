@@ -26,28 +26,28 @@ String getTimeMessage(DateTime targetTime) {
     if (minutes.abs() < 1) {
       return 'Just arrived';
     } else if (minutes.abs() < 60) {
-      return 'Arrived ${minutes.abs()} minutes ago';
+      return 'Landed ${minutes.abs()} minutes ago';
     } else if (minutes.abs() < 1440) {
       // Less than 24 hours
       final hours = (minutes.abs() / 60).floor();
-      return 'Arrived $hours hours ago';
+      return 'Landed $hours hours ago';
     } else {
       final days = (minutes.abs() / 1440).floor();
-      return 'Arrived $days days ago';
+      return 'Landed $days days ago';
     }
   } else {
     // Future time
     if (minutes < 1) {
-      return 'Arriving now';
+      return 'Landing now';
     } else if (minutes < 60) {
-      return 'Arrives in $minutes minutes';
+      return 'Lands in $minutes minutes';
     } else if (minutes < 1440) {
       // Less than 24 hours
       final hours = (minutes / 60).floor();
-      return 'Arrives in $hours hours';
+      return 'Lands in $hours hours';
     } else {
       final days = (minutes / 1440).floor();
-      return 'Arrives in $days days';
+      return 'Lands in $days days';
     }
   }
 }
