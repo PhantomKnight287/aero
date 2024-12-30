@@ -1,9 +1,16 @@
 import 'dart:async';
 
-import 'package:plane_pal/client/pocketbase.dart';
+import 'package:dio/dio.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:openapi/openapi.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:pocketbase/pocketbase.dart';
+import 'package:plane_pal/constants/main.dart';
+import 'package:plane_pal/riverpod/user/user.dart';
+import 'package:plane_pal/screens/auth/service.dart';
+import 'package:plane_pal/utils/error.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -17,7 +24,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  bool _isLoading = false;
+  bool _loading = false;
   @override
   void initState() {
     super.initState();
@@ -31,30 +38,45 @@ class _RegisterScreenState extends State<RegisterScreen> {
     super.dispose();
   }
 
-  Future<void> _register() async {
-    if (_formKey.currentState!.validate()) {
-      setState(() => _isLoading = true);
-      final _context = context;
-      try {
-        await pb.collection('users').create(body: {
-          'name': _nameController.text,
-          'email': _emailController.text,
-          'password': _passwordController.text,
-          'passwordConfirm': _passwordController.text,
-        });
+  Future<void> _register(WidgetRef ref) async {
+    if (!_formKey.currentState!.validate() || _loading) return;
 
-        if (context.mounted) {
-          _context.go('/');
-        }
-      } catch (e) {
-        if (context.mounted) {
-          ScaffoldMessenger.of(_context).showSnackBar(
-            SnackBar(content: Text('Registration failed: ${e.toString()}')),
+    setState(() {
+      _loading = true;
+    });
+    try {
+      final data = await authService.register(
+        RegisterDTO(
+          (b) {
+            b
+              ..password = _passwordController.text.trim()
+              ..name = _nameController.text.trim()
+              ..email = _emailController.text.trim()
+              ..build();
+          },
+        ),
+      );
+      TextInput.finishAutofillContext();
+      await const FlutterSecureStorage().write(
+        key: AUTH_TOKEN_KEY,
+        value: data!.token,
+      );
+      ref.read(userNotifierProvider.notifier).login(
+            data.user.id,
+            data.user.name,
           );
-        }
-      } finally {
-        setState(() => _isLoading = false);
+      showSuccessToast(
+        description: "Welcome ${data.user.name}",
+      );
+      if (mounted) {
+        GoRouter.of(context).go("/");
       }
+    } on DioException catch (e) {
+      showErrorToast(e);
+    } finally {
+      setState(() {
+        _loading = false;
+      });
     }
   }
 
@@ -109,20 +131,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   validator: (value) => (value?.length ?? 0) < 8 ? 'Password must be at least 8 characters' : null,
                 ),
                 const SizedBox(height: 24),
-                ElevatedButton(
-                  onPressed: _isLoading ? null : _register,
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: _isLoading
-                        ? const CircularProgressIndicator()
+                Consumer(builder: (context, ref, child) {
+                  return ElevatedButton(
+                    onPressed: () => _register(ref),
+                    child: _loading
+                        ? const CircularProgressIndicator.adaptive()
                         : const Text(
-                            'Register',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                            ),
+                            "Register",
                           ),
-                  ),
-                ),
+                  );
+                }),
                 Row(
                   children: [
                     Text("Already have an account?"),

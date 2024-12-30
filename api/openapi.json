@@ -1,0 +1,1190 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/v1": {
+      "get": {
+        "operationId": "AppController_getHello_v1",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericErrorEntity"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ],
+        "tags": [
+          "App"
+        ]
+      }
+    },
+    "/v1/auth/login": {
+      "post": {
+        "description": "Login",
+        "operationId": "AuthController_login_v1",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginEntity"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericErrorEntity"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericErrorEntity"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericErrorEntity"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Login",
+        "tags": [
+          "Authentication"
+        ]
+      }
+    },
+    "/v1/auth/register": {
+      "post": {
+        "description": "Create a new user",
+        "operationId": "AuthController_register_v1",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegisterEntity"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericErrorEntity"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericErrorEntity"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Register",
+        "tags": [
+          "Authentication"
+        ]
+      }
+    },
+    "/v1/auth/@me": {
+      "get": {
+        "description": "Get current user",
+        "operationId": "AuthController_getCurrentUser_v1",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserEntity"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericErrorEntity"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericErrorEntity"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          },
+          {
+            "JWT-auth": []
+          }
+        ],
+        "summary": "Get current user",
+        "tags": [
+          "Authentication"
+        ]
+      }
+    },
+    "/v1/airports": {
+      "get": {
+        "description": "Get all airports. We do not recommend using this route without any search query. This route has over 20k records",
+        "operationId": "AirportsController_getAirports_v1",
+        "parameters": [
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "description": "Search query for airport. Can be iata, ident(icao), name or a part of any these. Searching is case insensitive",
+            "schema": {
+              "example": "VIDP",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AirportEntity"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericErrorEntity"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get all airports",
+        "tags": [
+          "Airports"
+        ]
+      }
+    },
+    "/v1/airlines": {
+      "get": {
+        "description": "Get airlines.  Has over 800 records, only has commerical airlines.",
+        "operationId": "AirlinesController_getAirlines_v1",
+        "parameters": [
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "description": "The full(or a part of) name, ident or icao. Case Insensitive.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AirlineEntity"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericErrorEntity"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get airlines",
+        "tags": [
+          "Airlines"
+        ]
+      }
+    },
+    "/v1/flights/airline": {
+      "post": {
+        "description": "Get airline with search query. This doesn't check if the number is correct",
+        "operationId": "FlightsController_getAirline_v1",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GetAirlineDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AirlineEntity"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericErrorEntity"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericErrorEntity"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ],
+        "summary": "Get airline",
+        "tags": [
+          "Flights"
+        ]
+      }
+    },
+    "/v1/flights": {
+      "get": {
+        "description": "Get all flights between two airports for a specific date",
+        "operationId": "FlightsController_getFlights_v1",
+        "parameters": [
+          {
+            "name": "from",
+            "required": true,
+            "in": "query",
+            "description": "Departure airport IATA code",
+            "schema": {
+              "example": "LAX",
+              "type": "string"
+            }
+          },
+          {
+            "name": "to",
+            "required": true,
+            "in": "query",
+            "description": "Arrival airport IATA code",
+            "schema": {
+              "example": "JFK",
+              "type": "string"
+            }
+          },
+          {
+            "name": "date",
+            "required": true,
+            "in": "query",
+            "description": "Flight date in ISO format",
+            "schema": {
+              "example": "2024-03-20",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FlightsResponseEntity"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericErrorEntity"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericErrorEntity"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ],
+        "summary": "Get flights between two airports",
+        "tags": [
+          "Flights"
+        ]
+      }
+    },
+    "/v1/flight": {
+      "get": {
+        "description": "Get detailed information about a specific flight including real-time tracking data",
+        "operationId": "FlightController_getFlight_v1",
+        "parameters": [
+          {
+            "name": "iata",
+            "required": true,
+            "in": "query",
+            "description": "IATA flight number",
+            "schema": {
+              "example": "UA123",
+              "type": "string"
+            }
+          },
+          {
+            "name": "icao",
+            "required": true,
+            "in": "query",
+            "description": "ICAO flight number",
+            "schema": {
+              "example": "UAL123",
+              "type": "string"
+            }
+          },
+          {
+            "name": "searchedDate",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "date",
+            "required": false,
+            "in": "query",
+            "description": "Flight date (ISO format). Defaults to current date if not provided",
+            "schema": {
+              "example": "2024-03-20",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Flight details retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FlightResponseEntity"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericErrorEntity"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "User is not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericErrorEntity"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericErrorEntity"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ],
+        "summary": "Get flight details",
+        "tags": [
+          "Flight"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "Plane Pal",
+    "description": "Plane Pal API Documentation",
+    "version": "1.0.0",
+    "contact": {}
+  },
+  "tags": [],
+  "servers": [],
+  "components": {
+    "securitySchemes": {
+      "JWT-auth": {
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "type": "http"
+      }
+    },
+    "schemas": {
+      "LoginDTO": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "email",
+          "password"
+        ]
+      },
+      "UserEntity": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "id"
+        ]
+      },
+      "LoginEntity": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "description": "JWT token which will be used for all other requests"
+          },
+          "user": {
+            "$ref": "#/components/schemas/UserEntity"
+          }
+        },
+        "required": [
+          "token",
+          "user"
+        ]
+      },
+      "GenericErrorEntity": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "message"
+        ]
+      },
+      "RegisterDTO": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "email",
+          "password",
+          "name"
+        ]
+      },
+      "RegisterEntity": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "description": "JWT token which will be used for all other requests"
+          },
+          "user": {
+            "$ref": "#/components/schemas/UserEntity"
+          }
+        },
+        "required": [
+          "token",
+          "user"
+        ]
+      },
+      "AirportType": {
+        "type": "string",
+        "enum": [
+          "small_airport",
+          "seaplane_base",
+          "medium_airport",
+          "large_airport",
+          "heliport",
+          "closed",
+          "balloonport"
+        ]
+      },
+      "AirportEntity": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "ident": {
+            "type": "string",
+            "example": "VIDP"
+          },
+          "type": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/AirportType"
+              }
+            ]
+          },
+          "elevation": {
+            "type": "string",
+            "description": "Elevation in feet"
+          },
+          "continent": {
+            "type": "string",
+            "examples": [
+              "AS",
+              "EU"
+            ]
+          },
+          "isoCountry": {
+            "type": "string"
+          },
+          "isoRegion": {
+            "type": "string"
+          },
+          "municipality": {
+            "type": "string"
+          },
+          "gpsCode": {
+            "type": "string"
+          },
+          "iataCode": {
+            "type": "string",
+            "description": "Nullable for private airports"
+          },
+          "name": {
+            "type": "string"
+          },
+          "lat": {
+            "type": "string"
+          },
+          "long": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "ident",
+          "type",
+          "continent",
+          "isoCountry",
+          "isoRegion",
+          "name",
+          "lat",
+          "long"
+        ]
+      },
+      "AirlineEntity": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "icao": {
+            "type": "string"
+          },
+          "iata": {
+            "type": "string"
+          },
+          "image": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "icao",
+          "iata"
+        ]
+      },
+      "GetAirlineDTO": {
+        "type": "object",
+        "properties": {
+          "search": {
+            "type": "string",
+            "description": "The search query, like 6E9920"
+          }
+        },
+        "required": [
+          "search"
+        ]
+      },
+      "FlightsRouteEntity": {
+        "type": "object",
+        "properties": {
+          "from": {
+            "type": "string"
+          },
+          "to": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "from",
+          "to"
+        ]
+      },
+      "AirlineInfo": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "iataCode": {
+            "type": "string"
+          },
+          "icaoCode": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "iataCode"
+        ]
+      },
+      "AircraftFlightEntity": {
+        "type": "object",
+        "properties": {
+          "iataNumber": {
+            "type": "string"
+          },
+          "icaoNumber": {
+            "type": "string"
+          },
+          "number": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "iataNumber",
+          "icaoNumber",
+          "number"
+        ]
+      },
+      "AirportInfo": {
+        "type": "object",
+        "properties": {
+          "actualRunway": {
+            "type": "string"
+          },
+          "actualTime": {
+            "type": "string"
+          },
+          "baggage": {
+            "type": "string"
+          },
+          "delay": {
+            "type": "string",
+            "description": "in mins"
+          },
+          "estimatedRunway": {
+            "type": "string"
+          },
+          "estimatedTime": {
+            "type": "string"
+          },
+          "gate": {
+            "type": "string"
+          },
+          "iataCode": {
+            "type": "string"
+          },
+          "icaoCode": {
+            "type": "string"
+          },
+          "scheduledTime": {
+            "type": "string"
+          },
+          "terminal": {
+            "type": "string"
+          }
+        }
+      },
+      "FlightStatus": {
+        "type": "string",
+        "enum": [
+          "scheduled",
+          "active",
+          "landed",
+          "cancelled",
+          "incident",
+          "diverted",
+          "unknown"
+        ]
+      },
+      "FlighType": {
+        "type": "string",
+        "enum": [
+          "arrival",
+          "departure"
+        ]
+      },
+      "FlightEntity": {
+        "type": "object",
+        "properties": {
+          "airline": {
+            "$ref": "#/components/schemas/AirlineInfo"
+          },
+          "flight": {
+            "$ref": "#/components/schemas/AircraftFlightEntity"
+          },
+          "departure": {
+            "$ref": "#/components/schemas/AirportInfo"
+          },
+          "arrival": {
+            "$ref": "#/components/schemas/AirportInfo"
+          },
+          "status": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/FlightStatus"
+              }
+            ]
+          },
+          "type": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/FlighType"
+              }
+            ]
+          },
+          "codeshared": {
+            "type": "object"
+          }
+        },
+        "required": [
+          "airline",
+          "flight",
+          "departure",
+          "arrival",
+          "status",
+          "type",
+          "codeshared"
+        ]
+      },
+      "FlightsResponseEntity": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "date": {
+            "type": "string"
+          },
+          "route": {
+            "$ref": "#/components/schemas/FlightsRouteEntity"
+          },
+          "flightCount": {
+            "type": "number"
+          },
+          "flights": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FlightEntity"
+            }
+          }
+        },
+        "required": [
+          "success",
+          "date",
+          "route",
+          "flightCount",
+          "flights"
+        ]
+      },
+      "AircraftEntity": {
+        "type": "object",
+        "properties": {
+          "modeS": {
+            "type": "string"
+          },
+          "registration": {
+            "type": "string"
+          },
+          "model": {
+            "type": "string"
+          },
+          "image": {
+            "type": "string"
+          },
+          "aircraft_id": {
+            "type": "string"
+          },
+          "age": {
+            "type": "string"
+          },
+          "firstFlightDate": {
+            "type": "string"
+          },
+          "deliveryDate": {
+            "type": "string"
+          },
+          "isFreighter": {
+            "type": "boolean"
+          },
+          "attribution": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "registration",
+          "model"
+        ]
+      },
+      "PartialAirlineEntity": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "iata": {
+            "type": "string"
+          },
+          "icao": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
+      "LocationEntity": {
+        "type": "object",
+        "properties": {
+          "lat": {
+            "type": "number"
+          },
+          "lon": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "lat",
+          "lon"
+        ]
+      },
+      "RouteAirportEntity": {
+        "type": "object",
+        "properties": {
+          "iata": {
+            "type": "string"
+          },
+          "icao": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "timeZone": {
+            "type": "string"
+          },
+          "shortName": {
+            "type": "string"
+          },
+          "countryCode": {
+            "type": "string"
+          },
+          "municipalityName": {
+            "type": "string"
+          },
+          "location": {
+            "$ref": "#/components/schemas/LocationEntity"
+          }
+        },
+        "required": [
+          "iata",
+          "icao",
+          "name",
+          "timeZone",
+          "shortName",
+          "countryCode",
+          "municipalityName",
+          "location"
+        ]
+      },
+      "TimeEntity": {
+        "type": "object",
+        "properties": {
+          "utc": {
+            "type": "string"
+          },
+          "local": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "utc",
+          "local"
+        ]
+      },
+      "RouteInfoEntity": {
+        "type": "object",
+        "properties": {
+          "airport": {
+            "$ref": "#/components/schemas/RouteAirportEntity"
+          },
+          "terminal": {
+            "type": "string"
+          },
+          "gate": {
+            "type": "string"
+          },
+          "scheduledTime": {
+            "$ref": "#/components/schemas/TimeEntity"
+          },
+          "revisedTime": {
+            "$ref": "#/components/schemas/TimeEntity"
+          },
+          "predictedTime": {
+            "$ref": "#/components/schemas/TimeEntity"
+          }
+        },
+        "required": [
+          "airport",
+          "terminal",
+          "gate",
+          "scheduledTime"
+        ]
+      },
+      "GreatCircleDistanceEntity": {
+        "type": "object",
+        "properties": {
+          "meter": {
+            "type": "number"
+          },
+          "km": {
+            "type": "number"
+          },
+          "mile": {
+            "type": "number"
+          },
+          "nm": {
+            "type": "number"
+          },
+          "feet": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "meter",
+          "km",
+          "mile",
+          "nm",
+          "feet"
+        ]
+      },
+      "FlightResponseEntity": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "flight_no": {
+            "type": "string"
+          },
+          "call_sign": {
+            "type": "string"
+          },
+          "aircraft": {
+            "$ref": "#/components/schemas/AircraftEntity"
+          },
+          "airline": {
+            "$ref": "#/components/schemas/PartialAirlineEntity"
+          },
+          "arrival": {
+            "$ref": "#/components/schemas/RouteInfoEntity"
+          },
+          "departure": {
+            "$ref": "#/components/schemas/RouteInfoEntity"
+          },
+          "cargo": {
+            "type": "boolean"
+          },
+          "greatCircleDistance": {
+            "$ref": "#/components/schemas/GreatCircleDistanceEntity"
+          },
+          "date": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "image": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "flight_no",
+          "call_sign",
+          "aircraft",
+          "airline",
+          "arrival",
+          "departure",
+          "cargo",
+          "greatCircleDistance",
+          "date"
+        ]
+      }
+    }
+  }
+}

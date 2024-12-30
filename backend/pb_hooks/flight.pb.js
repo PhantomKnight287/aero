@@ -33,7 +33,6 @@ routerAdd("GET", '/flight', (c) => {
     const apiKey = $os.getenv("RAPID_API_KEY")
     const url = `https://aerodatabox.p.rapidapi.com/flights/number/${iata}/${date.toISOString().split("T")[0]
         }?withAircraftImage=true&withLocation=true`
-    console.log(date.toISOString())
     const res = $http.send({
         url,
         method: "GET",
@@ -62,5 +61,12 @@ routerAdd("GET", '/flight', (c) => {
         record.set("departure", json[0].departure)
     }
     $app.save(record)
+    const aircraft = $app.findFirstRecordByFilter(
+        "aircraft",
+        `hex_icao = ${json[0].aircraft.modeS}`
+    )
+    if(aircraft){
+        return 
+    }
     return c.json(200, record)
 })

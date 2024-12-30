@@ -2,6 +2,7 @@ import 'package:plane_pal/screens/auth/login/main.dart';
 import 'package:plane_pal/screens/auth/main.dart';
 import 'package:plane_pal/screens/auth/register/main.dart';
 import 'package:plane_pal/screens/home/main.dart';
+import 'package:plane_pal/screens/loading/loading.dart';
 import 'package:plane_pal/screens/profile/main.dart';
 import 'package:plane_pal/screens/wearables/main.dart';
 import 'package:go_router/go_router.dart';
@@ -44,6 +45,12 @@ class AeroRouter {
           return WearablesScreen();
         },
       ),
+      GoRoute(
+        path: "/loading",
+        builder: (context, state) {
+          return LoadingScreen();
+        },
+      )
     ],
     debugLogDiagnostics: true,
     initialLocation: "/auth/login",

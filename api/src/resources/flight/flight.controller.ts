@@ -1,0 +1,84 @@
+import { GenericErrorEntity } from 'src/common/entites/generic-error.entity';
+
+import {
+  BadRequestException,
+  Controller,
+  Get,
+  InternalServerErrorException,
+  Query,
+  UnauthorizedException,
+} from '@nestjs/common';
+import {
+  ApiBadRequestResponse,
+  ApiBearerAuth,
+  ApiInternalServerErrorResponse,
+  ApiOperation,
+  ApiQuery,
+  ApiResponse,
+  ApiTags,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
+
+import { GetFlightDTO } from './dto/get-flight.dto';
+import { FlightResponseEntity } from './entities/flight.entity';
+import { FlightService } from './flight.service';
+
+@Controller('flight')
+@ApiTags('Flight')
+@ApiBearerAuth('JWT-auth')
+export class FlightController {
+  constructor(private readonly flightService: FlightService) {}
+
+  @Get()
+  @ApiOperation({
+    summary: 'Get flight details',
+    description:
+      'Get detailed information about a specific flight including real-time tracking data',
+  })
+  @ApiQuery({
+    name: 'iata',
+    required: true,
+    type: String,
+    description: 'IATA flight number',
+    example: 'UA123',
+  })
+  @ApiQuery({
+    name: 'icao',
+    required: true,
+    type: String,
+    description: 'ICAO flight number',
+    example: 'UAL123',
+  })
+  @ApiQuery({
+    name: 'date',
+    required: false,
+    type: String,
+    description:
+      'Flight date (ISO format). Defaults to current date if not provided',
+    example: '2024-03-20',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Flight details retrieved successfully',
+    type: FlightResponseEntity,
+  })
+  @ApiUnauthorizedResponse({
+    description: 'User is not authenticated',
+    type: GenericErrorEntity,
+  })
+  @ApiBadRequestResponse({
+    description: 'Invalid request parameters',
+    type: GenericErrorEntity,
+  })
+  @ApiInternalServerErrorResponse({
+    description: 'Internal server error',
+    type: GenericErrorEntity,
+  })
+  async getFlight(@Query() query: GetFlightDTO) {
+    return await this.flightService.getFlight({
+      iata: query.iata,
+      icao: query.icao,
+      date: query.searchedDate,
+    });
+  }
+}

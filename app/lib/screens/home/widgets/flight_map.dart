@@ -1,4 +1,4 @@
-import 'package:plane_pal/screens/home/service.dart';
+import 'package:openapi/openapi.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_animations/flutter_map_animations.dart';
@@ -13,8 +13,8 @@ TileLayer get openStreetMapTileLayer => TileLayer(
 
 class FlightMap extends StatelessWidget {
   final AnimatedMapController mapController;
-  final Airport? departureAirport;
-  final Airport? arrivalAirport;
+  final AirportEntity? departureAirport;
+  final AirportEntity? arrivalAirport;
   final List<LatLng> coordinates;
 
   const FlightMap({
@@ -45,14 +45,14 @@ class FlightMap extends StatelessWidget {
           markers: [
             if (arrivalAirport != null)
               Marker(
-                point: LatLng(arrivalAirport!.lat, arrivalAirport!.long),
+                point: LatLng(double.parse(arrivalAirport!.lat), double.parse(arrivalAirport!.long)),
                 width: 10,
                 height: 10,
                 child: FlutterLogo(),
               ),
             if (departureAirport != null)
               Marker(
-                point: LatLng(departureAirport!.lat, departureAirport!.long),
+                point: LatLng(double.parse(departureAirport!.lat), double.parse(departureAirport!.long)),
                 width: 10,
                 height: 10,
                 child: FlutterLogo(),
@@ -65,12 +65,12 @@ class FlightMap extends StatelessWidget {
               Polyline(
                 points: [
                   LatLng(
-                    arrivalAirport!.lat,
-                    arrivalAirport!.long,
+                    double.parse(arrivalAirport!.lat),
+                    double.parse(arrivalAirport!.long),
                   ),
                   LatLng(
-                    departureAirport!.lat,
-                    departureAirport!.long,
+                    double.parse(departureAirport!.lat),
+                    double.parse(departureAirport!.long),
                   ),
                 ],
                 color: Colors.blue,

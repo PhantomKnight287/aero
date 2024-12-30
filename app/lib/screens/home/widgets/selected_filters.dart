@@ -1,12 +1,11 @@
-import 'package:plane_pal/models/airline/airline.dart';
-import 'package:plane_pal/screens/home/service.dart';
+import 'package:openapi/openapi.dart';
 import 'package:flutter/material.dart';
 
 class SelectedFilters extends StatelessWidget {
-  final Airline? selectedAirline;
+  final AirlineEntity? selectedAirline;
   final String? selectedFlightNumber;
-  final Airport? arrivalAirport;
-  final Airport? departureAirport;
+  final AirportEntity? arrivalAirport;
+  final AirportEntity? departureAirport;
   final VoidCallback onAirlineClear;
   final VoidCallback onFlightNumberClear;
   final VoidCallback onAirportsClear;
@@ -71,7 +70,7 @@ class SelectedFilters extends StatelessWidget {
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
-                arrivalAirport!.iata_code ?? arrivalAirport!.ident,
+                arrivalAirport!.iataCode ?? arrivalAirport!.ident,
                 style: TextStyle(fontWeight: FontWeight.w500),
               ),
             ),
@@ -87,7 +86,7 @@ class SelectedFilters extends StatelessWidget {
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
-                departureAirport!.iata_code ?? departureAirport!.ident,
+                departureAirport!.iataCode ?? departureAirport!.ident,
                 style: TextStyle(fontWeight: FontWeight.w500),
               ),
             ),

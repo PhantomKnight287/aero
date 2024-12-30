@@ -2,17 +2,17 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:openapi/openapi.dart';
 import 'package:plane_pal/constants/main.dart';
 import 'package:plane_pal/extensions/datetime.dart';
 import 'package:plane_pal/extensions/duration.dart';
 import 'package:plane_pal/formatters/time.dart';
-import 'package:plane_pal/models/flight_info/flight_info.dart';
 import 'package:plane_pal/screens/home/widgets/flight_route_info.dart';
 import 'package:plane_pal/utils/duration.dart';
 import 'package:plane_pal/utils/distance.dart';
 
 class FlightInfoWidget extends StatefulWidget {
-  final FlightInfo info;
+  final FlightResponseEntity info;
   const FlightInfoWidget({
     super.key,
     required this.info,
@@ -25,8 +25,8 @@ class FlightInfoWidget extends StatefulWidget {
 class _FlightInfoWidgetState extends State<FlightInfoWidget> {
   @override
   Widget build(BuildContext context) {
-    final arrival = widget.info.arrival!;
-    final departure = widget.info.departure!;
+    final arrival = widget.info.arrival;
+    final departure = widget.info.departure;
     return Padding(
       padding: const EdgeInsets.all(
         4.0,
@@ -39,7 +39,7 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               CachedNetworkImage(
-                imageUrl: "https://airlabs.co/img/airline/m/${widget.info.airline!.iata!}.png",
+                imageUrl: "https://airlabs.co/img/airline/m/${widget.info.airline.iata}.png",
                 width: 30,
                 height: 30,
                 errorWidget: (context, url, error) {
@@ -56,7 +56,7 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
                   Row(
                     children: [
                       Text(
-                        "${widget.info.departure!.airport!.municipalityName} to ${widget.info.arrival!.airport!.municipalityName}",
+                        "${widget.info.departure.airport.municipalityName} to ${widget.info.arrival.airport.municipalityName}",
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
@@ -68,7 +68,7 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
                     children: [
                       Text(
                         formatDayAndMonth(
-                          DateTime.parse(widget.info.departure!.revisedTime!.utc!),
+                          DateTime.parse(widget.info.departure.revisedTime!.utc),
                         ),
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
@@ -83,7 +83,7 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
                             ),
                       ),
                       Text(
-                        widget.info.flightNumber,
+                        widget.info.flightNo,
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           color: Theme.of(context).textTheme.titleSmall?.color,
@@ -142,38 +142,38 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
           ),
           Divider(),
           Text(
-            getTimeMessage(DateTime.parse((widget.info.arrival!.revisedTime ?? widget.info.arrival!.predictedTime)!.utc!)),
+            getTimeMessage(DateTime.parse((widget.info.arrival.revisedTime ?? widget.info.arrival.predictedTime)!.utc)),
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
             ),
           ),
           FlightRouteInfo(
-            arrivalCode: arrival.airport!.iata!,
+            arrivalCode: arrival.airport.iata,
             arrivalDelay: _calculateDelay(arrival.revisedTime, arrival.scheduledTime),
-            arrivalName: arrival.airport!.name!,
+            arrivalName: arrival.airport.name,
             arrivalSubtitle: "",
             arrivalTerminal: arrival.terminal,
-            arrivalTime: DateTime.parse((arrival.revisedTime ?? arrival.predictedTime)!.utc!),
-            arrivalTimezone: arrival.airport!.timeZone!,
-            departureCode: departure.airport!.iata!,
+            arrivalTime: DateTime.parse((arrival.revisedTime ?? arrival.predictedTime)!.utc),
+            arrivalTimezone: arrival.airport.timeZone,
+            departureCode: departure.airport.iata,
             departureDelay: _calculateDelay(departure.revisedTime, departure.scheduledTime),
-            departureName: departure.airport!.name!,
+            departureName: departure.airport.name,
             departureSubtitle: "",
             departureTerminal: departure.terminal,
-            departureTime: DateTime.parse((departure.revisedTime ?? departure.scheduledTime)!.utc!),
-            departureTimezone: departure.airport!.timeZone!,
+            departureTime: DateTime.parse((departure.revisedTime ?? departure.scheduledTime).utc),
+            departureTimezone: departure.airport.timeZone,
             statusColor: Colors.green,
             use24Hrs: MediaQuery.of(context).alwaysUse24HourFormat,
           ),
           Center(
             child: Text(
               "Total ${calculateFlightDuration(
-                departureTime: (widget.info.departure!.revisedTime ?? widget.info.departure!.scheduledTime)!.utc!,
-                departureTimezone: widget.info.departure!.airport!.timeZone!,
-                arrivalTime: (widget.info.arrival!.revisedTime ?? widget.info.arrival!.predictedTime)!.utc!,
-                arrivalTimezone: widget.info.arrival!.airport!.timeZone!,
-              ).toHumanReadable()}  • ${formatDistance(widget.info.greatCircleDistance!.km!, Localizations.localeOf(context).toString())}",
+                departureTime: (widget.info.departure.revisedTime ?? widget.info.departure.scheduledTime).utc,
+                departureTimezone: widget.info.departure.airport.timeZone,
+                arrivalTime: (widget.info.arrival.revisedTime ?? widget.info.arrival.predictedTime)!.utc,
+                arrivalTimezone: widget.info.arrival.airport.timeZone,
+              ).toHumanReadable()}  • ${formatDistance(widget.info.greatCircleDistance.km.toDouble(), Localizations.localeOf(context).toString())}",
               style: TextStyle(
                 fontWeight: FontWeight.w600,
               ),
@@ -210,8 +210,8 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
                     ),
                     title: Builder(builder: (context) {
                       final diff = getTimezoneDifference(
-                        widget.info.departure!.airport!.timeZone!,
-                        widget.info.arrival!.airport!.timeZone!,
+                        widget.info.departure.airport.timeZone,
+                        widget.info.arrival.airport.timeZone,
                       );
                       return Text(
                         diff == "same timezone" ? "No timezone difference" : "$diff Timezone Difference",
@@ -244,7 +244,7 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
                 spacing: 8,
                 children: [
                   Text(
-                    widget.info.aircraft!.model!,
+                    widget.info.aircraft.model,
                     style: TextStyle(
                       fontFamily: "CalSans",
                       fontSize: 16,

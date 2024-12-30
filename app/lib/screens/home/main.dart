@@ -1,12 +1,15 @@
 import 'dart:async';
 
+import 'package:built_collection/built_collection.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:plane_pal/client/pocketbase.dart';
+import 'package:openapi/openapi.dart';
 import 'package:plane_pal/constants/main.dart';
 import 'package:plane_pal/formatters/time.dart';
 import 'package:plane_pal/models/airline/airline.dart';
 import 'package:plane_pal/models/flight/flight.dart';
 import 'package:plane_pal/models/flight_info/flight_info.dart' show FlightInfo;
+import 'package:plane_pal/riverpod/user/user.dart';
 import 'package:plane_pal/screens/home/service.dart';
 import 'package:plane_pal/screens/home/widgets/flight_info.dart';
 import 'package:plane_pal/screens/home/widgets/flight_map.dart';
@@ -58,14 +61,14 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Ti
   final FlightDataService _flightService = FlightDataService();
   bool isLoading = false;
   String? error;
-  Airport? departureAirport;
-  Airport? arrivalAirport;
+  AirportEntity? departureAirport;
+  AirportEntity? arrivalAirport;
   DateTime? selectedDate;
-  List<Flight> flights = [];
+  BuiltList<FlightEntity> flights = BuiltList.from([]);
   List<Object> results = [];
-  Airline? selectedAirline;
+  AirlineEntity? selectedAirline;
   String? selectedFlightNumber;
-  FlightInfo? _flightInfo;
+  FlightResponseEntity? _flightInfo;
   List<LatLng> coordinates = [];
 
   @override
@@ -135,6 +138,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Ti
                   ),
                   child: SingleChildScrollView(
                     controller: myscrollController,
+                    keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                     child: Padding(
                       padding: const EdgeInsets.all(
                         8.0,
@@ -159,20 +163,23 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Ti
                                         ),
                                       ),
                                       Spacer(),
-                                      GestureDetector(
-                                        onTap: () {
-                                          GoRouter.of(context).push("/profile");
-                                        },
-                                        child: Hero(
-                                          tag: "avatar",
-                                          child: CircleAvatar(
-                                            backgroundImage: CachedNetworkImageProvider(
-                                              (pb.authStore.record!.data['avatar'] == null || pb.authStore.record!.data['avatar'].isEmpty)
-                                                  ? "https://api.dicebear.com/9.x/initials/png?seed=${pb.authStore.record!.data['name']}"
-                                                  : "$POCKETBASE_URL/api/files/users/${pb.authStore.record!.id}/${pb.authStore.record!.data['avatar']}",
+                                      Consumer(
+                                        builder: (context, ref, child) {
+                                          final user = ref.read(userNotifierProvider);
+                                          return GestureDetector(
+                                            onTap: () {
+                                              GoRouter.of(context).push("/profile");
+                                            },
+                                            child: Hero(
+                                              tag: "avatar",
+                                              child: CircleAvatar(
+                                                backgroundImage: CachedNetworkImageProvider(
+                                                  "https://api.dicebear.com/9.x/initials/png?seed=${user?.name}",
+                                                ),
+                                              ),
                                             ),
-                                          ),
-                                        ),
+                                          );
+                                        },
                                       )
                                     ],
                                   ),
@@ -211,7 +218,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Ti
                                             : selectedAirline != null && arrivalAirport == null && departureAirport == null
                                                 ? "Flight No"
                                                 : departureAirport == null
-                                                    ? "Search airline or departure airport"
+                                                    ? "Search airline, flight or airport"
                                                     : arrivalAirport == null
                                                         ? "Search arrival airport"
                                                         : "Select date",
@@ -271,39 +278,47 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Ti
                                           onTap: () async {
                                             loading = true;
                                             selectedDate = date;
-                                            flights = [];
+                                            flights = BuiltList.from([]);
                                             setState(() {});
-                                            if (arrivalAirport != null && departureAirport != null) {
-                                              flights = await _flightService.getFlights(
-                                                departureAirport!.iata_code ?? departureAirport!.ident,
-                                                arrivalAirport!.iata_code ?? arrivalAirport!.ident,
-                                                date.toIso8601String(),
-                                              );
-                                            } else {
-                                              final info = await _flightService.getFlightInfoWithNumber(
-                                                "${selectedAirline!.iata}$selectedFlightNumber",
-                                                "${selectedAirline!.icao}$selectedFlightNumber",
-                                                date: date,
-                                              );
-                                              if (info == null) {
-                                                setState(() {
-                                                  selectedDate = null;
-                                                });
+                                            try {
+                                              if (arrivalAirport != null && departureAirport != null) {
+                                                flights = await _flightService.getFlights(
+                                                  departureAirport!.iataCode ?? departureAirport!.ident,
+                                                  arrivalAirport!.iataCode ?? arrivalAirport!.ident,
+                                                  date.toIso8601String(),
+                                                );
                                               } else {
-                                                coordinates = [
-                                                  LatLng(
-                                                    info.departure!.airport!.location!.lat!,
-                                                    info.departure!.airport!.location!.lon!,
-                                                  ),
-                                                  LatLng(
-                                                    info.arrival!.airport!.location!.lat!,
-                                                    info.arrival!.airport!.location!.lon!,
-                                                  ),
-                                                ];
-                                                setState(() {
-                                                  _flightInfo = info;
-                                                });
+                                                final info = await _flightService.getFlightInfoWithNumber(
+                                                  "${selectedAirline!.iata}$selectedFlightNumber",
+                                                  "${selectedAirline!.icao}$selectedFlightNumber",
+                                                  date: date,
+                                                );
+                                                if (info == null) {
+                                                  setState(() {
+                                                    selectedDate = null;
+                                                  });
+                                                } else {
+                                                  coordinates = [
+                                                    LatLng(
+                                                      info.departure.airport.location.lat.toDouble(),
+                                                      info.departure.airport.location.lon.toDouble(),
+                                                    ),
+                                                    LatLng(
+                                                      info.arrival.airport.location.lat.toDouble(),
+                                                      info.arrival.airport.location.lon.toDouble(),
+                                                    ),
+                                                  ];
+                                                  setState(() {
+                                                    _flightInfo = info;
+                                                  });
+                                                }
                                               }
+                                            } catch (e, stack) {
+                                              print(e);
+                                              print(stack);
+                                              setState(() {
+                                                selectedDate = null;
+                                              });
                                             }
                                             setState(() {
                                               loading = false;
@@ -329,11 +344,11 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Ti
                                           onTap: () async {
                                             loading = true;
                                             selectedDate = tmrh;
-                                            flights = [];
+                                            flights = BuiltList.from([]);
                                             setState(() {});
                                             flights = await _flightService.getFlights(
-                                              departureAirport!.iata_code ?? departureAirport!.ident,
-                                              arrivalAirport!.iata_code ?? arrivalAirport!.ident,
+                                              departureAirport!.iataCode ?? departureAirport!.ident,
+                                              arrivalAirport!.iataCode ?? arrivalAirport!.ident,
                                               tmrh.toIso8601String(),
                                             );
                                             setState(() {
@@ -384,23 +399,29 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Ti
                                     child: ListView.builder(
                                       itemBuilder: (context, index) {
                                         final item = index == 0
-                                            ? Airport(
-                                                id: "",
-                                                ident: "VIDP",
-                                                iso_country: "IN",
-                                                lat: 0,
-                                                long: 0,
-                                                name: "Indira Gandhi Internation Airport",
-                                                type: AirportType.large_airport,
-                                              )
-                                            : Airline(
-                                                id: "",
-                                                iata: "IC",
-                                                icao: "ICE",
-                                                name: "Air India",
-                                              );
+                                            ? AirportEntity((b) {
+                                                b
+                                                  ..id = ""
+                                                  ..ident = "VIDP"
+                                                  ..isoCountry = "IN"
+                                                  ..lat = '0'
+                                                  ..long = '0'
+                                                  ..name = "Indira Gandhi International Airport"
+                                                  ..type = AirportType.largeAirport
+                                                  ..continent = "IDK"
+                                                  ..isoRegion = "DEL"
+                                                  ..build();
+                                              })
+                                            : AirlineEntity((b) {
+                                                b
+                                                  ..id = ""
+                                                  ..iata = "IC"
+                                                  ..icao = "ICE"
+                                                  ..name = "Air India"
+                                                  ..build();
+                                              });
                                         if (index == 0) {
-                                          final airport = item as Airport;
+                                          final airport = item as AirportEntity;
                                           return ListTile(
                                             title: Text(airport.name),
                                             leading: Container(
@@ -410,7 +431,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Ti
                                             ),
                                           );
                                         } else {
-                                          final airline = item as Airline;
+                                          final airline = item as AirlineEntity;
                                           return ListTile(
                                             title: Text(airline.name),
                                             leading: Container(
@@ -427,85 +448,86 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Ti
                                       itemCount: 2,
                                     ),
                                   ),
-                                ListView.builder(
-                                  padding: EdgeInsets.zero,
-                                  shrinkWrap: true,
-                                  itemBuilder: (context, index) {
-                                    final _item = results[index];
-                                    final runtimeType = _item.runtimeType.toString();
-                                    if (runtimeType == "Airport") {
-                                      final airport = _item as Airport;
-                                      return ListTile(
-                                        title: Text(
-                                          airport.name,
-                                        ),
-                                        subtitle: Text(
-                                          "${airport.iata_code} • ${airport.iso_country} • ${airport.ident}",
-                                        ),
-                                        leading: CachedNetworkImage(
-                                          imageUrl: "https://flagcdn.com/h40/${airport.iso_country.toLowerCase()}.jpg",
-                                          width: 30,
-                                          height: 30,
-                                          errorWidget: (context, url, error) {
-                                            return SizedBox(
-                                              height: 0,
-                                              width: 0,
-                                            );
+                                if (selectedAirline == null)
+                                  ListView.builder(
+                                    padding: EdgeInsets.zero,
+                                    shrinkWrap: true,
+                                    itemBuilder: (context, index) {
+                                      final _item = results[index];
+                                      final runtimeType = _item.runtimeType.toString();
+                                      if (runtimeType == '_\$AirportEntity') {
+                                        final airport = _item as AirportEntity;
+                                        return ListTile(
+                                          title: Text(
+                                            airport.name,
+                                          ),
+                                          subtitle: Text(
+                                            "${airport.iataCode} • ${airport.isoCountry} • ${airport.ident}",
+                                          ),
+                                          leading: CachedNetworkImage(
+                                            imageUrl: "https://flagcdn.com/h40/${airport.isoCountry.toLowerCase()}.jpg",
+                                            width: 30,
+                                            height: 30,
+                                            errorWidget: (context, url, error) {
+                                              return SizedBox(
+                                                height: 0,
+                                                width: 0,
+                                              );
+                                            },
+                                          ),
+                                          onTap: () async {
+                                            if (departureAirport == null) {
+                                              departureAirport = airport;
+                                            } else {
+                                              arrivalAirport = airport;
+                                            }
+                                            _flightController.clear();
+                                            results.clear();
+                                            setState(() {});
                                           },
-                                        ),
-                                        onTap: () async {
-                                          if (departureAirport == null) {
-                                            departureAirport = airport;
-                                          } else {
-                                            arrivalAirport = airport;
-                                          }
-                                          _flightController.clear();
-                                          results.clear();
-                                          setState(() {});
-                                        },
-                                      );
-                                    } else {
-                                      final airline = _item as Airline;
-                                      return ListTile(
-                                        title: Text(airline.name),
-                                        subtitle: Text("${airline.iata} • ${airline.icao}"),
-                                        leading: airline.image != null && airline.image!.isNotEmpty
-                                            ? SvgPicture.network(
-                                                "$POCKETBASE_URL/api/files/airlines/${airline.id}/${airline.image}",
-                                                width: 24,
-                                                height: 18,
-                                              )
-                                            : CachedNetworkImage(
-                                                imageUrl: "https://airlabs.co/img/airline/m/${airline.iata}.png",
-                                                width: 24,
-                                                height: 18,
-                                                errorWidget: (context, url, error) {
-                                                  return SizedBox(
-                                                    height: 0,
-                                                    width: 0,
-                                                  );
-                                                },
-                                              ),
-                                        onTap: () {
-                                          selectedAirline = airline;
-                                          _flightController.clear();
-                                          results.clear();
-                                          setState(() {});
-                                        },
-                                      );
-                                    }
-                                  },
-                                  itemCount: results.length,
-                                  physics: NeverScrollableScrollPhysics(),
-                                ),
+                                        );
+                                      } else {
+                                        final airline = _item as AirlineEntity;
+                                        return ListTile(
+                                          title: Text(airline.name),
+                                          subtitle: Text("${airline.iata} • ${airline.icao}"),
+                                          leading: airline.image != null && airline.image!.isNotEmpty
+                                              ? SvgPicture.network(
+                                                  "$POCKETBASE_URL/api/files/airlines/${airline.id}/${airline.image}",
+                                                  width: 24,
+                                                  height: 18,
+                                                )
+                                              : CachedNetworkImage(
+                                                  imageUrl: "https://airlabs.co/img/airline/m/${airline.iata}.png",
+                                                  width: 24,
+                                                  height: 18,
+                                                  errorWidget: (context, url, error) {
+                                                    return SizedBox(
+                                                      height: 0,
+                                                      width: 0,
+                                                    );
+                                                  },
+                                                ),
+                                          onTap: () {
+                                            selectedAirline = airline;
+                                            _flightController.clear();
+                                            results.clear();
+                                            setState(() {});
+                                          },
+                                        );
+                                      }
+                                    },
+                                    itemCount: results.length,
+                                    physics: NeverScrollableScrollPhysics(),
+                                  ),
                                 ListView.separated(
                                   separatorBuilder: (context, index) {
                                     return Divider();
                                   },
                                   itemBuilder: (context, index) {
                                     final flight = flights[index];
-                                    final arrivalTime = DateTime.parse(flight.arrival['scheduledTime']!);
-                                    final departureTime = DateTime.parse(flight.departure['scheduledTime']!);
+                                    final arrivalTime = DateTime.parse(flight.arrival.scheduledTime!);
+                                    final departureTime = DateTime.parse(flight.departure.scheduledTime!);
                                     final currentTime = DateTime.now();
                                     return Padding(
                                       padding: const EdgeInsets.all(
@@ -545,7 +567,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Ti
                                                 spacing: 4,
                                                 children: [
                                                   CachedNetworkImage(
-                                                    imageUrl: "https://airlabs.co/img/airline/m/${flight.airline['iataCode']}.png",
+                                                    imageUrl: "https://airlabs.co/img/airline/m/${flight.airline.iataCode}.png",
                                                     width: 15,
                                                     height: 15,
                                                     errorWidget: (context, url, error) {
@@ -556,7 +578,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Ti
                                                     },
                                                   ),
                                                   Text(
-                                                    flight.flight['iataNumber']!,
+                                                    flight.flight.iataNumber,
                                                     style: TextStyle(
                                                       fontSize: 12,
                                                     ),
@@ -566,7 +588,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Ti
                                               Row(
                                                 children: [
                                                   Text(
-                                                    flight.airline['name']!,
+                                                    flight.airline.name,
                                                     style: TextStyle(
                                                       fontWeight: FontWeight.bold,
                                                       fontSize: 14,
@@ -580,7 +602,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Ti
                                                     TextSpan(
                                                       children: [
                                                         TextSpan(
-                                                          text: "${flight.departure['iataCode']} ",
+                                                          text: "${flight.departure.iataCode} ",
                                                           style: TextStyle(),
                                                         ),
                                                         TextSpan(
@@ -594,7 +616,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Ti
                                                           ),
                                                         ),
                                                         TextSpan(
-                                                          text: "   ${flight.arrival['iataCode']} ",
+                                                          text: "   ${flight.arrival.iataCode} ",
                                                           style: TextStyle(),
                                                         ),
                                                         TextSpan(
@@ -650,19 +672,19 @@ Widget getAirportIcon(AirportType type) {
       width: 40,
       height: 40,
     );
-  } else if (type == AirportType.large_airport || type == AirportType.medium_airport) {
+  } else if (type == AirportType.largeAirport || type == AirportType.mediumAirport) {
     return SvgPicture.asset(
       "assets/svgs/big-medium-plane.svg",
       width: 40,
       height: 40,
     );
-  } else if (type == AirportType.seaplane_base) {
+  } else if (type == AirportType.seaplaneBase) {
     return SvgPicture.asset(
       "assets/svgs/sea-plane.svg",
       width: 40,
       height: 40,
     );
-  } else if (type == AirportType.small_airport) {
+  } else if (type == AirportType.smallAirport) {
     return SvgPicture.asset(
       "assets/svgs/small-plane.svg",
       width: 40,

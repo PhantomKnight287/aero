@@ -1,8 +1,9 @@
-import 'package:plane_pal/client/pocketbase.dart';
-import 'package:plane_pal/constants/main.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:plane_pal/constants/main.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:plane_pal/riverpod/user/user.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -21,16 +22,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
           child: Column(
             children: [
               Center(
-                child: Hero(
-                  tag: "avatar",
-                  child: CircleAvatar(
-                    radius: 40,
-                    backgroundImage: CachedNetworkImageProvider(
-                      (pb.authStore.record!.data['avatar'] == null || pb.authStore.record!.data['avatar'].isEmpty)
-                          ? "https://api.dicebear.com/9.x/initials/png?seed=${pb.authStore.record!.data['name']}"
-                          : "$POCKETBASE_URL/api/files/users/${pb.authStore.record!.id}/${pb.authStore.record!.data['avatar']}",
-                    ),
-                  ),
+                child: Consumer(
+                  builder: (context, ref, child) {
+                    final user = ref.read(userNotifierProvider);
+                    return GestureDetector(
+                      onTap: () {
+                        GoRouter.of(context).push("/profile");
+                      },
+                      child: Hero(
+                        tag: "avatar",
+                        child: CircleAvatar(
+                          radius: 40,
+                          backgroundImage: CachedNetworkImageProvider(
+                            "https://api.dicebear.com/9.x/initials/png?seed=${user?.name}",
+                          ),
+                        ),
+                      ),
+                    );
+                  },
                 ),
               ),
               ListTile(
@@ -43,14 +52,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   );
                 },
               ),
-              ListTile(
-                title: Text(
-                  "Log Out",
-                ),
-                onTap: () async {
-                  pb.authStore.clear();
-                  GoRouter.of(context).go(
-                    "/auth/register",
+              Consumer(
+                builder: (context, ref, child) {
+                  return ListTile(
+                    title: Text(
+                      "Log Out",
+                    ),
+                    onTap: () async {
+                      await ref.read(userNotifierProvider.notifier).logout();
+                      if (context.mounted) {
+                        GoRouter.of(context).go(
+                          "/auth/register",
+                        );
+                      }
+                    },
                   );
                 },
               )

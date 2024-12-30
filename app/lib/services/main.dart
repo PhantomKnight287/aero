@@ -1,7 +1,7 @@
-import 'package:plane_pal/client/pocketbase.dart';
-import 'package:plane_pal/models/flight/flight.dart';
+import 'package:built_collection/built_collection.dart';
+import 'package:openapi/openapi.dart';
+import 'package:plane_pal/constants/main.dart';
 import 'package:dio/dio.dart';
-import 'package:plane_pal/models/flight_info/flight_info.dart';
 
 class ApiException implements Exception {
   final String message;
@@ -16,6 +16,8 @@ class ApiException implements Exception {
 class FlightDataService {
   static const String baseUrl = 'https://opensky-network.org/api';
   final Dio _dio;
+  final _flightApi = openapi.getFlightApi();
+  final _flightsApi = openapi.getFlightsApi();
 
   FlightDataService() : _dio = Dio() {
     _dio.options.baseUrl = baseUrl;
@@ -27,64 +29,31 @@ class FlightDataService {
     ));
   }
 
-  Future<FlightInfo?> getFlightInfoWithNumber(
+  Future<FlightResponseEntity?> getFlightInfoWithNumber(
     String iata,
     String icao, {
     DateTime? date,
   }) async {
     date = date ?? DateTime.now();
-    try {
-      final res = await pb.send(
-        "/flight",
-        query: {
-          "iata": iata,
-          "icao": icao,
-          "date": "${date.year}-${date.month}-${date.day}",
-        },
-      );
-      return FlightInfo.fromJson(res);
-    } catch (e, stack) {
-      print(e);
-      print(stack);
-      return null;
-    }
+    final res = await _flightApi.flightControllerGetFlightV1(
+      iata: iata,
+      icao: icao,
+      date: "${date.year}-${date.month}-${date.year}",
+    );
+    return res.data;
   }
 
-  Future<List<Flight>> getFlights(
+  Future<BuiltList<FlightEntity>> getFlights(
     String from,
     String to,
     String date,
   ) async {
-    try {
-      final res = await pb.send(
-        "/flights",
-        query: {"from": from, "to": to, "date": date},
-      );
-      if (res['flights'] != null) {
-        return (res['flights'] as List<dynamic>).map<Flight>((flight) => Flight.fromJson(flight)).toList();
-      }
-      return [];
-    } catch (e, stack) {
-      print(e);
-      print(stack);
-    }
-    return [];
-    // try {
-    //   final response = await _dio.get(
-    //     '/flights/$type',
-    //     queryParameters: {
-    //       'airport': icao,
-    //       'begin': beginTime,
-    //       'end': endTime,
-    //     },
-    //     options: Options(
-    //       headers: {
-    //         'Accept': 'application/json',
-    //       },
-    //     ),
-    //   );
-
-    //   if (response.statusCode == 200) {
+    final res = await _flightsApi.flightsControllerGetFlightsV1(
+      from: from,
+      to: to,
+      date: date,
+    );
+    return res.data!.flights;
     //     final List<dynamic> flightList = response.data;
     //     return flightList.map((flight) => Flight.fromJson(flight)).toList();
     //   } else {
@@ -101,20 +70,5 @@ class FlightDataService {
     // } catch (e) {
     //   throw ApiException(message: 'Unexpected error: $e');
     // }
-  }
-
-  String _handleDioError(DioException error) {
-    switch (error.type) {
-      case DioExceptionType.connectionTimeout:
-        return 'Connection timeout. Please check your internet connection.';
-      case DioExceptionType.receiveTimeout:
-        return 'Receive timeout. Please try again.';
-      case DioExceptionType.badResponse:
-        return 'Server error (${error.response?.statusCode}): ${error.response?.statusMessage}';
-      case DioExceptionType.cancel:
-        return 'Request cancelled';
-      default:
-        return 'Network error occurred: ${error.message}';
-    }
   }
 }

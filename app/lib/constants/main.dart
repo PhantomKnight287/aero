@@ -1,8 +1,23 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:plane_pal/interceptors/auth.dart';
+import 'package:openapi/openapi.dart';
 
 const SECONDARY_TEXT_COLOR = Color(0xff808080);
 
-const POCKETBASE_URL = "http://local-pocketbase.procrastinator.fyi";
+const POCKETBASE_URL = "https://c641f6de3e0a-10502837830859101550.ngrok-free.app";
+const AUTH_TOKEN_KEY = "token";
+
+final openapi = Openapi(
+  dio: Dio(
+    BaseOptions(
+      baseUrl: POCKETBASE_URL,
+    ),
+  ),
+  interceptors: [
+    AuthInterceptor(),
+  ],
+);
 
 const MONTHS = [
   "January", // 0

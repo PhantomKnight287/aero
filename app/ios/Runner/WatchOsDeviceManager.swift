@@ -10,10 +10,26 @@ import WatchConnectivity
 
 class WatchOsDeviceManager: NSObject, WCSessionDelegate{
     private let context: UIViewController
-        static let shared = WatchOsDeviceManager()
+        private static var sharedInstance: WatchOsDeviceManager?
         private var session: WCSession?
         
-        init(context: UIViewController) {
+        // Updated singleton accessor
+        static var shared: WatchOsDeviceManager {
+            guard let instance = sharedInstance else {
+                fatalError("WatchOsDeviceManager must be initialized before accessing shared instance")
+            }
+            return instance
+        }
+        
+        // Updated initializer method
+        static func initialize(with context: UIViewController) -> WatchOsDeviceManager {
+            if sharedInstance == nil {
+                sharedInstance = WatchOsDeviceManager(context: context)
+            }
+            return sharedInstance!
+        }
+        
+        private init(context: UIViewController) {
             self.context = context
             super.init()
             if WCSession.isSupported() {

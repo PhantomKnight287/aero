@@ -1,6 +1,5 @@
 import Flutter
 import UIKit
-import GoogleMaps
 
 @main
 @objc class AppDelegate: FlutterAppDelegate {
@@ -8,11 +7,12 @@ import GoogleMaps
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
-      let controller: FlutterViewControllerController = window?.rootViewController as! FlutterViewController
+      let controller: FlutterViewController = window?.rootViewController as! FlutterViewController
       let planePalChannel = FlutterMethodChannel(
         name:"com.phantomknight287.planepal/planepal",binaryMessenger: controller.binaryMessenger
       )
-      let watchOsDeviceManager = WatchOsDeviceManager(context:controller)
+      let watchOsDeviceManager = WatchOsDeviceManager.initialize(with: controller)
+
       planePalChannel.setMethodCallHandler{
           (call:FlutterMethodCall, result: @escaping FlutterResult) in switch call.method{
           case "getConnectedWearables": DispatchQueue.main.async{
@@ -34,7 +34,6 @@ import GoogleMaps
               result(FlutterMethodNotImplemented)
           }
       }
-    GMSServices.provideAPIKey(ProcessInfo.processInfo.environment["API_KEY"])
     GeneratedPluginRegistrant.register(with: self)
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }

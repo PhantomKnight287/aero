@@ -1,108 +1,182 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["omitApi"]
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = "file:./db/db.sqlite3"
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model User {
-  id            String    @id
-  name          String
-  email         String
-  emailVerified Boolean
-  image         String?
-  createdAt     DateTime
-  updatedAt     DateTime
-  sessions      Session[]
-  accounts      Account[]
+  id       String @id @unique
+  name     String
+  email    String @unique
+  password String
 
-  @@unique([email])
-  @@map("user")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("users")
 }
 
-model Session {
-  id        String   @id
-  expiresAt DateTime
-  token     String
-  createdAt DateTime
-  updatedAt DateTime
-  ipAddress String?
-  userAgent String?
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([token])
-  @@map("session")
-}
-
-model Account {
-  id                    String    @id
-  accountId             String
-  providerId            String
-  userId                String
-  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  accessToken           String?
-  refreshToken          String?
-  idToken               String?
-  accessTokenExpiresAt  DateTime?
-  refreshTokenExpiresAt DateTime?
-  scope                 String?
-  password              String?
-  createdAt             DateTime
-  updatedAt             DateTime
-
-  @@map("account")
-}
-
-model Verification {
-  id         String    @id
-  identifier String
-  value      String
-  expiresAt  DateTime
-  createdAt  DateTime?
-  updatedAt  DateTime?
-
-  @@map("verification")
-}
-
-model Jwks {
-  id         String   @id
-  publicKey  String
-  privateKey String
-  createdAt  DateTime
-
-  @@map("jwks")
-}
-
-model Airline {
-  id String @id @unique @default(cuid())
-
-  name String
-  iata String
-  icao String
-
-  createdAt DateTime?
-  updatedAt DateTime?
+enum AirportType {
+  small_airport
+  seaplane_base
+  medium_airport
+  large_airport
+  heliport
+  closed
+  balloonport
 }
 
 model Airport {
-  id           String   @id @unique @default(cuid())
+  id           String      @id @unique @default(cuid())
   ident        String
-  type         String
-  elevation    Int?
-  continent    String?
-  iso_country  String?
-  iso_region   String?
+  type         AirportType
+  elevation    Decimal?
+  continent    String
+  isoCountry   String      @map("iso_country")
+  isoRegion    String      @map("iso_region")
   municipality String?
-  gps_code     String?
-  iata_code    String?
-  local_code   String?
+  gpsCode      String?     @map("gps_code")
+  iataCode     String?     @map("iata_code")
   name         String
-  lat          Decimal?
-  long         Decimal?
+  lat          Decimal
+  long         Decimal
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("airports")
+}
+
+model Airline {
+  id   String @id @unique @default(cuid())
+  name String
+  icao String
+  iata String
+
+  image String?
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("airlines")
+}
+
+model Aircraft {
+  id              String                 @id @unique @default(cuid())
+  aircraft_id     String
+  reg             String
+  hexIcao         String?                @map("hex_icao")
+  modelCode       String?                @map("model_code")
+  age             Decimal?
+  firstFlightDate DateTime?              @map("first_flight_date")
+  deliveryDate    DateTime?              @map("delivery_date")
+  typeName        String?                @map("type_name")
+  isFreighter     Boolean                @map("is_freighter")
+  image           String?
+  attribution     String?
+  registrations   AircraftRegistration[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("aircrafts")
+}
+
+enum FlightType {
+  arrival
+  departure
+}
+
+enum FlightStatus {
+  scheduled
+  active
+  landed
+  cancelled
+  incident
+  diverted
+  unknown
+}
+
+model Flights {
+  id String @id @unique @default(cuid())
+
+  date       DateTime
+  airline    Json
+  arrival    Json
+  codeshared Json?
+  departure  Json
+  flight     Json
+  type       FlightType
+  status     FlightStatus?
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("flights")
+}
+
+model GreatCircleDistance {
+  id String @id @unique @default(cuid())
+
+  meter Decimal
+  km    Decimal
+  mile  Decimal
+  nm    Decimal
+  feet  Decimal
+
+  flight   Flight @relation(fields: [flightId], references: [id], onDelete: Cascade)
+  flightId String @unique @map("flight_id")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("great_circle_distance")
+}
+
+model Flight {
+  id String @id @unique @default(cuid())
+
+  greatCircleDistance GreatCircleDistance?
+
+  flightNo  String   @map("flight_no")
+  aircraft  Json
+  airline   Json
+  arrival   Json
+  departure Json
+  cargo     Boolean  @default(false)
+  date      DateTime
+  callSign  String   @map("call_sign")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("flight")
+}
+
+model AircraftRegistration {
+  id String @id @unique @default(cuid())
+
+  reg              String
+  active           Boolean
+  hexIcao          String?   @map("hex_icao")
+  airlineName      String?   @map("airline_name")
+  registrationDate DateTime? @map("registration_date")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  Aircraft   Aircraft? @relation(fields: [aircraftId], references: [id])
+  aircraftId String?   @map("aircraft_id")
+
+  @@map("aircraft_registrations")
 }

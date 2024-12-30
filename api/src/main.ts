@@ -1,16 +1,27 @@
 import 'dotenv/config';
-import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
+import { writeFileSync } from 'fs';
 import morgan from 'morgan';
-import { apiReference } from '@scalar/nestjs-api-reference';
+import { join } from 'path';
+
+import { ValidationPipe, VersioningType } from '@nestjs/common';
+import { NestFactory } from '@nestjs/core';
+import { NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { toNodeHandler } from 'better-auth/node';
-import { auth } from './lib/auth';
+import { apiReference } from '@scalar/nestjs-api-reference';
+
+import { AppModule } from './app.module';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
   app.use(morgan('dev'));
-  // app.enableVersioning({ type: VersioningType.URI, defaultVersion: '1' });
+  app.enableCors();
+  app.enableVersioning({
+    type: VersioningType.URI,
+    defaultVersion: '1',
+  });
+  app.useGlobalPipes(
+    new ValidationPipe({ whitelist: true, enableDebugMessages: true }),
+  );
   const config = new DocumentBuilder()
     .setTitle('Plane Pal')
     .setDescription('Plane Pal API Documentation')
@@ -19,19 +30,32 @@ async function bootstrap() {
         type: 'http',
         scheme: 'bearer',
         bearerFormat: 'JWT',
-        name: 'JWT',
-        description: 'Enter JWT token',
-        in: 'header',
-        'x-tokenName': 'Token',
       },
       'JWT-auth',
     )
     .build();
+
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('docs', app, document);
-  app.getHttpAdapter().all('/api/auth/*', toNodeHandler(auth));
+  Object.values(document.paths).forEach((path: any) => {
+    Object.values(path).forEach((method: any) => {
+      if (!method.responses) {
+        method.responses = {};
+      }
+      method.responses['500'] = {
+        description: 'Internal server error',
+        content: {
+          'application/json': {
+            schema: {
+              $ref: '#/components/schemas/GenericErrorEntity',
+            },
+          },
+        },
+      };
+    });
+  });
+  writeFileSync('./openapi.json', JSON.stringify(document, null, 2));
   app.use(
-    '/reference',
+    '/docs',
     apiReference({
       spec: {
         content: document,
@@ -44,6 +68,6 @@ async function bootstrap() {
       },
     }),
   );
-  await app.listen(3000);
+  await app.listen(process.env.PORT || 5000);
 }
 bootstrap();
