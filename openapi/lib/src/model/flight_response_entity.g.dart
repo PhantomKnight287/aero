@@ -24,7 +24,7 @@ class _$FlightResponseEntity extends FlightResponseEntity {
   @override
   final bool cargo;
   @override
-  final GreatCircleDistanceEntity greatCircleDistance;
+  final StringifiedGreatCircleDistanceEntity greatCircleDistance;
   @override
   final DateTime date;
   @override
@@ -172,11 +172,12 @@ class FlightResponseEntityBuilder
   bool? get cargo => _$this._cargo;
   set cargo(bool? cargo) => _$this._cargo = cargo;
 
-  GreatCircleDistanceEntityBuilder? _greatCircleDistance;
-  GreatCircleDistanceEntityBuilder get greatCircleDistance =>
-      _$this._greatCircleDistance ??= new GreatCircleDistanceEntityBuilder();
+  StringifiedGreatCircleDistanceEntityBuilder? _greatCircleDistance;
+  StringifiedGreatCircleDistanceEntityBuilder get greatCircleDistance =>
+      _$this._greatCircleDistance ??=
+          new StringifiedGreatCircleDistanceEntityBuilder();
   set greatCircleDistance(
-          GreatCircleDistanceEntityBuilder? greatCircleDistance) =>
+          StringifiedGreatCircleDistanceEntityBuilder? greatCircleDistance) =>
       _$this._greatCircleDistance = greatCircleDistance;
 
   DateTime? _date;

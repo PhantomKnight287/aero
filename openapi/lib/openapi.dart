@@ -32,7 +32,6 @@ export 'package:openapi/src/model/flights_response_entity.dart';
 export 'package:openapi/src/model/flights_route_entity.dart';
 export 'package:openapi/src/model/generic_error_entity.dart';
 export 'package:openapi/src/model/get_airline_dto.dart';
-export 'package:openapi/src/model/great_circle_distance_entity.dart';
 export 'package:openapi/src/model/location_entity.dart';
 export 'package:openapi/src/model/login_dto.dart';
 export 'package:openapi/src/model/login_entity.dart';
@@ -41,6 +40,7 @@ export 'package:openapi/src/model/register_dto.dart';
 export 'package:openapi/src/model/register_entity.dart';
 export 'package:openapi/src/model/route_airport_entity.dart';
 export 'package:openapi/src/model/route_info_entity.dart';
+export 'package:openapi/src/model/stringified_great_circle_distance_entity.dart';
 export 'package:openapi/src/model/time_entity.dart';
 export 'package:openapi/src/model/user_entity.dart';
 

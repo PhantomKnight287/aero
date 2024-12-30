@@ -4,8 +4,8 @@
 
 // ignore_for_file: unused_element
 import 'package:openapi/src/model/partial_airline_entity.dart';
+import 'package:openapi/src/model/stringified_great_circle_distance_entity.dart';
 import 'package:openapi/src/model/aircraft_entity.dart';
-import 'package:openapi/src/model/great_circle_distance_entity.dart';
 import 'package:openapi/src/model/route_info_entity.dart';
 import 'package:built_value/built_value.dart';
 import 'package:built_value/serializer.dart';
@@ -31,10 +31,10 @@ abstract class FlightResponseEntity implements Built<FlightResponseEntity, Fligh
   @BuiltValueField(wireName: r'id')
   String get id;
 
-  @BuiltValueField(wireName: r'flight_no')
+  @BuiltValueField(wireName: r'flightNo')
   String get flightNo;
 
-  @BuiltValueField(wireName: r'call_sign')
+  @BuiltValueField(wireName: r'callSign')
   String get callSign;
 
   @BuiltValueField(wireName: r'aircraft')
@@ -53,7 +53,7 @@ abstract class FlightResponseEntity implements Built<FlightResponseEntity, Fligh
   bool get cargo;
 
   @BuiltValueField(wireName: r'greatCircleDistance')
-  GreatCircleDistanceEntity get greatCircleDistance;
+  StringifiedGreatCircleDistanceEntity get greatCircleDistance;
 
   @BuiltValueField(wireName: r'date')
   DateTime get date;
@@ -89,12 +89,12 @@ class _$FlightResponseEntitySerializer implements PrimitiveSerializer<FlightResp
       object.id,
       specifiedType: const FullType(String),
     );
-    yield r'flight_no';
+    yield r'flightNo';
     yield serializers.serialize(
       object.flightNo,
       specifiedType: const FullType(String),
     );
-    yield r'call_sign';
+    yield r'callSign';
     yield serializers.serialize(
       object.callSign,
       specifiedType: const FullType(String),
@@ -127,7 +127,7 @@ class _$FlightResponseEntitySerializer implements PrimitiveSerializer<FlightResp
     yield r'greatCircleDistance';
     yield serializers.serialize(
       object.greatCircleDistance,
-      specifiedType: const FullType(GreatCircleDistanceEntity),
+      specifiedType: const FullType(StringifiedGreatCircleDistanceEntity),
     );
     yield r'date';
     yield serializers.serialize(
@@ -171,14 +171,14 @@ class _$FlightResponseEntitySerializer implements PrimitiveSerializer<FlightResp
           ) as String;
           result.id = valueDes;
           break;
-        case r'flight_no':
+        case r'flightNo':
           final valueDes = serializers.deserialize(
             value,
             specifiedType: const FullType(String),
           ) as String;
           result.flightNo = valueDes;
           break;
-        case r'call_sign':
+        case r'callSign':
           final valueDes = serializers.deserialize(
             value,
             specifiedType: const FullType(String),
@@ -223,8 +223,8 @@ class _$FlightResponseEntitySerializer implements PrimitiveSerializer<FlightResp
         case r'greatCircleDistance':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(GreatCircleDistanceEntity),
-          ) as GreatCircleDistanceEntity;
+            specifiedType: const FullType(StringifiedGreatCircleDistanceEntity),
+          ) as StringifiedGreatCircleDistanceEntity;
           result.greatCircleDistance.replace(valueDes);
           break;
         case r'date':

@@ -18,7 +18,7 @@ class AuthShell extends ConsumerStatefulWidget {
 }
 
 class _AuthShellState extends ConsumerState<AuthShell> {
-  bool _loading = false;
+  bool _loading = true;
 
   final _authApi = openapi.getAuthenticationApi();
   Future<void> _hyrate() async {
@@ -62,7 +62,6 @@ class _AuthShellState extends ConsumerState<AuthShell> {
 
   @override
   Widget build(BuildContext context) {
-    final user = ref.watch(userNotifierProvider);
     if (_loading) {
       return const Scaffold(
         appBar: null,

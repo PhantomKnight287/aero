@@ -24,6 +24,7 @@ class FlightSearchBar extends StatelessWidget {
       prefixIcon: Icon(Icons.search),
       controller: searchController,
       onChanged: onSearchChanged,
+      hideKeyboardOnClickOutside: false,
     );
   }
 }

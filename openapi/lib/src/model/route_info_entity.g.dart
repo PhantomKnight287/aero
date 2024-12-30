@@ -10,9 +10,9 @@ class _$RouteInfoEntity extends RouteInfoEntity {
   @override
   final RouteAirportEntity airport;
   @override
-  final String terminal;
+  final String? terminal;
   @override
-  final String gate;
+  final String? gate;
   @override
   final TimeEntity scheduledTime;
   @override
@@ -25,17 +25,14 @@ class _$RouteInfoEntity extends RouteInfoEntity {
 
   _$RouteInfoEntity._(
       {required this.airport,
-      required this.terminal,
-      required this.gate,
+      this.terminal,
+      this.gate,
       required this.scheduledTime,
       this.revisedTime,
       this.predictedTime})
       : super._() {
     BuiltValueNullFieldError.checkNotNull(
         airport, r'RouteInfoEntity', 'airport');
-    BuiltValueNullFieldError.checkNotNull(
-        terminal, r'RouteInfoEntity', 'terminal');
-    BuiltValueNullFieldError.checkNotNull(gate, r'RouteInfoEntity', 'gate');
     BuiltValueNullFieldError.checkNotNull(
         scheduledTime, r'RouteInfoEntity', 'scheduledTime');
   }
@@ -159,10 +156,8 @@ class RouteInfoEntityBuilder
       _$result = _$v ??
           new _$RouteInfoEntity._(
             airport: airport.build(),
-            terminal: BuiltValueNullFieldError.checkNotNull(
-                terminal, r'RouteInfoEntity', 'terminal'),
-            gate: BuiltValueNullFieldError.checkNotNull(
-                gate, r'RouteInfoEntity', 'gate'),
+            terminal: terminal,
+            gate: gate,
             scheduledTime: scheduledTime.build(),
             revisedTime: _revisedTime?.build(),
             predictedTime: _predictedTime?.build(),

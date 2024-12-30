@@ -1,7 +1,7 @@
 /// <reference path="../pb_data/types.d.ts" />
 
 routerAdd("GET", '/flight', (c) => {
-    if (!c.auth) return c.json(401, { message: "Please login and try again" })
+    // if (!c.auth) return c.json(401, { message: "Please login and try again" })
     const iata = c.requestInfo().query['iata']
     const icao = c.requestInfo().query['icao']
     const searchedDate = c.requestInfo().query['date']

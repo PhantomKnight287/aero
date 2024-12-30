@@ -13,24 +13,32 @@ class User {
   });
 
   factory User.fromJson(Map<String, dynamic> json) => _$UserFromJson(json);
-  toJson() => _$UserToJson(this);
+  Map<String, dynamic> toJson() => _$UserToJson(this);
+
+  @override
+  String toString() => 'User(name: $name, id: $id)'; // Added for debugging
 }
 
 @riverpod
 class UserNotifier extends _$UserNotifier {
   @override
   User? build() {
+    print('UserNotifier build called, initial state: null');
     return null;
   }
 
-  Future<void> login(String id, String name) async {
+  void login(String id, String name) {
+    print('UserNotifier login called with id: $id, name: $name');
     state = User(
       name: name,
       id: id,
     );
+    print('UserNotifier state after login: $state');
   }
 
-  Future<void> logout() async {
+  void logout() {
+    print('UserNotifier logout called');
     state = null;
+    print('UserNotifier state after logout: $state');
   }
 }

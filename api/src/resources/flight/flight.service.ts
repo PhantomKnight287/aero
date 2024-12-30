@@ -122,7 +122,8 @@ export class FlightService {
       const newFlight = await prisma.flight.create({
         data: {
           flightNo: flightData[0].number.replace(/ /g, ''),
-          callSign: flightData[0].callSign,
+          callSign:
+            flightData[0].callSign ?? flightData[0].number.replace(/ /g, ''),
           aircraft: flightData[0].aircraft,
           airline: flightData[0].airline,
           arrival: flightData[0].arrival,
@@ -228,7 +229,8 @@ export class FlightService {
         newFlight.aircraft = {
           //@ts-expect-error
           ...newFlight.aircraft,
-          registration: newFlight.aircraft['reg'],
+          registration:
+            newFlight.aircraft['reg'] ?? newFlight.aircraft['model'],
         };
       }
 

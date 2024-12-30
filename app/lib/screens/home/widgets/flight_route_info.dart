@@ -6,6 +6,7 @@ class FlightRouteInfo extends StatelessWidget {
   final String departureCode;
   final String departureName;
   final String? departureTerminal;
+  final String? departureGate;
   final DateTime departureTime;
   final Duration? departureDelay;
   final String departureSubtitle;
@@ -14,6 +15,7 @@ class FlightRouteInfo extends StatelessWidget {
   final String arrivalCode;
   final String arrivalName;
   final String? arrivalTerminal;
+  final String? arrivalGate;
   final DateTime arrivalTime;
   final Duration? arrivalDelay;
   final String arrivalSubtitle;
@@ -27,12 +29,14 @@ class FlightRouteInfo extends StatelessWidget {
     required this.departureCode,
     required this.departureName,
     this.departureTerminal,
+    this.departureGate,
     required this.departureTime,
     this.departureDelay,
     required this.departureSubtitle,
     required this.arrivalCode,
     required this.arrivalName,
     this.arrivalTerminal,
+    this.arrivalGate,
     required this.arrivalTime,
     this.arrivalDelay,
     required this.arrivalSubtitle,
@@ -45,62 +49,79 @@ class FlightRouteInfo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Column(
-            children: [
-              _buildRouteDot(
-                color: statusColor ?? (departureDelay != null ? Colors.red : Colors.green),
-              ),
-              Container(
-                width: 2,
-                height: 80,
-                color: Colors.grey.shade300,
-              ),
-              _buildRouteDot(
-                color: statusColor ?? (arrivalDelay != null ? Colors.red : Colors.green),
-              ),
-            ],
-          ),
-          const SizedBox(
-            width: 16,
-          ),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+      padding: const EdgeInsets.all(
+        8.0,
+      ),
+      decoration: BoxDecoration(
+        border: Border.all(
+          color: Colors.grey.shade300,
+        ),
+        borderRadius: BorderRadius.circular(
+          5,
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.only(
+          top: 8.0,
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Column(
               children: [
-                _buildRouteStop(
-                  code: departureCode,
-                  name: departureName,
-                  terminal: departureTerminal,
-                  time: departureTime,
-                  delay: departureDelay,
-                  subtitle: departureSubtitle,
-                  timezone: departureTimezone,
+                _buildRouteDot(
                   color: statusColor ?? (departureDelay != null ? Colors.red : Colors.green),
                 ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 12.0,
-                  ),
-                  child: const SizedBox(height: 8),
+                Container(
+                  width: 2,
+                  height: 110,
+                  color: Colors.grey.shade300,
                 ),
-                _buildRouteStop(
-                  code: arrivalCode,
-                  name: arrivalName,
-                  terminal: arrivalTerminal,
-                  time: arrivalTime,
-                  delay: arrivalDelay,
-                  subtitle: arrivalSubtitle,
-                  timezone: arrivalTimezone,
+                _buildRouteDot(
                   color: statusColor ?? (arrivalDelay != null ? Colors.red : Colors.green),
                 ),
               ],
             ),
-          ),
-        ],
+            const SizedBox(
+              width: 16,
+            ),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildRouteStop(
+                    code: departureCode,
+                    name: departureName,
+                    terminal: departureTerminal,
+                    gate: departureGate,
+                    time: departureTime,
+                    delay: departureDelay,
+                    subtitle: departureSubtitle,
+                    timezone: departureTimezone,
+                    color: statusColor ?? (departureDelay != null ? Colors.red : Colors.green),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 12.0,
+                    ),
+                    child: const SizedBox(height: 8),
+                  ),
+                  _buildRouteStop(
+                    code: arrivalCode,
+                    name: arrivalName,
+                    terminal: arrivalTerminal,
+                    gate: arrivalGate,
+                    time: arrivalTime,
+                    delay: arrivalDelay,
+                    subtitle: arrivalSubtitle,
+                    timezone: arrivalTimezone,
+                    color: statusColor ?? (arrivalDelay != null ? Colors.red : Colors.green),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -124,6 +145,7 @@ class FlightRouteInfo extends StatelessWidget {
     required String code,
     required String name,
     required String? terminal,
+    String? gate,
     required DateTime time,
     required Duration? delay,
     required String subtitle,
@@ -181,7 +203,15 @@ class FlightRouteInfo extends StatelessWidget {
         ),
         if (terminal != null)
           Text(
-            terminal,
+            terminal.isNotEmpty ? "Terminal: $terminal" : "",
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.grey.shade600,
+            ),
+          ),
+        if (gate != null)
+          Text(
+            gate!.isNotEmpty ? "Gate: $gate" : "",
             style: TextStyle(
               fontSize: 14,
               color: Colors.grey.shade600,

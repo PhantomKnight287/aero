@@ -59,7 +59,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       "Log Out",
                     ),
                     onTap: () async {
-                      await ref.read(userNotifierProvider.notifier).logout();
+                      ref.read(userNotifierProvider.notifier).logout();
                       if (context.mounted) {
                         GoRouter.of(context).go(
                           "/auth/register",

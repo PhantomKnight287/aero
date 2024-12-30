@@ -88,10 +88,10 @@ class RouteInfoEntity {
   @ApiProperty()
   airport: RouteAirportEntity;
 
-  @ApiProperty()
+  @ApiPropertyOptional()
   terminal?: string;
 
-  @ApiProperty()
+  @ApiPropertyOptional()
   gate?: string;
 
   @ApiProperty()
@@ -103,21 +103,21 @@ class RouteInfoEntity {
   @ApiPropertyOptional()
   predictedTime?: TimeEntity;
 }
-export class GreatCircleDistanceEntity {
+class StringifiedGreatCircleDistanceEntity {
   @ApiProperty()
-  meter: number;
+  meter: string;
 
   @ApiProperty()
-  km: number;
+  km: string;
 
   @ApiProperty()
-  mile: number;
+  mile: string;
 
   @ApiProperty()
-  nm: number;
+  nm: string;
 
   @ApiProperty()
-  feet: number;
+  feet: string;
 }
 
 export class FlightResponseEntity {
@@ -125,10 +125,10 @@ export class FlightResponseEntity {
   id: string;
 
   @ApiProperty()
-  flight_no: string;
+  flightNo: string;
 
   @ApiProperty()
-  call_sign: string;
+  callSign: string;
 
   @ApiProperty()
   aircraft: AircraftEntity;
@@ -146,7 +146,7 @@ export class FlightResponseEntity {
   cargo: boolean;
 
   @ApiProperty()
-  greatCircleDistance: GreatCircleDistanceEntity;
+  greatCircleDistance: StringifiedGreatCircleDistanceEntity;
 
   @ApiProperty()
   date: Date;

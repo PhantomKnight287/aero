@@ -27,7 +27,7 @@ extension DateTimeTimezoneFormatter on DateTime {
       final tzDateTime = tz.TZDateTime.from(this, location);
 
       // Create formatter with specified or default format
-      final formatter = DateFormat(format ?? (use24Hrs == true ? "hh:mm" : 'hh:mm a'));
+      final formatter = DateFormat(format ?? (use24Hrs == true ? "H:mm" : 'hh:mm a'));
 
       return formatter.format(tzDateTime);
     } on tz.LocationNotFoundException catch (e) {
@@ -64,7 +64,7 @@ String getTimezoneDifference(String timezone1, String timezone2) {
   final StringBuffer result = StringBuffer();
 
   if (hours != 0) {
-    result.write('$hours Hour');
+    result.write('$hours hr');
     if (hours.abs() != 1) result.write('s');
   }
 

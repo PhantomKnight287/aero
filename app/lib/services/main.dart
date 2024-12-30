@@ -38,7 +38,7 @@ class FlightDataService {
     final res = await _flightApi.flightControllerGetFlightV1(
       iata: iata,
       icao: icao,
-      date: "${date.year}-${date.month}-${date.year}",
+      date: "${date.year}-${date.month}-${date.day}",
     );
     return res.data;
   }

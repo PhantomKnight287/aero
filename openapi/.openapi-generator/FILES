@@ -22,7 +22,6 @@ doc/FlightsResponseEntity.md
 doc/FlightsRouteEntity.md
 doc/GenericErrorEntity.md
 doc/GetAirlineDTO.md
-doc/GreatCircleDistanceEntity.md
 doc/LocationEntity.md
 doc/LoginDTO.md
 doc/LoginEntity.md
@@ -31,6 +30,7 @@ doc/RegisterDTO.md
 doc/RegisterEntity.md
 doc/RouteAirportEntity.md
 doc/RouteInfoEntity.md
+doc/StringifiedGreatCircleDistanceEntity.md
 doc/TimeEntity.md
 doc/UserEntity.md
 lib/openapi.dart
@@ -64,7 +64,6 @@ lib/src/model/flights_response_entity.dart
 lib/src/model/flights_route_entity.dart
 lib/src/model/generic_error_entity.dart
 lib/src/model/get_airline_dto.dart
-lib/src/model/great_circle_distance_entity.dart
 lib/src/model/location_entity.dart
 lib/src/model/login_dto.dart
 lib/src/model/login_entity.dart
@@ -73,8 +72,8 @@ lib/src/model/register_dto.dart
 lib/src/model/register_entity.dart
 lib/src/model/route_airport_entity.dart
 lib/src/model/route_info_entity.dart
+lib/src/model/stringified_great_circle_distance_entity.dart
 lib/src/model/time_entity.dart
 lib/src/model/user_entity.dart
 lib/src/serializers.dart
 pubspec.yaml
-test/partial_airline_entity_test.dart

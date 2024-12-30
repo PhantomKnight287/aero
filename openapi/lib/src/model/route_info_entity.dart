@@ -25,10 +25,10 @@ abstract class RouteInfoEntity implements Built<RouteInfoEntity, RouteInfoEntity
   RouteAirportEntity get airport;
 
   @BuiltValueField(wireName: r'terminal')
-  String get terminal;
+  String? get terminal;
 
   @BuiltValueField(wireName: r'gate')
-  String get gate;
+  String? get gate;
 
   @BuiltValueField(wireName: r'scheduledTime')
   TimeEntity get scheduledTime;
@@ -67,16 +67,20 @@ class _$RouteInfoEntitySerializer implements PrimitiveSerializer<RouteInfoEntity
       object.airport,
       specifiedType: const FullType(RouteAirportEntity),
     );
-    yield r'terminal';
-    yield serializers.serialize(
-      object.terminal,
-      specifiedType: const FullType(String),
-    );
-    yield r'gate';
-    yield serializers.serialize(
-      object.gate,
-      specifiedType: const FullType(String),
-    );
+    if (object.terminal != null) {
+      yield r'terminal';
+      yield serializers.serialize(
+        object.terminal,
+        specifiedType: const FullType(String),
+      );
+    }
+    if (object.gate != null) {
+      yield r'gate';
+      yield serializers.serialize(
+        object.gate,
+        specifiedType: const FullType(String),
+      );
+    }
     yield r'scheduledTime';
     yield serializers.serialize(
       object.scheduledTime,

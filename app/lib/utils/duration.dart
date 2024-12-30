@@ -25,7 +25,6 @@ Duration calculateFlightDuration({
   } catch (e) {
     throw TimeZoneInitException('Failed to initialize timezone database: $e');
   }
-
   try {
     // Parse times using appropriate method
     final parsedDeparture = _parseDateTime(departureTime, dateFormat);

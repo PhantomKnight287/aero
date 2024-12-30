@@ -138,7 +138,6 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Ti
                   ),
                   child: SingleChildScrollView(
                     controller: myscrollController,
-                    keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                     child: Padding(
                       padding: const EdgeInsets.all(
                         8.0,
@@ -165,7 +164,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Ti
                                       Spacer(),
                                       Consumer(
                                         builder: (context, ref, child) {
-                                          final user = ref.read(userNotifierProvider);
+                                          final user = ref.watch(
+                                            userNotifierProvider,
+                                          );
+                                          print(user);
                                           return GestureDetector(
                                             onTap: () {
                                               GoRouter.of(context).push("/profile");
@@ -372,7 +374,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Ti
                                     ),
                                     leading: selectedAirline!.image != null && selectedAirline!.image!.isNotEmpty
                                         ? SvgPicture.network(
-                                            "$POCKETBASE_URL/api/files/airlines/${selectedAirline!.id}/${selectedAirline!.image}",
+                                            selectedAirline!.image!,
                                             width: 24,
                                             height: 18,
                                           )
@@ -462,7 +464,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Ti
                                             airport.name,
                                           ),
                                           subtitle: Text(
-                                            "${airport.iataCode} • ${airport.isoCountry} • ${airport.ident}",
+                                            "${airport.iataCode != null && airport.iataCode!.isNotEmpty ? "${airport.iataCode} • " : ""}${airport.isoCountry} • ${airport.ident}",
                                           ),
                                           leading: CachedNetworkImage(
                                             imageUrl: "https://flagcdn.com/h40/${airport.isoCountry.toLowerCase()}.jpg",
@@ -493,7 +495,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Ti
                                           subtitle: Text("${airline.iata} • ${airline.icao}"),
                                           leading: airline.image != null && airline.image!.isNotEmpty
                                               ? SvgPicture.network(
-                                                  "$POCKETBASE_URL/api/files/airlines/${airline.id}/${airline.image}",
+                                                  airline.image!,
                                                   width: 24,
                                                   height: 18,
                                                 )

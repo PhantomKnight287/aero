@@ -1102,28 +1102,26 @@
         },
         "required": [
           "airport",
-          "terminal",
-          "gate",
           "scheduledTime"
         ]
       },
-      "GreatCircleDistanceEntity": {
+      "StringifiedGreatCircleDistanceEntity": {
         "type": "object",
         "properties": {
           "meter": {
-            "type": "number"
+            "type": "string"
           },
           "km": {
-            "type": "number"
+            "type": "string"
           },
           "mile": {
-            "type": "number"
+            "type": "string"
           },
           "nm": {
-            "type": "number"
+            "type": "string"
           },
           "feet": {
-            "type": "number"
+            "type": "string"
           }
         },
         "required": [
@@ -1140,10 +1138,10 @@
           "id": {
             "type": "string"
           },
-          "flight_no": {
+          "flightNo": {
             "type": "string"
           },
-          "call_sign": {
+          "callSign": {
             "type": "string"
           },
           "aircraft": {
@@ -1162,7 +1160,7 @@
             "type": "boolean"
           },
           "greatCircleDistance": {
-            "$ref": "#/components/schemas/GreatCircleDistanceEntity"
+            "$ref": "#/components/schemas/StringifiedGreatCircleDistanceEntity"
           },
           "date": {
             "format": "date-time",
@@ -1174,8 +1172,8 @@
         },
         "required": [
           "id",
-          "flight_no",
-          "call_sign",
+          "flightNo",
+          "callSign",
           "aircraft",
           "airline",
           "arrival",

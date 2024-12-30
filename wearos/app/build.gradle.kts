@@ -6,12 +6,12 @@ plugins {
 
 android {
     namespace = "com.phantomknight287.planepal"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.phantomknight287.planepal"
         minSdk = 30
-        targetSdk = 34
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
 
@@ -56,5 +56,10 @@ dependencies {
     debugImplementation(libs.ui.test.manifest)
 //    this doesn't work with new libs.versions.toml impl
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.10.1")
+    implementation(libs.compose.navigation)
+
+    implementation(libs.horologist.composables)
+    implementation(libs.horologist.compose.layout)
+    implementation(libs.horologist.compose.material)
 
 }

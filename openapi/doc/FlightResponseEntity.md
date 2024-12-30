@@ -16,7 +16,7 @@ Name | Type | Description | Notes
 **arrival** | [**RouteInfoEntity**](RouteInfoEntity.md) |  | 
 **departure** | [**RouteInfoEntity**](RouteInfoEntity.md) |  | 
 **cargo** | **bool** |  | 
-**greatCircleDistance** | [**GreatCircleDistanceEntity**](GreatCircleDistanceEntity.md) |  | 
+**greatCircleDistance** | [**StringifiedGreatCircleDistanceEntity**](StringifiedGreatCircleDistanceEntity.md) |  | 
 **date** | [**DateTime**](DateTime.md) |  | 
 **image** | **String** |  | [optional] 
 

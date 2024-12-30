@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:gap/gap.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:openapi/openapi.dart';
@@ -10,6 +11,8 @@ import 'package:plane_pal/formatters/time.dart';
 import 'package:plane_pal/screens/home/widgets/flight_route_info.dart';
 import 'package:plane_pal/utils/duration.dart';
 import 'package:plane_pal/utils/distance.dart';
+import 'package:timezone/timezone.dart' as tz;
+import 'package:timezone/data/latest.dart' as tz;
 
 class FlightInfoWidget extends StatefulWidget {
   final FlightResponseEntity info;
@@ -33,6 +36,7 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        spacing: 4,
         children: [
           Row(
             spacing: 8,
@@ -68,7 +72,7 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
                     children: [
                       Text(
                         formatDayAndMonth(
-                          DateTime.parse(widget.info.departure.revisedTime!.utc),
+                          DateTime.parse((widget.info.departure.revisedTime ?? widget.info.departure.scheduledTime).utc),
                         ),
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
@@ -98,6 +102,7 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
               Row(spacing: 4, children: [
                 PopupMenuButton(
                   icon: Icon(Icons.more_vert),
+                  color: Colors.white,
                   itemBuilder: (context) => [
                     PopupMenuItem(
                       value: 'send_to_wearable',
@@ -121,18 +126,15 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
                         ],
                       ),
                     ),
-                    PopupMenuItem(
-                      value: 'copy',
-                      child: Row(
-                        children: [
-                          Icon(Icons.copy),
-                          SizedBox(width: 8),
-                          Text('Copy Details'),
-                        ],
-                      ),
-                    ),
                   ],
-                  onSelected: (value) {},
+                  onSelected: (value) async {
+                    if (value == "send_to_wearable") {
+                      final channel = MethodChannel("com.phantomknight287.planepal/planepal");
+                      await channel.invokeMethod(
+                        "bootAppOnWatch",
+                      );
+                    }
+                  },
                 ),
                 Icon(
                   Icons.close,
@@ -141,12 +143,31 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
             ],
           ),
           Divider(),
-          Text(
-            getTimeMessage(DateTime.parse((widget.info.arrival.revisedTime ?? widget.info.arrival.predictedTime)!.utc)),
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
+          Row(
+            children: [
+              Text(
+                getTimeMessage(DateTime.parse((widget.info.arrival.revisedTime ?? widget.info.arrival.predictedTime)!.utc)),
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              Spacer(),
+              Center(
+                child: Text(
+                  "Total ${calculateFlightDuration(
+                    departureTime: (widget.info.departure.revisedTime ?? widget.info.departure.scheduledTime).utc,
+                    departureTimezone: widget.info.departure.airport.timeZone,
+                    arrivalTime: (widget.info.arrival.revisedTime ?? widget.info.arrival.predictedTime)!.utc,
+                    arrivalTimezone: widget.info.arrival.airport.timeZone,
+                  ).toHumanReadable()} • ${formatDistance(double.parse(widget.info.greatCircleDistance.km), Localizations.localeOf(context).toString())}",
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    color: Colors.grey[600],
+                  ),
+                ),
+              ),
+            ],
           ),
           FlightRouteInfo(
             arrivalCode: arrival.airport.iata,
@@ -165,21 +186,17 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
             departureTimezone: departure.airport.timeZone,
             statusColor: Colors.green,
             use24Hrs: MediaQuery.of(context).alwaysUse24HourFormat,
-          ),
-          Center(
-            child: Text(
-              "Total ${calculateFlightDuration(
-                departureTime: (widget.info.departure.revisedTime ?? widget.info.departure.scheduledTime).utc,
-                departureTimezone: widget.info.departure.airport.timeZone,
-                arrivalTime: (widget.info.arrival.revisedTime ?? widget.info.arrival.predictedTime)!.utc,
-                arrivalTimezone: widget.info.arrival.airport.timeZone,
-              ).toHumanReadable()}  • ${formatDistance(widget.info.greatCircleDistance.km.toDouble(), Localizations.localeOf(context).toString())}",
-              style: TextStyle(
-                fontWeight: FontWeight.w600,
-              ),
-            ),
+            arrivalGate: arrival.gate,
+            departureGate: departure.gate,
           ),
           Gap(8),
+          Text(
+            "Worth Noting",
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
           Container(
             decoration: BoxDecoration(
               border: Border.all(
@@ -197,35 +214,52 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 spacing: 8,
                 children: [
-                  Text(
-                    "Worth Noting",
-                    style: TextStyle(
-                      fontFamily: "CalSans",
-                      fontSize: 16,
-                    ),
-                  ),
                   ListTile(
+                    contentPadding: EdgeInsets.zero,
                     leading: Icon(
                       MdiIcons.clock,
                     ),
                     title: Builder(builder: (context) {
                       final diff = getTimezoneDifference(
-                        widget.info.departure.airport.timeZone,
                         widget.info.arrival.airport.timeZone,
+                        widget.info.departure.airport.timeZone,
                       );
                       return Text(
-                        diff == "same timezone" ? "No timezone difference" : "$diff Timezone Difference",
+                        diff == "same timezone" ? "No timezone difference" : "Timezone difference of $diff",
                         style: TextStyle(
                           fontWeight: FontWeight.w600,
                         ),
                       );
                     }),
-                  )
+                    // subtitle: Builder(builder: (context) {
+                    //   final departureTime = (widget.info.departure.revisedTime ?? widget.info.departure.scheduledTime).utc; // Replace with your departure time variable
+                    //   final arrivalTime = convertToArrivalTimeZone(
+                    //     DateTime.parse(departureTime),
+                    //     widget.info.departure.airport.timeZone,
+                    //     widget.info.arrival.airport.timeZone,
+                    //   );
+
+                    //   return Text(
+                    //     "${formatTime(DateTime.parse(departureTime))} in ${widget.info.departure.airport.name} is ${formatTime(arrivalTime)} in ${widget.info.arrival.airport.name}",
+                    //     style: TextStyle(
+                    //       fontSize: 14,
+                    //       color: Colors.grey[600],
+                    //     ),
+                    //   );
+                    // }),
+                  ),
                 ],
               ),
             ),
           ),
           Gap(8),
+          Text(
+            widget.info.aircraft.model,
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
           Container(
             decoration: BoxDecoration(
               border: Border.all(
@@ -243,22 +277,82 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 spacing: 8,
                 children: [
-                  Text(
-                    widget.info.aircraft.model,
-                    style: TextStyle(
-                      fontFamily: "CalSans",
-                      fontSize: 16,
-                    ),
-                  ),
-                  if (widget.info.image != null)
+                  if (widget.info.aircraft.image != null)
                     ClipRRect(
                       borderRadius: BorderRadius.circular(
                         5,
                       ),
                       child: CachedNetworkImage(
-                        imageUrl: "$POCKETBASE_URL/api/files/flight/${widget.info.id}/${widget.info.image}",
+                        imageUrl: widget.info.aircraft.image!,
                       ),
                     ),
+                  Wrap(
+                    spacing: 10,
+                    alignment: WrapAlignment.spaceBetween,
+                    children: [
+                      if (widget.info.aircraft?.age != null)
+                        Column(
+                          children: [
+                            Text(
+                              "Age",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.grey[700], // Adjust color as needed
+                              ),
+                            ),
+                            Text(
+                              formatAge(
+                                double.parse(
+                                  widget.info.aircraft.age!,
+                                ),
+                              ),
+                              style: TextStyle(
+                                fontWeight: FontWeight.normal,
+                                color: Colors.black, // Adjust color as needed
+                              ),
+                            ),
+                          ],
+                        ),
+                      if (widget.info.aircraft?.deliveryDate != null)
+                        Column(
+                          children: [
+                            Text(
+                              "Delivery Date",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.grey[700], // Adjust color as needed
+                              ),
+                            ),
+                            Text(
+                              formatDate(DateTime.parse(widget.info.aircraft.deliveryDate!)),
+                              style: TextStyle(
+                                fontWeight: FontWeight.normal,
+                                color: Colors.black, // Adjust color as needed
+                              ),
+                            ),
+                          ],
+                        ),
+                      if (widget.info.aircraft?.registration != null)
+                        Column(
+                          children: [
+                            Text(
+                              "Registration",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.grey[700], // Adjust color as needed
+                              ),
+                            ),
+                            Text(
+                              widget.info.aircraft.registration!,
+                              style: TextStyle(
+                                fontWeight: FontWeight.normal,
+                                color: Colors.black, // Adjust color as needed
+                              ),
+                            ),
+                          ],
+                        ),
+                    ],
+                  )
                 ],
               ),
             ),
@@ -285,4 +379,50 @@ Duration? getDelay(DateTime scheduled, DateTime predicted) {
     return delay;
   }
   return null;
+}
+
+DateTime convertToArrivalTimeZone(
+  DateTime departureTime,
+  String departureTimeZone,
+  String arrivalTimeZone,
+) {
+  try {
+    tz.initializeTimeZones();
+  } catch (e) {
+    print(e);
+  }
+  // Initialize time zone locations
+  final departureLocation = tz.getLocation(departureTimeZone);
+  final arrivalLocation = tz.getLocation(arrivalTimeZone);
+
+  // Convert departure time to TZDateTime in the departure location
+  final departureTZTime = tz.TZDateTime.from(departureTime, departureLocation);
+
+  // Convert the departure TZDateTime to the arrival time zone
+  final arrivalTZTime = tz.TZDateTime.from(departureTZTime, arrivalLocation);
+
+  return arrivalTZTime.toLocal();
+}
+
+String formatAge(double age) {
+  if (age == 0) return '0 months';
+
+  final years = age.floor();
+  final months = ((age - years) * 12).round();
+
+  final List<String> parts = [];
+
+  if (years > 0) {
+    parts.add('${years} ${years == 1 ? 'year' : 'years'}');
+  }
+
+  if (months > 0) {
+    parts.add('${months} ${months == 1 ? 'month' : 'months'}');
+  }
+
+  return parts.join(' and ');
+}
+
+String formatDate(DateTime date) {
+  return '${MONTHS[date.month - 1]} ${date.day}, ${date.year}';
 }

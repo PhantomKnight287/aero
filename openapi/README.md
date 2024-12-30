@@ -93,7 +93,6 @@ Class | Method | HTTP request | Description
  - [FlightsRouteEntity](doc/FlightsRouteEntity.md)
  - [GenericErrorEntity](doc/GenericErrorEntity.md)
  - [GetAirlineDTO](doc/GetAirlineDTO.md)
- - [GreatCircleDistanceEntity](doc/GreatCircleDistanceEntity.md)
  - [LocationEntity](doc/LocationEntity.md)
  - [LoginDTO](doc/LoginDTO.md)
  - [LoginEntity](doc/LoginEntity.md)
@@ -102,6 +101,7 @@ Class | Method | HTTP request | Description
  - [RegisterEntity](doc/RegisterEntity.md)
  - [RouteAirportEntity](doc/RouteAirportEntity.md)
  - [RouteInfoEntity](doc/RouteInfoEntity.md)
+ - [StringifiedGreatCircleDistanceEntity](doc/StringifiedGreatCircleDistanceEntity.md)
  - [TimeEntity](doc/TimeEntity.md)
  - [UserEntity](doc/UserEntity.md)
 

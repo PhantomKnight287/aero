@@ -9,8 +9,8 @@ import 'package:openapi/api.dart';
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **airport** | [**RouteAirportEntity**](RouteAirportEntity.md) |  | 
-**terminal** | **String** |  | 
-**gate** | **String** |  | 
+**terminal** | **String** |  | [optional] 
+**gate** | **String** |  | [optional] 
 **scheduledTime** | [**TimeEntity**](TimeEntity.md) |  | 
 **revisedTime** | [**TimeEntity**](TimeEntity.md) |  | [optional] 
 **predictedTime** | [**TimeEntity**](TimeEntity.md) |  | [optional] 
