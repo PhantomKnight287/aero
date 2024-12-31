@@ -988,7 +988,6 @@
           }
         },
         "required": [
-          "registration",
           "model"
         ]
       },
@@ -1174,7 +1173,6 @@
           "id",
           "flightNo",
           "callSign",
-          "aircraft",
           "airline",
           "arrival",
           "departure",

@@ -1,9 +1,8 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:plane_pal/constants/main.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:plane_pal/riverpod/user/user.dart';
+import 'package:plane_pal/notifiers/user.dart';
+import 'package:provider/provider.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -22,9 +21,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
           child: Column(
             children: [
               Center(
-                child: Consumer(
-                  builder: (context, ref, child) {
-                    final user = ref.read(userNotifierProvider);
+                child: Builder(
+                  builder: (
+                    context,
+                  ) {
+                    final user = Provider.of<UserNotifier>(
+                      context,
+                    ).user;
                     return GestureDetector(
                       onTap: () {
                         GoRouter.of(context).push("/profile");
@@ -58,8 +61,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     title: Text(
                       "Log Out",
                     ),
-                    onTap: () async {
-                      ref.read(userNotifierProvider.notifier).logout();
+                    onTap: () {
+                      final user = Provider.of<UserNotifier>(
+                        context,
+                        listen: false,
+                      );
+                      user.logOut();
                       if (context.mounted) {
                         GoRouter.of(context).go(
                           "/auth/register",

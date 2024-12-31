@@ -20,7 +20,7 @@ interface GetFlightParams {
 
 @Injectable()
 export class FlightService {
-  constructor(private readonly configService: ConfigService) {}
+  constructor(private readonly configService: ConfigService) { }
 
   async getFlight({ iata, icao, date }: GetFlightParams) {
     const searchDate = new Date(date ?? Date.now());
@@ -50,39 +50,42 @@ export class FlightService {
         greatCircleDistance: true,
       },
     });
-    const aircraft = existingFlight?.aircraft
+    let aircraft = existingFlight?.aircraft
       ? await prisma.aircraft.findFirst({
-          where: { hexIcao: existingFlight.aircraft['regS'] },
-          include: {
-            _count: {
-              select: {
-                registrations: true,
-              },
+        where: { hexIcao: existingFlight.aircraft['regS'] },
+        include: {
+          _count: {
+            select: {
+              registrations: true,
             },
           },
-        })
+        },
+      })
       : null;
+    if (aircraft && aircraft.hexIcao != existingFlight?.aircraft['regS']) {
+      aircraft = null
+    }
     if (existingFlight) {
       return {
         ...existingFlight,
         aircraft: aircraft
           ? ({
-              modeS: aircraft.hexIcao,
-              age: aircraft.age.toString(),
-              image: aircraft.image,
-              attribution: aircraft.attribution,
-              isFreighter: aircraft.isFreighter,
-              model: aircraft.typeName,
-              registration: aircraft.reg,
-              aircraft_id: aircraft.aircraft_id,
-              deliveryDate: aircraft.deliveryDate?.toISOString(),
-              firstFlightDate: aircraft.firstFlightDate?.toISOString(),
-            } satisfies AircraftEntity)
+            modeS: aircraft.hexIcao,
+            age: aircraft.age.toString(),
+            image: aircraft.image,
+            attribution: aircraft.attribution,
+            isFreighter: aircraft.isFreighter,
+            model: aircraft.typeName,
+            registration: aircraft.reg,
+            aircraft_id: aircraft.aircraft_id,
+            deliveryDate: aircraft.deliveryDate?.toISOString(),
+            firstFlightDate: aircraft.firstFlightDate?.toISOString(),
+          } satisfies AircraftEntity)
           : {
-              //@ts-expect-error
-              ...existingFlight.aircraft,
-              registrataion: existingFlight.aircraft['reg'],
-            },
+            //@ts-expect-error
+            ...existingFlight.aircraft,
+            registrataion: existingFlight.aircraft['reg'],
+          },
       };
     }
 
@@ -136,6 +139,9 @@ export class FlightService {
               : flightData[0].departure,
           id: `flight_${createId()}`,
         },
+        include: {
+          greatCircleDistance: true,
+        }
       });
       let aircraft: Aircraft;
       // If aircraft doesn't exist in our database, create it

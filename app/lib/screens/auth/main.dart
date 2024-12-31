@@ -1,12 +1,12 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:plane_pal/constants/main.dart';
-import 'package:plane_pal/riverpod/user/user.dart';
+import 'package:plane_pal/notifiers/user.dart';
 import 'package:plane_pal/screens/loading/loading.dart';
+import 'package:provider/provider.dart';
 
-class AuthShell extends ConsumerStatefulWidget {
+class AuthShell extends StatefulWidget {
   final Widget child;
   const AuthShell({
     super.key,
@@ -14,10 +14,10 @@ class AuthShell extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<AuthShell> createState() => _AuthShellState();
+  State<AuthShell> createState() => _AuthShellState();
 }
 
-class _AuthShellState extends ConsumerState<AuthShell> {
+class _AuthShellState extends State<AuthShell> {
   bool _loading = true;
 
   final _authApi = openapi.getAuthenticationApi();
@@ -37,11 +37,9 @@ class _AuthShellState extends ConsumerState<AuthShell> {
       final req = await _authApi.authControllerGetCurrentUserV1();
       final data = req.data!;
 
-      ref.read(userNotifierProvider.notifier).login(
-            data.id,
-            data.name,
-          );
       if (mounted) {
+        final ref = Provider.of<UserNotifier>(context, listen: false);
+        ref.login(data.id, data.name);
         GoRouter.of(context).go("/");
       }
     } catch (e, stack) {

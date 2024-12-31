@@ -11,7 +11,7 @@ Name | Type | Description | Notes
 **id** | **String** |  | 
 **flightNo** | **String** |  | 
 **callSign** | **String** |  | 
-**aircraft** | [**AircraftEntity**](AircraftEntity.md) |  | 
+**aircraft** | [**AircraftEntity**](AircraftEntity.md) |  | [optional] 
 **airline** | [**PartialAirlineEntity**](PartialAirlineEntity.md) |  | 
 **arrival** | [**RouteInfoEntity**](RouteInfoEntity.md) |  | 
 **departure** | [**RouteInfoEntity**](RouteInfoEntity.md) |  | 

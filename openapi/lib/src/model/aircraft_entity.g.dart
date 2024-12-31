@@ -10,7 +10,7 @@ class _$AircraftEntity extends AircraftEntity {
   @override
   final String? modeS;
   @override
-  final String registration;
+  final String? registration;
   @override
   final String model;
   @override
@@ -33,7 +33,7 @@ class _$AircraftEntity extends AircraftEntity {
 
   _$AircraftEntity._(
       {this.modeS,
-      required this.registration,
+      this.registration,
       required this.model,
       this.image,
       this.aircraftId,
@@ -43,8 +43,6 @@ class _$AircraftEntity extends AircraftEntity {
       this.isFreighter,
       this.attribution})
       : super._() {
-    BuiltValueNullFieldError.checkNotNull(
-        registration, r'AircraftEntity', 'registration');
     BuiltValueNullFieldError.checkNotNull(model, r'AircraftEntity', 'model');
   }
 
@@ -191,8 +189,7 @@ class AircraftEntityBuilder
     final _$result = _$v ??
         new _$AircraftEntity._(
           modeS: modeS,
-          registration: BuiltValueNullFieldError.checkNotNull(
-              registration, r'AircraftEntity', 'registration'),
+          registration: registration,
           model: BuiltValueNullFieldError.checkNotNull(
               model, r'AircraftEntity', 'model'),
           image: image,

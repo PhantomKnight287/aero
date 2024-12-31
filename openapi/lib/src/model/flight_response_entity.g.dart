@@ -14,7 +14,7 @@ class _$FlightResponseEntity extends FlightResponseEntity {
   @override
   final String callSign;
   @override
-  final AircraftEntity aircraft;
+  final AircraftEntity? aircraft;
   @override
   final PartialAirlineEntity airline;
   @override
@@ -38,7 +38,7 @@ class _$FlightResponseEntity extends FlightResponseEntity {
       {required this.id,
       required this.flightNo,
       required this.callSign,
-      required this.aircraft,
+      this.aircraft,
       required this.airline,
       required this.arrival,
       required this.departure,
@@ -52,8 +52,6 @@ class _$FlightResponseEntity extends FlightResponseEntity {
         flightNo, r'FlightResponseEntity', 'flightNo');
     BuiltValueNullFieldError.checkNotNull(
         callSign, r'FlightResponseEntity', 'callSign');
-    BuiltValueNullFieldError.checkNotNull(
-        aircraft, r'FlightResponseEntity', 'aircraft');
     BuiltValueNullFieldError.checkNotNull(
         airline, r'FlightResponseEntity', 'airline');
     BuiltValueNullFieldError.checkNotNull(
@@ -198,7 +196,7 @@ class FlightResponseEntityBuilder
       _id = $v.id;
       _flightNo = $v.flightNo;
       _callSign = $v.callSign;
-      _aircraft = $v.aircraft.toBuilder();
+      _aircraft = $v.aircraft?.toBuilder();
       _airline = $v.airline.toBuilder();
       _arrival = $v.arrival.toBuilder();
       _departure = $v.departure.toBuilder();
@@ -236,7 +234,7 @@ class FlightResponseEntityBuilder
                 flightNo, r'FlightResponseEntity', 'flightNo'),
             callSign: BuiltValueNullFieldError.checkNotNull(
                 callSign, r'FlightResponseEntity', 'callSign'),
-            aircraft: aircraft.build(),
+            aircraft: _aircraft?.build(),
             airline: airline.build(),
             arrival: arrival.build(),
             departure: departure.build(),
@@ -251,7 +249,7 @@ class FlightResponseEntityBuilder
       late String _$failedField;
       try {
         _$failedField = 'aircraft';
-        aircraft.build();
+        _aircraft?.build();
         _$failedField = 'airline';
         airline.build();
         _$failedField = 'arrival';

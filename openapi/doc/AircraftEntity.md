@@ -9,7 +9,7 @@ import 'package:openapi/api.dart';
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **modeS** | **String** |  | [optional] 
-**registration** | **String** |  | 
+**registration** | **String** |  | [optional] 
 **model** | **String** |  | 
 **image** | **String** |  | [optional] 
 **aircraftId** | **String** |  | [optional] 

@@ -1,14 +1,14 @@
 import 'package:flutter/services.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:openapi/openapi.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:plane_pal/constants/main.dart';
-import 'package:plane_pal/riverpod/user/user.dart';
+import 'package:plane_pal/notifiers/user.dart';
 import 'package:plane_pal/screens/auth/service.dart';
 import 'package:plane_pal/utils/error.dart';
 import 'package:plane_pal/widgets/input.dart';
+import 'package:provider/provider.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -25,7 +25,7 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _loading = false;
   bool _isPasswordVisible = false;
 
-  Future<void> _login(WidgetRef ref) async {
+  Future<void> _login() async {
     if (!_formKey.currentState!.validate() || _loading) return;
     setState(() {
       _loading = true;
@@ -54,11 +54,10 @@ class _LoginScreenState extends State<LoginScreen> {
       key: AUTH_TOKEN_KEY,
       value: body!.token,
     );
-
-    ref.read(userNotifierProvider.notifier).login(
-          body.user.id,
-          body.user.name,
-        );
+    if (mounted) {
+      final ref = Provider.of<UserNotifier>(context, listen: false);
+      ref.login(body.user.id, body.user.name);
+    }
     showSuccessToast(
       description: "Welcome back ${body.user.name}",
     );
@@ -96,7 +95,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     autofillHints: [
                       AutofillHints.email,
                     ],
-                    validator: (value) => value?.isEmpty ?? true ? 'Please enter your email' : null,
+                    validator: (value) => value?.isEmpty ?? true
+                        ? 'Please enter your email'
+                        : null,
                     controller: _emailController,
                   ),
                   const SizedBox(height: 16),
@@ -106,12 +107,16 @@ class _LoginScreenState extends State<LoginScreen> {
                     autofillHints: [
                       AutofillHints.password,
                     ],
-                    validator: (value) => (value?.length ?? 0) < 8 ? 'Password must be at least 8 characters' : null,
+                    validator: (value) => (value?.length ?? 0) < 8
+                        ? 'Password must be at least 8 characters'
+                        : null,
                     obscureText: !_isPasswordVisible,
                     controller: _passwordController,
                     suffixIcon: IconButton(
                       icon: Icon(
-                        _isPasswordVisible ? Icons.visibility_off : Icons.visibility,
+                        _isPasswordVisible
+                            ? Icons.visibility_off
+                            : Icons.visibility,
                       ),
                       onPressed: () {
                         setState(() {
@@ -124,7 +129,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   Consumer(
                     builder: (context, ref, child) {
                       return ElevatedButton(
-                        onPressed: () => _login(ref),
+                        onPressed: _login,
                         child: _loading
                             ? const CircularProgressIndicator.adaptive()
                             : const Text(

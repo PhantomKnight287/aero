@@ -4,7 +4,7 @@ export class AircraftEntity {
   @ApiPropertyOptional()
   modeS: string;
 
-  @ApiProperty()
+  @ApiPropertyOptional()
   registration: string;
 
   @ApiProperty()
@@ -130,7 +130,7 @@ export class FlightResponseEntity {
   @ApiProperty()
   callSign: string;
 
-  @ApiProperty()
+  @ApiPropertyOptional()
   aircraft: AircraftEntity;
 
   @ApiProperty()

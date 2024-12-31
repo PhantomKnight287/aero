@@ -2,15 +2,15 @@ import 'dart:async';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:openapi/openapi.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:plane_pal/constants/main.dart';
-import 'package:plane_pal/riverpod/user/user.dart';
+import 'package:plane_pal/notifiers/user.dart';
 import 'package:plane_pal/screens/auth/service.dart';
 import 'package:plane_pal/utils/error.dart';
+import 'package:provider/provider.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -38,7 +38,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     super.dispose();
   }
 
-  Future<void> _register(WidgetRef ref) async {
+  Future<void> _register() async {
     if (!_formKey.currentState!.validate() || _loading) return;
 
     setState(() {
@@ -61,10 +61,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
         key: AUTH_TOKEN_KEY,
         value: data!.token,
       );
-      ref.read(userNotifierProvider.notifier).login(
-            data.user.id,
-            data.user.name,
-          );
+      if (mounted) {
+        final ref = Provider.of<UserNotifier>(context, listen: false);
+        ref.login(data.user.id, data.user.name);
+      }
       showSuccessToast(
         description: "Welcome ${data.user.name}",
       );
@@ -108,7 +108,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     labelText: 'Name',
                     border: OutlineInputBorder(),
                   ),
-                  validator: (value) => value?.isEmpty ?? true ? 'Please enter your name' : null,
+                  validator: (value) =>
+                      value?.isEmpty ?? true ? 'Please enter your name' : null,
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
@@ -118,7 +119,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     border: OutlineInputBorder(),
                   ),
                   keyboardType: TextInputType.emailAddress,
-                  validator: (value) => value?.isEmpty ?? true ? 'Please enter your email' : null,
+                  validator: (value) =>
+                      value?.isEmpty ?? true ? 'Please enter your email' : null,
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
@@ -128,19 +130,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     border: OutlineInputBorder(),
                   ),
                   obscureText: true,
-                  validator: (value) => (value?.length ?? 0) < 8 ? 'Password must be at least 8 characters' : null,
+                  validator: (value) => (value?.length ?? 0) < 8
+                      ? 'Password must be at least 8 characters'
+                      : null,
                 ),
                 const SizedBox(height: 24),
-                Consumer(builder: (context, ref, child) {
-                  return ElevatedButton(
-                    onPressed: () => _register(ref),
-                    child: _loading
-                        ? const CircularProgressIndicator.adaptive()
-                        : const Text(
-                            "Register",
-                          ),
-                  );
-                }),
+                ElevatedButton(
+                  onPressed: _register,
+                  child: _loading
+                      ? const CircularProgressIndicator.adaptive()
+                      : const Text(
+                          "Register",
+                        ),
+                ),
                 Row(
                   children: [
                     Text("Already have an account?"),

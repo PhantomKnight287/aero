@@ -1,13 +1,21 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:plane_pal/constants/main.dart';
+import 'package:plane_pal/notifiers/user.dart';
 import 'package:plane_pal/routes/main.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:toastification/toastification.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   runApp(
-    ProviderScope(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create: (context) {
+            return UserNotifier();
+          },
+        )
+      ],
       child: const MainApp(),
     ),
   );

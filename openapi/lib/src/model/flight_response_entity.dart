@@ -38,7 +38,7 @@ abstract class FlightResponseEntity implements Built<FlightResponseEntity, Fligh
   String get callSign;
 
   @BuiltValueField(wireName: r'aircraft')
-  AircraftEntity get aircraft;
+  AircraftEntity? get aircraft;
 
   @BuiltValueField(wireName: r'airline')
   PartialAirlineEntity get airline;
@@ -99,11 +99,13 @@ class _$FlightResponseEntitySerializer implements PrimitiveSerializer<FlightResp
       object.callSign,
       specifiedType: const FullType(String),
     );
-    yield r'aircraft';
-    yield serializers.serialize(
-      object.aircraft,
-      specifiedType: const FullType(AircraftEntity),
-    );
+    if (object.aircraft != null) {
+      yield r'aircraft';
+      yield serializers.serialize(
+        object.aircraft,
+        specifiedType: const FullType(AircraftEntity),
+      );
+    }
     yield r'airline';
     yield serializers.serialize(
       object.airline,

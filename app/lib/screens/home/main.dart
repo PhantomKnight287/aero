@@ -1,15 +1,10 @@
 import 'dart:async';
 
 import 'package:built_collection/built_collection.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:openapi/openapi.dart';
-import 'package:plane_pal/constants/main.dart';
 import 'package:plane_pal/formatters/time.dart';
-import 'package:plane_pal/models/airline/airline.dart';
-import 'package:plane_pal/models/flight/flight.dart';
-import 'package:plane_pal/models/flight_info/flight_info.dart' show FlightInfo;
-import 'package:plane_pal/riverpod/user/user.dart';
+import 'package:plane_pal/notifiers/user.dart';
 import 'package:plane_pal/screens/home/service.dart';
 import 'package:plane_pal/screens/home/widgets/flight_info.dart';
 import 'package:plane_pal/screens/home/widgets/flight_map.dart';
@@ -26,6 +21,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:provider/provider.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
@@ -44,7 +40,8 @@ TileLayer get openStreetMapTileLayer => TileLayer(
       tileProvider: CancellableNetworkTileProvider(),
     );
 
-class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, TickerProviderStateMixin {
+class _HomeScreenState extends State<HomeScreen>
+    with WidgetsBindingObserver, TickerProviderStateMixin {
   final _service = HomeService();
   late final _mapController = AnimatedMapController(
     vsync: this,
@@ -55,7 +52,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Ti
     cancelPreviousAnimations: true,
   );
   final TextEditingController _flightController = TextEditingController();
-  final DraggableScrollableController _controller = DraggableScrollableController();
+  final DraggableScrollableController _controller =
+      DraggableScrollableController();
   Timer? _debounce;
   bool loading = false;
   final FlightDataService _flightService = FlightDataService();
@@ -86,6 +84,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Ti
   }
 
   Future<List<Object>> _search(String query) async {
+    if (query.isEmpty || query.length == 1) return [];
     return _service.search(query);
   }
 
@@ -145,7 +144,22 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Ti
                       child: _flightInfo != null
                           ? FlightInfoWidget(
                               info: _flightInfo!,
-                            )
+                              onClose: () {
+                                setState(() {
+                                  _flightInfo = null;
+                                  arrivalAirport = null;
+                                  departureAirport = null;
+                                  coordinates = [];
+                                  selectedDate = null;
+                                  selectedAirline = null;
+                                  selectedFlightNumber = null;
+                                  flights = BuiltList.from([]);
+                                  error = null;
+                                  isLoading = false;
+                                  loading = false;
+                                  _flightController.clear();
+                                });
+                              })
                           : Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -162,21 +176,25 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Ti
                                         ),
                                       ),
                                       Spacer(),
-                                      Consumer(
-                                        builder: (context, ref, child) {
-                                          final user = ref.watch(
-                                            userNotifierProvider,
+                                      Builder(
+                                        builder: (
+                                          context,
+                                        ) {
+                                          final user =
+                                              Provider.of<UserNotifier>(
+                                            context,
                                           );
-                                          print(user);
                                           return GestureDetector(
                                             onTap: () {
-                                              GoRouter.of(context).push("/profile");
+                                              GoRouter.of(context)
+                                                  .push("/profile");
                                             },
                                             child: Hero(
                                               tag: "avatar",
                                               child: CircleAvatar(
-                                                backgroundImage: CachedNetworkImageProvider(
-                                                  "https://api.dicebear.com/9.x/initials/png?seed=${user?.name}",
+                                                backgroundImage:
+                                                    CachedNetworkImageProvider(
+                                                  "https://api.dicebear.com/9.x/initials/png?seed=${user.user?.name}",
                                                 ),
                                               ),
                                             ),
@@ -209,15 +227,22 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Ti
                                       selectedAirline: selectedAirline,
                                       arrivalAirport: arrivalAirport,
                                       departureAirport: departureAirport,
-                                      selectedFlightNumber: selectedFlightNumber,
+                                      selectedFlightNumber:
+                                          selectedFlightNumber,
                                     ),
                                     Expanded(
                                       child: FlightSearchBar(
                                         searchController: _flightController,
-                                        isSearchEnabled: !(arrivalAirport != null && departureAirport != null) && !(selectedAirline != null && selectedFlightNumber != null),
+                                        isSearchEnabled: !(arrivalAirport !=
+                                                    null &&
+                                                departureAirport != null) &&
+                                            !(selectedAirline != null &&
+                                                selectedFlightNumber != null),
                                         hintText: selectedFlightNumber != null
                                             ? "Select date"
-                                            : selectedAirline != null && arrivalAirport == null && departureAirport == null
+                                            : selectedAirline != null &&
+                                                    arrivalAirport == null &&
+                                                    departureAirport == null
                                                 ? "Flight No"
                                                 : departureAirport == null
                                                     ? "Search airline, flight or airport"
@@ -225,7 +250,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Ti
                                                         ? "Search arrival airport"
                                                         : "Select date",
                                         onSearchChanged: (p0) async {
-                                          if (arrivalAirport != null && departureAirport != null) return;
+                                          if (arrivalAirport != null &&
+                                              departureAirport != null) return;
                                           if (_debounce?.isActive ?? false) {
                                             _debounce?.cancel();
                                           }
@@ -250,9 +276,13 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Ti
                                   ],
                                 ),
                                 Gap(16),
-                                if (arrivalAirport == null && departureAirport == null && selectedAirline != null && selectedFlightNumber == null)
+                                if (arrivalAirport == null &&
+                                    departureAirport == null &&
+                                    selectedAirline != null &&
+                                    selectedFlightNumber == null)
                                   Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 8.0),
                                     child: Text(
                                       "Tip: For flight numbers like 6E1045, just enter 1045",
                                       style: TextStyle(
@@ -262,7 +292,11 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Ti
                                       ),
                                     ),
                                   ),
-                                if (((arrivalAirport != null && departureAirport != null) || (selectedAirline != null && selectedFlightNumber != null)) && selectedDate == null)
+                                if (((arrivalAirport != null &&
+                                            departureAirport != null) ||
+                                        (selectedAirline != null &&
+                                            selectedFlightNumber != null)) &&
+                                    selectedDate == null)
                                   ListView.builder(
                                     itemBuilder: (context, index) {
                                       final date = DateTime.now();
@@ -283,14 +317,19 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Ti
                                             flights = BuiltList.from([]);
                                             setState(() {});
                                             try {
-                                              if (arrivalAirport != null && departureAirport != null) {
-                                                flights = await _flightService.getFlights(
-                                                  departureAirport!.iataCode ?? departureAirport!.ident,
-                                                  arrivalAirport!.iataCode ?? arrivalAirport!.ident,
+                                              if (arrivalAirport != null &&
+                                                  departureAirport != null) {
+                                                flights = await _flightService
+                                                    .getFlights(
+                                                  departureAirport!.iataCode ??
+                                                      departureAirport!.ident,
+                                                  arrivalAirport!.iataCode ??
+                                                      arrivalAirport!.ident,
                                                   date.toIso8601String(),
                                                 );
                                               } else {
-                                                final info = await _flightService.getFlightInfoWithNumber(
+                                                final info = await _flightService
+                                                    .getFlightInfoWithNumber(
                                                   "${selectedAirline!.iata}$selectedFlightNumber",
                                                   "${selectedAirline!.icao}$selectedFlightNumber",
                                                   date: date,
@@ -302,14 +341,25 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Ti
                                                 } else {
                                                   coordinates = [
                                                     LatLng(
-                                                      info.departure.airport.location.lat.toDouble(),
-                                                      info.departure.airport.location.lon.toDouble(),
+                                                      info.departure.airport
+                                                          .location.lat
+                                                          .toDouble(),
+                                                      info.departure.airport
+                                                          .location.lon
+                                                          .toDouble(),
                                                     ),
                                                     LatLng(
-                                                      info.arrival.airport.location.lat.toDouble(),
-                                                      info.arrival.airport.location.lon.toDouble(),
+                                                      info.arrival.airport
+                                                          .location.lat
+                                                          .toDouble(),
+                                                      info.arrival.airport
+                                                          .location.lon
+                                                          .toDouble(),
                                                     ),
                                                   ];
+                                                  _mapController.animateTo(
+                                                    dest: coordinates[1],
+                                                  );
                                                   setState(() {
                                                     _flightInfo = info;
                                                   });
@@ -348,9 +398,12 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Ti
                                             selectedDate = tmrh;
                                             flights = BuiltList.from([]);
                                             setState(() {});
-                                            flights = await _flightService.getFlights(
-                                              departureAirport!.iataCode ?? departureAirport!.ident,
-                                              arrivalAirport!.iataCode ?? arrivalAirport!.ident,
+                                            flights =
+                                                await _flightService.getFlights(
+                                              departureAirport!.iataCode ??
+                                                  departureAirport!.ident,
+                                              arrivalAirport!.iataCode ??
+                                                  arrivalAirport!.ident,
                                               tmrh.toIso8601String(),
                                             );
                                             setState(() {
@@ -364,7 +417,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Ti
                                     padding: EdgeInsets.zero,
                                     itemCount: 2,
                                   ),
-                                if (selectedAirline != null && _flightController.text.isNotEmpty && selectedFlightNumber == null)
+                                if (selectedAirline != null &&
+                                    _flightController.text.isNotEmpty &&
+                                    selectedFlightNumber == null)
                                   ListTile(
                                     title: Text(
                                       selectedAirline!.name,
@@ -372,14 +427,16 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Ti
                                     subtitle: Text(
                                       "${selectedAirline!.iata}${_flightController.text.toUpperCase()} / ${selectedAirline!.icao}${_flightController.text.toUpperCase()}",
                                     ),
-                                    leading: selectedAirline!.image != null && selectedAirline!.image!.isNotEmpty
+                                    leading: selectedAirline!.image != null &&
+                                            selectedAirline!.image!.isNotEmpty
                                         ? SvgPicture.network(
                                             selectedAirline!.image!,
                                             width: 24,
                                             height: 18,
                                           )
                                         : CachedNetworkImage(
-                                            imageUrl: "https://airlabs.co/img/airline/m/${selectedAirline!.iata}.png",
+                                            imageUrl:
+                                                "https://airlabs.co/img/airline/m/${selectedAirline!.iata}.png",
                                             width: 24,
                                             height: 18,
                                             errorWidget: (context, url, error) {
@@ -390,7 +447,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Ti
                                             },
                                           ),
                                     onTap: () {
-                                      selectedFlightNumber = _flightController.text;
+                                      selectedFlightNumber =
+                                          _flightController.text;
                                       FocusScope.of(context).unfocus();
                                       _flightController.clear();
                                       setState(() {});
@@ -408,8 +466,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Ti
                                                   ..isoCountry = "IN"
                                                   ..lat = '0'
                                                   ..long = '0'
-                                                  ..name = "Indira Gandhi International Airport"
-                                                  ..type = AirportType.largeAirport
+                                                  ..name =
+                                                      "Indira Gandhi International Airport"
+                                                  ..type =
+                                                      AirportType.largeAirport
                                                   ..continent = "IDK"
                                                   ..isoRegion = "DEL"
                                                   ..build();
@@ -456,7 +516,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Ti
                                     shrinkWrap: true,
                                     itemBuilder: (context, index) {
                                       final _item = results[index];
-                                      final runtimeType = _item.runtimeType.toString();
+                                      final runtimeType =
+                                          _item.runtimeType.toString();
                                       if (runtimeType == '_\$AirportEntity') {
                                         final airport = _item as AirportEntity;
                                         return ListTile(
@@ -467,7 +528,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Ti
                                             "${airport.iataCode != null && airport.iataCode!.isNotEmpty ? "${airport.iataCode} • " : ""}${airport.isoCountry} • ${airport.ident}",
                                           ),
                                           leading: CachedNetworkImage(
-                                            imageUrl: "https://flagcdn.com/h40/${airport.isoCountry.toLowerCase()}.jpg",
+                                            imageUrl:
+                                                "https://flagcdn.com/h40/${airport.isoCountry.toLowerCase()}.jpg",
                                             width: 30,
                                             height: 30,
                                             errorWidget: (context, url, error) {
@@ -492,18 +554,22 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Ti
                                         final airline = _item as AirlineEntity;
                                         return ListTile(
                                           title: Text(airline.name),
-                                          subtitle: Text("${airline.iata} • ${airline.icao}"),
-                                          leading: airline.image != null && airline.image!.isNotEmpty
+                                          subtitle: Text(
+                                              "${airline.iata} • ${airline.icao}"),
+                                          leading: airline.image != null &&
+                                                  airline.image!.isNotEmpty
                                               ? SvgPicture.network(
                                                   airline.image!,
                                                   width: 24,
                                                   height: 18,
                                                 )
                                               : CachedNetworkImage(
-                                                  imageUrl: "https://airlabs.co/img/airline/m/${airline.iata}.png",
+                                                  imageUrl:
+                                                      "https://airlabs.co/img/airline/m/${airline.iata}.png",
                                                   width: 24,
                                                   height: 18,
-                                                  errorWidget: (context, url, error) {
+                                                  errorWidget:
+                                                      (context, url, error) {
                                                     return SizedBox(
                                                       height: 0,
                                                       width: 0,
@@ -512,7 +578,26 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Ti
                                                 ),
                                           onTap: () {
                                             selectedAirline = airline;
-                                            _flightController.clear();
+                                            final text = _flightController.text;
+
+                                            if (!((text
+                                                        .replaceFirst(
+                                                            airline.iata, "")
+                                                        .length ==
+                                                    text.length) ||
+                                                (text
+                                                        .replaceFirst(
+                                                            airline.icao, "")
+                                                        .length ==
+                                                    text.length))) {
+                                              _flightController.text =
+                                                  _flightController.text
+                                                      .replaceFirst(
+                                                          airline.icao, '');
+                                            } else {
+                                              _flightController.clear();
+                                            }
+
                                             results.clear();
                                             setState(() {});
                                           },
@@ -528,15 +613,18 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Ti
                                   },
                                   itemBuilder: (context, index) {
                                     final flight = flights[index];
-                                    final arrivalTime = DateTime.parse(flight.arrival.scheduledTime!);
-                                    final departureTime = DateTime.parse(flight.departure.scheduledTime!);
+                                    final arrivalTime = DateTime.parse(
+                                        flight.arrival.scheduledTime!);
+                                    final departureTime = DateTime.parse(
+                                        flight.departure.scheduledTime!);
                                     final currentTime = DateTime.now();
                                     return Padding(
                                       padding: const EdgeInsets.all(
                                         4.0,
                                       ),
                                       child: Row(
-                                        crossAxisAlignment: CrossAxisAlignment.center,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
                                         spacing: 8,
                                         children: [
                                           Container(
@@ -544,7 +632,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Ti
                                               color: Colors.yellow.withValues(
                                                 alpha: .25,
                                               ),
-                                              borderRadius: BorderRadius.circular(
+                                              borderRadius:
+                                                  BorderRadius.circular(
                                                 10,
                                               ),
                                             ),
@@ -559,20 +648,26 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Ti
                                             ),
                                           ),
                                           Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
                                             spacing: 4,
                                             children: [
                                               Row(
-                                                mainAxisAlignment: MainAxisAlignment.start,
-                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.start,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
                                                 spacing: 4,
                                                 children: [
                                                   CachedNetworkImage(
-                                                    imageUrl: "https://airlabs.co/img/airline/m/${flight.airline.iataCode}.png",
+                                                    imageUrl:
+                                                        "https://airlabs.co/img/airline/m/${flight.airline.iataCode}.png",
                                                     width: 15,
                                                     height: 15,
-                                                    errorWidget: (context, url, error) {
+                                                    errorWidget:
+                                                        (context, url, error) {
                                                       return SizedBox(
                                                         height: 0,
                                                         width: 0,
@@ -592,7 +687,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Ti
                                                   Text(
                                                     flight.airline.name,
                                                     style: TextStyle(
-                                                      fontWeight: FontWeight.bold,
+                                                      fontWeight:
+                                                          FontWeight.bold,
                                                       fontSize: 14,
                                                     ),
                                                   )
@@ -604,31 +700,49 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Ti
                                                     TextSpan(
                                                       children: [
                                                         TextSpan(
-                                                          text: "${flight.departure.iataCode} ",
+                                                          text:
+                                                              "${flight.departure.iataCode} ",
                                                           style: TextStyle(),
                                                         ),
                                                         TextSpan(
                                                           text: formatTime(
                                                             departureTime,
-                                                            use24HourFormat: MediaQuery.of(context).alwaysUse24HourFormat,
+                                                            use24HourFormat:
+                                                                MediaQuery.of(
+                                                                        context)
+                                                                    .alwaysUse24HourFormat,
                                                           ),
                                                           style: TextStyle(
-                                                            color: currentTime.isAfter(departureTime) ? Colors.red : Colors.green,
-                                                            fontWeight: FontWeight.bold,
+                                                            color: currentTime
+                                                                    .isAfter(
+                                                                        departureTime)
+                                                                ? Colors.red
+                                                                : Colors.green,
+                                                            fontWeight:
+                                                                FontWeight.bold,
                                                           ),
                                                         ),
                                                         TextSpan(
-                                                          text: "   ${flight.arrival.iataCode} ",
+                                                          text:
+                                                              "   ${flight.arrival.iataCode} ",
                                                           style: TextStyle(),
                                                         ),
                                                         TextSpan(
                                                           text: formatTime(
                                                             arrivalTime,
-                                                            use24HourFormat: MediaQuery.of(context).alwaysUse24HourFormat,
+                                                            use24HourFormat:
+                                                                MediaQuery.of(
+                                                                        context)
+                                                                    .alwaysUse24HourFormat,
                                                           ),
                                                           style: TextStyle(
-                                                            color: currentTime.isAfter(arrivalTime) ? Colors.red : Colors.green,
-                                                            fontWeight: FontWeight.bold,
+                                                            color: currentTime
+                                                                    .isAfter(
+                                                                        arrivalTime)
+                                                                ? Colors.red
+                                                                : Colors.green,
+                                                            fontWeight:
+                                                                FontWeight.bold,
                                                           ),
                                                         )
                                                       ],
@@ -674,7 +788,8 @@ Widget getAirportIcon(AirportType type) {
       width: 40,
       height: 40,
     );
-  } else if (type == AirportType.largeAirport || type == AirportType.mediumAirport) {
+  } else if (type == AirportType.largeAirport ||
+      type == AirportType.mediumAirport) {
     return SvgPicture.asset(
       "assets/svgs/big-medium-plane.svg",
       width: 40,
