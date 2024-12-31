@@ -4,8 +4,9 @@ import 'package:plane_pal/screens/auth/register/main.dart';
 import 'package:plane_pal/screens/home/main.dart';
 import 'package:plane_pal/screens/loading/loading.dart';
 import 'package:plane_pal/screens/profile/main.dart';
-import 'package:plane_pal/screens/wearables/main.dart';
+import 'package:plane_pal/screens/wearables/list/main.dart';
 import 'package:go_router/go_router.dart';
+import 'package:plane_pal/screens/wearables/login/main.dart';
 
 class AeroRouter {
   static GoRouter router = GoRouter(
@@ -30,6 +31,10 @@ class AeroRouter {
       GoRoute(
         path: "/",
         builder: (context, state) {
+          final name = state.uri.queryParameters["wearable_name"];
+          if (name != null && name.isNotEmpty) {
+            return WearablesLoginScreen(wearableName: name);
+          }
           return HomeScreen();
         },
       ),

@@ -1,16 +1,14 @@
-/* While this template provides a good starting point for using Wear Compose, you can always
- * take a look at https://github.com/android/wear-os-samples/tree/main/ComposeStarter to find the
- * most up to date changes to the libraries and their usages.
- */
-
 package com.phantomknight287.planepal.presentation
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.lifecycle.lifecycleScope
 import com.google.android.gms.wearable.MessageClient
 import com.google.android.gms.wearable.Wearable
+import com.phantomknight287.planepal.PlanePalDatabase
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
 class MainActivity : ComponentActivity() {
@@ -20,8 +18,16 @@ class MainActivity : ComponentActivity() {
         installSplashScreen()
         super.onCreate(savedInstanceState)
         setTheme(android.R.style.Theme_DeviceDefault)
+        val database = PlanePalDatabase.getDatabase(applicationContext)
         setContent {
-            PlanePalApp()
+            PlanePalApp(
+                database = database,
+                sendMessageToPhone = { path, data ->
+                    lifecycleScope.launch {
+                        sendMessageToPhone(path, data)
+                    }
+                },
+            )
         }
     }
 

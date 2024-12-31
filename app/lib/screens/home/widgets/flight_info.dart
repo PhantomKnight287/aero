@@ -43,7 +43,8 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               CachedNetworkImage(
-                imageUrl: "https://airlabs.co/img/airline/m/${widget.info.airline.iata}.png",
+                imageUrl:
+                    "https://airlabs.co/img/airline/m/${widget.info.airline.iata}.png",
                 width: 30,
                 height: 30,
                 errorWidget: (context, url, error) {
@@ -72,7 +73,9 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
                     children: [
                       Text(
                         formatDayAndMonth(
-                          DateTime.parse((widget.info.departure.revisedTime ?? widget.info.departure.scheduledTime).utc),
+                          DateTime.parse((widget.info.departure.revisedTime ??
+                                  widget.info.departure.scheduledTime)
+                              .utc),
                         ),
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
@@ -99,54 +102,71 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
                 ],
               ),
               Spacer(),
-              Row(spacing: 4, children: [
-                PopupMenuButton(
-                  icon: Icon(Icons.more_vert),
-                  color: Colors.white,
-                  itemBuilder: (context) => [
-                    PopupMenuItem(
-                      value: 'send_to_wearable',
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.watch,
-                          ),
-                          SizedBox(width: 8),
-                          Text('Send to wearable'),
-                        ],
+              Row(
+                spacing: 4,
+                children: [
+                  PopupMenuButton(
+                    icon: Icon(Icons.more_vert),
+                    color: Colors.white,
+                    itemBuilder: (context) => [
+                      PopupMenuItem(
+                        value: 'send_to_wearable',
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.watch,
+                            ),
+                            SizedBox(width: 8),
+                            Text('Send to wearable'),
+                          ],
+                        ),
                       ),
-                    ),
-                    PopupMenuItem(
-                      value: 'share',
-                      child: Row(
-                        children: [
-                          Icon(Icons.share),
-                          SizedBox(width: 8),
-                          Text('Share'),
-                        ],
+                      PopupMenuItem(
+                        value: 'share',
+                        child: Row(
+                          children: [
+                            Icon(Icons.share),
+                            SizedBox(width: 8),
+                            Text('Share'),
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
-                  onSelected: (value) async {
-                    if (value == "send_to_wearable") {
-                      final channel = MethodChannel("com.phantomknight287.planepal/planepal");
-                      await channel.invokeMethod(
-                        "bootAppOnWatch",
-                      );
-                    }
-                  },
-                ),
-                Icon(
-                  Icons.close,
-                ),
-              ])
+                    ],
+                    onSelected: (value) async {
+                      if (value == "send_to_wearable") {
+                        final channel = MethodChannel(METHOD_CHANNEL);
+                        await channel.invokeMethod("registerFlight", {
+                          "id": widget.info.id,
+                          "date": DateTime.parse(
+                                  (widget.info.departure.revisedTime ??
+                                          widget.info.departure.scheduledTime)
+                                      .utc)
+                              .toIso8601String(),
+                          "flightIata":
+                              "${widget.info.airline.iata}${widget.info.flightNo}",
+                          "flightIcao":
+                              "${widget.info.airline.iata}${widget.info.flightNo}",
+                          "origin": widget.info.departure.airport.iata,
+                          "destination": widget.info.arrival.airport.iata
+                        });
+                      }
+                    },
+                  ),
+                  Icon(
+                    Icons.close,
+                  ),
+                ],
+              )
             ],
           ),
           Divider(),
           Row(
             children: [
               Text(
-                getTimeMessage(DateTime.parse((widget.info.arrival.revisedTime ?? widget.info.arrival.predictedTime)!.utc)),
+                getTimeMessage(DateTime.parse(
+                    (widget.info.arrival.revisedTime ??
+                            widget.info.arrival.predictedTime)!
+                        .utc)),
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -156,9 +176,13 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
               Center(
                 child: Text(
                   "Total ${calculateFlightDuration(
-                    departureTime: (widget.info.departure.revisedTime ?? widget.info.departure.scheduledTime).utc,
+                    departureTime: (widget.info.departure.revisedTime ??
+                            widget.info.departure.scheduledTime)
+                        .utc,
                     departureTimezone: widget.info.departure.airport.timeZone,
-                    arrivalTime: (widget.info.arrival.revisedTime ?? widget.info.arrival.predictedTime)!.utc,
+                    arrivalTime: (widget.info.arrival.revisedTime ??
+                            widget.info.arrival.predictedTime)!
+                        .utc,
                     arrivalTimezone: widget.info.arrival.airport.timeZone,
                   ).toHumanReadable()} • ${formatDistance(double.parse(widget.info.greatCircleDistance.km), Localizations.localeOf(context).toString())}",
                   style: TextStyle(
@@ -171,18 +195,22 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
           ),
           FlightRouteInfo(
             arrivalCode: arrival.airport.iata,
-            arrivalDelay: _calculateDelay(arrival.revisedTime, arrival.scheduledTime),
+            arrivalDelay:
+                _calculateDelay(arrival.revisedTime, arrival.scheduledTime),
             arrivalName: arrival.airport.name,
             arrivalSubtitle: "",
             arrivalTerminal: arrival.terminal,
-            arrivalTime: DateTime.parse((arrival.revisedTime ?? arrival.predictedTime)!.utc),
+            arrivalTime: DateTime.parse(
+                (arrival.revisedTime ?? arrival.predictedTime)!.utc),
             arrivalTimezone: arrival.airport.timeZone,
             departureCode: departure.airport.iata,
-            departureDelay: _calculateDelay(departure.revisedTime, departure.scheduledTime),
+            departureDelay:
+                _calculateDelay(departure.revisedTime, departure.scheduledTime),
             departureName: departure.airport.name,
             departureSubtitle: "",
             departureTerminal: departure.terminal,
-            departureTime: DateTime.parse((departure.revisedTime ?? departure.scheduledTime).utc),
+            departureTime: DateTime.parse(
+                (departure.revisedTime ?? departure.scheduledTime).utc),
             departureTimezone: departure.airport.timeZone,
             statusColor: Colors.green,
             use24Hrs: MediaQuery.of(context).alwaysUse24HourFormat,
@@ -225,7 +253,9 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
                         widget.info.departure.airport.timeZone,
                       );
                       return Text(
-                        diff == "same timezone" ? "No timezone difference" : "Timezone difference of $diff",
+                        diff == "same timezone"
+                            ? "No timezone difference"
+                            : "Timezone difference of $diff",
                         style: TextStyle(
                           fontWeight: FontWeight.w600,
                         ),
@@ -297,7 +327,8 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
                               "Age",
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
-                                color: Colors.grey[700], // Adjust color as needed
+                                color:
+                                    Colors.grey[700], // Adjust color as needed
                               ),
                             ),
                             Text(
@@ -320,11 +351,13 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
                               "Delivery Date",
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
-                                color: Colors.grey[700], // Adjust color as needed
+                                color:
+                                    Colors.grey[700], // Adjust color as needed
                               ),
                             ),
                             Text(
-                              formatDate(DateTime.parse(widget.info.aircraft.deliveryDate!)),
+                              formatDate(DateTime.parse(
+                                  widget.info.aircraft.deliveryDate!)),
                               style: TextStyle(
                                 fontWeight: FontWeight.normal,
                                 color: Colors.black, // Adjust color as needed
@@ -339,7 +372,8 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
                               "Registration",
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
-                                color: Colors.grey[700], // Adjust color as needed
+                                color:
+                                    Colors.grey[700], // Adjust color as needed
                               ),
                             ),
                             Text(

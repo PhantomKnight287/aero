@@ -5,13 +5,15 @@ import 'package:openapi/openapi.dart';
 
 const SECONDARY_TEXT_COLOR = Color(0xff808080);
 
-const POCKETBASE_URL = "https://c641f6de3e0a-10502837830859101550.ngrok-free.app";
+const API_URL = "https://planepal.procrastinator.fyi";
 const AUTH_TOKEN_KEY = "token";
+
+const METHOD_CHANNEL = "com.phantomknight287.planepal/planepal";
 
 final openapi = Openapi(
   dio: Dio(
     BaseOptions(
-      baseUrl: POCKETBASE_URL,
+      baseUrl: API_URL,
     ),
   ),
   interceptors: [

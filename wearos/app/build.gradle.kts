@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    id("com.google.devtools.ksp")
 }
 
 android {
@@ -59,7 +60,20 @@ dependencies {
     implementation(libs.compose.navigation)
 
     implementation(libs.horologist.composables)
+    implementation(libs.horologist.auth.composables)
     implementation(libs.horologist.compose.layout)
     implementation(libs.horologist.compose.material)
+    implementation(libs.security.crypto)
+    implementation(libs.datastore.preferences)
+    implementation(libs.datastore)
+
+
+    ksp(libs.room.compiler)
+    implementation(libs.room.runtime)
+    implementation(libs.room.ktx)
+
+
+    implementation(libs.compose.material.v140)
+    implementation(libs.material.icons.extended.android)
 
 }
