@@ -10,6 +10,7 @@ import 'package:dio/dio.dart';
 
 import 'package:openapi/src/api_util.dart';
 import 'package:openapi/src/model/airline_entity.dart';
+import 'package:openapi/src/model/flights_controller_get_flights_in_bounds_v1200_response.dart';
 import 'package:openapi/src/model/flights_response_entity.dart';
 import 'package:openapi/src/model/generic_error_entity.dart';
 import 'package:openapi/src/model/get_airline_dto.dart';
@@ -112,6 +113,101 @@ class FlightsApi {
     }
 
     return Response<AirlineEntity>(
+      data: _responseData,
+      headers: _response.headers,
+      isRedirect: _response.isRedirect,
+      requestOptions: _response.requestOptions,
+      redirects: _response.redirects,
+      statusCode: _response.statusCode,
+      statusMessage: _response.statusMessage,
+      extra: _response.extra,
+    );
+  }
+
+  /// Get flights within geographic bounds
+  /// Get all aircraft currently flying within a specified geographic bounding box using FlightAware data with comprehensive aircraft details
+  ///
+  /// Parameters:
+  /// * [minLat] - Minimum latitude of the bounding box
+  /// * [maxLat] - Maximum latitude of the bounding box
+  /// * [minLng] - Minimum longitude of the bounding box
+  /// * [maxLng] - Maximum longitude of the bounding box
+  /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
+  /// * [headers] - Can be used to add additional headers to the request
+  /// * [extras] - Can be used to add flags to the request
+  /// * [validateStatus] - A [ValidateStatus] callback that can be used to determine request success based on the HTTP status of the response
+  /// * [onSendProgress] - A [ProgressCallback] that can be used to get the send progress
+  /// * [onReceiveProgress] - A [ProgressCallback] that can be used to get the receive progress
+  ///
+  /// Returns a [Future] containing a [Response] with a [FlightsControllerGetFlightsInBoundsV1200Response] as data
+  /// Throws [DioException] if API call or serialization fails
+  Future<Response<FlightsControllerGetFlightsInBoundsV1200Response>> flightsControllerGetFlightsInBoundsV1({ 
+    required num minLat,
+    required num maxLat,
+    required num minLng,
+    required num maxLng,
+    CancelToken? cancelToken,
+    Map<String, dynamic>? headers,
+    Map<String, dynamic>? extra,
+    ValidateStatus? validateStatus,
+    ProgressCallback? onSendProgress,
+    ProgressCallback? onReceiveProgress,
+  }) async {
+    final _path = r'/v1/flights/bounds';
+    final _options = Options(
+      method: r'GET',
+      headers: <String, dynamic>{
+        ...?headers,
+      },
+      extra: <String, dynamic>{
+        'secure': <Map<String, String>>[
+          {
+            'type': 'http',
+            'scheme': 'bearer',
+            'name': 'JWT-auth',
+          },
+        ],
+        ...?extra,
+      },
+      validateStatus: validateStatus,
+    );
+
+    final _queryParameters = <String, dynamic>{
+      r'minLat': encodeQueryParameter(_serializers, minLat, const FullType(num)),
+      r'maxLat': encodeQueryParameter(_serializers, maxLat, const FullType(num)),
+      r'minLng': encodeQueryParameter(_serializers, minLng, const FullType(num)),
+      r'maxLng': encodeQueryParameter(_serializers, maxLng, const FullType(num)),
+    };
+
+    final _response = await _dio.request<Object>(
+      _path,
+      options: _options,
+      queryParameters: _queryParameters,
+      cancelToken: cancelToken,
+      onSendProgress: onSendProgress,
+      onReceiveProgress: onReceiveProgress,
+    );
+
+    FlightsControllerGetFlightsInBoundsV1200Response? _responseData;
+
+    try {
+      final rawResponse = _response.data;
+      _responseData = rawResponse == null ? null : _serializers.deserialize(
+        rawResponse,
+        specifiedType: const FullType(FlightsControllerGetFlightsInBoundsV1200Response),
+      ) as FlightsControllerGetFlightsInBoundsV1200Response;
+
+    } catch (error, stackTrace) {
+      throw DioException(
+        requestOptions: _response.requestOptions,
+        response: _response,
+        type: DioExceptionType.unknown,
+        error: error,
+        stackTrace: stackTrace,
+      );
+    }
+
+    return Response<FlightsControllerGetFlightsInBoundsV1200Response>(
       data: _responseData,
       headers: _response.headers,
       isRedirect: _response.isRedirect,

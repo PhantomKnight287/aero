@@ -34,7 +34,14 @@ async function bootstrap() {
     defaultVersion: '1',
   });
   app.useGlobalPipes(
-    new ValidationPipe({ whitelist: true, enableDebugMessages: true }),
+    new ValidationPipe({ 
+      whitelist: true, 
+      enableDebugMessages: true,
+      transform: true,
+      transformOptions: {
+        enableImplicitConversion: true,
+      },
+    }),
   );
   const config = new DocumentBuilder()
     .setTitle('Plane Pal')

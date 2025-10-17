@@ -31,12 +31,12 @@ AirportType _$valueOf(String name) {
     case 'balloonport':
       return _$balloonport;
     default:
-      throw new ArgumentError(name);
+      throw ArgumentError(name);
   }
 }
 
 final BuiltSet<AirportType> _$values =
-    new BuiltSet<AirportType>(const <AirportType>[
+    BuiltSet<AirportType>(const <AirportType>[
   _$smallAirport,
   _$seaplaneBase,
   _$mediumAirport,
@@ -64,7 +64,7 @@ abstract class _$AirportTypeMixin {
   _$AirportTypeMeta get AirportType => const _$AirportTypeMeta();
 }
 
-Serializer<AirportType> _$airportTypeSerializer = new _$AirportTypeSerializer();
+Serializer<AirportType> _$airportTypeSerializer = _$AirportTypeSerializer();
 
 class _$AirportTypeSerializer implements PrimitiveSerializer<AirportType> {
   static const Map<String, Object> _toWire = const <String, Object>{

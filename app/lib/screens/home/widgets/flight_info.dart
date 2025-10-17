@@ -28,6 +28,50 @@ class FlightInfoWidget extends StatefulWidget {
 }
 
 class _FlightInfoWidgetState extends State<FlightInfoWidget> {
+  bool _showAircraftPayload = false;
+
+  String _formatKey(String key) {
+    final withSpaces = key
+        .replaceAll('_', ' ')
+        .replaceAllMapped(RegExp(r'(?<!^)([A-Z0-9])'), (m) => ' ${m.group(1)}');
+    final parts = withSpaces.split(' ');
+    return parts
+        .map((w) => w.isEmpty
+            ? w
+            : '${w[0].toUpperCase()}${w.length > 1 ? w.substring(1) : ''}')
+        .join(' ');
+  }
+
+  bool? _coerceToBool(dynamic value) {
+    if (value is bool) return value;
+    if (value is num) {
+      if (value == 1) return true;
+      if (value == 0) return false;
+      return null;
+    }
+    if (value is String) {
+      final v = value.trim().toLowerCase();
+      if (v == 'true' || v == 'yes' || v == 'y') return true;
+      if (v == 'false' || v == 'no' || v == 'n') return false;
+      if (v == '1') return true;
+      if (v == '0') return false;
+      return null;
+    }
+    return null;
+  }
+
+  String _formatPayloadValue(dynamic value) {
+    if (value is String) {
+      try {
+        final parsed = DateTime.parse(value);
+        return formatDate(parsed);
+      } catch (_) {
+        // not a parsable date string; fall through
+      }
+    }
+    return "$value";
+  }
+
   @override
   Widget build(BuildContext context) {
     final arrival = widget.info.arrival;
@@ -200,7 +244,7 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
                             widget.info.arrival.predictedTime)!
                         .utc,
                     arrivalTimezone: widget.info.arrival.airport.timeZone,
-                  ).toHumanReadable()} • ${formatDistance(double.parse(widget.info.greatCircleDistance.km), Localizations.localeOf(context).toString())}",
+                  ).toHumanReadable()} ${widget.info.greatCircleDistance.km != null ? "• ${formatDistance(double.parse(widget.info.greatCircleDistance.km!), Localizations.localeOf(context).toString())}" : ""}",
                   style: TextStyle(
                     fontWeight: FontWeight.w600,
                     color: Colors.grey[600],
@@ -253,6 +297,9 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
             child: Padding(
               padding: const EdgeInsets.all(
                 8.0,
+              ).copyWith(
+                top: 0,
+                bottom: 0,
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -321,9 +368,11 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
                     Wrap(
                       spacing: 10,
                       alignment: WrapAlignment.spaceBetween,
+                      runSpacing: 10,
                       children: [
                         if (widget.info.aircraft?.age != null)
                           Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
                                 "Age",
@@ -348,6 +397,7 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
                           ),
                         if (widget.info.aircraft?.deliveryDate != null)
                           Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
                               Text(
                                 "Delivery Date",
@@ -369,6 +419,7 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
                           ),
                         if (widget.info.aircraft?.registration != null)
                           Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
                                 "Registration",
@@ -385,6 +436,167 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
                                   color: Colors.black, // Adjust color as needed
                                 ),
                               ),
+                              const SizedBox(height: 8),
+                              Builder(builder: (context) {
+                                final payload =
+                                    (widget.info.aircraft?.payload)?.asMap;
+                                final entries = payload == null
+                                    ? const <MapEntry<String, dynamic>>[]
+                                    : payload.entries
+                                        .where((e) =>
+                                            e.value is String ||
+                                            e.value is num ||
+                                            e.value is bool)
+                                        .where((e) =>
+                                            e.key != 'id' &&
+                                            e.key != 'numRegistrations')
+                                        .toList();
+                                if (entries.isEmpty) {
+                                  return const SizedBox.shrink();
+                                }
+                                return Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    TextButton(
+                                      onPressed: () {
+                                        setState(() {
+                                          _showAircraftPayload =
+                                              !_showAircraftPayload;
+                                        });
+                                      },
+                                      style: TextButton.styleFrom(
+                                        padding: EdgeInsets.zero,
+                                        minimumSize: const Size(0, 0),
+                                        tapTargetSize:
+                                            MaterialTapTargetSize.shrinkWrap,
+                                      ),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Text(
+                                            _showAircraftPayload
+                                                ? "Hide more info"
+                                                : "Show more info",
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 4),
+                                          Icon(
+                                              _showAircraftPayload
+                                                  ? Icons.expand_less
+                                                  : Icons.expand_more,
+                                              size: 18),
+                                        ],
+                                      ),
+                                    ),
+                                    if (_showAircraftPayload)
+                                      Padding(
+                                        padding:
+                                            const EdgeInsets.only(top: 6.0),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: entries.map((e) {
+                                            final coerced =
+                                                _coerceToBool(e.value);
+                                            if (coerced != null) {
+                                              final boolColor = coerced
+                                                  ? Colors.green
+                                                  : Colors.red;
+                                              final label =
+                                                  coerced ? 'Yes' : 'No';
+                                              return Padding(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        vertical: 1.0),
+                                                child: Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .spaceBetween,
+                                                  children: [
+                                                    Expanded(
+                                                      child: Text(
+                                                        _formatKey(e.key),
+                                                        style: TextStyle(
+                                                          color:
+                                                              Colors.grey[700],
+                                                          fontWeight:
+                                                              FontWeight.w600,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    const SizedBox(width: 8),
+                                                    Row(
+                                                      mainAxisSize:
+                                                          MainAxisSize.min,
+                                                      children: [
+                                                        Container(
+                                                          width: 10,
+                                                          height: 10,
+                                                          decoration:
+                                                              BoxDecoration(
+                                                            color: boolColor,
+                                                            shape:
+                                                                BoxShape.circle,
+                                                          ),
+                                                        ),
+                                                        const SizedBox(
+                                                            width: 4),
+                                                        Text(
+                                                          label,
+                                                          style: TextStyle(
+                                                            color: boolColor,
+                                                            fontSize: 12,
+                                                            fontWeight:
+                                                                FontWeight.w600,
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ],
+                                                ),
+                                              );
+                                            }
+                                            return Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      vertical: 1.0),
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
+                                                children: [
+                                                  Expanded(
+                                                    child: Text(
+                                                      _formatKey(e.key),
+                                                      style: TextStyle(
+                                                        color: Colors.grey[700],
+                                                        fontWeight:
+                                                            FontWeight.w600,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  const SizedBox(width: 8),
+                                                  Flexible(
+                                                    child: Text(
+                                                      _formatPayloadValue(
+                                                          e.value),
+                                                      textAlign:
+                                                          TextAlign.right,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            );
+                                          }).toList(),
+                                        ),
+                                      ),
+                                  ],
+                                );
+                              }),
                             ],
                           ),
                       ],
@@ -401,20 +613,17 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
   Duration? _calculateDelay(dynamic revisedTime, dynamic scheduledTime) {
     if (revisedTime != null && scheduledTime != null) {
       return getDelay(
-        DateTime.parse(revisedTime.utc!),
         DateTime.parse(scheduledTime.utc!),
+        DateTime.parse(revisedTime.utc!),
       );
     }
     return null;
   }
 }
 
-Duration? getDelay(DateTime scheduled, DateTime predicted) {
-  if (predicted.isAfter(scheduled)) {
-    final delay = predicted.difference(scheduled);
-    return delay;
-  }
-  return null;
+Duration getDelay(DateTime scheduled, DateTime predicted) {
+  // Positive duration => delayed; negative duration => early; zero => on time
+  return predicted.difference(scheduled);
 }
 
 DateTime convertToArrivalTimeZone(

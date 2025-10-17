@@ -35,7 +35,7 @@ class _$AirportEntity extends AirportEntity {
   final String long;
 
   factory _$AirportEntity([void Function(AirportEntityBuilder)? updates]) =>
-      (new AirportEntityBuilder()..update(updates))._build();
+      (AirportEntityBuilder()..update(updates))._build();
 
   _$AirportEntity._(
       {required this.id,
@@ -51,27 +51,13 @@ class _$AirportEntity extends AirportEntity {
       required this.name,
       required this.lat,
       required this.long})
-      : super._() {
-    BuiltValueNullFieldError.checkNotNull(id, r'AirportEntity', 'id');
-    BuiltValueNullFieldError.checkNotNull(ident, r'AirportEntity', 'ident');
-    BuiltValueNullFieldError.checkNotNull(type, r'AirportEntity', 'type');
-    BuiltValueNullFieldError.checkNotNull(
-        continent, r'AirportEntity', 'continent');
-    BuiltValueNullFieldError.checkNotNull(
-        isoCountry, r'AirportEntity', 'isoCountry');
-    BuiltValueNullFieldError.checkNotNull(
-        isoRegion, r'AirportEntity', 'isoRegion');
-    BuiltValueNullFieldError.checkNotNull(name, r'AirportEntity', 'name');
-    BuiltValueNullFieldError.checkNotNull(lat, r'AirportEntity', 'lat');
-    BuiltValueNullFieldError.checkNotNull(long, r'AirportEntity', 'long');
-  }
-
+      : super._();
   @override
   AirportEntity rebuild(void Function(AirportEntityBuilder) updates) =>
       (toBuilder()..update(updates)).build();
 
   @override
-  AirportEntityBuilder toBuilder() => new AirportEntityBuilder()..replace(this);
+  AirportEntityBuilder toBuilder() => AirportEntityBuilder()..replace(this);
 
   @override
   bool operator ==(Object other) {
@@ -215,7 +201,6 @@ class AirportEntityBuilder
 
   @override
   void replace(AirportEntity other) {
-    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$AirportEntity;
   }
 
@@ -229,7 +214,7 @@ class AirportEntityBuilder
 
   _$AirportEntity _build() {
     final _$result = _$v ??
-        new _$AirportEntity._(
+        _$AirportEntity._(
           id: BuiltValueNullFieldError.checkNotNull(id, r'AirportEntity', 'id'),
           ident: BuiltValueNullFieldError.checkNotNull(
               ident, r'AirportEntity', 'ident'),

@@ -8,11 +8,11 @@ import 'package:openapi/api.dart';
 ## Properties
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**meter** | **String** |  | 
-**km** | **String** |  | 
-**mile** | **String** |  | 
-**nm** | **String** |  | 
-**feet** | **String** |  | 
+**meter** | **String** |  | [optional] 
+**km** | **String** |  | [optional] 
+**mile** | **String** |  | [optional] 
+**nm** | **String** |  | [optional] 
+**feet** | **String** |  | [optional] 
 
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
 

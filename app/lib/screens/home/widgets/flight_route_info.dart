@@ -168,32 +168,28 @@ class FlightRouteInfo extends StatelessWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Text(
-                  time.toTimezoneString(
-                    timezone,
-                    use24Hrs: use24Hrs,
-                  ),
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: color,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                if (delay != null)
-                  Text(
-                    delay.toHumanReadable(),
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: color.withValues(
-                        alpha: 0.8,
-                      ),
+                Builder(builder: (context) {
+                  final Color timeColor = delay == null
+                      ? Colors.black
+                      : (delay.isNegative ? Colors.green : Colors.red);
+                  return Text(
+                    time.toTimezoneString(
+                      timezone,
+                      use24Hrs: use24Hrs,
                     ),
-                  ),
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: timeColor,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  );
+                }),
+                if (delay != null)
+                  _buildDelayPill(delay: delay, color: color),
               ],
             ),
           ],
-        ),
-        const SizedBox(height: 4),
+        ),       
         Text(
           name,
           style: TextStyle(
@@ -211,7 +207,7 @@ class FlightRouteInfo extends StatelessWidget {
           ),
         if (gate != null)
           Text(
-            gate!.isNotEmpty ? "Gate: $gate" : "",
+            gate.isNotEmpty ? "Gate: $gate" : "",
             style: TextStyle(
               fontSize: 14,
               color: Colors.grey.shade600,
@@ -227,6 +223,44 @@ class FlightRouteInfo extends StatelessWidget {
             ),
           ),
       ],
+    );
+  }
+
+  Widget _buildDelayPill({required Duration delay, required Color color}) {
+    print(color);
+    final bool isEarly = delay.isNegative;
+    final String status = isEarly ? "Early" : "Delayed";
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: 6,
+        vertical: 2,
+      ),
+      decoration: BoxDecoration(
+        color: (isEarly ? Colors.green : Colors.red).withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: (isEarly ? Colors.green : Colors.red).withValues(alpha: 0.3),
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            Icons.schedule,
+            size: 12,
+            color: (isEarly ? Colors.green : Colors.red).withValues(alpha: 0.9),
+          ),
+          const SizedBox(width: 4),
+          Text(
+            "$status ${delay.toHumanReadable()}",
+            style: TextStyle(
+              fontSize: 12,
+              color: (isEarly ? Colors.green : Colors.red).withValues(alpha: 0.9),
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

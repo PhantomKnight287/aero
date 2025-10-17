@@ -31,7 +31,7 @@ class _$AirportInfo extends AirportInfo {
   final String? terminal;
 
   factory _$AirportInfo([void Function(AirportInfoBuilder)? updates]) =>
-      (new AirportInfoBuilder()..update(updates))._build();
+      (AirportInfoBuilder()..update(updates))._build();
 
   _$AirportInfo._(
       {this.actualRunway,
@@ -46,13 +46,12 @@ class _$AirportInfo extends AirportInfo {
       this.scheduledTime,
       this.terminal})
       : super._();
-
   @override
   AirportInfo rebuild(void Function(AirportInfoBuilder) updates) =>
       (toBuilder()..update(updates)).build();
 
   @override
-  AirportInfoBuilder toBuilder() => new AirportInfoBuilder()..replace(this);
+  AirportInfoBuilder toBuilder() => AirportInfoBuilder()..replace(this);
 
   @override
   bool operator ==(Object other) {
@@ -182,7 +181,6 @@ class AirportInfoBuilder implements Builder<AirportInfo, AirportInfoBuilder> {
 
   @override
   void replace(AirportInfo other) {
-    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$AirportInfo;
   }
 
@@ -196,7 +194,7 @@ class AirportInfoBuilder implements Builder<AirportInfo, AirportInfoBuilder> {
 
   _$AirportInfo _build() {
     final _$result = _$v ??
-        new _$AirportInfo._(
+        _$AirportInfo._(
           actualRunway: actualRunway,
           actualTime: actualTime,
           baggage: baggage,

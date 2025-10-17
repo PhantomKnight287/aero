@@ -15,22 +15,17 @@ class _$RegisterDTO extends RegisterDTO {
   final String name;
 
   factory _$RegisterDTO([void Function(RegisterDTOBuilder)? updates]) =>
-      (new RegisterDTOBuilder()..update(updates))._build();
+      (RegisterDTOBuilder()..update(updates))._build();
 
   _$RegisterDTO._(
       {required this.email, required this.password, required this.name})
-      : super._() {
-    BuiltValueNullFieldError.checkNotNull(email, r'RegisterDTO', 'email');
-    BuiltValueNullFieldError.checkNotNull(password, r'RegisterDTO', 'password');
-    BuiltValueNullFieldError.checkNotNull(name, r'RegisterDTO', 'name');
-  }
-
+      : super._();
   @override
   RegisterDTO rebuild(void Function(RegisterDTOBuilder) updates) =>
       (toBuilder()..update(updates)).build();
 
   @override
-  RegisterDTOBuilder toBuilder() => new RegisterDTOBuilder()..replace(this);
+  RegisterDTOBuilder toBuilder() => RegisterDTOBuilder()..replace(this);
 
   @override
   bool operator ==(Object other) {
@@ -93,7 +88,6 @@ class RegisterDTOBuilder implements Builder<RegisterDTO, RegisterDTOBuilder> {
 
   @override
   void replace(RegisterDTO other) {
-    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$RegisterDTO;
   }
 
@@ -107,7 +101,7 @@ class RegisterDTOBuilder implements Builder<RegisterDTO, RegisterDTOBuilder> {
 
   _$RegisterDTO _build() {
     final _$result = _$v ??
-        new _$RegisterDTO._(
+        _$RegisterDTO._(
           email: BuiltValueNullFieldError.checkNotNull(
               email, r'RegisterDTO', 'email'),
           password: BuiltValueNullFieldError.checkNotNull(

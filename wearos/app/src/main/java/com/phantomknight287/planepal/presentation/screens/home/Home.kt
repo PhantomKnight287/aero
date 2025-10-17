@@ -77,8 +77,7 @@ fun HomeScreen(
             Chip(
                 label = { Text("${it.origin} to ${it.destination}") },
                 onClick = { },
-                secondaryLabel = { Text("Secondary label") },
-                icon = { Icon(imageVector = Icons.Default.Image, contentDescription = null) }
+                secondaryLabel = { Text("${it.flightIata} • ${it.flightIcao}") }
             )
         }
 

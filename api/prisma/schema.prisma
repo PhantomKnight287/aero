@@ -86,6 +86,9 @@ model Aircraft {
   attribution     String?
   registrations   AircraftRegistration[]
 
+  // store the whole json payload from api
+  payload Json?
+
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 

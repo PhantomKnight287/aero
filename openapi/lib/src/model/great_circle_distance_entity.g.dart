@@ -20,7 +20,7 @@ class _$GreatCircleDistanceEntity extends GreatCircleDistanceEntity {
 
   factory _$GreatCircleDistanceEntity(
           [void Function(GreatCircleDistanceEntityBuilder)? updates]) =>
-      (new GreatCircleDistanceEntityBuilder()..update(updates))._build();
+      (GreatCircleDistanceEntityBuilder()..update(updates))._build();
 
   _$GreatCircleDistanceEntity._(
       {required this.meter,
@@ -28,19 +28,7 @@ class _$GreatCircleDistanceEntity extends GreatCircleDistanceEntity {
       required this.mile,
       required this.nm,
       required this.feet})
-      : super._() {
-    BuiltValueNullFieldError.checkNotNull(
-        meter, r'GreatCircleDistanceEntity', 'meter');
-    BuiltValueNullFieldError.checkNotNull(
-        km, r'GreatCircleDistanceEntity', 'km');
-    BuiltValueNullFieldError.checkNotNull(
-        mile, r'GreatCircleDistanceEntity', 'mile');
-    BuiltValueNullFieldError.checkNotNull(
-        nm, r'GreatCircleDistanceEntity', 'nm');
-    BuiltValueNullFieldError.checkNotNull(
-        feet, r'GreatCircleDistanceEntity', 'feet');
-  }
-
+      : super._();
   @override
   GreatCircleDistanceEntity rebuild(
           void Function(GreatCircleDistanceEntityBuilder) updates) =>
@@ -48,7 +36,7 @@ class _$GreatCircleDistanceEntity extends GreatCircleDistanceEntity {
 
   @override
   GreatCircleDistanceEntityBuilder toBuilder() =>
-      new GreatCircleDistanceEntityBuilder()..replace(this);
+      GreatCircleDistanceEntityBuilder()..replace(this);
 
   @override
   bool operator ==(Object other) {
@@ -129,7 +117,6 @@ class GreatCircleDistanceEntityBuilder
 
   @override
   void replace(GreatCircleDistanceEntity other) {
-    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$GreatCircleDistanceEntity;
   }
 
@@ -143,7 +130,7 @@ class GreatCircleDistanceEntityBuilder
 
   _$GreatCircleDistanceEntity _build() {
     final _$result = _$v ??
-        new _$GreatCircleDistanceEntity._(
+        _$GreatCircleDistanceEntity._(
           meter: BuiltValueNullFieldError.checkNotNull(
               meter, r'GreatCircleDistanceEntity', 'meter'),
           km: BuiltValueNullFieldError.checkNotNull(

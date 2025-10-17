@@ -12,6 +12,7 @@ import 'package:plane_pal/screens/home/widgets/flight_search_bar.dart';
 import 'package:plane_pal/screens/home/widgets/selected_filters.dart';
 import 'package:plane_pal/services/main.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:plane_pal/constants/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -22,7 +23,6 @@ import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:provider/provider.dart';
-import 'package:shadcn_ui/shadcn_ui.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -35,9 +35,15 @@ class HomeScreen extends StatefulWidget {
 }
 
 TileLayer get openStreetMapTileLayer => TileLayer(
-      urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+      urlTemplate:
+          'https://api.mapbox.com/styles/v1/mapbox/streets-v12/tiles/{z}/{x}/{y}?access_token={accessToken}',
       userAgentPackageName: 'com.phantomknight287.planepal',
       tileProvider: CancellableNetworkTileProvider(),
+      additionalOptions: const {
+        'accessToken': MAPBOX_API_KEY,
+      },
+      tileSize: 512,
+      zoomOffset: -1,
     );
 
 class _HomeScreenState extends State<HomeScreen>
@@ -110,6 +116,115 @@ class _HomeScreenState extends State<HomeScreen>
     super.dispose();
   }
 
+  Future<void> _onAircraftSelected(
+      FlightsControllerGetFlightsInBoundsV1200ResponseFlightsInner
+          aircraft) async {
+    try {
+      setState(() {
+        loading = true;
+        isLoading = true;
+        error = null;
+        _flightInfo = null;
+        arrivalAirport = null;
+        departureAirport = null;
+        coordinates = [];
+        selectedDate = DateTime.now(); // Set to today
+        selectedAirline = null;
+        selectedFlightNumber = null;
+        flights = BuiltList.from([]);
+      });
+
+      // Use ident_icao and ident_iata directly to get flight information
+      if (aircraft.identIata?.isNotEmpty == true ||
+          aircraft.identIcao?.isNotEmpty == true) {
+        final iata = aircraft.identIata ?? '';
+        final icao = aircraft.identIcao ?? '';
+
+        // Get flight information using the flight identifiers
+        final info = await _flightService.getFlightInfoWithNumber(
+          iata,
+          icao,
+          date: selectedDate!,
+        );
+
+        if (info != null) {
+          coordinates = [
+            LatLng(
+              info.departure.airport.location.lat.toDouble(),
+              info.departure.airport.location.lon.toDouble(),
+            ),
+            LatLng(
+              info.arrival.airport.location.lat.toDouble(),
+              info.arrival.airport.location.lon.toDouble(),
+            ),
+          ];
+
+          // Animate map to show the flight route
+          _mapController.animateTo(
+            dest: LatLng(
+              (info.departure.airport.location.lat.toDouble() +
+                      info.arrival.airport.location.lat.toDouble()) /
+                  2,
+              (info.departure.airport.location.lon.toDouble() +
+                      info.arrival.airport.location.lon.toDouble()) /
+                  2,
+            ),
+          );
+
+          setState(() {
+            _flightInfo = info;
+            departureAirport = AirportEntity((b) => b
+              ..ident = info.departure.airport.iata
+              ..iataCode = info.departure.airport.iata
+              ..name = info.departure.airport.name
+              ..lat = info.departure.airport.location.lat.toString()
+              ..long = info.departure.airport.location.lon.toString()
+              ..isoCountry = info.departure.airport.countryCode
+              ..type = AirportType.largeAirport
+              ..build());
+
+            arrivalAirport = AirportEntity((b) => b
+              ..ident = info.arrival.airport.iata
+              ..iataCode = info.arrival.airport.iata
+              ..name = info.arrival.airport.name
+              ..lat = info.arrival.airport.location.lat.toString()
+              ..long = info.arrival.airport.location.lon.toString()
+              ..isoCountry = info.arrival.airport.countryCode
+              ..type = AirportType.largeAirport
+              ..build());
+          });
+
+          // Expand the bottom sheet to show flight details
+          _controller.animateTo(
+            0.75,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+          );
+        } else {
+          setState(() {
+            error =
+                'No flight information found for ${aircraft.identIata ?? aircraft.identIcao ?? "unknown flight"}';
+          });
+        }
+      } else {
+        setState(() {
+          error = 'No flight identifiers available';
+        });
+      }
+    } catch (e, stack) {
+      print('Error handling aircraft selection: $e');
+      print(stack);
+      setState(() {
+        error = 'Failed to load flight information: $e';
+      });
+    } finally {
+      setState(() {
+        loading = false;
+        isLoading = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -122,6 +237,7 @@ class _HomeScreenState extends State<HomeScreen>
               arrivalAirport: arrivalAirport,
               departureAirport: departureAirport,
               coordinates: coordinates,
+              onAircraftSelected: _onAircraftSelected,
             ),
           ),
           DraggableScrollableSheet(

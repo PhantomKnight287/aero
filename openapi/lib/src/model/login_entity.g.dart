@@ -13,19 +13,15 @@ class _$LoginEntity extends LoginEntity {
   final UserEntity user;
 
   factory _$LoginEntity([void Function(LoginEntityBuilder)? updates]) =>
-      (new LoginEntityBuilder()..update(updates))._build();
+      (LoginEntityBuilder()..update(updates))._build();
 
-  _$LoginEntity._({required this.token, required this.user}) : super._() {
-    BuiltValueNullFieldError.checkNotNull(token, r'LoginEntity', 'token');
-    BuiltValueNullFieldError.checkNotNull(user, r'LoginEntity', 'user');
-  }
-
+  _$LoginEntity._({required this.token, required this.user}) : super._();
   @override
   LoginEntity rebuild(void Function(LoginEntityBuilder) updates) =>
       (toBuilder()..update(updates)).build();
 
   @override
-  LoginEntityBuilder toBuilder() => new LoginEntityBuilder()..replace(this);
+  LoginEntityBuilder toBuilder() => LoginEntityBuilder()..replace(this);
 
   @override
   bool operator ==(Object other) {
@@ -59,7 +55,7 @@ class LoginEntityBuilder implements Builder<LoginEntity, LoginEntityBuilder> {
   set token(String? token) => _$this._token = token;
 
   UserEntityBuilder? _user;
-  UserEntityBuilder get user => _$this._user ??= new UserEntityBuilder();
+  UserEntityBuilder get user => _$this._user ??= UserEntityBuilder();
   set user(UserEntityBuilder? user) => _$this._user = user;
 
   LoginEntityBuilder() {
@@ -78,7 +74,6 @@ class LoginEntityBuilder implements Builder<LoginEntity, LoginEntityBuilder> {
 
   @override
   void replace(LoginEntity other) {
-    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$LoginEntity;
   }
 
@@ -94,7 +89,7 @@ class LoginEntityBuilder implements Builder<LoginEntity, LoginEntityBuilder> {
     _$LoginEntity _$result;
     try {
       _$result = _$v ??
-          new _$LoginEntity._(
+          _$LoginEntity._(
             token: BuiltValueNullFieldError.checkNotNull(
                 token, r'LoginEntity', 'token'),
             user: user.build(),
@@ -105,7 +100,7 @@ class LoginEntityBuilder implements Builder<LoginEntity, LoginEntityBuilder> {
         _$failedField = 'user';
         user.build();
       } catch (e) {
-        throw new BuiltValueNestedFieldError(
+        throw BuiltValueNestedFieldError(
             r'LoginEntity', _$failedField, e.toString());
       }
       rethrow;

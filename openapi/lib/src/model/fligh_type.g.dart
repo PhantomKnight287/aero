@@ -16,11 +16,11 @@ FlighType _$valueOf(String name) {
     case 'departure':
       return _$departure;
     default:
-      throw new ArgumentError(name);
+      throw ArgumentError(name);
   }
 }
 
-final BuiltSet<FlighType> _$values = new BuiltSet<FlighType>(const <FlighType>[
+final BuiltSet<FlighType> _$values = BuiltSet<FlighType>(const <FlighType>[
   _$arrival,
   _$departure,
 ]);
@@ -38,7 +38,7 @@ abstract class _$FlighTypeMixin {
   _$FlighTypeMeta get FlighType => const _$FlighTypeMeta();
 }
 
-Serializer<FlighType> _$flighTypeSerializer = new _$FlighTypeSerializer();
+Serializer<FlighType> _$flighTypeSerializer = _$FlighTypeSerializer();
 
 class _$FlighTypeSerializer implements PrimitiveSerializer<FlighType> {
   static const Map<String, Object> _toWire = const <String, Object>{

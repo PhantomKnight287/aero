@@ -1,18 +1,19 @@
 [versions]
+composeMaterialVersion = "1.2.1"  # from 1.4.0
+composeNavigation = "1.2.1"      # from 1.4.0
+materialIconsExtendedAndroid = "1.6.8"  # from 1.7.6
+composeBom = "2023.10.01"        # from 2024.04.01
+composeUI = "1.5.4"              # from 1.7.6
+activityCompose = "1.8.2"
 agp = "8.7.2"
-composeMaterialVersion = "1.4.0"
-composeNavigation = "1.4.0"
 datastorePreferences = "1.1.1"
 kotlin = "2.0.0"
-materialIconsExtendedAndroid = "1.7.6"
 playServicesWearable = "19.0.0"
-composeBom = "2024.04.01"
 composeMaterial = "1.2.1"
 composeFoundation = "1.2.1"
 roomCompiler = "2.6.1"
 securityCrypto = "1.0.0"
 wearToolingPreview = "1.0.0"
-activityCompose = "1.9.3"
 coreSplashscreen = "1.0.1"
 horologist = "0.7.8-alpha"
 
@@ -30,7 +31,7 @@ room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomCom
 room-ktx = { module = "androidx.room:room-ktx", version.ref = "roomCompiler" }
 room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomCompiler" }
 security-crypto = { module = "androidx.security:security-crypto", version.ref = "securityCrypto" }
-ui = { group = "androidx.compose.ui", name = "ui" }
+ui = { group = "androidx.compose.ui", name = "ui", version.ref = "composeUI" }
 ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
 ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
 ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }

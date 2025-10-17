@@ -20,7 +20,7 @@ class _$FlightsResponseEntity extends FlightsResponseEntity {
 
   factory _$FlightsResponseEntity(
           [void Function(FlightsResponseEntityBuilder)? updates]) =>
-      (new FlightsResponseEntityBuilder()..update(updates))._build();
+      (FlightsResponseEntityBuilder()..update(updates))._build();
 
   _$FlightsResponseEntity._(
       {required this.success,
@@ -28,19 +28,7 @@ class _$FlightsResponseEntity extends FlightsResponseEntity {
       required this.route,
       required this.flightCount,
       required this.flights})
-      : super._() {
-    BuiltValueNullFieldError.checkNotNull(
-        success, r'FlightsResponseEntity', 'success');
-    BuiltValueNullFieldError.checkNotNull(
-        date, r'FlightsResponseEntity', 'date');
-    BuiltValueNullFieldError.checkNotNull(
-        route, r'FlightsResponseEntity', 'route');
-    BuiltValueNullFieldError.checkNotNull(
-        flightCount, r'FlightsResponseEntity', 'flightCount');
-    BuiltValueNullFieldError.checkNotNull(
-        flights, r'FlightsResponseEntity', 'flights');
-  }
-
+      : super._();
   @override
   FlightsResponseEntity rebuild(
           void Function(FlightsResponseEntityBuilder) updates) =>
@@ -48,7 +36,7 @@ class _$FlightsResponseEntity extends FlightsResponseEntity {
 
   @override
   FlightsResponseEntityBuilder toBuilder() =>
-      new FlightsResponseEntityBuilder()..replace(this);
+      FlightsResponseEntityBuilder()..replace(this);
 
   @override
   bool operator ==(Object other) {
@@ -99,7 +87,7 @@ class FlightsResponseEntityBuilder
 
   FlightsRouteEntityBuilder? _route;
   FlightsRouteEntityBuilder get route =>
-      _$this._route ??= new FlightsRouteEntityBuilder();
+      _$this._route ??= FlightsRouteEntityBuilder();
   set route(FlightsRouteEntityBuilder? route) => _$this._route = route;
 
   num? _flightCount;
@@ -108,7 +96,7 @@ class FlightsResponseEntityBuilder
 
   ListBuilder<FlightEntity>? _flights;
   ListBuilder<FlightEntity> get flights =>
-      _$this._flights ??= new ListBuilder<FlightEntity>();
+      _$this._flights ??= ListBuilder<FlightEntity>();
   set flights(ListBuilder<FlightEntity>? flights) => _$this._flights = flights;
 
   FlightsResponseEntityBuilder() {
@@ -130,7 +118,6 @@ class FlightsResponseEntityBuilder
 
   @override
   void replace(FlightsResponseEntity other) {
-    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$FlightsResponseEntity;
   }
 
@@ -146,7 +133,7 @@ class FlightsResponseEntityBuilder
     _$FlightsResponseEntity _$result;
     try {
       _$result = _$v ??
-          new _$FlightsResponseEntity._(
+          _$FlightsResponseEntity._(
             success: BuiltValueNullFieldError.checkNotNull(
                 success, r'FlightsResponseEntity', 'success'),
             date: BuiltValueNullFieldError.checkNotNull(
@@ -165,7 +152,7 @@ class FlightsResponseEntityBuilder
         _$failedField = 'flights';
         flights.build();
       } catch (e) {
-        throw new BuiltValueNestedFieldError(
+        throw BuiltValueNestedFieldError(
             r'FlightsResponseEntity', _$failedField, e.toString());
       }
       rethrow;

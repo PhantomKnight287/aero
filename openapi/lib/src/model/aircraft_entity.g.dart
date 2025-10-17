@@ -27,9 +27,11 @@ class _$AircraftEntity extends AircraftEntity {
   final bool? isFreighter;
   @override
   final String? attribution;
+  @override
+  final JsonObject? payload;
 
   factory _$AircraftEntity([void Function(AircraftEntityBuilder)? updates]) =>
-      (new AircraftEntityBuilder()..update(updates))._build();
+      (AircraftEntityBuilder()..update(updates))._build();
 
   _$AircraftEntity._(
       {this.modeS,
@@ -41,18 +43,15 @@ class _$AircraftEntity extends AircraftEntity {
       this.firstFlightDate,
       this.deliveryDate,
       this.isFreighter,
-      this.attribution})
-      : super._() {
-    BuiltValueNullFieldError.checkNotNull(model, r'AircraftEntity', 'model');
-  }
-
+      this.attribution,
+      this.payload})
+      : super._();
   @override
   AircraftEntity rebuild(void Function(AircraftEntityBuilder) updates) =>
       (toBuilder()..update(updates)).build();
 
   @override
-  AircraftEntityBuilder toBuilder() =>
-      new AircraftEntityBuilder()..replace(this);
+  AircraftEntityBuilder toBuilder() => AircraftEntityBuilder()..replace(this);
 
   @override
   bool operator ==(Object other) {
@@ -67,7 +66,8 @@ class _$AircraftEntity extends AircraftEntity {
         firstFlightDate == other.firstFlightDate &&
         deliveryDate == other.deliveryDate &&
         isFreighter == other.isFreighter &&
-        attribution == other.attribution;
+        attribution == other.attribution &&
+        payload == other.payload;
   }
 
   @override
@@ -83,6 +83,7 @@ class _$AircraftEntity extends AircraftEntity {
     _$hash = $jc(_$hash, deliveryDate.hashCode);
     _$hash = $jc(_$hash, isFreighter.hashCode);
     _$hash = $jc(_$hash, attribution.hashCode);
+    _$hash = $jc(_$hash, payload.hashCode);
     _$hash = $jf(_$hash);
     return _$hash;
   }
@@ -99,7 +100,8 @@ class _$AircraftEntity extends AircraftEntity {
           ..add('firstFlightDate', firstFlightDate)
           ..add('deliveryDate', deliveryDate)
           ..add('isFreighter', isFreighter)
-          ..add('attribution', attribution))
+          ..add('attribution', attribution)
+          ..add('payload', payload))
         .toString();
   }
 }
@@ -149,6 +151,10 @@ class AircraftEntityBuilder
   String? get attribution => _$this._attribution;
   set attribution(String? attribution) => _$this._attribution = attribution;
 
+  JsonObject? _payload;
+  JsonObject? get payload => _$this._payload;
+  set payload(JsonObject? payload) => _$this._payload = payload;
+
   AircraftEntityBuilder() {
     AircraftEntity._defaults(this);
   }
@@ -166,6 +172,7 @@ class AircraftEntityBuilder
       _deliveryDate = $v.deliveryDate;
       _isFreighter = $v.isFreighter;
       _attribution = $v.attribution;
+      _payload = $v.payload;
       _$v = null;
     }
     return this;
@@ -173,7 +180,6 @@ class AircraftEntityBuilder
 
   @override
   void replace(AircraftEntity other) {
-    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$AircraftEntity;
   }
 
@@ -187,7 +193,7 @@ class AircraftEntityBuilder
 
   _$AircraftEntity _build() {
     final _$result = _$v ??
-        new _$AircraftEntity._(
+        _$AircraftEntity._(
           modeS: modeS,
           registration: registration,
           model: BuiltValueNullFieldError.checkNotNull(
@@ -199,6 +205,7 @@ class AircraftEntityBuilder
           deliveryDate: deliveryDate,
           isFreighter: isFreighter,
           attribution: attribution,
+          payload: payload,
         );
     replace(_$result);
     return _$result;

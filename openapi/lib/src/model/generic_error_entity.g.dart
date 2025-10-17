@@ -12,13 +12,9 @@ class _$GenericErrorEntity extends GenericErrorEntity {
 
   factory _$GenericErrorEntity(
           [void Function(GenericErrorEntityBuilder)? updates]) =>
-      (new GenericErrorEntityBuilder()..update(updates))._build();
+      (GenericErrorEntityBuilder()..update(updates))._build();
 
-  _$GenericErrorEntity._({required this.message}) : super._() {
-    BuiltValueNullFieldError.checkNotNull(
-        message, r'GenericErrorEntity', 'message');
-  }
-
+  _$GenericErrorEntity._({required this.message}) : super._();
   @override
   GenericErrorEntity rebuild(
           void Function(GenericErrorEntityBuilder) updates) =>
@@ -26,7 +22,7 @@ class _$GenericErrorEntity extends GenericErrorEntity {
 
   @override
   GenericErrorEntityBuilder toBuilder() =>
-      new GenericErrorEntityBuilder()..replace(this);
+      GenericErrorEntityBuilder()..replace(this);
 
   @override
   bool operator ==(Object other) {
@@ -73,7 +69,6 @@ class GenericErrorEntityBuilder
 
   @override
   void replace(GenericErrorEntity other) {
-    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$GenericErrorEntity;
   }
 
@@ -87,7 +82,7 @@ class GenericErrorEntityBuilder
 
   _$GenericErrorEntity _build() {
     final _$result = _$v ??
-        new _$GenericErrorEntity._(
+        _$GenericErrorEntity._(
           message: BuiltValueNullFieldError.checkNotNull(
               message, r'GenericErrorEntity', 'message'),
         );

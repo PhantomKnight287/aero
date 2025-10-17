@@ -13,20 +13,15 @@ class _$RegisterEntity extends RegisterEntity {
   final UserEntity user;
 
   factory _$RegisterEntity([void Function(RegisterEntityBuilder)? updates]) =>
-      (new RegisterEntityBuilder()..update(updates))._build();
+      (RegisterEntityBuilder()..update(updates))._build();
 
-  _$RegisterEntity._({required this.token, required this.user}) : super._() {
-    BuiltValueNullFieldError.checkNotNull(token, r'RegisterEntity', 'token');
-    BuiltValueNullFieldError.checkNotNull(user, r'RegisterEntity', 'user');
-  }
-
+  _$RegisterEntity._({required this.token, required this.user}) : super._();
   @override
   RegisterEntity rebuild(void Function(RegisterEntityBuilder) updates) =>
       (toBuilder()..update(updates)).build();
 
   @override
-  RegisterEntityBuilder toBuilder() =>
-      new RegisterEntityBuilder()..replace(this);
+  RegisterEntityBuilder toBuilder() => RegisterEntityBuilder()..replace(this);
 
   @override
   bool operator ==(Object other) {
@@ -63,7 +58,7 @@ class RegisterEntityBuilder
   set token(String? token) => _$this._token = token;
 
   UserEntityBuilder? _user;
-  UserEntityBuilder get user => _$this._user ??= new UserEntityBuilder();
+  UserEntityBuilder get user => _$this._user ??= UserEntityBuilder();
   set user(UserEntityBuilder? user) => _$this._user = user;
 
   RegisterEntityBuilder() {
@@ -82,7 +77,6 @@ class RegisterEntityBuilder
 
   @override
   void replace(RegisterEntity other) {
-    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$RegisterEntity;
   }
 
@@ -98,7 +92,7 @@ class RegisterEntityBuilder
     _$RegisterEntity _$result;
     try {
       _$result = _$v ??
-          new _$RegisterEntity._(
+          _$RegisterEntity._(
             token: BuiltValueNullFieldError.checkNotNull(
                 token, r'RegisterEntity', 'token'),
             user: user.build(),
@@ -109,7 +103,7 @@ class RegisterEntityBuilder
         _$failedField = 'user';
         user.build();
       } catch (e) {
-        throw new BuiltValueNestedFieldError(
+        throw BuiltValueNestedFieldError(
             r'RegisterEntity', _$failedField, e.toString());
       }
       rethrow;

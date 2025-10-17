@@ -19,19 +19,19 @@ part 'stringified_great_circle_distance_entity.g.dart';
 @BuiltValue()
 abstract class StringifiedGreatCircleDistanceEntity implements Built<StringifiedGreatCircleDistanceEntity, StringifiedGreatCircleDistanceEntityBuilder> {
   @BuiltValueField(wireName: r'meter')
-  String get meter;
+  String? get meter;
 
   @BuiltValueField(wireName: r'km')
-  String get km;
+  String? get km;
 
   @BuiltValueField(wireName: r'mile')
-  String get mile;
+  String? get mile;
 
   @BuiltValueField(wireName: r'nm')
-  String get nm;
+  String? get nm;
 
   @BuiltValueField(wireName: r'feet')
-  String get feet;
+  String? get feet;
 
   StringifiedGreatCircleDistanceEntity._();
 
@@ -56,31 +56,41 @@ class _$StringifiedGreatCircleDistanceEntitySerializer implements PrimitiveSeria
     StringifiedGreatCircleDistanceEntity object, {
     FullType specifiedType = FullType.unspecified,
   }) sync* {
-    yield r'meter';
-    yield serializers.serialize(
-      object.meter,
-      specifiedType: const FullType(String),
-    );
-    yield r'km';
-    yield serializers.serialize(
-      object.km,
-      specifiedType: const FullType(String),
-    );
-    yield r'mile';
-    yield serializers.serialize(
-      object.mile,
-      specifiedType: const FullType(String),
-    );
-    yield r'nm';
-    yield serializers.serialize(
-      object.nm,
-      specifiedType: const FullType(String),
-    );
-    yield r'feet';
-    yield serializers.serialize(
-      object.feet,
-      specifiedType: const FullType(String),
-    );
+    if (object.meter != null) {
+      yield r'meter';
+      yield serializers.serialize(
+        object.meter,
+        specifiedType: const FullType(String),
+      );
+    }
+    if (object.km != null) {
+      yield r'km';
+      yield serializers.serialize(
+        object.km,
+        specifiedType: const FullType(String),
+      );
+    }
+    if (object.mile != null) {
+      yield r'mile';
+      yield serializers.serialize(
+        object.mile,
+        specifiedType: const FullType(String),
+      );
+    }
+    if (object.nm != null) {
+      yield r'nm';
+      yield serializers.serialize(
+        object.nm,
+        specifiedType: const FullType(String),
+      );
+    }
+    if (object.feet != null) {
+      yield r'feet';
+      yield serializers.serialize(
+        object.feet,
+        specifiedType: const FullType(String),
+      );
+    }
   }
 
   @override

@@ -41,11 +41,6 @@ Duration calculateFlightDuration({
     // Calculate duration
     final duration = tzArrival.difference(tzDeparture);
 
-    // Validate that arrival is after departure
-    if (duration.isNegative) {
-      throw FlightTimeException('Invalid flight times: Arrival time cannot be before departure time. '
-          'Departure: $tzDeparture, Arrival: $tzArrival');
-    }
 
     return duration;
   } on tz.LocationNotFoundException catch (e) {

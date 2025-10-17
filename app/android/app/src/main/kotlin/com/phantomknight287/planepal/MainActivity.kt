@@ -133,6 +133,7 @@ class MainActivity : FlutterActivity() {
         withContext(Dispatchers.IO) {
             try {
                 val nodes = Tasks.await(Wearable.getNodeClient(context).connectedNodes)
+
                 nodes.forEach { node ->
                     Tasks.await(
                         Wearable.getMessageClient(context).sendMessage(

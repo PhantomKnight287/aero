@@ -2,6 +2,7 @@ import 'package:built_collection/built_collection.dart';
 import 'package:openapi/openapi.dart';
 import 'package:plane_pal/constants/main.dart';
 import 'package:dio/dio.dart';
+import 'package:plane_pal/utils/error.dart';
 
 class ApiException implements Exception {
   final String message;
@@ -14,13 +15,11 @@ class ApiException implements Exception {
 }
 
 class FlightDataService {
-  static const String baseUrl = 'https://opensky-network.org/api';
   final Dio _dio;
   final _flightApi = openapi.getFlightApi();
   final _flightsApi = openapi.getFlightsApi();
 
   FlightDataService() : _dio = Dio() {
-    _dio.options.baseUrl = baseUrl;
     // Add interceptors for logging
     _dio.interceptors.add(LogInterceptor(
       requestBody: true,
@@ -54,21 +53,49 @@ class FlightDataService {
       date: date,
     );
     return res.data!.flights;
-    //     final List<dynamic> flightList = response.data;
-    //     return flightList.map((flight) => Flight.fromJson(flight)).toList();
-    //   } else {
-    //     throw ApiException(
-    //       message: 'Failed to load flight data',
-    //       statusCode: response.statusCode,
-    //     );
-    //   }
-    // } on DioException catch (e) {
-    //   throw ApiException(
-    //     message: _handleDioError(e),
-    //     statusCode: e.response?.statusCode,
-    //   );
-    // } catch (e) {
-    //   throw ApiException(message: 'Unexpected error: $e');
-    // }
+  }
+
+  Future<FlightsControllerGetFlightsInBoundsV1200Response> getFlightsInBounds({
+    required double minLat,
+    required double maxLat,
+    required double minLng,
+    required double maxLng,
+  }) async {
+    try {
+      final response = await _flightsApi.flightsControllerGetFlightsInBoundsV1(
+        minLat: minLat,
+        maxLat: maxLat,
+        minLng: minLng,
+        maxLng: maxLng,
+      );
+
+      final data = response.data!;
+      return data;
+    } catch (e) {
+      if (e is DioException) {
+        throw ApiException(message: getErrorMessage(e.response?.data));
+      }
+      throw ApiException(
+        message: 'Failed to fetch flights in bounds: $e',
+      );
+    }
+  }
+
+  Future<FlightResponseEntity?> getFlightInfo(String icao24) async {
+    try {
+      final response = await _flightApi.flightControllerGetFlightV1(
+        iata: '', // Empty since we're using ICAO24
+        icao: icao24,
+        date: "${DateTime.now().year}-${DateTime.now().month}-${DateTime.now().day}",
+      );
+      return response.data;
+    } catch (e) {
+      if (e is DioException) {
+        throw ApiException(message: getErrorMessage(e.response?.data));
+      }
+      throw ApiException(
+        message: 'Failed to fetch flight information: $e',
+      );
+    }
   }
 }

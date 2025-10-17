@@ -32,7 +32,7 @@ class _$FlightResponseEntity extends FlightResponseEntity {
 
   factory _$FlightResponseEntity(
           [void Function(FlightResponseEntityBuilder)? updates]) =>
-      (new FlightResponseEntityBuilder()..update(updates))._build();
+      (FlightResponseEntityBuilder()..update(updates))._build();
 
   _$FlightResponseEntity._(
       {required this.id,
@@ -46,26 +46,7 @@ class _$FlightResponseEntity extends FlightResponseEntity {
       required this.greatCircleDistance,
       required this.date,
       this.image})
-      : super._() {
-    BuiltValueNullFieldError.checkNotNull(id, r'FlightResponseEntity', 'id');
-    BuiltValueNullFieldError.checkNotNull(
-        flightNo, r'FlightResponseEntity', 'flightNo');
-    BuiltValueNullFieldError.checkNotNull(
-        callSign, r'FlightResponseEntity', 'callSign');
-    BuiltValueNullFieldError.checkNotNull(
-        airline, r'FlightResponseEntity', 'airline');
-    BuiltValueNullFieldError.checkNotNull(
-        arrival, r'FlightResponseEntity', 'arrival');
-    BuiltValueNullFieldError.checkNotNull(
-        departure, r'FlightResponseEntity', 'departure');
-    BuiltValueNullFieldError.checkNotNull(
-        cargo, r'FlightResponseEntity', 'cargo');
-    BuiltValueNullFieldError.checkNotNull(
-        greatCircleDistance, r'FlightResponseEntity', 'greatCircleDistance');
-    BuiltValueNullFieldError.checkNotNull(
-        date, r'FlightResponseEntity', 'date');
-  }
-
+      : super._();
   @override
   FlightResponseEntity rebuild(
           void Function(FlightResponseEntityBuilder) updates) =>
@@ -73,7 +54,7 @@ class _$FlightResponseEntity extends FlightResponseEntity {
 
   @override
   FlightResponseEntityBuilder toBuilder() =>
-      new FlightResponseEntityBuilder()..replace(this);
+      FlightResponseEntityBuilder()..replace(this);
 
   @override
   bool operator ==(Object other) {
@@ -146,23 +127,23 @@ class FlightResponseEntityBuilder
 
   AircraftEntityBuilder? _aircraft;
   AircraftEntityBuilder get aircraft =>
-      _$this._aircraft ??= new AircraftEntityBuilder();
+      _$this._aircraft ??= AircraftEntityBuilder();
   set aircraft(AircraftEntityBuilder? aircraft) => _$this._aircraft = aircraft;
 
   PartialAirlineEntityBuilder? _airline;
   PartialAirlineEntityBuilder get airline =>
-      _$this._airline ??= new PartialAirlineEntityBuilder();
+      _$this._airline ??= PartialAirlineEntityBuilder();
   set airline(PartialAirlineEntityBuilder? airline) =>
       _$this._airline = airline;
 
   RouteInfoEntityBuilder? _arrival;
   RouteInfoEntityBuilder get arrival =>
-      _$this._arrival ??= new RouteInfoEntityBuilder();
+      _$this._arrival ??= RouteInfoEntityBuilder();
   set arrival(RouteInfoEntityBuilder? arrival) => _$this._arrival = arrival;
 
   RouteInfoEntityBuilder? _departure;
   RouteInfoEntityBuilder get departure =>
-      _$this._departure ??= new RouteInfoEntityBuilder();
+      _$this._departure ??= RouteInfoEntityBuilder();
   set departure(RouteInfoEntityBuilder? departure) =>
       _$this._departure = departure;
 
@@ -173,7 +154,7 @@ class FlightResponseEntityBuilder
   StringifiedGreatCircleDistanceEntityBuilder? _greatCircleDistance;
   StringifiedGreatCircleDistanceEntityBuilder get greatCircleDistance =>
       _$this._greatCircleDistance ??=
-          new StringifiedGreatCircleDistanceEntityBuilder();
+          StringifiedGreatCircleDistanceEntityBuilder();
   set greatCircleDistance(
           StringifiedGreatCircleDistanceEntityBuilder? greatCircleDistance) =>
       _$this._greatCircleDistance = greatCircleDistance;
@@ -211,7 +192,6 @@ class FlightResponseEntityBuilder
 
   @override
   void replace(FlightResponseEntity other) {
-    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$FlightResponseEntity;
   }
 
@@ -227,7 +207,7 @@ class FlightResponseEntityBuilder
     _$FlightResponseEntity _$result;
     try {
       _$result = _$v ??
-          new _$FlightResponseEntity._(
+          _$FlightResponseEntity._(
             id: BuiltValueNullFieldError.checkNotNull(
                 id, r'FlightResponseEntity', 'id'),
             flightNo: BuiltValueNullFieldError.checkNotNull(
@@ -260,7 +240,7 @@ class FlightResponseEntityBuilder
         _$failedField = 'greatCircleDistance';
         greatCircleDistance.build();
       } catch (e) {
-        throw new BuiltValueNestedFieldError(
+        throw BuiltValueNestedFieldError(
             r'FlightResponseEntity', _$failedField, e.toString());
       }
       rethrow;

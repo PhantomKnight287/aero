@@ -447,6 +447,390 @@
         ]
       }
     },
+    "/v1/flights/bounds": {
+      "get": {
+        "description": "Get all aircraft currently flying within a specified geographic bounding box using FlightAware data with comprehensive aircraft details",
+        "operationId": "FlightsController_getFlightsInBounds_v1",
+        "parameters": [
+          {
+            "name": "minLat",
+            "required": true,
+            "in": "query",
+            "description": "Minimum latitude of the bounding box",
+            "schema": {
+              "minimum": -90,
+              "maximum": 90,
+              "example": 40,
+              "type": "number"
+            }
+          },
+          {
+            "name": "maxLat",
+            "required": true,
+            "in": "query",
+            "description": "Maximum latitude of the bounding box",
+            "schema": {
+              "minimum": -90,
+              "maximum": 90,
+              "example": 50,
+              "type": "number"
+            }
+          },
+          {
+            "name": "minLng",
+            "required": true,
+            "in": "query",
+            "description": "Minimum longitude of the bounding box",
+            "schema": {
+              "minimum": -180,
+              "maximum": 180,
+              "example": -10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "maxLng",
+            "required": true,
+            "in": "query",
+            "description": "Maximum longitude of the bounding box",
+            "schema": {
+              "minimum": -180,
+              "maximum": 180,
+              "example": 10,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of flights within the specified bounds with detailed aircraft information",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "bounds": {
+                      "type": "object",
+                      "properties": {
+                        "minLat": {
+                          "type": "number"
+                        },
+                        "maxLat": {
+                          "type": "number"
+                        },
+                        "minLng": {
+                          "type": "number"
+                        },
+                        "maxLng": {
+                          "type": "number"
+                        }
+                      }
+                    },
+                    "totalAircraft": {
+                      "type": "number"
+                    },
+                    "airborneAircraft": {
+                      "type": "number"
+                    },
+                    "flights": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "ident_icao": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "ident_iata": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "callsign": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "latitude": {
+                            "type": "number",
+                            "nullable": true
+                          },
+                          "longitude": {
+                            "type": "number",
+                            "nullable": true
+                          },
+                          "altitude": {
+                            "type": "number",
+                            "nullable": true
+                          },
+                          "velocity": {
+                            "type": "number",
+                            "nullable": true
+                          },
+                          "heading": {
+                            "type": "number",
+                            "nullable": true
+                          },
+                          "verticalRate": {
+                            "type": "number",
+                            "nullable": true
+                          },
+                          "lastContact": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "isOnGround": {
+                            "type": "boolean"
+                          },
+                          "aircraftType": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "aircraftTypeFaa": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "aircraftFamily": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "manufacturer": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "model": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "engineType": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "engineCount": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "wakeTurbulenceCategory": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "aircraftId": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "aircraftRegistration": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "ownerIcao": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "ownerIata": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "ownerName": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "operator": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "operatorIcao": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "operatorIata": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "operatorCountry": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "origin": {
+                            "type": "object",
+                            "nullable": true,
+                            "properties": {
+                              "code": {
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "codeIcao": {
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "codeIata": {
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "name": {
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "city": {
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "timezone": {
+                                "type": "string",
+                                "nullable": true
+                              }
+                            }
+                          },
+                          "destination": {
+                            "type": "object",
+                            "nullable": true,
+                            "properties": {
+                              "code": {
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "codeIcao": {
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "codeIata": {
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "name": {
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "city": {
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "timezone": {
+                                "type": "string",
+                                "nullable": true
+                              }
+                            }
+                          },
+                          "status": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "progressPercent": {
+                            "type": "number",
+                            "nullable": true
+                          },
+                          "routeDistance": {
+                            "type": "number",
+                            "nullable": true
+                          },
+                          "filedAirspeedKts": {
+                            "type": "number",
+                            "nullable": true
+                          },
+                          "filedAltitude": {
+                            "type": "number",
+                            "nullable": true
+                          },
+                          "scheduledOff": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "scheduledOn": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "estimatedOff": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "estimatedOn": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "actualOff": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "actualOn": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "departureDelay": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "arrivalDelay": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "gateOrigin": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "gateDestination": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "terminalOrigin": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "terminalDestination": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "route": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "type": {
+                            "type": "string",
+                            "nullable": true
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericErrorEntity"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericErrorEntity"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ],
+        "summary": "Get flights within geographic bounds",
+        "tags": [
+          "Flights"
+        ]
+      }
+    },
     "/v1/flight": {
       "get": {
         "description": "Get detailed information about a specific flight including real-time tracking data",
@@ -985,6 +1369,9 @@
           },
           "attribution": {
             "type": "string"
+          },
+          "payload": {
+            "type": "object"
           }
         },
         "required": [
@@ -1122,14 +1509,7 @@
           "feet": {
             "type": "string"
           }
-        },
-        "required": [
-          "meter",
-          "km",
-          "mile",
-          "nm",
-          "feet"
-        ]
+        }
       },
       "FlightResponseEntity": {
         "type": "object",

@@ -1,33 +1,36 @@
 extension DurationFormatter on Duration {
   String toHumanReadable() {
     if (inSeconds == 0) {
-      return 'now';
+      return '';
     }
 
-    if (inSeconds < 60) {
-      return '${inSeconds}s';
+    final absSeconds = inSeconds.abs();
+    if (absSeconds < 60) {
+      return '${absSeconds}s';
     }
 
-    if (inMinutes < 60) {
-      final minutes = inMinutes;
-      final seconds = inSeconds % 60;
+    final absMinutes = inMinutes.abs();
+    if (absMinutes < 60) {
+      final minutes = absMinutes;
+      final seconds = absSeconds % 60;
       if (seconds == 0) {
         return '${minutes}m';
       }
       return '${minutes}m ${seconds}s';
     }
 
-    if (inHours < 24) {
-      final hours = inHours;
-      final minutes = inMinutes % 60;
+    final absHours = inHours.abs();
+    if (absHours < 24) {
+      final hours = absHours;
+      final minutes = (absMinutes % 60);
       if (minutes == 0) {
         return '${hours}h';
       }
       return '${hours}h ${minutes}m';
     }
 
-    final days = inDays;
-    final hours = inHours % 24;
+    final days = inDays.abs();
+    final hours = (absHours % 24);
     if (hours == 0) {
       return '${days}d';
     }
@@ -35,7 +38,6 @@ extension DurationFormatter on Duration {
   }
 
   String toRelativeTime() {
-    final now = DateTime.now();
     final difference = this;
 
     if (difference.inSeconds.abs() < 60) {

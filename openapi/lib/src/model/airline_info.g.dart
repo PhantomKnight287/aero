@@ -15,20 +15,16 @@ class _$AirlineInfo extends AirlineInfo {
   final String? icaoCode;
 
   factory _$AirlineInfo([void Function(AirlineInfoBuilder)? updates]) =>
-      (new AirlineInfoBuilder()..update(updates))._build();
+      (AirlineInfoBuilder()..update(updates))._build();
 
   _$AirlineInfo._({required this.name, required this.iataCode, this.icaoCode})
-      : super._() {
-    BuiltValueNullFieldError.checkNotNull(name, r'AirlineInfo', 'name');
-    BuiltValueNullFieldError.checkNotNull(iataCode, r'AirlineInfo', 'iataCode');
-  }
-
+      : super._();
   @override
   AirlineInfo rebuild(void Function(AirlineInfoBuilder) updates) =>
       (toBuilder()..update(updates)).build();
 
   @override
-  AirlineInfoBuilder toBuilder() => new AirlineInfoBuilder()..replace(this);
+  AirlineInfoBuilder toBuilder() => AirlineInfoBuilder()..replace(this);
 
   @override
   bool operator ==(Object other) {
@@ -91,7 +87,6 @@ class AirlineInfoBuilder implements Builder<AirlineInfo, AirlineInfoBuilder> {
 
   @override
   void replace(AirlineInfo other) {
-    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$AirlineInfo;
   }
 
@@ -105,7 +100,7 @@ class AirlineInfoBuilder implements Builder<AirlineInfo, AirlineInfoBuilder> {
 
   _$AirlineInfo _build() {
     final _$result = _$v ??
-        new _$AirlineInfo._(
+        _$AirlineInfo._(
           name: BuiltValueNullFieldError.checkNotNull(
               name, r'AirlineInfo', 'name'),
           iataCode: BuiltValueNullFieldError.checkNotNull(

@@ -26,7 +26,7 @@ class _$RouteAirportEntity extends RouteAirportEntity {
 
   factory _$RouteAirportEntity(
           [void Function(RouteAirportEntityBuilder)? updates]) =>
-      (new RouteAirportEntityBuilder()..update(updates))._build();
+      (RouteAirportEntityBuilder()..update(updates))._build();
 
   _$RouteAirportEntity._(
       {required this.iata,
@@ -37,22 +37,7 @@ class _$RouteAirportEntity extends RouteAirportEntity {
       required this.countryCode,
       required this.municipalityName,
       required this.location})
-      : super._() {
-    BuiltValueNullFieldError.checkNotNull(iata, r'RouteAirportEntity', 'iata');
-    BuiltValueNullFieldError.checkNotNull(icao, r'RouteAirportEntity', 'icao');
-    BuiltValueNullFieldError.checkNotNull(name, r'RouteAirportEntity', 'name');
-    BuiltValueNullFieldError.checkNotNull(
-        timeZone, r'RouteAirportEntity', 'timeZone');
-    BuiltValueNullFieldError.checkNotNull(
-        shortName, r'RouteAirportEntity', 'shortName');
-    BuiltValueNullFieldError.checkNotNull(
-        countryCode, r'RouteAirportEntity', 'countryCode');
-    BuiltValueNullFieldError.checkNotNull(
-        municipalityName, r'RouteAirportEntity', 'municipalityName');
-    BuiltValueNullFieldError.checkNotNull(
-        location, r'RouteAirportEntity', 'location');
-  }
-
+      : super._();
   @override
   RouteAirportEntity rebuild(
           void Function(RouteAirportEntityBuilder) updates) =>
@@ -60,7 +45,7 @@ class _$RouteAirportEntity extends RouteAirportEntity {
 
   @override
   RouteAirportEntityBuilder toBuilder() =>
-      new RouteAirportEntityBuilder()..replace(this);
+      RouteAirportEntityBuilder()..replace(this);
 
   @override
   bool operator ==(Object other) {
@@ -141,7 +126,7 @@ class RouteAirportEntityBuilder
 
   LocationEntityBuilder? _location;
   LocationEntityBuilder get location =>
-      _$this._location ??= new LocationEntityBuilder();
+      _$this._location ??= LocationEntityBuilder();
   set location(LocationEntityBuilder? location) => _$this._location = location;
 
   RouteAirportEntityBuilder() {
@@ -166,7 +151,6 @@ class RouteAirportEntityBuilder
 
   @override
   void replace(RouteAirportEntity other) {
-    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$RouteAirportEntity;
   }
 
@@ -182,7 +166,7 @@ class RouteAirportEntityBuilder
     _$RouteAirportEntity _$result;
     try {
       _$result = _$v ??
-          new _$RouteAirportEntity._(
+          _$RouteAirportEntity._(
             iata: BuiltValueNullFieldError.checkNotNull(
                 iata, r'RouteAirportEntity', 'iata'),
             icao: BuiltValueNullFieldError.checkNotNull(
@@ -205,7 +189,7 @@ class RouteAirportEntityBuilder
         _$failedField = 'location';
         location.build();
       } catch (e) {
-        throw new BuiltValueNestedFieldError(
+        throw BuiltValueNestedFieldError(
             r'RouteAirportEntity', _$failedField, e.toString());
       }
       rethrow;

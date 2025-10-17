@@ -23,7 +23,7 @@ class _$FlightEntity extends FlightEntity {
   final JsonObject codeshared;
 
   factory _$FlightEntity([void Function(FlightEntityBuilder)? updates]) =>
-      (new FlightEntityBuilder()..update(updates))._build();
+      (FlightEntityBuilder()..update(updates))._build();
 
   _$FlightEntity._(
       {required this.airline,
@@ -33,24 +33,13 @@ class _$FlightEntity extends FlightEntity {
       required this.status,
       required this.type,
       required this.codeshared})
-      : super._() {
-    BuiltValueNullFieldError.checkNotNull(airline, r'FlightEntity', 'airline');
-    BuiltValueNullFieldError.checkNotNull(flight, r'FlightEntity', 'flight');
-    BuiltValueNullFieldError.checkNotNull(
-        departure, r'FlightEntity', 'departure');
-    BuiltValueNullFieldError.checkNotNull(arrival, r'FlightEntity', 'arrival');
-    BuiltValueNullFieldError.checkNotNull(status, r'FlightEntity', 'status');
-    BuiltValueNullFieldError.checkNotNull(type, r'FlightEntity', 'type');
-    BuiltValueNullFieldError.checkNotNull(
-        codeshared, r'FlightEntity', 'codeshared');
-  }
-
+      : super._();
   @override
   FlightEntity rebuild(void Function(FlightEntityBuilder) updates) =>
       (toBuilder()..update(updates)).build();
 
   @override
-  FlightEntityBuilder toBuilder() => new FlightEntityBuilder()..replace(this);
+  FlightEntityBuilder toBuilder() => FlightEntityBuilder()..replace(this);
 
   @override
   bool operator ==(Object other) {
@@ -98,23 +87,21 @@ class FlightEntityBuilder
   _$FlightEntity? _$v;
 
   AirlineInfoBuilder? _airline;
-  AirlineInfoBuilder get airline =>
-      _$this._airline ??= new AirlineInfoBuilder();
+  AirlineInfoBuilder get airline => _$this._airline ??= AirlineInfoBuilder();
   set airline(AirlineInfoBuilder? airline) => _$this._airline = airline;
 
   AircraftFlightEntityBuilder? _flight;
   AircraftFlightEntityBuilder get flight =>
-      _$this._flight ??= new AircraftFlightEntityBuilder();
+      _$this._flight ??= AircraftFlightEntityBuilder();
   set flight(AircraftFlightEntityBuilder? flight) => _$this._flight = flight;
 
   AirportInfoBuilder? _departure;
   AirportInfoBuilder get departure =>
-      _$this._departure ??= new AirportInfoBuilder();
+      _$this._departure ??= AirportInfoBuilder();
   set departure(AirportInfoBuilder? departure) => _$this._departure = departure;
 
   AirportInfoBuilder? _arrival;
-  AirportInfoBuilder get arrival =>
-      _$this._arrival ??= new AirportInfoBuilder();
+  AirportInfoBuilder get arrival => _$this._arrival ??= AirportInfoBuilder();
   set arrival(AirportInfoBuilder? arrival) => _$this._arrival = arrival;
 
   FlightStatus? _status;
@@ -150,7 +137,6 @@ class FlightEntityBuilder
 
   @override
   void replace(FlightEntity other) {
-    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$FlightEntity;
   }
 
@@ -166,7 +152,7 @@ class FlightEntityBuilder
     _$FlightEntity _$result;
     try {
       _$result = _$v ??
-          new _$FlightEntity._(
+          _$FlightEntity._(
             airline: airline.build(),
             flight: flight.build(),
             departure: departure.build(),
@@ -190,7 +176,7 @@ class FlightEntityBuilder
         _$failedField = 'arrival';
         arrival.build();
       } catch (e) {
-        throw new BuiltValueNestedFieldError(
+        throw BuiltValueNestedFieldError(
             r'FlightEntity', _$failedField, e.toString());
       }
       rethrow;

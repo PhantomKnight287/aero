@@ -7,6 +7,7 @@ const SECONDARY_TEXT_COLOR = Color(0xff808080);
 
 const API_URL = "https://planepal.procrastinator.fyi";
 const AUTH_TOKEN_KEY = "token";
+const MAPBOX_API_KEY="pk.eyJ1IjoicGhhbnRvbWtuaWdodDI4NyIsImEiOiJjbGt5MWlid2cxOXB6M3FyemJmbHQ4ZHUzIn0.m0G4VTc_PzvaS2QTxUlcTQ";
 
 const METHOD_CHANNEL = "com.phantomknight287.planepal/planepal";
 

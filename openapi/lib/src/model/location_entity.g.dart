@@ -13,20 +13,15 @@ class _$LocationEntity extends LocationEntity {
   final num lon;
 
   factory _$LocationEntity([void Function(LocationEntityBuilder)? updates]) =>
-      (new LocationEntityBuilder()..update(updates))._build();
+      (LocationEntityBuilder()..update(updates))._build();
 
-  _$LocationEntity._({required this.lat, required this.lon}) : super._() {
-    BuiltValueNullFieldError.checkNotNull(lat, r'LocationEntity', 'lat');
-    BuiltValueNullFieldError.checkNotNull(lon, r'LocationEntity', 'lon');
-  }
-
+  _$LocationEntity._({required this.lat, required this.lon}) : super._();
   @override
   LocationEntity rebuild(void Function(LocationEntityBuilder) updates) =>
       (toBuilder()..update(updates)).build();
 
   @override
-  LocationEntityBuilder toBuilder() =>
-      new LocationEntityBuilder()..replace(this);
+  LocationEntityBuilder toBuilder() => LocationEntityBuilder()..replace(this);
 
   @override
   bool operator ==(Object other) {
@@ -80,7 +75,6 @@ class LocationEntityBuilder
 
   @override
   void replace(LocationEntity other) {
-    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$LocationEntity;
   }
 
@@ -94,7 +88,7 @@ class LocationEntityBuilder
 
   _$LocationEntity _build() {
     final _$result = _$v ??
-        new _$LocationEntity._(
+        _$LocationEntity._(
           lat: BuiltValueNullFieldError.checkNotNull(
               lat, r'LocationEntity', 'lat'),
           lon: BuiltValueNullFieldError.checkNotNull(

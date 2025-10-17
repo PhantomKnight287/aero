@@ -13,19 +13,15 @@ class _$LoginDTO extends LoginDTO {
   final String password;
 
   factory _$LoginDTO([void Function(LoginDTOBuilder)? updates]) =>
-      (new LoginDTOBuilder()..update(updates))._build();
+      (LoginDTOBuilder()..update(updates))._build();
 
-  _$LoginDTO._({required this.email, required this.password}) : super._() {
-    BuiltValueNullFieldError.checkNotNull(email, r'LoginDTO', 'email');
-    BuiltValueNullFieldError.checkNotNull(password, r'LoginDTO', 'password');
-  }
-
+  _$LoginDTO._({required this.email, required this.password}) : super._();
   @override
   LoginDTO rebuild(void Function(LoginDTOBuilder) updates) =>
       (toBuilder()..update(updates)).build();
 
   @override
-  LoginDTOBuilder toBuilder() => new LoginDTOBuilder()..replace(this);
+  LoginDTOBuilder toBuilder() => LoginDTOBuilder()..replace(this);
 
   @override
   bool operator ==(Object other) {
@@ -80,7 +76,6 @@ class LoginDTOBuilder implements Builder<LoginDTO, LoginDTOBuilder> {
 
   @override
   void replace(LoginDTO other) {
-    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$LoginDTO;
   }
 
@@ -94,7 +89,7 @@ class LoginDTOBuilder implements Builder<LoginDTO, LoginDTOBuilder> {
 
   _$LoginDTO _build() {
     final _$result = _$v ??
-        new _$LoginDTO._(
+        _$LoginDTO._(
           email: BuiltValueNullFieldError.checkNotNull(
               email, r'LoginDTO', 'email'),
           password: BuiltValueNullFieldError.checkNotNull(

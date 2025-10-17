@@ -19,7 +19,7 @@ class _$AirlineEntity extends AirlineEntity {
   final String? image;
 
   factory _$AirlineEntity([void Function(AirlineEntityBuilder)? updates]) =>
-      (new AirlineEntityBuilder()..update(updates))._build();
+      (AirlineEntityBuilder()..update(updates))._build();
 
   _$AirlineEntity._(
       {required this.id,
@@ -27,19 +27,13 @@ class _$AirlineEntity extends AirlineEntity {
       required this.icao,
       required this.iata,
       this.image})
-      : super._() {
-    BuiltValueNullFieldError.checkNotNull(id, r'AirlineEntity', 'id');
-    BuiltValueNullFieldError.checkNotNull(name, r'AirlineEntity', 'name');
-    BuiltValueNullFieldError.checkNotNull(icao, r'AirlineEntity', 'icao');
-    BuiltValueNullFieldError.checkNotNull(iata, r'AirlineEntity', 'iata');
-  }
-
+      : super._();
   @override
   AirlineEntity rebuild(void Function(AirlineEntityBuilder) updates) =>
       (toBuilder()..update(updates)).build();
 
   @override
-  AirlineEntityBuilder toBuilder() => new AirlineEntityBuilder()..replace(this);
+  AirlineEntityBuilder toBuilder() => AirlineEntityBuilder()..replace(this);
 
   @override
   bool operator ==(Object other) {
@@ -119,7 +113,6 @@ class AirlineEntityBuilder
 
   @override
   void replace(AirlineEntity other) {
-    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$AirlineEntity;
   }
 
@@ -133,7 +126,7 @@ class AirlineEntityBuilder
 
   _$AirlineEntity _build() {
     final _$result = _$v ??
-        new _$AirlineEntity._(
+        _$AirlineEntity._(
           id: BuiltValueNullFieldError.checkNotNull(id, r'AirlineEntity', 'id'),
           name: BuiltValueNullFieldError.checkNotNull(
               name, r'AirlineEntity', 'name'),

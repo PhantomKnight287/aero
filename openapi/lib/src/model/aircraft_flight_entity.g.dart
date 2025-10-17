@@ -16,21 +16,13 @@ class _$AircraftFlightEntity extends AircraftFlightEntity {
 
   factory _$AircraftFlightEntity(
           [void Function(AircraftFlightEntityBuilder)? updates]) =>
-      (new AircraftFlightEntityBuilder()..update(updates))._build();
+      (AircraftFlightEntityBuilder()..update(updates))._build();
 
   _$AircraftFlightEntity._(
       {required this.iataNumber,
       required this.icaoNumber,
       required this.number})
-      : super._() {
-    BuiltValueNullFieldError.checkNotNull(
-        iataNumber, r'AircraftFlightEntity', 'iataNumber');
-    BuiltValueNullFieldError.checkNotNull(
-        icaoNumber, r'AircraftFlightEntity', 'icaoNumber');
-    BuiltValueNullFieldError.checkNotNull(
-        number, r'AircraftFlightEntity', 'number');
-  }
-
+      : super._();
   @override
   AircraftFlightEntity rebuild(
           void Function(AircraftFlightEntityBuilder) updates) =>
@@ -38,7 +30,7 @@ class _$AircraftFlightEntity extends AircraftFlightEntity {
 
   @override
   AircraftFlightEntityBuilder toBuilder() =>
-      new AircraftFlightEntityBuilder()..replace(this);
+      AircraftFlightEntityBuilder()..replace(this);
 
   @override
   bool operator ==(Object other) {
@@ -102,7 +94,6 @@ class AircraftFlightEntityBuilder
 
   @override
   void replace(AircraftFlightEntity other) {
-    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$AircraftFlightEntity;
   }
 
@@ -116,7 +107,7 @@ class AircraftFlightEntityBuilder
 
   _$AircraftFlightEntity _build() {
     final _$result = _$v ??
-        new _$AircraftFlightEntity._(
+        _$AircraftFlightEntity._(
           iataNumber: BuiltValueNullFieldError.checkNotNull(
               iataNumber, r'AircraftFlightEntity', 'iataNumber'),
           icaoNumber: BuiltValueNullFieldError.checkNotNull(

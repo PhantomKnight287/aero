@@ -10,6 +10,7 @@ All URIs are relative to *http://localhost*
 Method | HTTP request | Description
 ------------- | ------------- | -------------
 [**flightsControllerGetAirlineV1**](FlightsApi.md#flightscontrollergetairlinev1) | **POST** /v1/flights/airline | Get airline
+[**flightsControllerGetFlightsInBoundsV1**](FlightsApi.md#flightscontrollergetflightsinboundsv1) | **GET** /v1/flights/bounds | Get flights within geographic bounds
 [**flightsControllerGetFlightsV1**](FlightsApi.md#flightscontrollergetflightsv1) | **GET** /v1/flights | Get flights between two airports
 
 
@@ -52,6 +53,55 @@ Name | Type | Description  | Notes
 ### HTTP request headers
 
  - **Content-Type**: application/json
+ - **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **flightsControllerGetFlightsInBoundsV1**
+> FlightsControllerGetFlightsInBoundsV1200Response flightsControllerGetFlightsInBoundsV1(minLat, maxLat, minLng, maxLng)
+
+Get flights within geographic bounds
+
+Get all aircraft currently flying within a specified geographic bounding box using FlightAware data with comprehensive aircraft details
+
+### Example
+```dart
+import 'package:openapi/api.dart';
+
+final api = Openapi().getFlightsApi();
+final num minLat = 40; // num | Minimum latitude of the bounding box
+final num maxLat = 50; // num | Maximum latitude of the bounding box
+final num minLng = -10; // num | Minimum longitude of the bounding box
+final num maxLng = 10; // num | Maximum longitude of the bounding box
+
+try {
+    final response = api.flightsControllerGetFlightsInBoundsV1(minLat, maxLat, minLng, maxLng);
+    print(response);
+} catch on DioException (e) {
+    print('Exception when calling FlightsApi->flightsControllerGetFlightsInBoundsV1: $e\n');
+}
+```
+
+### Parameters
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **minLat** | **num**| Minimum latitude of the bounding box | 
+ **maxLat** | **num**| Maximum latitude of the bounding box | 
+ **minLng** | **num**| Minimum longitude of the bounding box | 
+ **maxLng** | **num**| Maximum longitude of the bounding box | 
+
+### Return type
+
+[**FlightsControllerGetFlightsInBoundsV1200Response**](FlightsControllerGetFlightsInBoundsV1200Response.md)
+
+### Authorization
+
+[JWT-auth](../README.md#JWT-auth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
  - **Accept**: application/json
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)

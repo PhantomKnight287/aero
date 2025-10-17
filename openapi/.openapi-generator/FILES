@@ -18,6 +18,10 @@ doc/FlightEntity.md
 doc/FlightResponseEntity.md
 doc/FlightStatus.md
 doc/FlightsApi.md
+doc/FlightsControllerGetFlightsInBoundsV1200Response.md
+doc/FlightsControllerGetFlightsInBoundsV1200ResponseBounds.md
+doc/FlightsControllerGetFlightsInBoundsV1200ResponseFlightsInner.md
+doc/FlightsControllerGetFlightsInBoundsV1200ResponseFlightsInnerOrigin.md
 doc/FlightsResponseEntity.md
 doc/FlightsRouteEntity.md
 doc/GenericErrorEntity.md
@@ -60,6 +64,10 @@ lib/src/model/fligh_type.dart
 lib/src/model/flight_entity.dart
 lib/src/model/flight_response_entity.dart
 lib/src/model/flight_status.dart
+lib/src/model/flights_controller_get_flights_in_bounds_v1200_response.dart
+lib/src/model/flights_controller_get_flights_in_bounds_v1200_response_bounds.dart
+lib/src/model/flights_controller_get_flights_in_bounds_v1200_response_flights_inner.dart
+lib/src/model/flights_controller_get_flights_in_bounds_v1200_response_flights_inner_origin.dart
 lib/src/model/flights_response_entity.dart
 lib/src/model/flights_route_entity.dart
 lib/src/model/generic_error_entity.dart

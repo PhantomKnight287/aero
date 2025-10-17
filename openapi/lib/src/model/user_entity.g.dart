@@ -13,19 +13,15 @@ class _$UserEntity extends UserEntity {
   final String id;
 
   factory _$UserEntity([void Function(UserEntityBuilder)? updates]) =>
-      (new UserEntityBuilder()..update(updates))._build();
+      (UserEntityBuilder()..update(updates))._build();
 
-  _$UserEntity._({required this.name, required this.id}) : super._() {
-    BuiltValueNullFieldError.checkNotNull(name, r'UserEntity', 'name');
-    BuiltValueNullFieldError.checkNotNull(id, r'UserEntity', 'id');
-  }
-
+  _$UserEntity._({required this.name, required this.id}) : super._();
   @override
   UserEntity rebuild(void Function(UserEntityBuilder) updates) =>
       (toBuilder()..update(updates)).build();
 
   @override
-  UserEntityBuilder toBuilder() => new UserEntityBuilder()..replace(this);
+  UserEntityBuilder toBuilder() => UserEntityBuilder()..replace(this);
 
   @override
   bool operator ==(Object other) {
@@ -78,7 +74,6 @@ class UserEntityBuilder implements Builder<UserEntity, UserEntityBuilder> {
 
   @override
   void replace(UserEntity other) {
-    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$UserEntity;
   }
 
@@ -92,7 +87,7 @@ class UserEntityBuilder implements Builder<UserEntity, UserEntityBuilder> {
 
   _$UserEntity _build() {
     final _$result = _$v ??
-        new _$UserEntity._(
+        _$UserEntity._(
           name: BuiltValueNullFieldError.checkNotNull(
               name, r'UserEntity', 'name'),
           id: BuiltValueNullFieldError.checkNotNull(id, r'UserEntity', 'id'),

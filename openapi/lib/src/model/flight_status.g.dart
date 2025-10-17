@@ -31,12 +31,12 @@ FlightStatus _$valueOf(String name) {
     case 'unknown':
       return _$unknown;
     default:
-      throw new ArgumentError(name);
+      throw ArgumentError(name);
   }
 }
 
 final BuiltSet<FlightStatus> _$values =
-    new BuiltSet<FlightStatus>(const <FlightStatus>[
+    BuiltSet<FlightStatus>(const <FlightStatus>[
   _$scheduled,
   _$active,
   _$landed,
@@ -64,8 +64,7 @@ abstract class _$FlightStatusMixin {
   _$FlightStatusMeta get FlightStatus => const _$FlightStatusMeta();
 }
 
-Serializer<FlightStatus> _$flightStatusSerializer =
-    new _$FlightStatusSerializer();
+Serializer<FlightStatus> _$flightStatusSerializer = _$FlightStatusSerializer();
 
 class _$FlightStatusSerializer implements PrimitiveSerializer<FlightStatus> {
   static const Map<String, Object> _toWire = const <String, Object>{

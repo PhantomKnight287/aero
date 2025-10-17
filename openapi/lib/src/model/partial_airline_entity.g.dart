@@ -16,14 +16,10 @@ class _$PartialAirlineEntity extends PartialAirlineEntity {
 
   factory _$PartialAirlineEntity(
           [void Function(PartialAirlineEntityBuilder)? updates]) =>
-      (new PartialAirlineEntityBuilder()..update(updates))._build();
+      (PartialAirlineEntityBuilder()..update(updates))._build();
 
   _$PartialAirlineEntity._({required this.name, this.iata, this.icao})
-      : super._() {
-    BuiltValueNullFieldError.checkNotNull(
-        name, r'PartialAirlineEntity', 'name');
-  }
-
+      : super._();
   @override
   PartialAirlineEntity rebuild(
           void Function(PartialAirlineEntityBuilder) updates) =>
@@ -31,7 +27,7 @@ class _$PartialAirlineEntity extends PartialAirlineEntity {
 
   @override
   PartialAirlineEntityBuilder toBuilder() =>
-      new PartialAirlineEntityBuilder()..replace(this);
+      PartialAirlineEntityBuilder()..replace(this);
 
   @override
   bool operator ==(Object other) {
@@ -95,7 +91,6 @@ class PartialAirlineEntityBuilder
 
   @override
   void replace(PartialAirlineEntity other) {
-    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$PartialAirlineEntity;
   }
 
@@ -109,7 +104,7 @@ class PartialAirlineEntityBuilder
 
   _$PartialAirlineEntity _build() {
     final _$result = _$v ??
-        new _$PartialAirlineEntity._(
+        _$PartialAirlineEntity._(
           name: BuiltValueNullFieldError.checkNotNull(
               name, r'PartialAirlineEntity', 'name'),
           iata: iata,

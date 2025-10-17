@@ -11,18 +11,15 @@ class _$GetAirlineDTO extends GetAirlineDTO {
   final String search;
 
   factory _$GetAirlineDTO([void Function(GetAirlineDTOBuilder)? updates]) =>
-      (new GetAirlineDTOBuilder()..update(updates))._build();
+      (GetAirlineDTOBuilder()..update(updates))._build();
 
-  _$GetAirlineDTO._({required this.search}) : super._() {
-    BuiltValueNullFieldError.checkNotNull(search, r'GetAirlineDTO', 'search');
-  }
-
+  _$GetAirlineDTO._({required this.search}) : super._();
   @override
   GetAirlineDTO rebuild(void Function(GetAirlineDTOBuilder) updates) =>
       (toBuilder()..update(updates)).build();
 
   @override
-  GetAirlineDTOBuilder toBuilder() => new GetAirlineDTOBuilder()..replace(this);
+  GetAirlineDTOBuilder toBuilder() => GetAirlineDTOBuilder()..replace(this);
 
   @override
   bool operator ==(Object other) {
@@ -69,7 +66,6 @@ class GetAirlineDTOBuilder
 
   @override
   void replace(GetAirlineDTO other) {
-    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$GetAirlineDTO;
   }
 
@@ -83,7 +79,7 @@ class GetAirlineDTOBuilder
 
   _$GetAirlineDTO _build() {
     final _$result = _$v ??
-        new _$GetAirlineDTO._(
+        _$GetAirlineDTO._(
           search: BuiltValueNullFieldError.checkNotNull(
               search, r'GetAirlineDTO', 'search'),
         );

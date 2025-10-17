@@ -30,6 +30,9 @@ export class AircraftEntity {
 
   @ApiPropertyOptional()
   attribution?: string;
+
+  @ApiPropertyOptional({ type: Object })
+  payload?: object;
 }
 
 class PartialAirlineEntity {
@@ -104,19 +107,19 @@ class RouteInfoEntity {
   predictedTime?: TimeEntity;
 }
 class StringifiedGreatCircleDistanceEntity {
-  @ApiProperty()
+  @ApiPropertyOptional()
   meter: string;
 
-  @ApiProperty()
+  @ApiPropertyOptional()
   km: string;
 
-  @ApiProperty()
+  @ApiPropertyOptional()
   mile: string;
 
-  @ApiProperty()
+  @ApiPropertyOptional()
   nm: string;
 
-  @ApiProperty()
+  @ApiPropertyOptional()
   feet: string;
 }
 

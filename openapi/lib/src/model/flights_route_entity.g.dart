@@ -14,13 +14,9 @@ class _$FlightsRouteEntity extends FlightsRouteEntity {
 
   factory _$FlightsRouteEntity(
           [void Function(FlightsRouteEntityBuilder)? updates]) =>
-      (new FlightsRouteEntityBuilder()..update(updates))._build();
+      (FlightsRouteEntityBuilder()..update(updates))._build();
 
-  _$FlightsRouteEntity._({required this.from, required this.to}) : super._() {
-    BuiltValueNullFieldError.checkNotNull(from, r'FlightsRouteEntity', 'from');
-    BuiltValueNullFieldError.checkNotNull(to, r'FlightsRouteEntity', 'to');
-  }
-
+  _$FlightsRouteEntity._({required this.from, required this.to}) : super._();
   @override
   FlightsRouteEntity rebuild(
           void Function(FlightsRouteEntityBuilder) updates) =>
@@ -28,7 +24,7 @@ class _$FlightsRouteEntity extends FlightsRouteEntity {
 
   @override
   FlightsRouteEntityBuilder toBuilder() =>
-      new FlightsRouteEntityBuilder()..replace(this);
+      FlightsRouteEntityBuilder()..replace(this);
 
   @override
   bool operator ==(Object other) {
@@ -82,7 +78,6 @@ class FlightsRouteEntityBuilder
 
   @override
   void replace(FlightsRouteEntity other) {
-    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$FlightsRouteEntity;
   }
 
@@ -96,7 +91,7 @@ class FlightsRouteEntityBuilder
 
   _$FlightsRouteEntity _build() {
     final _$result = _$v ??
-        new _$FlightsRouteEntity._(
+        _$FlightsRouteEntity._(
           from: BuiltValueNullFieldError.checkNotNull(
               from, r'FlightsRouteEntity', 'from'),
           to: BuiltValueNullFieldError.checkNotNull(

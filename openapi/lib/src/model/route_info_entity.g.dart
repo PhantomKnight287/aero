@@ -21,7 +21,7 @@ class _$RouteInfoEntity extends RouteInfoEntity {
   final TimeEntity? predictedTime;
 
   factory _$RouteInfoEntity([void Function(RouteInfoEntityBuilder)? updates]) =>
-      (new RouteInfoEntityBuilder()..update(updates))._build();
+      (RouteInfoEntityBuilder()..update(updates))._build();
 
   _$RouteInfoEntity._(
       {required this.airport,
@@ -30,20 +30,13 @@ class _$RouteInfoEntity extends RouteInfoEntity {
       required this.scheduledTime,
       this.revisedTime,
       this.predictedTime})
-      : super._() {
-    BuiltValueNullFieldError.checkNotNull(
-        airport, r'RouteInfoEntity', 'airport');
-    BuiltValueNullFieldError.checkNotNull(
-        scheduledTime, r'RouteInfoEntity', 'scheduledTime');
-  }
-
+      : super._();
   @override
   RouteInfoEntity rebuild(void Function(RouteInfoEntityBuilder) updates) =>
       (toBuilder()..update(updates)).build();
 
   @override
-  RouteInfoEntityBuilder toBuilder() =>
-      new RouteInfoEntityBuilder()..replace(this);
+  RouteInfoEntityBuilder toBuilder() => RouteInfoEntityBuilder()..replace(this);
 
   @override
   bool operator ==(Object other) {
@@ -89,7 +82,7 @@ class RouteInfoEntityBuilder
 
   RouteAirportEntityBuilder? _airport;
   RouteAirportEntityBuilder get airport =>
-      _$this._airport ??= new RouteAirportEntityBuilder();
+      _$this._airport ??= RouteAirportEntityBuilder();
   set airport(RouteAirportEntityBuilder? airport) => _$this._airport = airport;
 
   String? _terminal;
@@ -102,19 +95,19 @@ class RouteInfoEntityBuilder
 
   TimeEntityBuilder? _scheduledTime;
   TimeEntityBuilder get scheduledTime =>
-      _$this._scheduledTime ??= new TimeEntityBuilder();
+      _$this._scheduledTime ??= TimeEntityBuilder();
   set scheduledTime(TimeEntityBuilder? scheduledTime) =>
       _$this._scheduledTime = scheduledTime;
 
   TimeEntityBuilder? _revisedTime;
   TimeEntityBuilder get revisedTime =>
-      _$this._revisedTime ??= new TimeEntityBuilder();
+      _$this._revisedTime ??= TimeEntityBuilder();
   set revisedTime(TimeEntityBuilder? revisedTime) =>
       _$this._revisedTime = revisedTime;
 
   TimeEntityBuilder? _predictedTime;
   TimeEntityBuilder get predictedTime =>
-      _$this._predictedTime ??= new TimeEntityBuilder();
+      _$this._predictedTime ??= TimeEntityBuilder();
   set predictedTime(TimeEntityBuilder? predictedTime) =>
       _$this._predictedTime = predictedTime;
 
@@ -138,7 +131,6 @@ class RouteInfoEntityBuilder
 
   @override
   void replace(RouteInfoEntity other) {
-    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$RouteInfoEntity;
   }
 
@@ -154,7 +146,7 @@ class RouteInfoEntityBuilder
     _$RouteInfoEntity _$result;
     try {
       _$result = _$v ??
-          new _$RouteInfoEntity._(
+          _$RouteInfoEntity._(
             airport: airport.build(),
             terminal: terminal,
             gate: gate,
@@ -175,7 +167,7 @@ class RouteInfoEntityBuilder
         _$failedField = 'predictedTime';
         _predictedTime?.build();
       } catch (e) {
-        throw new BuiltValueNestedFieldError(
+        throw BuiltValueNestedFieldError(
             r'RouteInfoEntity', _$failedField, e.toString());
       }
       rethrow;

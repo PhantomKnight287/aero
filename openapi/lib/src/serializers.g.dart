@@ -6,7 +6,7 @@ part of 'serializers.dart';
 // BuiltValueGenerator
 // **************************************************************************
 
-Serializers _$serializers = (new Serializers().toBuilder()
+Serializers _$serializers = (Serializers().toBuilder()
       ..add(AircraftEntity.serializer)
       ..add(AircraftFlightEntity.serializer)
       ..add(AirlineEntity.serializer)
@@ -18,6 +18,12 @@ Serializers _$serializers = (new Serializers().toBuilder()
       ..add(FlightEntity.serializer)
       ..add(FlightResponseEntity.serializer)
       ..add(FlightStatus.serializer)
+      ..add(FlightsControllerGetFlightsInBoundsV1200Response.serializer)
+      ..add(FlightsControllerGetFlightsInBoundsV1200ResponseBounds.serializer)
+      ..add(FlightsControllerGetFlightsInBoundsV1200ResponseFlightsInner
+          .serializer)
+      ..add(FlightsControllerGetFlightsInBoundsV1200ResponseFlightsInnerOrigin
+          .serializer)
       ..add(FlightsResponseEntity.serializer)
       ..add(FlightsRouteEntity.serializer)
       ..add(GenericErrorEntity.serializer)
@@ -35,7 +41,14 @@ Serializers _$serializers = (new Serializers().toBuilder()
       ..add(UserEntity.serializer)
       ..addBuilderFactory(
           const FullType(BuiltList, const [const FullType(FlightEntity)]),
-          () => new ListBuilder<FlightEntity>()))
+          () => ListBuilder<FlightEntity>())
+      ..addBuilderFactory(
+          const FullType(BuiltList, const [
+            const FullType(
+                FlightsControllerGetFlightsInBoundsV1200ResponseFlightsInner)
+          ]),
+          () => ListBuilder<
+              FlightsControllerGetFlightsInBoundsV1200ResponseFlightsInner>()))
     .build();
 
 // ignore_for_file: deprecated_member_use_from_same_package,type=lint

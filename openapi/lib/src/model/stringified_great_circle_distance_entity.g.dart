@@ -9,41 +9,24 @@ part of 'stringified_great_circle_distance_entity.dart';
 class _$StringifiedGreatCircleDistanceEntity
     extends StringifiedGreatCircleDistanceEntity {
   @override
-  final String meter;
+  final String? meter;
   @override
-  final String km;
+  final String? km;
   @override
-  final String mile;
+  final String? mile;
   @override
-  final String nm;
+  final String? nm;
   @override
-  final String feet;
+  final String? feet;
 
   factory _$StringifiedGreatCircleDistanceEntity(
           [void Function(StringifiedGreatCircleDistanceEntityBuilder)?
               updates]) =>
-      (new StringifiedGreatCircleDistanceEntityBuilder()..update(updates))
-          ._build();
+      (StringifiedGreatCircleDistanceEntityBuilder()..update(updates))._build();
 
   _$StringifiedGreatCircleDistanceEntity._(
-      {required this.meter,
-      required this.km,
-      required this.mile,
-      required this.nm,
-      required this.feet})
-      : super._() {
-    BuiltValueNullFieldError.checkNotNull(
-        meter, r'StringifiedGreatCircleDistanceEntity', 'meter');
-    BuiltValueNullFieldError.checkNotNull(
-        km, r'StringifiedGreatCircleDistanceEntity', 'km');
-    BuiltValueNullFieldError.checkNotNull(
-        mile, r'StringifiedGreatCircleDistanceEntity', 'mile');
-    BuiltValueNullFieldError.checkNotNull(
-        nm, r'StringifiedGreatCircleDistanceEntity', 'nm');
-    BuiltValueNullFieldError.checkNotNull(
-        feet, r'StringifiedGreatCircleDistanceEntity', 'feet');
-  }
-
+      {this.meter, this.km, this.mile, this.nm, this.feet})
+      : super._();
   @override
   StringifiedGreatCircleDistanceEntity rebuild(
           void Function(StringifiedGreatCircleDistanceEntityBuilder) updates) =>
@@ -51,7 +34,7 @@ class _$StringifiedGreatCircleDistanceEntity
 
   @override
   StringifiedGreatCircleDistanceEntityBuilder toBuilder() =>
-      new StringifiedGreatCircleDistanceEntityBuilder()..replace(this);
+      StringifiedGreatCircleDistanceEntityBuilder()..replace(this);
 
   @override
   bool operator ==(Object other) {
@@ -133,7 +116,6 @@ class StringifiedGreatCircleDistanceEntityBuilder
 
   @override
   void replace(StringifiedGreatCircleDistanceEntity other) {
-    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$StringifiedGreatCircleDistanceEntity;
   }
 
@@ -148,17 +130,12 @@ class StringifiedGreatCircleDistanceEntityBuilder
 
   _$StringifiedGreatCircleDistanceEntity _build() {
     final _$result = _$v ??
-        new _$StringifiedGreatCircleDistanceEntity._(
-          meter: BuiltValueNullFieldError.checkNotNull(
-              meter, r'StringifiedGreatCircleDistanceEntity', 'meter'),
-          km: BuiltValueNullFieldError.checkNotNull(
-              km, r'StringifiedGreatCircleDistanceEntity', 'km'),
-          mile: BuiltValueNullFieldError.checkNotNull(
-              mile, r'StringifiedGreatCircleDistanceEntity', 'mile'),
-          nm: BuiltValueNullFieldError.checkNotNull(
-              nm, r'StringifiedGreatCircleDistanceEntity', 'nm'),
-          feet: BuiltValueNullFieldError.checkNotNull(
-              feet, r'StringifiedGreatCircleDistanceEntity', 'feet'),
+        _$StringifiedGreatCircleDistanceEntity._(
+          meter: meter,
+          km: km,
+          mile: mile,
+          nm: nm,
+          feet: feet,
         );
     replace(_$result);
     return _$result;

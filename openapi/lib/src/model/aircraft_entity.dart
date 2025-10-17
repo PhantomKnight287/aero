@@ -3,6 +3,7 @@
 //
 
 // ignore_for_file: unused_element
+import 'package:built_value/json_object.dart';
 import 'package:built_value/built_value.dart';
 import 'package:built_value/serializer.dart';
 
@@ -21,6 +22,7 @@ part 'aircraft_entity.g.dart';
 /// * [deliveryDate] 
 /// * [isFreighter] 
 /// * [attribution] 
+/// * [payload] 
 @BuiltValue()
 abstract class AircraftEntity implements Built<AircraftEntity, AircraftEntityBuilder> {
   @BuiltValueField(wireName: r'modeS')
@@ -52,6 +54,9 @@ abstract class AircraftEntity implements Built<AircraftEntity, AircraftEntityBui
 
   @BuiltValueField(wireName: r'attribution')
   String? get attribution;
+
+  @BuiltValueField(wireName: r'payload')
+  JsonObject? get payload;
 
   AircraftEntity._();
 
@@ -142,6 +147,13 @@ class _$AircraftEntitySerializer implements PrimitiveSerializer<AircraftEntity> 
       yield serializers.serialize(
         object.attribution,
         specifiedType: const FullType(String),
+      );
+    }
+    if (object.payload != null) {
+      yield r'payload';
+      yield serializers.serialize(
+        object.payload,
+        specifiedType: const FullType(JsonObject),
       );
     }
   }
@@ -236,6 +248,13 @@ class _$AircraftEntitySerializer implements PrimitiveSerializer<AircraftEntity> 
             specifiedType: const FullType(String),
           ) as String;
           result.attribution = valueDes;
+          break;
+        case r'payload':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType(JsonObject),
+          ) as JsonObject;
+          result.payload = valueDes;
           break;
         default:
           unhandled.add(key);

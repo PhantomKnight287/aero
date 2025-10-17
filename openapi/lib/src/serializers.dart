@@ -25,6 +25,10 @@ import 'package:openapi/src/model/fligh_type.dart';
 import 'package:openapi/src/model/flight_entity.dart';
 import 'package:openapi/src/model/flight_response_entity.dart';
 import 'package:openapi/src/model/flight_status.dart';
+import 'package:openapi/src/model/flights_controller_get_flights_in_bounds_v1200_response.dart';
+import 'package:openapi/src/model/flights_controller_get_flights_in_bounds_v1200_response_bounds.dart';
+import 'package:openapi/src/model/flights_controller_get_flights_in_bounds_v1200_response_flights_inner.dart';
+import 'package:openapi/src/model/flights_controller_get_flights_in_bounds_v1200_response_flights_inner_origin.dart';
 import 'package:openapi/src/model/flights_response_entity.dart';
 import 'package:openapi/src/model/flights_route_entity.dart';
 import 'package:openapi/src/model/generic_error_entity.dart';
@@ -55,6 +59,10 @@ part 'serializers.g.dart';
   FlightEntity,
   FlightResponseEntity,
   FlightStatus,
+  FlightsControllerGetFlightsInBoundsV1200Response,
+  FlightsControllerGetFlightsInBoundsV1200ResponseBounds,
+  FlightsControllerGetFlightsInBoundsV1200ResponseFlightsInner,
+  FlightsControllerGetFlightsInBoundsV1200ResponseFlightsInnerOrigin,
   FlightsResponseEntity,
   FlightsRouteEntity,
   GenericErrorEntity,
@@ -83,8 +91,8 @@ Serializers serializers = (_$serializers.toBuilder()
       ..add(const OneOfSerializer())
       ..add(const AnyOfSerializer())
       ..add(const DateSerializer())
-      ..add(Iso8601DateTimeSerializer()))
-    .build();
+      ..add(Iso8601DateTimeSerializer())
+    ).build();
 
 Serializers standardSerializers =
     (serializers.toBuilder()..addPlugin(StandardJsonPlugin())).build();
