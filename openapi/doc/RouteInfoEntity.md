@@ -14,6 +14,7 @@ Name | Type | Description | Notes
 **scheduledTime** | [**TimeEntity**](TimeEntity.md) |  | 
 **revisedTime** | [**TimeEntity**](TimeEntity.md) |  | [optional] 
 **predictedTime** | [**TimeEntity**](TimeEntity.md) |  | [optional] 
+**baggageBelt** | **String** |  | [optional] 
 
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
 

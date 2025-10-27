@@ -19,6 +19,8 @@ class _$RouteInfoEntity extends RouteInfoEntity {
   final TimeEntity? revisedTime;
   @override
   final TimeEntity? predictedTime;
+  @override
+  final String? baggageBelt;
 
   factory _$RouteInfoEntity([void Function(RouteInfoEntityBuilder)? updates]) =>
       (RouteInfoEntityBuilder()..update(updates))._build();
@@ -29,7 +31,8 @@ class _$RouteInfoEntity extends RouteInfoEntity {
       this.gate,
       required this.scheduledTime,
       this.revisedTime,
-      this.predictedTime})
+      this.predictedTime,
+      this.baggageBelt})
       : super._();
   @override
   RouteInfoEntity rebuild(void Function(RouteInfoEntityBuilder) updates) =>
@@ -47,7 +50,8 @@ class _$RouteInfoEntity extends RouteInfoEntity {
         gate == other.gate &&
         scheduledTime == other.scheduledTime &&
         revisedTime == other.revisedTime &&
-        predictedTime == other.predictedTime;
+        predictedTime == other.predictedTime &&
+        baggageBelt == other.baggageBelt;
   }
 
   @override
@@ -59,6 +63,7 @@ class _$RouteInfoEntity extends RouteInfoEntity {
     _$hash = $jc(_$hash, scheduledTime.hashCode);
     _$hash = $jc(_$hash, revisedTime.hashCode);
     _$hash = $jc(_$hash, predictedTime.hashCode);
+    _$hash = $jc(_$hash, baggageBelt.hashCode);
     _$hash = $jf(_$hash);
     return _$hash;
   }
@@ -71,7 +76,8 @@ class _$RouteInfoEntity extends RouteInfoEntity {
           ..add('gate', gate)
           ..add('scheduledTime', scheduledTime)
           ..add('revisedTime', revisedTime)
-          ..add('predictedTime', predictedTime))
+          ..add('predictedTime', predictedTime)
+          ..add('baggageBelt', baggageBelt))
         .toString();
   }
 }
@@ -111,6 +117,10 @@ class RouteInfoEntityBuilder
   set predictedTime(TimeEntityBuilder? predictedTime) =>
       _$this._predictedTime = predictedTime;
 
+  String? _baggageBelt;
+  String? get baggageBelt => _$this._baggageBelt;
+  set baggageBelt(String? baggageBelt) => _$this._baggageBelt = baggageBelt;
+
   RouteInfoEntityBuilder() {
     RouteInfoEntity._defaults(this);
   }
@@ -124,6 +134,7 @@ class RouteInfoEntityBuilder
       _scheduledTime = $v.scheduledTime.toBuilder();
       _revisedTime = $v.revisedTime?.toBuilder();
       _predictedTime = $v.predictedTime?.toBuilder();
+      _baggageBelt = $v.baggageBelt;
       _$v = null;
     }
     return this;
@@ -153,6 +164,7 @@ class RouteInfoEntityBuilder
             scheduledTime: scheduledTime.build(),
             revisedTime: _revisedTime?.build(),
             predictedTime: _predictedTime?.build(),
+            baggageBelt: baggageBelt,
           );
     } catch (_) {
       late String _$failedField;

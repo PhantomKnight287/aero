@@ -28,17 +28,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     final user = Provider.of<UserNotifier>(
                       context,
                     ).user;
-                    return GestureDetector(
-                      onTap: () {
-                        GoRouter.of(context).push("/profile");
-                      },
-                      child: Hero(
-                        tag: "avatar",
-                        child: CircleAvatar(
-                          radius: 40,
-                          backgroundImage: CachedNetworkImageProvider(
-                            "https://api.dicebear.com/9.x/initials/png?seed=${user?.name}",
-                          ),
+                    return Hero(
+                      tag: "avatar",
+                      child: CircleAvatar(
+                        radius: 40,
+                        backgroundImage: CachedNetworkImageProvider(
+                          "https://api.dicebear.com/9.x/initials/png?seed=${user?.name}",
                         ),
                       ),
                     );

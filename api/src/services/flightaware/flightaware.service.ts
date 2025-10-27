@@ -4,83 +4,71 @@ import { RedisService } from '@liaoliaots/nestjs-redis';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
+export interface FlightAwareAirport {
+  code: string | null;
+  code_icao?: string | null;
+  code_iata?: string | null;
+  code_lid?: string | null;
+  timezone?: string | null;
+  name?: string | null;
+  city?: string | null;
+  airport_info_url?: string | null;
+}
+
 export interface FlightAwareAircraft {
   fa_flight_id: string;
   ident: string;
-  ident_icao?: string;
-  ident_iata?: string;
-  fa_flight_id_icao?: string;
-  fa_flight_id_iata?: string;
-  actual_off?: string;
-  actual_on?: string;
-  foresight_predictions_available?: boolean;
-  predicted_off?: string;
-  predicted_on?: string;
-  predicted_out?: string;
-  predicted_in?: string;
-  predicted_off_source?: string;
-  predicted_on_source?: string;
-  predicted_out_source?: string;
-  predicted_in_source?: string;
-  origin: {
-    code: string;
-    code_icao?: string;
-    code_iata?: string;
-    code_lid?: string;
-    timezone: string;
-    name: string;
-    city?: string;
-    airport_info_url?: string;
-  };
-  destination?: {
-    code: string;
-    code_icao?: string;
-    code_iata?: string;
-    code_lid?: string;
-    timezone: string;
-    name: string;
-    city?: string;
-    airport_info_url?: string;
-  };
-  departure_delay?: string;
-  arrival_delay?: string;
-  filed_ete?: string;
-  progress_percent?: number;
+  ident_icao?: string | null;
+  ident_iata?: string | null;
+  actual_runway_off?: string | null;
+  actual_runway_on?: string | null;
+  operator?: string | null;
+  operator_icao?: string | null;
+  operator_iata?: string | null;
+  flight_number?: string | null;
+  registration?: string | null;
+  atc_ident?: string | null;
+  inbound_fa_flight_id?: string | null;
+  codeshares?: string[];
+  codeshares_iata?: string[];
+  blocked?: boolean;
+  diverted?: boolean;
+  cancelled?: boolean;
+  position_only?: boolean;
+  origin: FlightAwareAirport;
+  destination?: FlightAwareAirport;
+  departure_delay?: number | null;
+  arrival_delay?: number | null;
+  filed_ete?: number | null;
+  progress_percent?: number | null;
   status: string;
-  aircraft_type?: string;
-  route_distance?: number;
-  filed_airspeed_kts?: number;
-  filed_altitude?: number;
-  route?: string;
-  baggage_claim?: string;
-  seats_cabin_business?: number;
-  seats_cabin_coach?: number;
-  seats_cabin_first?: number;
-  gate_origin?: string;
-  gate_destination?: string;
-  terminal_origin?: string;
-  terminal_destination?: string;
-  type: string;
-  scheduled_in?: string;
-  scheduled_off?: string;
-  scheduled_out?: string;
-  scheduled_on?: string;
-  scheduled_in_source?: string;
-  scheduled_off_source?: string;
-  scheduled_out_source?: string;
-  scheduled_on_source?: string;
-  estimated_in?: string;
-  estimated_off?: string;
-  estimated_out?: string;
-  estimated_on?: string;
-  estimated_in_source?: string;
-  estimated_off_source?: string;
-  estimated_out_source?: string;
-  estimated_on_source?: string;
-  actual_in?: string;
-  actual_out?: string;
-  actual_in_source?: string;
-  actual_out_source?: string;
+  aircraft_type?: string | null;
+  route_distance?: number | null;
+  filed_airspeed?: number | null;
+  filed_altitude?: number | null;
+  route?: string | null;
+  baggage_claim?: string | null;
+  seats_cabin_business?: number | null;
+  seats_cabin_coach?: number | null;
+  seats_cabin_first?: number | null;
+  gate_origin?: string | null;
+  gate_destination?: string | null;
+  terminal_origin?: string | null;
+  terminal_destination?: string | null;
+  type: 'General_Aviation' | 'Airline';
+  scheduled_out?: string | null;
+  estimated_out?: string | null;
+  actual_out?: string | null;
+  scheduled_off?: string | null;
+  estimated_off?: string | null;
+  actual_off?: string | null;
+  scheduled_on?: string | null;
+  estimated_on?: string | null;
+  actual_on?: string | null;
+  scheduled_in?: string | null;
+  estimated_in?: string | null;
+  actual_in?: string | null;
+  foresight_predictions_available?: boolean;
   aircraft_type_faa?: string;
   aircraft_family?: string;
   manufacturer?: string;
@@ -144,44 +132,6 @@ export interface FlightAwareAircraft {
       type?: string;
     }>;
   };
-  operator?: {
-    icao?: string;
-    iata?: string;
-    callsign?: string;
-    name?: string;
-    country?: string;
-    location?: string;
-    phone?: string;
-    short_name?: string;
-    url?: string;
-    wiki_url?: string;
-    alternatives?: string[];
-  };
-  codeshares?: Array<{
-    ident: string;
-    ident_icao?: string;
-    ident_iata?: string;
-    fa_flight_id?: string;
-    fa_flight_id_icao?: string;
-    fa_flight_id_iata?: string;
-    operator: {
-      icao?: string;
-      iata?: string;
-      callsign?: string;
-      name?: string;
-      country?: string;
-      location?: string;
-      phone?: string;
-      short_name?: string;
-      url?: string;
-      wiki_url?: string;
-      alternatives?: string[];
-    };
-  }>;
-  blocked?: boolean;
-  diverted?: boolean;
-  cancelled?: boolean;
-  position_only?: boolean;
   origin_position?: {
     fa_flight_id: string;
     altitude: number;
@@ -474,6 +424,235 @@ export class FlightAwareService {
       }
       throw new HttpException(
         'Failed to fetch flight data from FlightAware',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  /**
+   * Search flights by ident (returns array of flights)
+   */
+  async searchFlightsByIdent(ident: string): Promise<FlightAwareResponse | null> {
+    const cacheKey = `flightaware:search:${ident}`;
+
+    // Check cache first
+    try {
+      const cached = await this.redis.get(cacheKey);
+      if (cached) {
+        console.log(`FlightAware: Returning cached search data for ${ident}`);
+        return JSON.parse(cached);
+      }
+    } catch (error) {
+      console.warn('Redis cache read error:', error);
+    }
+
+    const apiKey = this.configService.get<string>('FLIGHTAWARE_API_KEY');
+    if (!apiKey) {
+      throw new HttpException(
+        'FlightAware API key not configured',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+
+    try {
+      // Check rate limit before making API call
+      await this.checkRateLimit();
+      
+      const url = new URL(`${this.baseUrl}/flights/${ident}`);
+
+      const response = await fetch(url.toString(), {
+        headers: {
+          'x-apikey': apiKey,
+          Accept: 'application/json; charset=UTF-8',
+        },
+      });
+
+      if (!response.ok) {
+        // Log error response
+        const contentType = response.headers.get('content-type');
+        let errorBody;
+        
+        try {
+          if (contentType && contentType.includes('application/json')) {
+            errorBody = await response.json();
+          } else {
+            errorBody = await response.text();
+          }
+          
+          console.error('FlightAware API Error Response:', {
+            status: response.status,
+            statusText: response.statusText,
+            contentType,
+            body: errorBody,
+            url: url.toString(),
+            ident,
+          });
+        } catch (logError) {
+          console.error('Failed to log FlightAware error response:', logError);
+        }
+
+        if (response.status === 404) {
+          return null;
+        }
+        if (response.status === 401) {
+          throw new HttpException(
+            'FlightAware API authentication failed',
+            HttpStatus.UNAUTHORIZED,
+          );
+        }
+        throw new HttpException(
+          `FlightAware API request failed with status ${response.status}`,
+          HttpStatus.BAD_GATEWAY,
+        );
+      }
+
+      const data = await response.json();
+
+      // Cache both the processed data and raw API response
+      try {
+        const processedData = {
+          ...data,
+          cached_at: new Date().toISOString(),
+          ident: ident
+        };
+        
+        // Cache the processed data (what we return)
+        await this.redis.setex(cacheKey, this.cacheTTL, JSON.stringify(processedData));
+        
+        // Cache the raw API response for analysis
+        const rawCacheKey = `${cacheKey}:raw`;
+        await this.redis.setex(rawCacheKey, this.cacheTTL, JSON.stringify(data));
+        
+        console.log(
+          `FlightAware: Search data for ${ident} cached for 10 seconds (processed + raw)`,
+        );
+      } catch (error) {
+        console.warn('Redis cache write error:', error);
+      }
+
+      return data;
+    } catch (error) {
+      console.error('FlightAware API error:', error);
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new HttpException(
+        'Failed to fetch flight data from FlightAware',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  /**
+   * Get flight track data (positions) by fa_flight_id
+   * Note: This method caches at the FlightAware service level.
+   * The application layer (flight.service.ts) has its own 30s cache.
+   */
+  async getFlightTrack(faFlightId: string): Promise<any> {
+    const cacheKey = `flightaware:track:${faFlightId}`;
+    const trackCacheTTL = 30; // 30 seconds to manage rate limits
+
+    // Check cache first
+    try {
+      const cached = await this.redis.get(cacheKey);
+      if (cached) {
+        console.log(`FlightAware: Returning cached track data for ${faFlightId}`);
+        return JSON.parse(cached);
+      }
+    } catch (error) {
+      console.warn('Redis cache read error:', error);
+    }
+
+    const apiKey = this.configService.get<string>('FLIGHTAWARE_API_KEY');
+    if (!apiKey) {
+      throw new HttpException(
+        'FlightAware API key not configured',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+
+    try {
+      // Check rate limit before making API call
+      await this.checkRateLimit();
+      
+      const url = new URL(`${this.baseUrl}/flights/${faFlightId}/track`);
+
+      const response = await fetch(url.toString(), {
+        headers: {
+          'x-apikey': apiKey,
+          Accept: 'application/json; charset=UTF-8',
+        },
+      });
+
+      if (!response.ok) {
+        // Log error response
+        const contentType = response.headers.get('content-type');
+        let errorBody;
+        
+        try {
+          if (contentType && contentType.includes('application/json')) {
+            errorBody = await response.json();
+          } else {
+            errorBody = await response.text();
+          }
+          
+          console.error('FlightAware API Error Response:', {
+            status: response.status,
+            statusText: response.statusText,
+            contentType,
+            body: errorBody,
+            url: url.toString(),
+            faFlightId,
+          });
+        } catch (logError) {
+          console.error('Failed to log FlightAware error response:', logError);
+        }
+
+        if (response.status === 404) {
+          throw new HttpException(
+            'Flight track not found',
+            HttpStatus.NOT_FOUND,
+          );
+        }
+        if (response.status === 401) {
+          throw new HttpException(
+            'FlightAware API authentication failed',
+            HttpStatus.UNAUTHORIZED,
+          );
+        }
+        throw new HttpException(
+          `FlightAware API request failed with status ${response.status}`,
+          HttpStatus.BAD_GATEWAY,
+        );
+      }
+
+      const data = await response.json();
+
+      // Cache the data for 30 seconds
+      try {
+        const processedData = {
+          ...data,
+          cached_at: new Date().toISOString(),
+          fa_flight_id: faFlightId
+        };
+        
+        await this.redis.setex(cacheKey, trackCacheTTL, JSON.stringify(processedData));
+        
+        console.log(
+          `FlightAware: Track data for ${faFlightId} cached for ${trackCacheTTL} seconds`,
+        );
+      } catch (error) {
+        console.warn('Redis cache write error:', error);
+      }
+
+      return data;
+    } catch (error) {
+      console.error('FlightAware API error:', error);
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new HttpException(
+        'Failed to fetch flight track data from FlightAware',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }

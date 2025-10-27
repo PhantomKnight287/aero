@@ -1,5 +1,4 @@
 import 'dart:math';
-import 'dart:async';
 import 'package:openapi/openapi.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -7,7 +6,6 @@ import 'package:flutter_map_animations/flutter_map_animations.dart';
 import 'package:flutter_map_cancellable_tile_provider/flutter_map_cancellable_tile_provider.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:plane_pal/constants/main.dart';
-import 'package:plane_pal/services/main.dart';
 
 TileLayer get openStreetMapTileLayer => TileLayer(
       urlTemplate:
@@ -98,7 +96,10 @@ class FlightMap extends StatefulWidget {
   final AirportEntity? departureAirport;
   final AirportEntity? arrivalAirport;
   final List<LatLng> coordinates;
-  final Function(FlightsControllerGetFlightsInBoundsV1200ResponseFlightsInner)? onAircraftSelected;
+  final List<LatLng> flightTrackPoints;
+  final double? currentHeading;
+  final Function(FlightsControllerGetFlightsInBoundsV1200ResponseFlightsInner)?
+      onAircraftSelected;
 
   const FlightMap({
     super.key,
@@ -106,6 +107,8 @@ class FlightMap extends StatefulWidget {
     this.arrivalAirport,
     this.departureAirport,
     required this.coordinates,
+    this.flightTrackPoints = const [],
+    this.currentHeading,
     this.onAircraftSelected,
   });
 
@@ -114,111 +117,14 @@ class FlightMap extends StatefulWidget {
 }
 
 class _FlightMapState extends State<FlightMap> {
-  List<FlightsControllerGetFlightsInBoundsV1200ResponseFlightsInner> _aircraft = [];
-  bool _isLoading = false;
-  String? _error;
-  Timer? _updateTimer;
-  final FlightDataService _flightService = FlightDataService();
-
   @override
   void initState() {
     super.initState();
-    _fetchAircraft();
-    WidgetsBinding.instance.addPostFrameCallback(
-      (timeStamp) {
-        _updateTimer = Timer.periodic(const Duration(seconds: 30), (_) {
-          _fetchAircraft();
-        });
-      },
-    );
-    // Update aircraft data every 30 seconds
   }
 
   @override
   void dispose() {
-    _updateTimer?.cancel();
     super.dispose();
-  }
-
-  Future<void> _fetchAircraft() async {
-    if (_isLoading) return;
-
-    setState(() {
-      _isLoading = true;
-      _error = null;
-    });
-
-    try {
-      final bounds = getVisibleMapBounds(widget.mapController);
-      final response = await _flightService.getFlightsInBounds(
-        minLat: bounds.minLat,
-        maxLat: bounds.maxLat,
-        minLng: bounds.minLng,
-        maxLng: bounds.maxLng,
-      );
-
-      if (response.success == true) {
-        final flightsJson = response.flights!;
-        final filteredAircrafts = flightsJson
-            .where((aircraft) =>
-                aircraft.latitude != null &&
-                aircraft.longitude != null &&
-                aircraft.isOnGround == false)
-            .toList();
-        
-        print("filtered: ${filteredAircrafts.length}");
-        setState(() {
-          _aircraft = filteredAircrafts;
-          _isLoading = false;
-        });
-      } else {
-        setState(() {
-          _error = 'Failed to fetch aircraft data';
-          _isLoading = false;
-        });
-      }
-    } catch (e, stack) {
-      print(e);
-      print(stack);
-      setState(() {
-        _error = 'Error: $e';
-        _isLoading = false;
-      });
-    }
-  }
-
-  Marker _buildAircraftMarker(FlightsControllerGetFlightsInBoundsV1200ResponseFlightsInner aircraft) {
-    return Marker(
-      point: LatLng(aircraft.latitude!.toDouble(), aircraft.longitude!.toDouble()),
-      width: 30,
-      height: 30,
-      child: GestureDetector(
-        onTap: () {
-          if (widget.onAircraftSelected != null) {
-            widget.onAircraftSelected!(aircraft);
-          }
-        },
-        child: Container(
-          decoration: BoxDecoration(
-            color: Colors.red,
-            shape: BoxShape.circle,
-            border: Border.all(color: Colors.white, width: 2),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.3),
-                blurRadius: 4,
-                offset: const Offset(0, 2),
-              ),
-            ],
-          ),
-          child: const Icon(
-            Icons.flight,
-            color: Colors.white,
-            size: 16,
-          ),
-        ),
-      ),
-    );
   }
 
   @override
@@ -257,12 +163,11 @@ class _FlightMapState extends State<FlightMap> {
                     height: 10,
                     child: FlutterLogo(),
                   ),
-                // Aircraft markers
-                ..._aircraft.map((aircraft) => _buildAircraftMarker(aircraft)),
               ],
             ),
             if (widget.arrivalAirport != null &&
-                widget.departureAirport != null)
+                widget.departureAirport != null &&
+                widget.flightTrackPoints.isEmpty)
               PolylineLayer(
                 polylines: [
                   Polyline(
@@ -283,6 +188,7 @@ class _FlightMapState extends State<FlightMap> {
                   ),
                 ],
               ),
+              if(widget.flightTrackPoints.isEmpty)
             PolylineLayer(
               polylines: [
                 Polyline(
@@ -294,94 +200,49 @@ class _FlightMapState extends State<FlightMap> {
                     pattern: StrokePattern.dashed(segments: [10, 10])),
               ],
             ),
-          ],
-        ),
-        // Loading indicator
-        if (_isLoading)
-          Positioned(
-            top: 16,
-            right: 16,
-            child: Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.9),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: const Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  SizedBox(
-                    width: 16,
-                    height: 16,
-                    child: CircularProgressIndicator(strokeWidth: 2),
+            if (widget.flightTrackPoints.isNotEmpty)
+              PolylineLayer(
+                polylines: [
+                  Polyline(
+                    points: widget.flightTrackPoints,
+                    color: Colors.green,
+                    strokeWidth: 3,
+                    borderStrokeWidth: 1,
+                    borderColor: Colors.white70,
                   ),
-                  SizedBox(width: 8),
-                  Text('Loading aircrafts...'),
                 ],
               ),
-            ),
-          ),
-        // Error indicator
-        if (_error != null)
-          Positioned(
-            top: 16,
-            left: 16,
-            right: 16,
-            child: Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.red.withOpacity(0.9),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Row(
-                children: [
-                  const Icon(Icons.error, color: Colors.white),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      _error!,
-                      style: const TextStyle(color: Colors.white),
+            if (widget.flightTrackPoints.isNotEmpty)
+              MarkerLayer(
+                markers: [
+                  Marker(
+                    point: widget.flightTrackPoints.last,
+                    width: 30,
+                    height: 30,
+                    child: Transform.rotate(
+                      angle: widget.currentHeading != null
+                          ? (widget.currentHeading! * pi / 180)
+                          : 0,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.green,
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: Colors.white,
+                            width: 2,
+                          ),
+                        ),
+                        child: Icon(
+                          Icons.flight,
+                          color: Colors.white,
+                          size: 16,
+                        ),
+                      ),
                     ),
                   ),
-                  IconButton(
-                    icon: const Icon(Icons.close, color: Colors.white),
-                    onPressed: () {
-                      setState(() {
-                        _error = null;
-                      });
-                    },
-                  ),
                 ],
               ),
-            ),
-          ),
-        // Aircraft count indicator and refresh button
-        Positioned(
-          bottom: 16,
-          right: 16,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              if (_aircraft.isNotEmpty)
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.9),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    '${_aircraft.length} aircrafts',
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ),
-              const SizedBox(height: 8),
-              FloatingActionButton.small(
-                onPressed: _fetchAircraft,
-                backgroundColor: Colors.white.withOpacity(0.9),
-                child: const Icon(Icons.refresh, color: Colors.black),
-              ),
-            ],
-          ),
+          ],
         ),
       ],
     );

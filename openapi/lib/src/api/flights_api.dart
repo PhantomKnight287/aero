@@ -124,7 +124,7 @@ class FlightsApi {
     );
   }
 
-  /// Get flights within geographic bounds
+  /// Get flights within geographic bounds(deprecated - will return nothing)
   /// Get all aircraft currently flying within a specified geographic bounding box using FlightAware data with comprehensive aircraft details
   ///
   /// Parameters:
@@ -141,6 +141,7 @@ class FlightsApi {
   ///
   /// Returns a [Future] containing a [Response] with a [FlightsControllerGetFlightsInBoundsV1200Response] as data
   /// Throws [DioException] if API call or serialization fails
+  @Deprecated('This operation has been deprecated')
   Future<Response<FlightsControllerGetFlightsInBoundsV1200Response>> flightsControllerGetFlightsInBoundsV1({ 
     required num minLat,
     required num maxLat,

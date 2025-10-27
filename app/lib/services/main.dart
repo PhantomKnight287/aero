@@ -98,4 +98,27 @@ class FlightDataService {
       );
     }
   }
+
+  Future<FlightTrackResponseEntity?> getFlightTrack(
+    String iata,
+    String icao, {
+    DateTime? date,
+  }) async {
+    try {
+      date = date ?? DateTime.now();
+      final response = await _flightApi.flightControllerGetFlightTrackV1(
+        iata: iata,
+        icao: icao,
+        date: "${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}",
+      );
+      return response.data;
+    } catch (e) {
+      if (e is DioException) {
+        throw ApiException(message: getErrorMessage(e.response?.data));
+      }
+      throw ApiException(
+        message: 'Failed to fetch flight track: $e',
+      );
+    }
+  }
 }

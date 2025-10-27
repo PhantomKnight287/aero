@@ -20,7 +20,9 @@ import {
 } from '@nestjs/swagger';
 
 import { GetFlightDTO } from './dto/get-flight.dto';
+import { GetFlightTrackDTO } from './dto/get-flight-track.dto';
 import { FlightResponseEntity } from './entities/flight.entity';
+import { FlightTrackResponseEntity } from './entities/flight-track.entity';
 import { FlightService } from './flight.service';
 
 @Controller('flight')
@@ -28,6 +30,59 @@ import { FlightService } from './flight.service';
 @ApiBearerAuth('JWT-auth')
 export class FlightController {
   constructor(private readonly flightService: FlightService) {}
+
+  @Get('track')
+  @ApiOperation({
+    summary: 'Get flight track/path',
+    description:
+      'Get the flight path with all position data points for a specific flight',
+  })
+  @ApiQuery({
+    name: 'iata',
+    required: true,
+    type: String,
+    description: 'IATA flight number',
+    example: 'UA123',
+  })
+  @ApiQuery({
+    name: 'icao',
+    required: true,
+    type: String,
+    description: 'ICAO flight number',
+    example: 'UAL123',
+  })
+  @ApiQuery({
+    name: 'date',
+    required: false,
+    type: String,
+    description:
+      'Flight date (ISO format). Defaults to current date if not provided',
+    example: '2024-03-20',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Flight track data retrieved successfully',
+    type: FlightTrackResponseEntity,
+  })
+  @ApiUnauthorizedResponse({
+    description: 'User is not authenticated',
+    type: GenericErrorEntity,
+  })
+  @ApiBadRequestResponse({
+    description: 'Invalid request parameters or flight not found',
+    type: GenericErrorEntity,
+  })
+  @ApiInternalServerErrorResponse({
+    description: 'Internal server error',
+    type: GenericErrorEntity,
+  })
+  async getFlightTrack(@Query() query: GetFlightTrackDTO) {
+    return await this.flightService.getFlightTrack({
+      iata: query.iata,
+      icao: query.icao,
+      date: query.date,
+    });
+  }
 
   @Get()
   @ApiOperation({

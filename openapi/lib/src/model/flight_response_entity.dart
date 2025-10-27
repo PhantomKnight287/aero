@@ -7,6 +7,7 @@ import 'package:openapi/src/model/partial_airline_entity.dart';
 import 'package:openapi/src/model/stringified_great_circle_distance_entity.dart';
 import 'package:openapi/src/model/aircraft_entity.dart';
 import 'package:openapi/src/model/route_info_entity.dart';
+import 'package:openapi/src/model/flight_aware_data_entity.dart';
 import 'package:built_value/built_value.dart';
 import 'package:built_value/serializer.dart';
 
@@ -26,6 +27,7 @@ part 'flight_response_entity.g.dart';
 /// * [greatCircleDistance] 
 /// * [date] 
 /// * [image] 
+/// * [flightAwareData] 
 @BuiltValue()
 abstract class FlightResponseEntity implements Built<FlightResponseEntity, FlightResponseEntityBuilder> {
   @BuiltValueField(wireName: r'id')
@@ -60,6 +62,9 @@ abstract class FlightResponseEntity implements Built<FlightResponseEntity, Fligh
 
   @BuiltValueField(wireName: r'image')
   String? get image;
+
+  @BuiltValueField(wireName: r'flightAwareData')
+  FlightAwareDataEntity? get flightAwareData;
 
   FlightResponseEntity._();
 
@@ -141,6 +146,13 @@ class _$FlightResponseEntitySerializer implements PrimitiveSerializer<FlightResp
       yield serializers.serialize(
         object.image,
         specifiedType: const FullType(String),
+      );
+    }
+    if (object.flightAwareData != null) {
+      yield r'flightAwareData';
+      yield serializers.serialize(
+        object.flightAwareData,
+        specifiedType: const FullType(FlightAwareDataEntity),
       );
     }
   }
@@ -242,6 +254,13 @@ class _$FlightResponseEntitySerializer implements PrimitiveSerializer<FlightResp
             specifiedType: const FullType(String),
           ) as String;
           result.image = valueDes;
+          break;
+        case r'flightAwareData':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType(FlightAwareDataEntity),
+          ) as FlightAwareDataEntity;
+          result.flightAwareData.replace(valueDes);
           break;
         default:
           unhandled.add(key);

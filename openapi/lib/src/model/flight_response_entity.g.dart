@@ -29,6 +29,8 @@ class _$FlightResponseEntity extends FlightResponseEntity {
   final DateTime date;
   @override
   final String? image;
+  @override
+  final FlightAwareDataEntity? flightAwareData;
 
   factory _$FlightResponseEntity(
           [void Function(FlightResponseEntityBuilder)? updates]) =>
@@ -45,7 +47,8 @@ class _$FlightResponseEntity extends FlightResponseEntity {
       required this.cargo,
       required this.greatCircleDistance,
       required this.date,
-      this.image})
+      this.image,
+      this.flightAwareData})
       : super._();
   @override
   FlightResponseEntity rebuild(
@@ -70,7 +73,8 @@ class _$FlightResponseEntity extends FlightResponseEntity {
         cargo == other.cargo &&
         greatCircleDistance == other.greatCircleDistance &&
         date == other.date &&
-        image == other.image;
+        image == other.image &&
+        flightAwareData == other.flightAwareData;
   }
 
   @override
@@ -87,6 +91,7 @@ class _$FlightResponseEntity extends FlightResponseEntity {
     _$hash = $jc(_$hash, greatCircleDistance.hashCode);
     _$hash = $jc(_$hash, date.hashCode);
     _$hash = $jc(_$hash, image.hashCode);
+    _$hash = $jc(_$hash, flightAwareData.hashCode);
     _$hash = $jf(_$hash);
     return _$hash;
   }
@@ -104,7 +109,8 @@ class _$FlightResponseEntity extends FlightResponseEntity {
           ..add('cargo', cargo)
           ..add('greatCircleDistance', greatCircleDistance)
           ..add('date', date)
-          ..add('image', image))
+          ..add('image', image)
+          ..add('flightAwareData', flightAwareData))
         .toString();
   }
 }
@@ -167,6 +173,12 @@ class FlightResponseEntityBuilder
   String? get image => _$this._image;
   set image(String? image) => _$this._image = image;
 
+  FlightAwareDataEntityBuilder? _flightAwareData;
+  FlightAwareDataEntityBuilder get flightAwareData =>
+      _$this._flightAwareData ??= FlightAwareDataEntityBuilder();
+  set flightAwareData(FlightAwareDataEntityBuilder? flightAwareData) =>
+      _$this._flightAwareData = flightAwareData;
+
   FlightResponseEntityBuilder() {
     FlightResponseEntity._defaults(this);
   }
@@ -185,6 +197,7 @@ class FlightResponseEntityBuilder
       _greatCircleDistance = $v.greatCircleDistance.toBuilder();
       _date = $v.date;
       _image = $v.image;
+      _flightAwareData = $v.flightAwareData?.toBuilder();
       _$v = null;
     }
     return this;
@@ -224,6 +237,7 @@ class FlightResponseEntityBuilder
             date: BuiltValueNullFieldError.checkNotNull(
                 date, r'FlightResponseEntity', 'date'),
             image: image,
+            flightAwareData: _flightAwareData?.build(),
           );
     } catch (_) {
       late String _$failedField;
@@ -239,6 +253,9 @@ class FlightResponseEntityBuilder
 
         _$failedField = 'greatCircleDistance';
         greatCircleDistance.build();
+
+        _$failedField = 'flightAwareData';
+        _flightAwareData?.build();
       } catch (e) {
         throw BuiltValueNestedFieldError(
             r'FlightResponseEntity', _$failedField, e.toString());

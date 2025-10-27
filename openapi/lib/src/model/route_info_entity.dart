@@ -19,6 +19,7 @@ part 'route_info_entity.g.dart';
 /// * [scheduledTime] 
 /// * [revisedTime] 
 /// * [predictedTime] 
+/// * [baggageBelt] 
 @BuiltValue()
 abstract class RouteInfoEntity implements Built<RouteInfoEntity, RouteInfoEntityBuilder> {
   @BuiltValueField(wireName: r'airport')
@@ -38,6 +39,9 @@ abstract class RouteInfoEntity implements Built<RouteInfoEntity, RouteInfoEntity
 
   @BuiltValueField(wireName: r'predictedTime')
   TimeEntity? get predictedTime;
+
+  @BuiltValueField(wireName: r'baggageBelt')
+  String? get baggageBelt;
 
   RouteInfoEntity._();
 
@@ -98,6 +102,13 @@ class _$RouteInfoEntitySerializer implements PrimitiveSerializer<RouteInfoEntity
       yield serializers.serialize(
         object.predictedTime,
         specifiedType: const FullType(TimeEntity),
+      );
+    }
+    if (object.baggageBelt != null) {
+      yield r'baggageBelt';
+      yield serializers.serialize(
+        object.baggageBelt,
+        specifiedType: const FullType(String),
       );
     }
   }
@@ -164,6 +175,13 @@ class _$RouteInfoEntitySerializer implements PrimitiveSerializer<RouteInfoEntity
             specifiedType: const FullType(TimeEntity),
           ) as TimeEntity;
           result.predictedTime.replace(valueDes);
+          break;
+        case r'baggageBelt':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType(String),
+          ) as String;
+          result.baggageBelt = valueDes;
           break;
         default:
           unhandled.add(key);

@@ -1,5 +1,207 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
+export class FlightAwareDataEntity {
+  @ApiProperty()
+  id: string;
+
+  @ApiProperty({ description: 'Flight identifier' })
+  ident: string;
+
+  @ApiPropertyOptional()
+  identIcao?: string;
+
+  @ApiPropertyOptional()
+  identIata?: string;
+
+  @ApiPropertyOptional()
+  actualRunwayOff?: string;
+
+  @ApiPropertyOptional()
+  actualRunwayOn?: string;
+
+  @ApiPropertyOptional()
+  operator?: string;
+
+  @ApiPropertyOptional()
+  operatorIcao?: string;
+
+  @ApiPropertyOptional()
+  operatorIata?: string;
+
+  @ApiPropertyOptional()
+  flightNumber?: string;
+
+  @ApiPropertyOptional()
+  registration?: string;
+
+  @ApiPropertyOptional()
+  atcIdent?: string;
+
+  @ApiPropertyOptional()
+  inboundFaFlightId?: string;
+
+  @ApiPropertyOptional({ type: [String] })
+  codesharesIata?: string[];
+
+  @ApiPropertyOptional({
+    description: 'Departure delay in seconds (negative = early)',
+  })
+  departureDelay?: number;
+
+  @ApiPropertyOptional({
+    description: 'Arrival delay in seconds (negative = early)',
+  })
+  arrivalDelay?: number;
+
+  @ApiPropertyOptional({ description: 'Estimated time en route in seconds' })
+  filedEte?: number;
+
+  @ApiPropertyOptional({ description: 'Percent completion (0-100)' })
+  progressPercent?: number;
+
+  @ApiProperty({ description: 'Flight status description' })
+  status: string;
+
+  @ApiPropertyOptional()
+  aircraftType?: string;
+
+  @ApiPropertyOptional({
+    description: 'Planned flight distance in statute miles',
+  })
+  routeDistance?: number;
+
+  @ApiPropertyOptional({ description: 'Filed IFR airspeed in knots' })
+  filedAirspeed?: number;
+
+  @ApiPropertyOptional({ description: 'Filed IFR altitude in 100s of feet' })
+  filedAltitude?: number;
+
+  @ApiPropertyOptional()
+  route?: string;
+
+  @ApiPropertyOptional()
+  baggageClaim?: string;
+
+  @ApiPropertyOptional({ description: 'Business class seats' })
+  seatsCabinBusiness?: number;
+
+  @ApiPropertyOptional({ description: 'Coach class seats' })
+  seatsCabinCoach?: number;
+
+  @ApiPropertyOptional({ description: 'First class seats' })
+  seatsCabinFirst?: number;
+
+  @ApiPropertyOptional()
+  gateOrigin?: string;
+
+  @ApiPropertyOptional()
+  gateDestination?: string;
+
+  @ApiPropertyOptional()
+  terminalOrigin?: string;
+
+  @ApiPropertyOptional()
+  terminalDestination?: string;
+
+  @ApiPropertyOptional()
+  scheduledOut?: Date;
+
+  @ApiPropertyOptional()
+  estimatedOut?: Date;
+
+  @ApiPropertyOptional()
+  actualOut?: Date;
+
+  @ApiPropertyOptional()
+  scheduledOff?: Date;
+
+  @ApiPropertyOptional()
+  estimatedOff?: Date;
+
+  @ApiPropertyOptional()
+  actualOff?: Date;
+
+  @ApiPropertyOptional()
+  scheduledOn?: Date;
+
+  @ApiPropertyOptional()
+  estimatedOn?: Date;
+
+  @ApiPropertyOptional()
+  actualOn?: Date;
+
+  @ApiPropertyOptional()
+  scheduledIn?: Date;
+
+  @ApiPropertyOptional()
+  estimatedIn?: Date;
+
+  @ApiPropertyOptional()
+  actualIn?: Date;
+
+  @ApiProperty({ description: 'Foresight predictions available' })
+  foresightPredictionsAvailable: boolean;
+
+  @ApiProperty()
+  blocked: boolean;
+
+  @ApiProperty()
+  diverted: boolean;
+
+  @ApiProperty()
+  cancelled: boolean;
+
+  @ApiProperty()
+  positionOnly: boolean;
+
+  @ApiPropertyOptional()
+  originCode?: string;
+
+  @ApiPropertyOptional()
+  originCodeIcao?: string;
+
+  @ApiPropertyOptional()
+  originCodeIata?: string;
+
+  @ApiPropertyOptional()
+  originCodeLid?: string;
+
+  @ApiPropertyOptional()
+  originTimezone?: string;
+
+  @ApiPropertyOptional()
+  originName?: string;
+
+  @ApiPropertyOptional()
+  originCity?: string;
+
+  @ApiPropertyOptional()
+  destinationCode?: string;
+
+  @ApiPropertyOptional()
+  destinationCodeIcao?: string;
+
+  @ApiPropertyOptional()
+  destinationCodeIata?: string;
+
+  @ApiPropertyOptional()
+  destinationCodeLid?: string;
+
+  @ApiPropertyOptional()
+  destinationTimezone?: string;
+
+  @ApiPropertyOptional()
+  destinationName?: string;
+
+  @ApiPropertyOptional()
+  destinationCity?: string;
+
+  @ApiProperty()
+  createdAt: Date;
+
+  @ApiProperty()
+  updatedAt: Date;
+}
 export class AircraftEntity {
   @ApiPropertyOptional()
   modeS: string;
@@ -105,6 +307,9 @@ class RouteInfoEntity {
 
   @ApiPropertyOptional()
   predictedTime?: TimeEntity;
+
+  @ApiPropertyOptional()
+  baggageBelt?: string;
 }
 class StringifiedGreatCircleDistanceEntity {
   @ApiPropertyOptional()
@@ -156,4 +361,7 @@ export class FlightResponseEntity {
 
   @ApiPropertyOptional()
   image?: string;
+
+  @ApiPropertyOptional()
+  flightAwareData?: FlightAwareDataEntity;
 }

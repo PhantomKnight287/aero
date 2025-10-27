@@ -71,9 +71,10 @@ Class | Method | HTTP request | Description
 [*AuthenticationApi*](doc/AuthenticationApi.md) | [**authControllerGetCurrentUserV1**](doc/AuthenticationApi.md#authcontrollergetcurrentuserv1) | **GET** /v1/auth/@me | Get current user
 [*AuthenticationApi*](doc/AuthenticationApi.md) | [**authControllerLoginV1**](doc/AuthenticationApi.md#authcontrollerloginv1) | **POST** /v1/auth/login | Login
 [*AuthenticationApi*](doc/AuthenticationApi.md) | [**authControllerRegisterV1**](doc/AuthenticationApi.md#authcontrollerregisterv1) | **POST** /v1/auth/register | Register
+[*FlightApi*](doc/FlightApi.md) | [**flightControllerGetFlightTrackV1**](doc/FlightApi.md#flightcontrollergetflighttrackv1) | **GET** /v1/flight/track | Get flight track/path
 [*FlightApi*](doc/FlightApi.md) | [**flightControllerGetFlightV1**](doc/FlightApi.md#flightcontrollergetflightv1) | **GET** /v1/flight | Get flight details
 [*FlightsApi*](doc/FlightsApi.md) | [**flightsControllerGetAirlineV1**](doc/FlightsApi.md#flightscontrollergetairlinev1) | **POST** /v1/flights/airline | Get airline
-[*FlightsApi*](doc/FlightsApi.md) | [**flightsControllerGetFlightsInBoundsV1**](doc/FlightsApi.md#flightscontrollergetflightsinboundsv1) | **GET** /v1/flights/bounds | Get flights within geographic bounds
+[*FlightsApi*](doc/FlightsApi.md) | [**flightsControllerGetFlightsInBoundsV1**](doc/FlightsApi.md#flightscontrollergetflightsinboundsv1) | **GET** /v1/flights/bounds | Get flights within geographic bounds(deprecated - will return nothing)
 [*FlightsApi*](doc/FlightsApi.md) | [**flightsControllerGetFlightsV1**](doc/FlightsApi.md#flightscontrollergetflightsv1) | **GET** /v1/flights | Get flights between two airports
 
 
@@ -87,9 +88,12 @@ Class | Method | HTTP request | Description
  - [AirportInfo](doc/AirportInfo.md)
  - [AirportType](doc/AirportType.md)
  - [FlighType](doc/FlighType.md)
+ - [FlightAwareDataEntity](doc/FlightAwareDataEntity.md)
  - [FlightEntity](doc/FlightEntity.md)
+ - [FlightPositionEntity](doc/FlightPositionEntity.md)
  - [FlightResponseEntity](doc/FlightResponseEntity.md)
  - [FlightStatus](doc/FlightStatus.md)
+ - [FlightTrackResponseEntity](doc/FlightTrackResponseEntity.md)
  - [FlightsControllerGetFlightsInBoundsV1200Response](doc/FlightsControllerGetFlightsInBoundsV1200Response.md)
  - [FlightsControllerGetFlightsInBoundsV1200ResponseBounds](doc/FlightsControllerGetFlightsInBoundsV1200ResponseBounds.md)
  - [FlightsControllerGetFlightsInBoundsV1200ResponseFlightsInner](doc/FlightsControllerGetFlightsInBoundsV1200ResponseFlightsInner.md)

@@ -20,6 +20,7 @@ class FlightRouteInfo extends StatelessWidget {
   final Duration? arrivalDelay;
   final String arrivalSubtitle;
   final String arrivalTimezone;
+  final String? arrivalBaggage;
 
   final Color? statusColor;
   final bool use24Hrs;
@@ -44,6 +45,7 @@ class FlightRouteInfo extends StatelessWidget {
     required this.arrivalTimezone,
     required this.departureTimezone,
     required this.use24Hrs,
+    this.arrivalBaggage,
   });
 
   @override
@@ -70,7 +72,8 @@ class FlightRouteInfo extends StatelessWidget {
             Column(
               children: [
                 _buildRouteDot(
-                  color: statusColor ?? (departureDelay != null ? Colors.red : Colors.green),
+                  color: statusColor ??
+                      (departureDelay != null ? Colors.red : Colors.green),
                 ),
                 Container(
                   width: 2,
@@ -78,7 +81,8 @@ class FlightRouteInfo extends StatelessWidget {
                   color: Colors.grey.shade300,
                 ),
                 _buildRouteDot(
-                  color: statusColor ?? (arrivalDelay != null ? Colors.red : Colors.green),
+                  color: statusColor ??
+                      (arrivalDelay != null ? Colors.red : Colors.green),
                 ),
               ],
             ),
@@ -98,7 +102,9 @@ class FlightRouteInfo extends StatelessWidget {
                     delay: departureDelay,
                     subtitle: departureSubtitle,
                     timezone: departureTimezone,
-                    color: statusColor ?? (departureDelay != null ? Colors.red : Colors.green),
+                    color: statusColor ??
+                        (departureDelay != null ? Colors.red : Colors.green),
+                      
                   ),
                   Padding(
                     padding: const EdgeInsets.symmetric(
@@ -115,7 +121,9 @@ class FlightRouteInfo extends StatelessWidget {
                     delay: arrivalDelay,
                     subtitle: arrivalSubtitle,
                     timezone: arrivalTimezone,
-                    color: statusColor ?? (arrivalDelay != null ? Colors.red : Colors.green),
+                    color: statusColor ??
+                        (arrivalDelay != null ? Colors.red : Colors.green),
+                    baggage: arrivalBaggage,
                   ),
                 ],
               ),
@@ -151,83 +159,102 @@ class FlightRouteInfo extends StatelessWidget {
     required String subtitle,
     required String timezone,
     required Color color,
+    String? baggage,
   }) {
-    return Column(
+    return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              code,
-              style: const TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
+        // Left column: Airport information
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                code,
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-            ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Builder(builder: (context) {
-                  final Color timeColor = delay == null
-                      ? Colors.black
-                      : (delay.isNegative ? Colors.green : Colors.red);
-                  return Text(
-                    time.toTimezoneString(
-                      timezone,
-                      use24Hrs: use24Hrs,
-                    ),
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: timeColor,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  );
-                }),
-                if (delay != null)
-                  _buildDelayPill(delay: delay, color: color),
+              Text(
+                name,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.grey.shade600,
+                ),
+              ),
+              if (terminal != null && terminal.isNotEmpty)
+                Text(
+                  "Terminal: $terminal",
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey.shade600,
+                  ),
+                ),
+              if (gate != null && gate.isNotEmpty)
+                Text(
+                  "Gate: $gate",
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey.shade600,
+                  ),
+                ),
+              if (baggage != null && baggage.isNotEmpty)
+                Text(
+                  "Baggage: $baggage",
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey.shade600,
+                  ),
+                ),
+              if (subtitle.isNotEmpty) ...[
+                const SizedBox(height: 4),
+                Text(
+                  subtitle,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey.shade500,
+                  ),
+                ),
               ],
-            ),
-          ],
-        ),       
-        Text(
-          name,
-          style: TextStyle(
-            fontSize: 14,
-            color: Colors.grey.shade600,
+            ],
           ),
         ),
-        if (terminal != null)
-          Text(
-            terminal.isNotEmpty ? "Terminal: $terminal" : "",
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey.shade600,
-            ),
-          ),
-        if (gate != null)
-          Text(
-            gate.isNotEmpty ? "Gate: $gate" : "",
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey.shade600,
-            ),
-          ),
-        if (subtitle.isNotEmpty) const SizedBox(height: 4),
-        if (subtitle.isNotEmpty)
-          Text(
-            subtitle,
-            style: TextStyle(
-              fontSize: 12,
-              color: Colors.grey.shade500,
-            ),
-          ),
+        const SizedBox(width: 16),
+
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Builder(builder: (context) {
+              final Color timeColor = delay == null || delay == Duration.zero
+                  ? Colors.black
+                  : (delay.isNegative ? Colors.green : Colors.red);
+              return Text(
+                time.toTimezoneString(
+                  timezone,
+                  use24Hrs: use24Hrs,
+                ),
+                style: TextStyle(
+                  fontSize: 16,
+                  color: timeColor,
+                  fontWeight: FontWeight.bold,
+                ),
+              );
+            }),
+            if (delay != null) _buildDelayPill(delay: delay, color: color),
+          ],
+        ),
       ],
     );
   }
 
   Widget _buildDelayPill({required Duration delay, required Color color}) {
-    print(color);
+    // Don't show anything if there's no delay
+    if (delay == Duration.zero) {
+      return const SizedBox.shrink();
+    }
+
     final bool isEarly = delay.isNegative;
     final String status = isEarly ? "Early" : "Delayed";
     return Container(
@@ -255,7 +282,8 @@ class FlightRouteInfo extends StatelessWidget {
             "$status ${delay.toHumanReadable()}",
             style: TextStyle(
               fontSize: 12,
-              color: (isEarly ? Colors.green : Colors.red).withValues(alpha: 0.9),
+              color:
+                  (isEarly ? Colors.green : Colors.red).withValues(alpha: 0.9),
               fontWeight: FontWeight.w600,
             ),
           ),

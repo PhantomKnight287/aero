@@ -10,7 +10,7 @@ All URIs are relative to *http://localhost*
 Method | HTTP request | Description
 ------------- | ------------- | -------------
 [**flightsControllerGetAirlineV1**](FlightsApi.md#flightscontrollergetairlinev1) | **POST** /v1/flights/airline | Get airline
-[**flightsControllerGetFlightsInBoundsV1**](FlightsApi.md#flightscontrollergetflightsinboundsv1) | **GET** /v1/flights/bounds | Get flights within geographic bounds
+[**flightsControllerGetFlightsInBoundsV1**](FlightsApi.md#flightscontrollergetflightsinboundsv1) | **GET** /v1/flights/bounds | Get flights within geographic bounds(deprecated - will return nothing)
 [**flightsControllerGetFlightsV1**](FlightsApi.md#flightscontrollergetflightsv1) | **GET** /v1/flights | Get flights between two airports
 
 
@@ -60,7 +60,7 @@ Name | Type | Description  | Notes
 # **flightsControllerGetFlightsInBoundsV1**
 > FlightsControllerGetFlightsInBoundsV1200Response flightsControllerGetFlightsInBoundsV1(minLat, maxLat, minLng, maxLng)
 
-Get flights within geographic bounds
+Get flights within geographic bounds(deprecated - will return nothing)
 
 Get all aircraft currently flying within a specified geographic bounding box using FlightAware data with comprehensive aircraft details
 

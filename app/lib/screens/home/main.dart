@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ui';
 
 import 'package:built_collection/built_collection.dart';
 import 'package:latlong2/latlong.dart';
@@ -61,6 +62,7 @@ class _HomeScreenState extends State<HomeScreen>
   final DraggableScrollableController _controller =
       DraggableScrollableController();
   Timer? _debounce;
+  Timer? _trackPollingTimer;
   bool loading = false;
   final FlightDataService _flightService = FlightDataService();
   bool isLoading = false;
@@ -74,6 +76,8 @@ class _HomeScreenState extends State<HomeScreen>
   String? selectedFlightNumber;
   FlightResponseEntity? _flightInfo;
   List<LatLng> coordinates = [];
+  List<LatLng> flightTrackPoints = [];
+  FlightPositionEntity? currentPosition;
 
   @override
   void initState() {
@@ -113,7 +117,49 @@ class _HomeScreenState extends State<HomeScreen>
     WidgetsBinding.instance.removeObserver(this);
     _controller.dispose();
     _debounce?.cancel();
+    _trackPollingTimer?.cancel();
     super.dispose();
+  }
+
+  void _startTrackPolling(String iata, String icao, DateTime date) {
+    // Cancel existing timer if any
+    _trackPollingTimer?.cancel();
+
+    // Start polling every 30 seconds
+    _trackPollingTimer = Timer.periodic(
+      const Duration(seconds: 30),
+      (timer) async {
+        try {
+          final trackData = await _flightService.getFlightTrack(
+            iata,
+            icao,
+            date: date,
+          );
+
+          if (trackData != null && trackData.positions.isNotEmpty) {
+            setState(() {
+              flightTrackPoints = trackData.positions
+                  .map((pos) => LatLng(
+                        pos.latitude.toDouble(),
+                        pos.longitude.toDouble(),
+                      ))
+                  .toList();
+
+              // Update the latest position
+              currentPosition = trackData.positions.last;
+            });
+          }
+        } catch (e) {
+          print('Failed to poll flight track: $e');
+          // Continue polling even if one request fails
+        }
+      },
+    );
+  }
+
+  void _stopTrackPolling() {
+    _trackPollingTimer?.cancel();
+    _trackPollingTimer = null;
   }
 
   Future<void> _onAircraftSelected(
@@ -128,6 +174,8 @@ class _HomeScreenState extends State<HomeScreen>
         arrivalAirport = null;
         departureAirport = null;
         coordinates = [];
+        flightTrackPoints = [];
+        currentPosition = null;
         selectedDate = DateTime.now(); // Set to today
         selectedAirline = null;
         selectedFlightNumber = null;
@@ -158,6 +206,33 @@ class _HomeScreenState extends State<HomeScreen>
               info.arrival.airport.location.lon.toDouble(),
             ),
           ];
+
+          // Fetch flight track data
+          try {
+            final trackData = await _flightService.getFlightTrack(
+              iata,
+              icao,
+              date: selectedDate!,
+            );
+
+            if (trackData != null && trackData.positions.isNotEmpty) {
+              flightTrackPoints = trackData.positions
+                  .map((pos) => LatLng(
+                        pos.latitude.toDouble(),
+                        pos.longitude.toDouble(),
+                      ))
+                  .toList();
+
+              // Get the latest position (last in the list)
+              currentPosition = trackData.positions.last;
+
+              // Start polling for updates
+              _startTrackPolling(iata, icao, selectedDate!);
+            }
+          } catch (e) {
+            print('Failed to fetch flight track: $e');
+            // Continue without track data
+          }
 
           // Animate map to show the flight route
           _mapController.animateTo(
@@ -237,9 +312,25 @@ class _HomeScreenState extends State<HomeScreen>
               arrivalAirport: arrivalAirport,
               departureAirport: departureAirport,
               coordinates: coordinates,
+              flightTrackPoints: flightTrackPoints,
+              currentHeading: currentPosition?.heading?.toDouble(),
               onAircraftSelected: _onAircraftSelected,
             ),
           ),
+          // Flight info overlay at top center
+          if (currentPosition != null)
+            Positioned(
+              top: MediaQuery.of(context).padding.top + 10,
+              left: 20,
+              right: 20,
+              child: Center(
+                child: AnimatedFlightInfoBar(
+                  altitude: (currentPosition!.altitude * 100).toInt(),
+                  speed: currentPosition!.groundspeed.toInt(),
+                  heading: currentPosition!.heading?.toInt(),
+                ),
+              ),
+            ),
           DraggableScrollableSheet(
             initialChildSize: .25,
             controller: _controller,
@@ -261,11 +352,14 @@ class _HomeScreenState extends State<HomeScreen>
                           ? FlightInfoWidget(
                               info: _flightInfo!,
                               onClose: () {
+                                _stopTrackPolling();
                                 setState(() {
                                   _flightInfo = null;
                                   arrivalAirport = null;
                                   departureAirport = null;
                                   coordinates = [];
+                                  flightTrackPoints = [];
+                                  currentPosition = null;
                                   selectedDate = null;
                                   selectedAirline = null;
                                   selectedFlightNumber = null;
@@ -473,6 +567,53 @@ class _HomeScreenState extends State<HomeScreen>
                                                           .toDouble(),
                                                     ),
                                                   ];
+
+                                                  // Fetch flight track data
+                                                  try {
+                                                    final iataCode =
+                                                        "${selectedAirline!.iata}$selectedFlightNumber";
+                                                    final icaoCode =
+                                                        "${selectedAirline!.icao}$selectedFlightNumber";
+
+                                                    final trackData =
+                                                        await _flightService
+                                                            .getFlightTrack(
+                                                      iataCode,
+                                                      icaoCode,
+                                                      date: date,
+                                                    );
+
+                                                    if (trackData != null &&
+                                                        trackData.positions
+                                                            .isNotEmpty) {
+                                                      flightTrackPoints =
+                                                          trackData.positions
+                                                              .map((pos) =>
+                                                                  LatLng(
+                                                                    pos.latitude
+                                                                        .toDouble(),
+                                                                    pos.longitude
+                                                                        .toDouble(),
+                                                                  ))
+                                                              .toList();
+
+                                                      // Get the latest position
+                                                      currentPosition =
+                                                          trackData
+                                                              .positions.last;
+
+                                                      // Start polling for updates
+                                                      _startTrackPolling(
+                                                          iataCode,
+                                                          icaoCode,
+                                                          date);
+                                                    }
+                                                  } catch (e) {
+                                                    print(
+                                                        'Failed to fetch flight track: $e');
+                                                    // Continue without track data
+                                                  }
+
                                                   _mapController.animateTo(
                                                     dest: coordinates[1],
                                                   );
@@ -929,4 +1070,159 @@ Widget getAirportIcon(AirportType type) {
     width: 40,
     height: 40,
   );
+}
+
+class AnimatedFlightInfoBar extends StatefulWidget {
+  final int altitude;
+  final int speed;
+  final int? heading;
+
+  const AnimatedFlightInfoBar({
+    super.key,
+    required this.altitude,
+    required this.speed,
+    this.heading,
+  });
+
+  @override
+  State<AnimatedFlightInfoBar> createState() => _AnimatedFlightInfoBarState();
+}
+
+class _AnimatedFlightInfoBarState extends State<AnimatedFlightInfoBar> {
+  @override
+  Widget build(BuildContext context) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(20),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+        child: Container(
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          decoration: BoxDecoration(
+            color: Colors.black.withOpacity(0.3),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: Colors.white.withOpacity(0.2),
+              width: 1,
+            ),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _AnimatedValue(
+                value: widget.altitude,
+                suffix: ' ft',
+              ),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 8),
+                child: Text(
+                  '•',
+                  style: TextStyle(
+                    color: Colors.white.withOpacity(0.6),
+                    fontSize: 12,
+                  ),
+                ),
+              ),
+              _AnimatedValue(
+                value: widget.speed,
+                suffix: ' kts',
+              ),
+              if (widget.heading != null) ...[
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 8),
+                  child: Text(
+                    '•',
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.6),
+                      fontSize: 12,
+                    ),
+                  ),
+                ),
+                _AnimatedValue(
+                  value: widget.heading!,
+                  suffix: '°',
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _AnimatedValue extends StatefulWidget {
+  final int value;
+  final String suffix;
+
+  const _AnimatedValue({
+    required this.value,
+    required this.suffix,
+  });
+
+  @override
+  State<_AnimatedValue> createState() => _AnimatedValueState();
+}
+
+class _AnimatedValueState extends State<_AnimatedValue>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _animation;
+  late int _previousValue;
+
+  @override
+  void initState() {
+    super.initState();
+    _previousValue = widget.value;
+    _controller = AnimationController(
+      duration: Duration(milliseconds: 500),
+      vsync: this,
+    );
+    _animation = Tween<double>(
+      begin: widget.value.toDouble(),
+      end: widget.value.toDouble(),
+    ).animate(CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeInOut,
+    ));
+  }
+
+  @override
+  void didUpdateWidget(_AnimatedValue oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.value != widget.value) {
+      _animation = Tween<double>(
+        begin: _previousValue.toDouble(),
+        end: widget.value.toDouble(),
+      ).animate(CurvedAnimation(
+        parent: _controller,
+        curve: Curves.easeInOut,
+      ));
+      _previousValue = widget.value;
+      _controller.forward(from: 0);
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _animation,
+      builder: (context, child) {
+        return Text(
+          '${_animation.value.toInt()}${widget.suffix}',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 13,
+            fontWeight: FontWeight.w500,
+            letterSpacing: 0.5,
+          ),
+        );
+      },
+    );
+  }
 }

@@ -449,6 +449,7 @@
     },
     "/v1/flights/bounds": {
       "get": {
+        "deprecated": true,
         "description": "Get all aircraft currently flying within a specified geographic bounding box using FlightAware data with comprehensive aircraft details",
         "operationId": "FlightsController_getFlightsInBounds_v1",
         "parameters": [
@@ -825,9 +826,98 @@
             "JWT-auth": []
           }
         ],
-        "summary": "Get flights within geographic bounds",
+        "summary": "Get flights within geographic bounds(deprecated - will return nothing)",
         "tags": [
           "Flights"
+        ]
+      }
+    },
+    "/v1/flight/track": {
+      "get": {
+        "description": "Get the flight path with all position data points for a specific flight",
+        "operationId": "FlightController_getFlightTrack_v1",
+        "parameters": [
+          {
+            "name": "iata",
+            "required": true,
+            "in": "query",
+            "description": "IATA flight number",
+            "schema": {
+              "example": "UA123",
+              "type": "string"
+            }
+          },
+          {
+            "name": "icao",
+            "required": true,
+            "in": "query",
+            "description": "ICAO flight number",
+            "schema": {
+              "example": "UAL123",
+              "type": "string"
+            }
+          },
+          {
+            "name": "date",
+            "required": false,
+            "in": "query",
+            "description": "Flight date (ISO format). Defaults to current date if not provided",
+            "schema": {
+              "example": "2024-03-20",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Flight track data retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FlightTrackResponseEntity"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request parameters or flight not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericErrorEntity"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "User is not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericErrorEntity"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericErrorEntity"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ],
+        "summary": "Get flight track/path",
+        "tags": [
+          "Flight"
         ]
       }
     },
@@ -1337,6 +1427,100 @@
           "flights"
         ]
       },
+      "FlightPositionEntity": {
+        "type": "object",
+        "properties": {
+          "fa_flight_id": {
+            "type": "string",
+            "description": "FlightAware flight ID for this position"
+          },
+          "altitude": {
+            "type": "number",
+            "description": "Aircraft altitude in hundreds of feet",
+            "example": 350
+          },
+          "altitude_change": {
+            "type": "string",
+            "description": "Altitude change indicator",
+            "enum": [
+              "C",
+              "D",
+              "-"
+            ],
+            "example": "C"
+          },
+          "groundspeed": {
+            "type": "number",
+            "description": "Groundspeed in knots",
+            "example": 450
+          },
+          "heading": {
+            "type": "number",
+            "description": "Aircraft heading in degrees (0-360)",
+            "example": 270,
+            "minimum": 0,
+            "maximum": 360
+          },
+          "latitude": {
+            "type": "number",
+            "description": "Latitude position",
+            "example": 40.7128
+          },
+          "longitude": {
+            "type": "number",
+            "description": "Longitude position",
+            "example": -74.006
+          },
+          "timestamp": {
+            "type": "string",
+            "description": "Time that position was received",
+            "example": "2024-03-20T14:30:00Z"
+          },
+          "update_type": {
+            "type": "string",
+            "description": "Update type: P=projected, O=oceanic, Z=radar, A=ADS-B, M=multilateration, D=datalink, X=surface and near surface, S=space-based, V=virtual event",
+            "enum": [
+              "P",
+              "O",
+              "Z",
+              "A",
+              "M",
+              "D",
+              "X",
+              "S",
+              "V"
+            ]
+          }
+        },
+        "required": [
+          "altitude",
+          "altitude_change",
+          "groundspeed",
+          "latitude",
+          "longitude",
+          "timestamp"
+        ]
+      },
+      "FlightTrackResponseEntity": {
+        "type": "object",
+        "properties": {
+          "actual_distance": {
+            "type": "number",
+            "description": "Distance flown in miles as of the latest position point",
+            "example": 2450
+          },
+          "positions": {
+            "description": "Array of flight positions",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FlightPositionEntity"
+            }
+          }
+        },
+        "required": [
+          "positions"
+        ]
+      },
       "AircraftEntity": {
         "type": "object",
         "properties": {
@@ -1484,6 +1668,9 @@
           },
           "predictedTime": {
             "$ref": "#/components/schemas/TimeEntity"
+          },
+          "baggageBelt": {
+            "type": "string"
           }
         },
         "required": [
@@ -1510,6 +1697,248 @@
             "type": "string"
           }
         }
+      },
+      "FlightAwareDataEntity": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "ident": {
+            "type": "string",
+            "description": "Flight identifier"
+          },
+          "identIcao": {
+            "type": "string"
+          },
+          "identIata": {
+            "type": "string"
+          },
+          "actualRunwayOff": {
+            "type": "string"
+          },
+          "actualRunwayOn": {
+            "type": "string"
+          },
+          "operator": {
+            "type": "string"
+          },
+          "operatorIcao": {
+            "type": "string"
+          },
+          "operatorIata": {
+            "type": "string"
+          },
+          "flightNumber": {
+            "type": "string"
+          },
+          "registration": {
+            "type": "string"
+          },
+          "atcIdent": {
+            "type": "string"
+          },
+          "inboundFaFlightId": {
+            "type": "string"
+          },
+          "codesharesIata": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "departureDelay": {
+            "type": "number",
+            "description": "Departure delay in seconds (negative = early)"
+          },
+          "arrivalDelay": {
+            "type": "number",
+            "description": "Arrival delay in seconds (negative = early)"
+          },
+          "filedEte": {
+            "type": "number",
+            "description": "Estimated time en route in seconds"
+          },
+          "progressPercent": {
+            "type": "number",
+            "description": "Percent completion (0-100)"
+          },
+          "status": {
+            "type": "string",
+            "description": "Flight status description"
+          },
+          "aircraftType": {
+            "type": "string"
+          },
+          "routeDistance": {
+            "type": "number",
+            "description": "Planned flight distance in statute miles"
+          },
+          "filedAirspeed": {
+            "type": "number",
+            "description": "Filed IFR airspeed in knots"
+          },
+          "filedAltitude": {
+            "type": "number",
+            "description": "Filed IFR altitude in 100s of feet"
+          },
+          "route": {
+            "type": "string"
+          },
+          "baggageClaim": {
+            "type": "string"
+          },
+          "seatsCabinBusiness": {
+            "type": "number",
+            "description": "Business class seats"
+          },
+          "seatsCabinCoach": {
+            "type": "number",
+            "description": "Coach class seats"
+          },
+          "seatsCabinFirst": {
+            "type": "number",
+            "description": "First class seats"
+          },
+          "gateOrigin": {
+            "type": "string"
+          },
+          "gateDestination": {
+            "type": "string"
+          },
+          "terminalOrigin": {
+            "type": "string"
+          },
+          "terminalDestination": {
+            "type": "string"
+          },
+          "scheduledOut": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "estimatedOut": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "actualOut": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "scheduledOff": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "estimatedOff": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "actualOff": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "scheduledOn": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "estimatedOn": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "actualOn": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "scheduledIn": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "estimatedIn": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "actualIn": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "foresightPredictionsAvailable": {
+            "type": "boolean",
+            "description": "Foresight predictions available"
+          },
+          "blocked": {
+            "type": "boolean"
+          },
+          "diverted": {
+            "type": "boolean"
+          },
+          "cancelled": {
+            "type": "boolean"
+          },
+          "positionOnly": {
+            "type": "boolean"
+          },
+          "originCode": {
+            "type": "string"
+          },
+          "originCodeIcao": {
+            "type": "string"
+          },
+          "originCodeIata": {
+            "type": "string"
+          },
+          "originCodeLid": {
+            "type": "string"
+          },
+          "originTimezone": {
+            "type": "string"
+          },
+          "originName": {
+            "type": "string"
+          },
+          "originCity": {
+            "type": "string"
+          },
+          "destinationCode": {
+            "type": "string"
+          },
+          "destinationCodeIcao": {
+            "type": "string"
+          },
+          "destinationCodeIata": {
+            "type": "string"
+          },
+          "destinationCodeLid": {
+            "type": "string"
+          },
+          "destinationTimezone": {
+            "type": "string"
+          },
+          "destinationName": {
+            "type": "string"
+          },
+          "destinationCity": {
+            "type": "string"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "ident",
+          "status",
+          "foresightPredictionsAvailable",
+          "blocked",
+          "diverted",
+          "cancelled",
+          "positionOnly",
+          "createdAt",
+          "updatedAt"
+        ]
       },
       "FlightResponseEntity": {
         "type": "object",
@@ -1547,6 +1976,9 @@
           },
           "image": {
             "type": "string"
+          },
+          "flightAwareData": {
+            "$ref": "#/components/schemas/FlightAwareDataEntity"
           }
         },
         "required": [

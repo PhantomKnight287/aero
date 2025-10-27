@@ -22,9 +22,12 @@ import 'package:openapi/src/model/airport_entity.dart';
 import 'package:openapi/src/model/airport_info.dart';
 import 'package:openapi/src/model/airport_type.dart';
 import 'package:openapi/src/model/fligh_type.dart';
+import 'package:openapi/src/model/flight_aware_data_entity.dart';
 import 'package:openapi/src/model/flight_entity.dart';
+import 'package:openapi/src/model/flight_position_entity.dart';
 import 'package:openapi/src/model/flight_response_entity.dart';
 import 'package:openapi/src/model/flight_status.dart';
+import 'package:openapi/src/model/flight_track_response_entity.dart';
 import 'package:openapi/src/model/flights_controller_get_flights_in_bounds_v1200_response.dart';
 import 'package:openapi/src/model/flights_controller_get_flights_in_bounds_v1200_response_bounds.dart';
 import 'package:openapi/src/model/flights_controller_get_flights_in_bounds_v1200_response_flights_inner.dart';
@@ -56,9 +59,12 @@ part 'serializers.g.dart';
   AirportInfo,
   AirportType,
   FlighType,
+  FlightAwareDataEntity,
   FlightEntity,
+  FlightPositionEntity,
   FlightResponseEntity,
   FlightStatus,
+  FlightTrackResponseEntity,
   FlightsControllerGetFlightsInBoundsV1200Response,
   FlightsControllerGetFlightsInBoundsV1200ResponseBounds,
   FlightsControllerGetFlightsInBoundsV1200ResponseFlightsInner,

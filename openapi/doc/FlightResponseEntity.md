@@ -19,6 +19,7 @@ Name | Type | Description | Notes
 **greatCircleDistance** | [**StringifiedGreatCircleDistanceEntity**](StringifiedGreatCircleDistanceEntity.md) |  | 
 **date** | [**DateTime**](DateTime.md) |  | 
 **image** | **String** |  | [optional] 
+**flightAwareData** | [**FlightAwareDataEntity**](FlightAwareDataEntity.md) |  | [optional] 
 
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
 

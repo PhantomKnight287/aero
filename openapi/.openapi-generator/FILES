@@ -14,9 +14,12 @@ doc/AppApi.md
 doc/AuthenticationApi.md
 doc/FlighType.md
 doc/FlightApi.md
+doc/FlightAwareDataEntity.md
 doc/FlightEntity.md
+doc/FlightPositionEntity.md
 doc/FlightResponseEntity.md
 doc/FlightStatus.md
+doc/FlightTrackResponseEntity.md
 doc/FlightsApi.md
 doc/FlightsControllerGetFlightsInBoundsV1200Response.md
 doc/FlightsControllerGetFlightsInBoundsV1200ResponseBounds.md
@@ -61,9 +64,12 @@ lib/src/model/airport_info.dart
 lib/src/model/airport_type.dart
 lib/src/model/date.dart
 lib/src/model/fligh_type.dart
+lib/src/model/flight_aware_data_entity.dart
 lib/src/model/flight_entity.dart
+lib/src/model/flight_position_entity.dart
 lib/src/model/flight_response_entity.dart
 lib/src/model/flight_status.dart
+lib/src/model/flight_track_response_entity.dart
 lib/src/model/flights_controller_get_flights_in_bounds_v1200_response.dart
 lib/src/model/flights_controller_get_flights_in_bounds_v1200_response_bounds.dart
 lib/src/model/flights_controller_get_flights_in_bounds_v1200_response_flights_inner.dart

@@ -128,6 +128,54 @@ model Flights {
   @@map("flights")
 }
 
+enum AltitudeChange {
+  Climb
+  Descend
+  None
+}
+
+enum UpdateType {
+  Projected
+  Oceanic
+  Radar
+  ADSB
+  Multilateration
+  Datalink
+  Surface_And_Near_Surface
+  Spaced_Based
+  Virtual_Event
+}
+
+model FlightPositions {
+  id String @id @unique @default(cuid())
+
+  altitude       Int
+  altitudeChange AltitudeChange @default(None) @map("altitude_change")
+
+  groundSpeed Int      @map("ground_speed")
+  heading     Int?
+  latitude    Decimal
+  longitude   Decimal
+  timestamp   DateTime
+
+  updatedType UpdateType @map("update_type")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  flight   Flight? @relation(fields: [flightId], references: [id])
+  flightId String? @map("flight_id")
+
+  @@index([timestamp])
+  @@index([latitude, longitude])
+  @@index([altitude])
+  @@index([altitudeChange])
+  @@index([groundSpeed])
+  @@index([heading])
+  @@index([updatedType])
+  @@map("flight_positions")
+}
+
 model GreatCircleDistance {
   id String @id @unique @default(cuid())
 
@@ -150,6 +198,7 @@ model Flight {
   id String @id @unique @default(cuid())
 
   greatCircleDistance GreatCircleDistance?
+  flightAwareData     FlightAwareData?
 
   flightNo  String   @map("flight_no")
   aircraft  Json
@@ -160,10 +209,215 @@ model Flight {
   date      DateTime
   callSign  String   @map("call_sign")
 
+  createdAt       DateTime          @default(now()) @map("created_at")
+  updatedAt       DateTime          @updatedAt @map("updated_at")
+  FlightPositions FlightPositions[]
+
+  @@map("flight")
+}
+
+model FlightAwareData {
+  id String @id @unique @default(cuid())
+
+  /// FlightAware flight ID - unique identifier assigned by FlightAware
+  faFlightId String @map("fa_flight_id")
+
+  /// Flight identifier (operator code + flight number or aircraft registration)
+  ident String
+
+  /// ICAO operator code + flight number
+  identIcao String? @map("ident_icao")
+
+  /// IATA operator code + flight number
+  identIata String? @map("ident_iata")
+
+  /// Actual departure runway at origin
+  actualRunwayOff String? @map("actual_runway_off")
+
+  /// Actual arrival runway at destination
+  actualRunwayOn String? @map("actual_runway_on")
+
+  /// ICAO code of the operator, otherwise the IATA code
+  operator String?
+
+  /// ICAO code of the operator
+  operatorIcao String? @map("operator_icao")
+
+  /// IATA code of the operator
+  operatorIata String? @map("operator_iata")
+
+  /// Bare flight number
+  flightNumber String? @map("flight_number")
+
+  /// Aircraft registration (tail number)
+  registration String?
+
+  /// Ident for Air Traffic Control purposes
+  atcIdent String? @map("atc_ident")
+
+  /// Previous flight ID of the aircraft
+  inboundFaFlightId String? @map("inbound_fa_flight_id")
+
+  /// IATA codeshares
+  codesharesIata String[] @map("codeshares_iata")
+
+  /// Departure delay in seconds (negative = early)
+  departureDelay Int? @map("departure_delay")
+
+  /// Arrival delay in seconds (negative = early)
+  arrivalDelay Int? @map("arrival_delay")
+
+  /// Runway-to-runway filed duration in seconds
+  filedEte Int? @map("filed_ete")
+
+  /// Percent completion (0-100)
+  progressPercent Int? @map("progress_percent")
+
+  /// Flight status description
+  status String
+
+  /// Aircraft type (ICAO or IATA code)
+  aircraftType String? @map("aircraft_type")
+
+  /// Planned flight distance in statute miles
+  routeDistance Int? @map("route_distance")
+
+  /// Filed IFR airspeed in knots
+  filedAirspeed Int? @map("filed_airspeed")
+
+  /// Filed IFR altitude in 100s of feet
+  filedAltitude Int? @map("filed_altitude")
+
+  /// Flight route description
+  route String?
+
+  /// Baggage claim location
+  baggageClaim String? @map("baggage_claim")
+
+  /// Business class seats
+  seatsCabinBusiness Int? @map("seats_cabin_business")
+
+  /// Coach class seats
+  seatsCabinCoach Int? @map("seats_cabin_coach")
+
+  /// First class seats
+  seatsCabinFirst Int? @map("seats_cabin_first")
+
+  /// Departure gate
+  gateOrigin String? @map("gate_origin")
+
+  /// Arrival gate
+  gateDestination String? @map("gate_destination")
+
+  /// Departure terminal
+  terminalOrigin String? @map("terminal_origin")
+
+  /// Arrival terminal
+  terminalDestination String? @map("terminal_destination")
+
+  /// Scheduled gate departure
+  scheduledOut DateTime? @map("scheduled_out")
+
+  /// Estimated gate departure
+  estimatedOut DateTime? @map("estimated_out")
+
+  /// Actual gate departure
+  actualOut DateTime? @map("actual_out")
+
+  /// Scheduled runway departure
+  scheduledOff DateTime? @map("scheduled_off")
+
+  /// Estimated runway departure
+  estimatedOff DateTime? @map("estimated_off")
+
+  /// Actual runway departure
+  actualOff DateTime? @map("actual_off")
+
+  /// Scheduled runway arrival
+  scheduledOn DateTime? @map("scheduled_on")
+
+  /// Estimated runway arrival
+  estimatedOn DateTime? @map("estimated_on")
+
+  /// Actual runway arrival
+  actualOn DateTime? @map("actual_on")
+
+  /// Scheduled gate arrival
+  scheduledIn DateTime? @map("scheduled_in")
+
+  /// Estimated gate arrival
+  estimatedIn DateTime? @map("estimated_in")
+
+  /// Actual gate arrival
+  actualIn DateTime? @map("actual_in")
+
+  /// Foresight predictions available
+  foresightPredictionsAvailable Boolean @default(false) @map("foresight_predictions_available")
+
+  /// Flight blocked from public viewing
+  blocked Boolean @default(false)
+
+  /// Flight diverted
+  diverted Boolean @default(false)
+
+  /// Flight cancelled by airline
+  cancelled Boolean @default(false)
+
+  /// Position-only flight (no flight plan)
+  positionOnly Boolean @default(false) @map("position_only")
+
+  /// Origin airport code (ICAO/IATA/LID)
+  originCode String? @map("origin_code")
+
+  /// Origin airport ICAO code
+  originCodeIcao String? @map("origin_code_icao")
+
+  /// Origin airport IATA code
+  originCodeIata String? @map("origin_code_iata")
+
+  /// Origin airport LID code
+  originCodeLid String? @map("origin_code_lid")
+
+  /// Origin airport timezone
+  originTimezone String? @map("origin_timezone")
+
+  /// Origin airport name
+  originName String? @map("origin_name")
+
+  /// Origin airport city
+  originCity String? @map("origin_city")
+
+  /// Destination airport code (ICAO/IATA/LID)
+  destinationCode String? @map("destination_code")
+
+  /// Destination airport ICAO code
+  destinationCodeIcao String? @map("destination_code_icao")
+
+  /// Destination airport IATA code
+  destinationCodeIata String? @map("destination_code_iata")
+
+  /// Destination airport LID code
+  destinationCodeLid String? @map("destination_code_lid")
+
+  /// Destination airport timezone
+  destinationTimezone String? @map("destination_timezone")
+
+  /// Destination airport name
+  destinationName String? @map("destination_name")
+
+  /// Destination airport city
+  destinationCity String? @map("destination_city")
+
+  flight   Flight @relation(fields: [flightId], references: [id], onDelete: Cascade)
+  flightId String @unique @map("flight_id")
+
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  @@map("flight")
+  @@index([ident])
+  @@index([faFlightId])
+  @@index([registration])
+  @@map("flight_aware_data")
 }
 
 model AircraftRegistration {

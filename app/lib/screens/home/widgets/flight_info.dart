@@ -276,6 +276,7 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
             use24Hrs: MediaQuery.of(context).alwaysUse24HourFormat,
             arrivalGate: arrival.gate,
             departureGate: departure.gate,
+            arrivalBaggage: arrival.baggageBelt,
           ),
           Gap(8),
           Text(
