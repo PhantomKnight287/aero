@@ -188,18 +188,18 @@ class _FlightMapState extends State<FlightMap> {
                   ),
                 ],
               ),
-              if(widget.flightTrackPoints.isEmpty)
-            PolylineLayer(
-              polylines: [
-                Polyline(
-                    points: widget.coordinates.map((e) => e).toList(),
-                    color: Colors.blueAccent,
-                    strokeWidth: 4,
-                    borderStrokeWidth: 2,
-                    borderColor: Colors.white70,
-                    pattern: StrokePattern.dashed(segments: [10, 10])),
-              ],
-            ),
+            if (widget.flightTrackPoints.isEmpty)
+              PolylineLayer(
+                polylines: [
+                  Polyline(
+                      points: widget.coordinates.map((e) => e).toList(),
+                      color: Colors.blueAccent,
+                      strokeWidth: 4,
+                      borderStrokeWidth: 2,
+                      borderColor: Colors.white70,
+                      pattern: StrokePattern.dashed(segments: [10, 10])),
+                ],
+              ),
             if (widget.flightTrackPoints.isNotEmpty)
               PolylineLayer(
                 polylines: [
@@ -209,6 +209,8 @@ class _FlightMapState extends State<FlightMap> {
                     strokeWidth: 3,
                     borderStrokeWidth: 1,
                     borderColor: Colors.white70,
+                    strokeCap: StrokeCap.round,
+                    strokeJoin: StrokeJoin.round,
                   ),
                 ],
               ),

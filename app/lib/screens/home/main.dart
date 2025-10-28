@@ -25,6 +25,7 @@ import 'package:go_router/go_router.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:skeletonizer/skeletonizer.dart';
+import 'package:animated_flip_counter/animated_flip_counter.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({
@@ -63,6 +64,8 @@ class _HomeScreenState extends State<HomeScreen>
       DraggableScrollableController();
   Timer? _debounce;
   Timer? _trackPollingTimer;
+  Timer? _countdownTimer;
+  int _secondsUntilNextUpdate = 30;
   bool loading = false;
   final FlightDataService _flightService = FlightDataService();
   bool isLoading = false;
@@ -118,18 +121,43 @@ class _HomeScreenState extends State<HomeScreen>
     _controller.dispose();
     _debounce?.cancel();
     _trackPollingTimer?.cancel();
+    _countdownTimer?.cancel();
     super.dispose();
   }
 
   void _startTrackPolling(String iata, String icao, DateTime date) {
-    // Cancel existing timer if any
+    // Cancel existing timers if any
     _trackPollingTimer?.cancel();
+    _countdownTimer?.cancel();
+
+    // Reset countdown
+    setState(() {
+      _secondsUntilNextUpdate = 30;
+    });
+
+    // Start countdown timer that updates every second
+    _countdownTimer = Timer.periodic(
+      const Duration(seconds: 1),
+      (timer) {
+        setState(() {
+          if (_secondsUntilNextUpdate > 0) {
+            _secondsUntilNextUpdate--;
+          } else {
+            _secondsUntilNextUpdate = 30;
+          }
+        });
+      },
+    );
 
     // Start polling every 30 seconds
     _trackPollingTimer = Timer.periodic(
       const Duration(seconds: 30),
       (timer) async {
         try {
+          setState(() {
+            _secondsUntilNextUpdate = 30; // Reset countdown on each poll
+          });
+
           final trackData = await _flightService.getFlightTrack(
             iata,
             icao,
@@ -160,6 +188,8 @@ class _HomeScreenState extends State<HomeScreen>
   void _stopTrackPolling() {
     _trackPollingTimer?.cancel();
     _trackPollingTimer = null;
+    _countdownTimer?.cancel();
+    _countdownTimer = null;
   }
 
   Future<void> _onAircraftSelected(
@@ -234,16 +264,21 @@ class _HomeScreenState extends State<HomeScreen>
             // Continue without track data
           }
 
-          // Animate map to show the flight route
+          // Animate map to show the current flight location or route midpoint
           _mapController.animateTo(
-            dest: LatLng(
-              (info.departure.airport.location.lat.toDouble() +
-                      info.arrival.airport.location.lat.toDouble()) /
-                  2,
-              (info.departure.airport.location.lon.toDouble() +
-                      info.arrival.airport.location.lon.toDouble()) /
-                  2,
-            ),
+            dest: currentPosition != null
+                ? LatLng(
+                    currentPosition!.latitude.toDouble(),
+                    currentPosition!.longitude.toDouble(),
+                  )
+                : LatLng(
+                    (info.departure.airport.location.lat.toDouble() +
+                            info.arrival.airport.location.lat.toDouble()) /
+                        2,
+                    (info.departure.airport.location.lon.toDouble() +
+                            info.arrival.airport.location.lon.toDouble()) /
+                        2,
+                  ),
           );
 
           setState(() {
@@ -317,6 +352,15 @@ class _HomeScreenState extends State<HomeScreen>
               onAircraftSelected: _onAircraftSelected,
             ),
           ),
+          // Countdown timer at top right
+          if (_trackPollingTimer != null && _trackPollingTimer!.isActive)
+            Positioned(
+              top: MediaQuery.of(context).padding.top + 12,
+              right: 10,
+              child: RefreshCountdownTimer(
+                secondsRemaining: _secondsUntilNextUpdate,
+              ),
+            ),
           // Flight info overlay at top center
           if (currentPosition != null)
             Positioned(
@@ -615,7 +659,16 @@ class _HomeScreenState extends State<HomeScreen>
                                                   }
 
                                                   _mapController.animateTo(
-                                                    dest: coordinates[1],
+                                                    dest: currentPosition != null
+                                                        ? LatLng(
+                                                            currentPosition!
+                                                                .latitude
+                                                                .toDouble(),
+                                                            currentPosition!
+                                                                .longitude
+                                                                .toDouble(),
+                                                          )
+                                                        : coordinates[1],
                                                   );
                                                   setState(() {
                                                     _flightInfo = info;
@@ -1098,33 +1151,74 @@ class _AnimatedFlightInfoBarState extends State<AnimatedFlightInfoBar> {
         child: Container(
           padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           decoration: BoxDecoration(
-            color: Colors.black.withOpacity(0.3),
+            color: Colors.black.withOpacity(0.5),
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
-              color: Colors.white.withOpacity(0.2),
+              color: Colors.white.withOpacity(0.3),
               width: 1,
             ),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              _AnimatedValue(
-                value: widget.altitude,
-                suffix: ' ft',
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  AnimatedFlipCounter(
+                    value: widget.altitude,
+                    duration: Duration(milliseconds: 500),
+                    textStyle: TextStyle(
+                      color: Colors.white,
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                  Text(
+                    ' ft',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                ],
               ),
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 8),
                 child: Text(
                   '•',
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.6),
+                    color: Colors.white.withOpacity(0.8),
                     fontSize: 12,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
               ),
-              _AnimatedValue(
-                value: widget.speed,
-                suffix: ' kts',
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  AnimatedFlipCounter(
+                    value: widget.speed,
+                    duration: Duration(milliseconds: 500),
+                    textStyle: TextStyle(
+                      color: Colors.white,
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                  Text(
+                    ' kts',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                ],
               ),
               if (widget.heading != null) ...[
                 Padding(
@@ -1132,14 +1226,35 @@ class _AnimatedFlightInfoBarState extends State<AnimatedFlightInfoBar> {
                   child: Text(
                     '•',
                     style: TextStyle(
-                      color: Colors.white.withOpacity(0.6),
+                      color: Colors.white.withOpacity(0.8),
                       fontSize: 12,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
-                _AnimatedValue(
-                  value: widget.heading!,
-                  suffix: '°',
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    AnimatedFlipCounter(
+                      value: widget.heading!,
+                      duration: Duration(milliseconds: 500),
+                      textStyle: TextStyle(
+                        color: Colors.white,
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                    Text(
+                      '°',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ],
@@ -1150,79 +1265,62 @@ class _AnimatedFlightInfoBarState extends State<AnimatedFlightInfoBar> {
   }
 }
 
-class _AnimatedValue extends StatefulWidget {
-  final int value;
-  final String suffix;
+class RefreshCountdownTimer extends StatelessWidget {
+  final int secondsRemaining;
 
-  const _AnimatedValue({
-    required this.value,
-    required this.suffix,
+  const RefreshCountdownTimer({
+    super.key,
+    required this.secondsRemaining,
   });
 
   @override
-  State<_AnimatedValue> createState() => _AnimatedValueState();
-}
-
-class _AnimatedValueState extends State<_AnimatedValue>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _animation;
-  late int _previousValue;
-
-  @override
-  void initState() {
-    super.initState();
-    _previousValue = widget.value;
-    _controller = AnimationController(
-      duration: Duration(milliseconds: 500),
-      vsync: this,
-    );
-    _animation = Tween<double>(
-      begin: widget.value.toDouble(),
-      end: widget.value.toDouble(),
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeInOut,
-    ));
-  }
-
-  @override
-  void didUpdateWidget(_AnimatedValue oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.value != widget.value) {
-      _animation = Tween<double>(
-        begin: _previousValue.toDouble(),
-        end: widget.value.toDouble(),
-      ).animate(CurvedAnimation(
-        parent: _controller,
-        curve: Curves.easeInOut,
-      ));
-      _previousValue = widget.value;
-      _controller.forward(from: 0);
-    }
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _animation,
-      builder: (context, child) {
-        return Text(
-          '${_animation.value.toInt()}${widget.suffix}',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 13,
-            fontWeight: FontWeight.w500,
-            letterSpacing: 0.5,
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(20),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+        child: Container(
+          padding: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+          decoration: BoxDecoration(
+            color: Colors.black.withOpacity(0.5),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: Colors.white.withOpacity(0.3),
+              width: 1,
+            ),
           ),
-        );
-      },
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.refresh,
+                color: Colors.white,
+                size: 13,
+              ),
+              SizedBox(width: 4),
+              AnimatedFlipCounter(
+                value: secondsRemaining,
+                duration: Duration(milliseconds: 300),
+                textStyle: TextStyle(
+                  color: Colors.white,
+                  fontSize: 13,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 0.5,
+                ),
+              ),
+              Text(
+                's',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 13,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 0.5,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

@@ -274,9 +274,12 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
             departureTimezone: departure.airport.timeZone,
             statusColor: Colors.green,
             use24Hrs: MediaQuery.of(context).alwaysUse24HourFormat,
-            arrivalGate: arrival.gate,
-            departureGate: departure.gate,
-            arrivalBaggage: arrival.baggageBelt,
+            arrivalGate:
+                widget.info.flightAwareData?.gateDestination ?? arrival.gate,
+            departureGate:
+                widget.info.flightAwareData?.gateOrigin ?? departure.gate,
+            arrivalBaggage: widget.info.flightAwareData?.baggageClaim ??
+                arrival.baggageBelt,
           ),
           Gap(8),
           Text(

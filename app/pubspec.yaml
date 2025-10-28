@@ -38,6 +38,7 @@ dependencies:
   provider: ^6.1.2
   built_collection: ^5.1.1
   mapbox_maps_flutter: ^2.11.0
+  animated_flip_counter: ^0.3.4
 
 dev_dependencies:
   flutter_test:

@@ -12,7 +12,6 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { createId } from '@paralleldrive/cuid2';
 import { Aircraft } from '@prisma/client';
-import { JsonValue } from '@prisma/client/runtime/library';
 
 import { AircraftEntity } from './entities/flight.entity';
 
@@ -155,7 +154,9 @@ export class FlightService {
         }
         throw new Error(`API request failed with status ${response.status}`);
       }
-
+      if (response.status === 204) {
+        throw new Error('Flight not found');
+      }
       const flightData = await response.json();
 
       if (
@@ -187,195 +188,8 @@ export class FlightService {
           greatCircleDistance: true,
         },
       });
-      let aircraft: Aircraft;
-      // If aircraft doesn't exist in our database, create it
-      if (flightData[0].aircraft?.modeS) {
-        const existingAircraft = await prisma.aircraft.findFirst({
-          where: {
-            hexIcao: flightData[0].aircraft.modeS,
-          },
-        });
 
-        if (!existingAircraft) {
-          const res = await fetch(
-            `https://aerodatabox.p.rapidapi.com/aircrafts/icao24/${flightData[0].aircraft?.modeS}?withRegistrations=true&withImage=true`,
-            {
-              headers: {
-                'X-RapidAPI-Key': apiKey,
-                'X-RapidAPI-Host': 'aerodatabox.p.rapidapi.com',
-              },
-            },
-          );
-          const json = await res.json();
-          if (res.ok) {
-            aircraft = await prisma.aircraft.create({
-              data: {
-                aircraft_id: String(json.id),
-                payload: json,
-                reg: json.reg,
-                hexIcao: json.hexIcao,
-                modelCode: json.modelCode,
-                firstFlightDate: json.firstFlightDate
-                  ? new Date(json.firstFlightDate as string)
-                  : null,
-                deliveryDate: json.deliveryDate
-                  ? new Date(json.deliveryDate as string)
-                  : null,
-                typeName: json.typeName,
-                isFreighter: json.isFreighter ?? false,
-                age: json.ageYears,
-                image: json.image.url,
-                attribution: `${json.image.htmlAttributions?.[0]} ${json.image.htmlAttributions?.[1]}`,
-                registrations: {
-                  createMany: {
-                    data: json.registrations.map((data) => ({
-                      id: `registration_${createId()}`,
-                      active: data.active ?? true,
-                      reg: data.reg,
-                      airlineName: data.airlineName,
-                      registrationDate: data.registrationDate
-                        ? new Date(json.registrationDate)
-                        : null,
-                      hexIcao: data.hexIcao,
-                    })),
-                    skipDuplicates: true,
-                  },
-                },
-              },
-            });
-            newFlight.aircraft = {
-              modeS: aircraft.hexIcao,
-              age: aircraft.age.toString(),
-              image: aircraft.image,
-              attribution: aircraft.attribution,
-              isFreighter: aircraft.isFreighter,
-              model: aircraft.typeName,
-              registration: aircraft.reg,
-              aircraft_id: aircraft.aircraft_id,
-              deliveryDate: aircraft.deliveryDate?.toISOString(),
-              firstFlightDate: aircraft.firstFlightDate?.toISOString(),
-              payload: aircraft.payload as any,
-            } satisfies AircraftEntity;
-          } else {
-            newFlight.aircraft = {
-              //@ts-expect-error
-              ...newFlight.aircraft,
-              registration: newFlight.aircraft['reg'],
-            };
-          }
-        } else {
-          newFlight.aircraft = {
-            modeS: existingAircraft.hexIcao,
-            age: existingAircraft.age.toString(),
-            image: existingAircraft.image,
-            attribution: existingAircraft.attribution,
-            isFreighter: existingAircraft.isFreighter,
-            model: existingAircraft.typeName,
-            registration: existingAircraft.reg,
-            aircraft_id: existingAircraft.aircraft_id,
-            deliveryDate: existingAircraft.deliveryDate?.toISOString(),
-            firstFlightDate: existingAircraft.firstFlightDate?.toISOString(),
-            payload: existingAircraft.payload as any,
-          } satisfies AircraftEntity;
-        }
-      } else if (flightData[0].aircraft?.reg) {
-        // If modeS is not available but reg is available, try to fetch aircraft by registration
-        const existingAircraft = await prisma.aircraft.findFirst({
-          where: {
-            reg: flightData[0].aircraft.reg,
-          },
-        });
-
-        if (!existingAircraft) {
-          const res = await fetch(
-            `https://aerodatabox.p.rapidapi.com/aircrafts/reg/${flightData[0].aircraft.reg}?withImage=true&withRegistrations=true`,
-            {
-              headers: {
-                'X-RapidAPI-Key': apiKey,
-                'X-RapidAPI-Host': 'aerodatabox.p.rapidapi.com',
-              },
-            },
-          );
-          const json = await res.json();
-          if (res.ok) {
-            aircraft = await prisma.aircraft.create({
-              data: {
-                aircraft_id: String(json.id),
-                payload: json,
-                reg: json.reg,
-                hexIcao: json.hexIcao,
-                modelCode: json.modelCode,
-                firstFlightDate: json.firstFlightDate
-                  ? new Date(json.firstFlightDate as string)
-                  : null,
-                deliveryDate: json.deliveryDate
-                  ? new Date(json.deliveryDate as string)
-                  : null,
-                typeName: json.typeName,
-                isFreighter: json.isFreighter ?? false,
-                age: json.ageYears,
-                image: json?.image?.url,
-                attribution: `${json?.image?.htmlAttributions?.[0]} ${json?.image?.htmlAttributions?.[1]}`,
-                registrations: {
-                  createMany: {
-                    data: json.registrations.map((data) => ({
-                      id: `registration_${createId()}`,
-                      active: data.active ?? true,
-                      reg: data.reg,
-                      airlineName: data.airlineName,
-                      registrationDate: data.registrationDate
-                        ? new Date(json.registrationDate)
-                        : null,
-                      hexIcao: data.hexIcao,
-                    })),
-                    skipDuplicates: true,
-                  },
-                },
-              },
-            });
-            newFlight.aircraft = {
-              modeS: aircraft.hexIcao,
-              age: aircraft.age.toString(),
-              image: aircraft.image,
-              attribution: aircraft.attribution,
-              isFreighter: aircraft.isFreighter,
-              model: aircraft.typeName,
-              registration: aircraft.reg,
-              aircraft_id: aircraft.aircraft_id,
-              deliveryDate: aircraft.deliveryDate?.toISOString(),
-              firstFlightDate: aircraft.firstFlightDate?.toISOString(),
-              payload: aircraft.payload as any,
-            } satisfies AircraftEntity;
-          } else {
-            newFlight.aircraft = {
-              //@ts-expect-error
-              ...newFlight.aircraft,
-              registration: newFlight.aircraft['reg'],
-            };
-          }
-        } else {
-          newFlight.aircraft = {
-            modeS: existingAircraft.hexIcao,
-            age: existingAircraft.age.toString(),
-            image: existingAircraft.image,
-            attribution: existingAircraft.attribution,
-            isFreighter: existingAircraft.isFreighter,
-            model: existingAircraft.typeName,
-            registration: existingAircraft.reg,
-            aircraft_id: existingAircraft.aircraft_id,
-            deliveryDate: existingAircraft.deliveryDate?.toISOString(),
-            firstFlightDate: existingAircraft.firstFlightDate?.toISOString(),
-            payload: existingAircraft.payload as any,
-          } satisfies AircraftEntity;
-        }
-      } else {
-        newFlight.aircraft = {
-          //@ts-expect-error
-          ...newFlight.aircraft,
-          registration:
-            newFlight.aircraft['reg'] ?? newFlight.aircraft['model'],
-        };
-      }
+      let faFlight = null;
 
       try {
         const flightAwareIdent = icao || iata;
@@ -430,7 +244,7 @@ export class FlightService {
             }
 
             // If no match found by timing, fall back to first flight
-            const faFlight = matchedFlight || flightAwareResponse.flights[0];
+            faFlight = matchedFlight || flightAwareResponse.flights[0];
 
             if (matchedFlight) {
               console.log(
@@ -543,6 +357,204 @@ export class FlightService {
         console.error('Error fetching FlightAware data:', error);
       }
 
+      // Now handle aircraft lookup/creation after FlightAware call
+      let aircraft: Aircraft;
+      let normalizedAircraft: AircraftEntity | undefined;
+
+      // If aircraft doesn't exist in our database, create it
+      if (flightData[0].aircraft?.modeS) {
+        const existingAircraft = await prisma.aircraft.findFirst({
+          where: {
+            hexIcao: flightData[0].aircraft.modeS,
+          },
+        });
+
+        if (!existingAircraft) {
+          const res = await fetch(
+            `https://aerodatabox.p.rapidapi.com/aircrafts/icao24/${flightData[0].aircraft?.modeS}?withRegistrations=true&withImage=true`,
+            {
+              headers: {
+                'X-RapidAPI-Key': apiKey,
+                'X-RapidAPI-Host': 'aerodatabox.p.rapidapi.com',
+              },
+            },
+          );
+          const json = await res.json();
+          if (res.ok) {
+            aircraft = await prisma.aircraft.create({
+              data: {
+                aircraft_id: String(json.id),
+                payload: json,
+                reg: json.reg,
+                hexIcao: json.hexIcao,
+                modelCode: json.modelCode,
+                firstFlightDate: json.firstFlightDate
+                  ? new Date(json.firstFlightDate as string)
+                  : null,
+                deliveryDate: json.deliveryDate
+                  ? new Date(json.deliveryDate as string)
+                  : null,
+                typeName: json.typeName,
+                isFreighter: json.isFreighter ?? false,
+                age: json.ageYears,
+                image: json.image.url,
+                attribution: `${json.image.htmlAttributions?.[0]} ${json.image.htmlAttributions?.[1]}`,
+                registrations: {
+                  createMany: {
+                    data: json.registrations.map((data) => ({
+                      id: `registration_${createId()}`,
+                      active: data.active ?? true,
+                      reg: data.reg,
+                      airlineName: data.airlineName,
+                      registrationDate: data.registrationDate
+                        ? new Date(json.registrationDate)
+                        : null,
+                      hexIcao: data.hexIcao,
+                    })),
+                    skipDuplicates: true,
+                  },
+                },
+              },
+            });
+            normalizedAircraft = {
+              modeS: aircraft.hexIcao,
+              age: aircraft.age.toString(),
+              image: aircraft.image,
+              attribution: aircraft.attribution,
+              isFreighter: aircraft.isFreighter,
+              model: aircraft.typeName,
+              registration: aircraft.reg,
+              aircraft_id: aircraft.aircraft_id,
+              deliveryDate: aircraft.deliveryDate?.toISOString(),
+              firstFlightDate: aircraft.firstFlightDate?.toISOString(),
+              payload: aircraft.payload as any,
+            } satisfies AircraftEntity;
+          } else {
+            normalizedAircraft = {
+              //@ts-expect-error
+              ...newFlight.aircraft,
+              registration: newFlight.aircraft['reg'],
+            };
+          }
+        } else {
+          normalizedAircraft = {
+            modeS: existingAircraft.hexIcao,
+            age: existingAircraft.age.toString(),
+            image: existingAircraft.image,
+            attribution: existingAircraft.attribution,
+            isFreighter: existingAircraft.isFreighter,
+            model: existingAircraft.typeName,
+            registration: existingAircraft.reg,
+            aircraft_id: existingAircraft.aircraft_id,
+            deliveryDate: existingAircraft.deliveryDate?.toISOString(),
+            firstFlightDate: existingAircraft.firstFlightDate?.toISOString(),
+            payload: existingAircraft.payload as any,
+          } satisfies AircraftEntity;
+        }
+      } else {
+        // If modeS is not available, use registration from flightData or FlightAware
+        const registrationToUse =
+          flightData[0].aircraft?.reg ?? faFlight?.registration;
+
+        if (registrationToUse) {
+          const existingAircraft = await prisma.aircraft.findFirst({
+            where: {
+              reg: registrationToUse,
+            },
+          });
+
+          if (!existingAircraft) {
+            const res = await fetch(
+              `https://aerodatabox.p.rapidapi.com/aircrafts/reg/${registrationToUse}?withImage=true&withRegistrations=true`,
+              {
+                headers: {
+                  'X-RapidAPI-Key': apiKey,
+                  'X-RapidAPI-Host': 'aerodatabox.p.rapidapi.com',
+                },
+              },
+            );
+            const json = await res.json();
+            if (res.ok) {
+              aircraft = await prisma.aircraft.create({
+                data: {
+                  aircraft_id: String(json.id),
+                  payload: json,
+                  reg: json.reg,
+                  hexIcao: json.hexIcao,
+                  modelCode: json.modelCode,
+                  firstFlightDate: json.firstFlightDate
+                    ? new Date(json.firstFlightDate as string)
+                    : null,
+                  deliveryDate: json.deliveryDate
+                    ? new Date(json.deliveryDate as string)
+                    : null,
+                  typeName: json.typeName,
+                  isFreighter: json.isFreighter ?? false,
+                  age: json.ageYears,
+                  image: json?.image?.url,
+                  attribution: `${json?.image?.htmlAttributions?.[0]} ${json?.image?.htmlAttributions?.[1]}`,
+                  registrations: {
+                    createMany: {
+                      data: json.registrations.map((data) => ({
+                        id: `registration_${createId()}`,
+                        active: data.active ?? true,
+                        reg: data.reg,
+                        airlineName: data.airlineName,
+                        registrationDate: data.registrationDate
+                          ? new Date(json.registrationDate)
+                          : null,
+                        hexIcao: data.hexIcao,
+                      })),
+                      skipDuplicates: true,
+                    },
+                  },
+                },
+              });
+              normalizedAircraft = {
+                modeS: aircraft.hexIcao,
+                age: aircraft.age.toString(),
+                image: aircraft.image,
+                attribution: aircraft.attribution,
+                isFreighter: aircraft.isFreighter,
+                model: aircraft.typeName,
+                registration: aircraft.reg,
+                aircraft_id: aircraft.aircraft_id,
+                deliveryDate: aircraft.deliveryDate?.toISOString(),
+                firstFlightDate: aircraft.firstFlightDate?.toISOString(),
+                payload: aircraft.payload as any,
+              } satisfies AircraftEntity;
+            } else {
+              normalizedAircraft = {
+                //@ts-expect-error
+                ...newFlight.aircraft,
+                registration: newFlight.aircraft['reg'],
+              };
+            }
+          } else {
+            normalizedAircraft = {
+              modeS: existingAircraft.hexIcao,
+              age: existingAircraft.age.toString(),
+              image: existingAircraft.image,
+              attribution: existingAircraft.attribution,
+              isFreighter: existingAircraft.isFreighter,
+              model: existingAircraft.typeName,
+              registration: existingAircraft.reg,
+              aircraft_id: existingAircraft.aircraft_id,
+              deliveryDate: existingAircraft.deliveryDate?.toISOString(),
+              firstFlightDate: existingAircraft.firstFlightDate?.toISOString(),
+              payload: existingAircraft.payload as any,
+            } satisfies AircraftEntity;
+          }
+        } else {
+          normalizedAircraft = {
+            //@ts-expect-error
+            ...newFlight.aircraft,
+            registration:
+              newFlight.aircraft['reg'] ?? newFlight.aircraft['model'],
+          };
+        }
+      }
+
       // Reload flight with FlightAware data to include it in response
       const flightWithAwareData = await prisma.flight.findUnique({
         where: { id: newFlight.id },
@@ -555,6 +567,14 @@ export class FlightService {
           },
         },
       });
+
+      // Preserve the normalized aircraft data in the response
+      if (flightWithAwareData && normalizedAircraft) {
+        return {
+          ...flightWithAwareData,
+          aircraft: normalizedAircraft,
+        };
+      }
 
       return flightWithAwareData ?? newFlight;
     } catch (error) {
