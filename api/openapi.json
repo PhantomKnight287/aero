@@ -1393,8 +1393,7 @@
           "departure",
           "arrival",
           "status",
-          "type",
-          "codeshared"
+          "type"
         ]
       },
       "FlightsResponseEntity": {

@@ -77,7 +77,7 @@ export class FlightEntity {
   @ApiProperty({ enumName: 'FlighType', enum: FlightType })
   type: FlightType;
 
-  @ApiProperty()
+  @ApiPropertyOptional()
   codeshared: {};
 }
 

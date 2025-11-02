@@ -221,34 +221,36 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
             ],
           ),
           Divider(),
-          Row(
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                getTimeMessage(DateTime.parse(
-                    (widget.info.arrival.revisedTime ??
-                            widget.info.arrival.predictedTime)!
-                        .utc)),
+                getTimeMessage(
+                  DateTime.parse(
+                    (departure.revisedTime ?? departure.scheduledTime).utc,
+                  ),
+                  DateTime.parse(
+                    (arrival.revisedTime ?? arrival.predictedTime)!.utc,
+                  ),
+                ),
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              Spacer(),
-              Center(
-                child: Text(
-                  "Total ${calculateFlightDuration(
-                    departureTime:
-                        (departure.revisedTime ?? departure.scheduledTime).utc,
-                    departureTimezone: departure.airport.timeZone,
-                    arrivalTime: (widget.info.arrival.revisedTime ??
-                            widget.info.arrival.predictedTime)!
-                        .utc,
-                    arrivalTimezone: widget.info.arrival.airport.timeZone,
-                  ).toHumanReadable()} ${widget.info.greatCircleDistance.km != null ? "• ${formatDistance(double.parse(widget.info.greatCircleDistance.km!), Localizations.localeOf(context).toString())}" : ""}",
-                  style: TextStyle(
-                    fontWeight: FontWeight.w600,
-                    color: Colors.grey[600],
-                  ),
+              Text(
+                "Total ${calculateFlightDuration(
+                  departureTime:
+                      (departure.revisedTime ?? departure.scheduledTime).utc,
+                  departureTimezone: departure.airport.timeZone,
+                  arrivalTime: (widget.info.arrival.revisedTime ??
+                          widget.info.arrival.predictedTime)!
+                      .utc,
+                  arrivalTimezone: widget.info.arrival.airport.timeZone,
+                ).toHumanReadable()} ${widget.info.greatCircleDistance.km != null ? "• ${formatDistance(double.parse(widget.info.greatCircleDistance.km!), Localizations.localeOf(context).toString())}" : ""}",
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  color: Colors.grey[600],
                 ),
               ),
             ],

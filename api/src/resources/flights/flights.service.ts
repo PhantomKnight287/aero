@@ -1,3 +1,5 @@
+import { writeFileSync } from 'fs';
+import { join } from 'path';
 import { prisma } from 'src/db';
 import { FlightAwareService } from 'src/services/flightaware/flightaware.service';
 
@@ -39,7 +41,9 @@ export class FlightsService {
 
   async getFlightsBetweenTwoAirports(query: GetFlightsDTO) {
     const { from, to, date } = query;
-    const apiKey = this.configService.get<string>('AVIATION_STACK_API_KEY');
+    const apiKey = this.configService.getOrThrow<string>(
+      'AVIATION_STACK_API_KEY',
+    );
 
     if (!apiKey) {
       throw new HttpException(
@@ -48,7 +52,10 @@ export class FlightsService {
       );
     }
 
+    // Normalize date to start of day to ensure cache hits
     const _date = new Date(date);
+    _date.setUTCHours(0, 0, 0, 0);
+    
     const dayEndDate = new Date(_date);
     dayEndDate.setDate(_date.getDate() + 1);
 
@@ -67,13 +74,12 @@ export class FlightsService {
                 string_contains: from,
               },
             },
-            // Uncomment below for production
-            // {
-            //   date: {
-            //     gte: _date,
-            //     lt: dayEndDate,
-            //   },
-            // },
+            {
+              date: {
+                gte: _date,
+                lt: dayEndDate,
+              },
+            },
           ],
         },
         orderBy: {
@@ -81,6 +87,9 @@ export class FlightsService {
         },
       });
       if (existingFlights.length > 0) {
+        console.log(
+          `Cache HIT: Found ${existingFlights.length} flights for ${from} to ${to} on ${_date.toISOString().split('T')[0]}`,
+        );
         return {
           success: true,
           date,
@@ -89,6 +98,9 @@ export class FlightsService {
           flights: existingFlights,
         };
       }
+      console.log(
+        `Cache MISS: No flights found for ${from} to ${to} on ${_date.toISOString().split('T')[0]}, fetching from API`,
+      );
     } catch (error) {
       console.error('Database query error:', error);
     }
@@ -108,10 +120,27 @@ export class FlightsService {
 
       const flights = await response.json();
 
+      // Use upsert to prevent duplicate records
       await Promise.all(
-        flights.data.map((flight) =>
-          prisma.flights.create({
-            data: {
+        flights.data.map(async (flight) => {
+          // Create a unique identifier for this flight
+          const uniqueId = `${flight.departure?.iataCode || 'unknown'}_${flight.arrival?.iataCode || 'unknown'}_${flight.flight?.iataNumber || flight.flight?.icaoNumber || 'unknown'}_${_date.toISOString().split('T')[0]}`;
+
+          return prisma.flights.upsert({
+            where: {
+              id: uniqueId,
+            },
+            update: {
+              airline: flight.airline,
+              arrival: flight.arrival,
+              codeshared: flight.codeshared,
+              flight: flight.flight,
+              departure: flight.departure,
+              type: flight.type,
+              status: flight.status,
+            },
+            create: {
+              id: uniqueId,
               date: _date,
               airline: flight.airline,
               arrival: flight.arrival,
@@ -121,8 +150,12 @@ export class FlightsService {
               type: flight.type,
               status: flight.status,
             },
-          }),
-        ),
+          });
+        }),
+      );
+      
+      console.log(
+        `Cached ${flights.data.length} flights from API for ${from} on ${_date.toISOString().split('T')[0]}`,
       );
 
       const routeFlights = flights.data.filter(

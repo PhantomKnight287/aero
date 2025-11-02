@@ -192,6 +192,94 @@ class _HomeScreenState extends State<HomeScreen>
     _countdownTimer = null;
   }
 
+  Future<void> _loadFlightInfo(String iataCode, String icaoCode, DateTime date) async {
+    loading = true;
+    setState(() {});
+    
+    try {
+      final info = await _flightService.getFlightInfoWithNumber(
+        iataCode,
+        icaoCode,
+        date: date,
+      );
+      
+      if (info == null) {
+        setState(() {
+          error = 'No flight information found';
+          loading = false;
+        });
+        return;
+      }
+      
+      coordinates = [
+        LatLng(
+          info.departure.airport.location.lat.toDouble(),
+          info.departure.airport.location.lon.toDouble(),
+        ),
+        LatLng(
+          info.arrival.airport.location.lat.toDouble(),
+          info.arrival.airport.location.lon.toDouble(),
+        ),
+      ];
+
+      // Fetch flight track data
+      try {
+        final trackData = await _flightService.getFlightTrack(
+          iataCode,
+          icaoCode,
+          date: date,
+        );
+
+        if (trackData != null && trackData.positions.isNotEmpty) {
+          flightTrackPoints = trackData.positions
+              .map((pos) => LatLng(
+                    pos.latitude.toDouble(),
+                    pos.longitude.toDouble(),
+                  ))
+              .toList();
+
+          currentPosition = trackData.positions.last;
+
+          // Start polling for updates
+          _startTrackPolling(iataCode, icaoCode, date);
+        }
+      } catch (e) {
+        print('Failed to fetch flight track: $e');
+      }
+
+      // Animate map to current position or destination
+      _mapController.animateTo(
+        dest: currentPosition != null
+            ? LatLng(
+                currentPosition!.latitude.toDouble(),
+                currentPosition!.longitude.toDouble(),
+              )
+            : coordinates[1],
+      );
+
+      setState(() {
+        _flightInfo = info;
+      });
+
+      // Expand the bottom sheet
+      _controller.animateTo(
+        0.75,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
+    } catch (e, stack) {
+      print('Error loading flight: $e');
+      print(stack);
+      setState(() {
+        error = 'Failed to load flight information: $e';
+      });
+    } finally {
+      setState(() {
+        loading = false;
+      });
+    }
+  }
+
   Future<void> _onAircraftSelected(
       FlightsControllerGetFlightsInBoundsV1200ResponseFlightsInner
           aircraft) async {
@@ -582,98 +670,11 @@ class _HomeScreenState extends State<HomeScreen>
                                                   date.toIso8601String(),
                                                 );
                                               } else {
-                                                final info = await _flightService
-                                                    .getFlightInfoWithNumber(
+                                                await _loadFlightInfo(
                                                   "${selectedAirline!.iata}$selectedFlightNumber",
                                                   "${selectedAirline!.icao}$selectedFlightNumber",
-                                                  date: date,
+                                                  date,
                                                 );
-                                                if (info == null) {
-                                                  setState(() {
-                                                    selectedDate = null;
-                                                  });
-                                                } else {
-                                                  coordinates = [
-                                                    LatLng(
-                                                      info.departure.airport
-                                                          .location.lat
-                                                          .toDouble(),
-                                                      info.departure.airport
-                                                          .location.lon
-                                                          .toDouble(),
-                                                    ),
-                                                    LatLng(
-                                                      info.arrival.airport
-                                                          .location.lat
-                                                          .toDouble(),
-                                                      info.arrival.airport
-                                                          .location.lon
-                                                          .toDouble(),
-                                                    ),
-                                                  ];
-
-                                                  // Fetch flight track data
-                                                  try {
-                                                    final iataCode =
-                                                        "${selectedAirline!.iata}$selectedFlightNumber";
-                                                    final icaoCode =
-                                                        "${selectedAirline!.icao}$selectedFlightNumber";
-
-                                                    final trackData =
-                                                        await _flightService
-                                                            .getFlightTrack(
-                                                      iataCode,
-                                                      icaoCode,
-                                                      date: date,
-                                                    );
-
-                                                    if (trackData != null &&
-                                                        trackData.positions
-                                                            .isNotEmpty) {
-                                                      flightTrackPoints =
-                                                          trackData.positions
-                                                              .map((pos) =>
-                                                                  LatLng(
-                                                                    pos.latitude
-                                                                        .toDouble(),
-                                                                    pos.longitude
-                                                                        .toDouble(),
-                                                                  ))
-                                                              .toList();
-
-                                                      // Get the latest position
-                                                      currentPosition =
-                                                          trackData
-                                                              .positions.last;
-
-                                                      // Start polling for updates
-                                                      _startTrackPolling(
-                                                          iataCode,
-                                                          icaoCode,
-                                                          date);
-                                                    }
-                                                  } catch (e) {
-                                                    print(
-                                                        'Failed to fetch flight track: $e');
-                                                    // Continue without track data
-                                                  }
-
-                                                  _mapController.animateTo(
-                                                    dest: currentPosition != null
-                                                        ? LatLng(
-                                                            currentPosition!
-                                                                .latitude
-                                                                .toDouble(),
-                                                            currentPosition!
-                                                                .longitude
-                                                                .toDouble(),
-                                                          )
-                                                        : coordinates[1],
-                                                  );
-                                                  setState(() {
-                                                    _flightInfo = info;
-                                                  });
-                                                }
                                               }
                                             } catch (e, stack) {
                                               print(e);
@@ -919,7 +920,11 @@ class _HomeScreenState extends State<HomeScreen>
                                   ),
                                 ListView.separated(
                                   separatorBuilder: (context, index) {
-                                    return Divider();
+                                    return Divider(
+                                      height: 1,
+                                      thickness: 0.5,
+                                      color: Colors.grey.withOpacity(0.2),
+                                    );
                                   },
                                   itemBuilder: (context, index) {
                                     final flight = flights[index];
@@ -928,71 +933,50 @@ class _HomeScreenState extends State<HomeScreen>
                                     final departureTime = DateTime.parse(
                                         flight.departure.scheduledTime!);
                                     final currentTime = DateTime.now();
-                                    return Padding(
-                                      padding: const EdgeInsets.all(
-                                        4.0,
+                                    return InkWell(
+                                      onTap: () => _loadFlightInfo(
+                                        flight.flight.iataNumber,
+                                        flight.flight.icaoNumber,
+                                        selectedDate!,
                                       ),
-                                      child: Row(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
-                                        spacing: 8,
-                                        children: [
-                                          Container(
-                                            decoration: BoxDecoration(
-                                              color: Colors.yellow.withValues(
-                                                alpha: .25,
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                          vertical: 4,
+                                          horizontal: 4.0,
+                                        ),
+                                        child: Row(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          children: [
+                                            Container(
+                                              width: 48,
+                                              height: 48,
+                                              decoration: BoxDecoration(
+                                                borderRadius:
+                                                    BorderRadius.circular(8),
                                               ),
-                                              borderRadius:
-                                                  BorderRadius.circular(
-                                                10,
+                                              padding: EdgeInsets.all(8),
+                                              child: CachedNetworkImage(
+                                                imageUrl:
+                                                    "https://airlabs.co/img/airline/m/${flight.airline.iataCode}.png",
+                                                fit: BoxFit.contain,
+                                                errorWidget:
+                                                    (context, url, error) {
+                                                  return Icon(
+                                                    MdiIcons.airplane,
+                                                    size: 24,
+                                                    color: Colors.grey,
+                                                  );
+                                                },
                                               ),
                                             ),
-                                            padding: EdgeInsets.all(
-                                              2,
-                                            ),
-                                            child: Center(
-                                              child: Icon(
-                                                MdiIcons.airplane,
-                                                size: 30,
-                                              ),
-                                            ),
-                                          ),
-                                          Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            spacing: 4,
-                                            children: [
-                                              Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.start,
+                                            SizedBox(width: 12),
+                                            Expanded(
+                                              child: Column(
                                                 crossAxisAlignment:
                                                     CrossAxisAlignment.start,
-                                                spacing: 4,
-                                                children: [
-                                                  CachedNetworkImage(
-                                                    imageUrl:
-                                                        "https://airlabs.co/img/airline/m/${flight.airline.iataCode}.png",
-                                                    width: 15,
-                                                    height: 15,
-                                                    errorWidget:
-                                                        (context, url, error) {
-                                                      return SizedBox(
-                                                        height: 0,
-                                                        width: 0,
-                                                      );
-                                                    },
-                                                  ),
-                                                  Text(
-                                                    flight.flight.iataNumber,
-                                                    style: TextStyle(
-                                                      fontSize: 12,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                              Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
                                                 children: [
                                                   Text(
                                                     flight.airline.name,
@@ -1001,68 +985,94 @@ class _HomeScreenState extends State<HomeScreen>
                                                           FontWeight.bold,
                                                       fontSize: 14,
                                                     ),
-                                                  )
-                                                ],
-                                              ),
-                                              Row(
-                                                children: [
-                                                  Text.rich(
-                                                    TextSpan(
-                                                      children: [
-                                                        TextSpan(
-                                                          text:
-                                                              "${flight.departure.iataCode} ",
-                                                          style: TextStyle(),
-                                                        ),
-                                                        TextSpan(
-                                                          text: formatTime(
-                                                            departureTime,
-                                                            use24HourFormat:
-                                                                MediaQuery.of(
-                                                                        context)
-                                                                    .alwaysUse24HourFormat,
-                                                          ),
-                                                          style: TextStyle(
-                                                            color: currentTime
-                                                                    .isAfter(
-                                                                        departureTime)
-                                                                ? Colors.red
-                                                                : Colors.green,
-                                                            fontWeight:
-                                                                FontWeight.bold,
-                                                          ),
-                                                        ),
-                                                        TextSpan(
-                                                          text:
-                                                              "   ${flight.arrival.iataCode} ",
-                                                          style: TextStyle(),
-                                                        ),
-                                                        TextSpan(
-                                                          text: formatTime(
-                                                            arrivalTime,
-                                                            use24HourFormat:
-                                                                MediaQuery.of(
-                                                                        context)
-                                                                    .alwaysUse24HourFormat,
-                                                          ),
-                                                          style: TextStyle(
-                                                            color: currentTime
-                                                                    .isAfter(
-                                                                        arrivalTime)
-                                                                ? Colors.red
-                                                                : Colors.green,
-                                                            fontWeight:
-                                                                FontWeight.bold,
-                                                          ),
-                                                        )
-                                                      ],
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                  ),
+                                                  SizedBox(height: 2),
+                                                  Text(
+                                                    "${flight.flight.iataNumber} • ${flight.flight.icaoNumber}",
+                                                    style: TextStyle(
+                                                      fontSize: 12,
+                                                      color: Colors.grey[600],
                                                     ),
                                                   ),
                                                 ],
                                               ),
-                                            ],
-                                          )
-                                        ],
+                                            ),
+                                            // Flight Times
+                                            Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.end,
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                // Departure
+                                                Row(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  children: [
+                                                    Text(
+                                                      "${flight.departure.iataCode} ",
+                                                      style: TextStyle(
+                                                        fontSize: 12,
+                                                      ),
+                                                    ),
+                                                    Text(
+                                                      formatTime(
+                                                        departureTime,
+                                                        use24HourFormat: MediaQuery
+                                                                .of(context)
+                                                            .alwaysUse24HourFormat,
+                                                      ),
+                                                      style: TextStyle(
+                                                        fontSize: 13,
+                                                        color: currentTime
+                                                                .isAfter(
+                                                                    departureTime)
+                                                            ? Colors.red
+                                                            : Colors.green,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                                SizedBox(height: 6),
+                                                // Arrival
+                                                Row(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  children: [
+                                                    Text(
+                                                      "${flight.arrival.iataCode} ",
+                                                      style: TextStyle(
+                                                        fontSize: 12,
+                                                      ),
+                                                    ),
+                                                    Text(
+                                                      formatTime(
+                                                        arrivalTime,
+                                                        use24HourFormat: MediaQuery
+                                                                .of(context)
+                                                            .alwaysUse24HourFormat,
+                                                      ),
+                                                      style: TextStyle(
+                                                        fontSize: 13,
+                                                        color: currentTime
+                                                                .isAfter(
+                                                                    arrivalTime)
+                                                            ? Colors.red
+                                                            : Colors.green,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
                                       ),
                                     );
                                   },

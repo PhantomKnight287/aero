@@ -20,7 +20,7 @@ class _$FlightEntity extends FlightEntity {
   @override
   final FlighType type;
   @override
-  final JsonObject codeshared;
+  final JsonObject? codeshared;
 
   factory _$FlightEntity([void Function(FlightEntityBuilder)? updates]) =>
       (FlightEntityBuilder()..update(updates))._build();
@@ -32,7 +32,7 @@ class _$FlightEntity extends FlightEntity {
       required this.arrival,
       required this.status,
       required this.type,
-      required this.codeshared})
+      this.codeshared})
       : super._();
   @override
   FlightEntity rebuild(void Function(FlightEntityBuilder) updates) =>
@@ -161,8 +161,7 @@ class FlightEntityBuilder
                 status, r'FlightEntity', 'status'),
             type: BuiltValueNullFieldError.checkNotNull(
                 type, r'FlightEntity', 'type'),
-            codeshared: BuiltValueNullFieldError.checkNotNull(
-                codeshared, r'FlightEntity', 'codeshared'),
+            codeshared: codeshared,
           );
     } catch (_) {
       late String _$failedField;

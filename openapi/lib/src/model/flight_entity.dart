@@ -47,7 +47,7 @@ abstract class FlightEntity implements Built<FlightEntity, FlightEntityBuilder> 
   // enum typeEnum {  arrival,  departure,  };
 
   @BuiltValueField(wireName: r'codeshared')
-  JsonObject get codeshared;
+  JsonObject? get codeshared;
 
   FlightEntity._();
 
@@ -102,11 +102,13 @@ class _$FlightEntitySerializer implements PrimitiveSerializer<FlightEntity> {
       object.type,
       specifiedType: const FullType(FlighType),
     );
-    yield r'codeshared';
-    yield serializers.serialize(
-      object.codeshared,
-      specifiedType: const FullType(JsonObject),
-    );
+    if (object.codeshared != null) {
+      yield r'codeshared';
+      yield serializers.serialize(
+        object.codeshared,
+        specifiedType: const FullType(JsonObject),
+      );
+    }
   }
 
   @override

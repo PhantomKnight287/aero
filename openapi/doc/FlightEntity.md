@@ -14,7 +14,7 @@ Name | Type | Description | Notes
 **arrival** | [**AirportInfo**](AirportInfo.md) |  | 
 **status** | [**FlightStatus**](FlightStatus.md) |  | 
 **type** | [**FlighType**](FlighType.md) |  | 
-**codeshared** | [**JsonObject**](.md) |  | 
+**codeshared** | [**JsonObject**](.md) |  | [optional] 
 
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
 
