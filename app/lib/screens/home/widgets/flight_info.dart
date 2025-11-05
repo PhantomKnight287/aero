@@ -17,10 +17,12 @@ import 'package:timezone/data/latest.dart' as tz;
 class FlightInfoWidget extends StatefulWidget {
   final FlightResponseEntity info;
   final Function() onClose;
+  final Function()? onRefreshTracking;
   const FlightInfoWidget({
     super.key,
     required this.info,
     required this.onClose,
+    this.onRefreshTracking,
   });
 
   @override
@@ -155,6 +157,19 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
                     icon: Icon(Icons.more_vert),
                     color: Colors.white,
                     itemBuilder: (context) => [
+                      if (widget.onRefreshTracking != null)
+                        PopupMenuItem(
+                          value: 'refresh_tracking',
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.refresh,
+                              ),
+                              SizedBox(width: 8),
+                              Text('Refresh tracking'),
+                            ],
+                          ),
+                        ),
                       PopupMenuItem(
                         value: 'send_to_wearable',
                         child: Row(
@@ -179,7 +194,9 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
                       ),
                     ],
                     onSelected: (value) async {
-                      if (value == "send_to_wearable") {
+                      if (value == "refresh_tracking") {
+                        widget.onRefreshTracking?.call();
+                      } else if (value == "send_to_wearable") {
                         final channel = MethodChannel(METHOD_CHANNEL);
                         final flightNumber = widget.info.flightNo;
                         final flightNumberWithoutIata = flightNumber
@@ -336,9 +353,9 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
             ),
           ),
           Gap(8),
-          if (widget.info.aircraft?.registration != null)
+          if (widget.info.aircraft?.model != null )
             Text(
-              widget.info.aircraft!.model,
+              widget.info.aircraft!.model!,
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,

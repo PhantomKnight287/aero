@@ -76,6 +76,7 @@ Class | Method | HTTP request | Description
 [*FlightsApi*](doc/FlightsApi.md) | [**flightsControllerGetAirlineV1**](doc/FlightsApi.md#flightscontrollergetairlinev1) | **POST** /v1/flights/airline | Get airline
 [*FlightsApi*](doc/FlightsApi.md) | [**flightsControllerGetFlightsInBoundsV1**](doc/FlightsApi.md#flightscontrollergetflightsinboundsv1) | **GET** /v1/flights/bounds | Get flights within geographic bounds(deprecated - will return nothing)
 [*FlightsApi*](doc/FlightsApi.md) | [**flightsControllerGetFlightsV1**](doc/FlightsApi.md#flightscontrollergetflightsv1) | **GET** /v1/flights | Get flights between two airports
+[*FlightsApi*](doc/FlightsApi.md) | [**flightsControllerGetTrackedFlightsV1**](doc/FlightsApi.md#flightscontrollergettrackedflightsv1) | **GET** /v1/flights/tracked | Get all tracked flights
 
 
 ## Documentation For Models
@@ -112,6 +113,7 @@ Class | Method | HTTP request | Description
  - [RouteInfoEntity](doc/RouteInfoEntity.md)
  - [StringifiedGreatCircleDistanceEntity](doc/StringifiedGreatCircleDistanceEntity.md)
  - [TimeEntity](doc/TimeEntity.md)
+ - [TrackedFlightsResponseEntity](doc/TrackedFlightsResponseEntity.md)
  - [UserEntity](doc/UserEntity.md)
 
 

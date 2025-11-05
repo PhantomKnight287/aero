@@ -1,10 +1,13 @@
 import Redis from 'ioredis';
+import { DateTime, IANAZone } from 'luxon';
 import { prisma } from 'src/db';
 import { FlightAwareService } from 'src/services/flightaware/flightaware.service';
 
 import { RedisService } from '@liaoliaots/nestjs-redis';
 import {
   BadRequestException,
+  HttpException,
+  HttpStatus,
   Injectable,
   InternalServerErrorException,
   UnauthorizedException,
@@ -13,19 +16,9 @@ import { ConfigService } from '@nestjs/config';
 import { createId } from '@paralleldrive/cuid2';
 import { Aircraft } from '@prisma/client';
 
+import { GetFlightTrackDTO } from './dto/get-flight-track.dto';
+import { GetFlightDTO } from './dto/get-flight.dto';
 import { AircraftEntity } from './entities/flight.entity';
-
-interface GetFlightParams {
-  iata: string;
-  icao: string;
-  date?: string;
-}
-
-interface GetFlightTrackParams {
-  iata: string;
-  icao: string;
-  date?: string;
-}
 
 @Injectable()
 export class FlightService {
@@ -39,12 +32,84 @@ export class FlightService {
     this.redis = this.redisService.getOrNil();
   }
 
-  async getFlight({ iata, icao, date }: GetFlightParams) {
-    const searchDate = new Date(date ?? Date.now());
-    searchDate.setUTCHours(0, 0, 0, 0);
+  /**
+   * Converts a date string (e.g., "2025-11-04") interpreted as midnight in the user's timezone
+   * to UTC Date objects for database queries
+   */
+  private parseDateInTimezone(
+    dateString: string,
+    timezone: string,
+  ): {
+    startOfDayUtc: Date;
+    endOfDayUtc: Date;
+  } {
+    // Validate date format (YYYY-MM-DD)
+    const dateParts = dateString.split('-');
+    if (dateParts.length !== 3) {
+      throw new BadRequestException('Invalid date format. Expected YYYY-MM-DD');
+    }
 
-    const nextDate = new Date(searchDate);
-    nextDate.setDate(searchDate.getDate() + 1);
+    // Map common abbreviations to representative IANA zones (handles DST correctly)
+    const mapAbbrevToIana = (abbr: string): string | null => {
+      const A = abbr.toUpperCase();
+      const table: Record<string, string> = {
+        UTC: 'UTC',
+        GMT: 'Etc/UTC',
+        BST: 'Europe/London',
+        CET: 'Europe/Berlin',
+        CEST: 'Europe/Berlin',
+        EET: 'Europe/Athens',
+        EEST: 'Europe/Athens',
+        IST: 'Asia/Kolkata', // India Standard Time
+        PKT: 'Asia/Karachi',
+        MSK: 'Europe/Moscow',
+        AST: 'America/Halifax',
+        ADT: 'America/Halifax',
+        EST: 'America/New_York',
+        EDT: 'America/New_York',
+        CST: 'America/Chicago',
+        CDT: 'America/Chicago',
+        MST: 'America/Denver',
+        MDT: 'America/Denver',
+        PST: 'America/Los_Angeles',
+        PDT: 'America/Los_Angeles',
+        AKST: 'America/Anchorage',
+        AKDT: 'America/Anchorage',
+        HST: 'Pacific/Honolulu',
+        JST: 'Asia/Tokyo',
+        KST: 'Asia/Seoul',
+        AEST: 'Australia/Sydney',
+        AEDT: 'Australia/Sydney',
+        ACST: 'Australia/Adelaide',
+        ACDT: 'Australia/Adelaide',
+        AWST: 'Australia/Perth',
+      };
+      return table[A] ?? null;
+    };
+
+    // Resolve a Luxon zone: prefer valid IANA; otherwise use mapping for abbreviations; fallback UTC
+    const resolveZone = (tz: string): string => {
+      if (tz && tz.includes('/') && IANAZone.isValidZone(tz)) return tz;
+      const mapped = tz ? mapAbbrevToIana(tz) : null;
+      if (mapped && IANAZone.isValidZone(mapped)) return mapped;
+      return 'UTC';
+    };
+
+    const zone = resolveZone(timezone);
+    const start = DateTime.fromISO(dateString, { zone }).startOf('day').toUTC();
+    const end = start.plus({ days: 1 });
+
+    return {
+      startOfDayUtc: start.toJSDate(),
+      endOfDayUtc: end.toJSDate(),
+    };
+  }
+
+  async getFlight({ iata, icao, date, timezone }: GetFlightDTO) {
+    // Parse date with timezone consideration
+    const dateToUse = date ?? new Date().toISOString().split('T')[0];
+    const { startOfDayUtc: searchDate, endOfDayUtc: nextDate } =
+      this.parseDateInTimezone(dateToUse, timezone);
 
     const existingFlight = await prisma.flight.findFirst({
       where: {
@@ -67,6 +132,7 @@ export class FlightService {
         flightAwareData: true,
       },
     });
+
     let aircraft: Aircraft | null = null;
     if (existingFlight?.aircraft) {
       const stored = existingFlight.aircraft as any;
@@ -159,8 +225,8 @@ export class FlightService {
               : null;
 
           if (flightDate) {
-            flightDate.setUTCHours(0, 0, 0, 0);
-            return flightDate.getTime() === searchDate.getTime();
+            // Check if flight date falls within the UTC date range for the user's timezone date
+            return flightDate >= searchDate && flightDate < nextDate;
           }
           return false;
         });
@@ -216,7 +282,7 @@ export class FlightService {
               countryCode:
                 faFlight.destination?.code_icao?.substring(0, 2) ?? 'XX',
               timeZone: faFlight.destination?.timezone ?? 'UTC',
-              shortName: faFlight.destination.name,
+              shortName: faFlight?.destination?.name ?? 'Unknown',
             },
             scheduledTime: {
               utc: faFlight.scheduled_on ?? faFlight.scheduled_in,
@@ -244,7 +310,7 @@ export class FlightService {
           date: searchDate,
           departure: {
             airport: {
-              shortName: faFlight.origin.name,
+              shortName: faFlight?.origin?.name ?? 'Unknown',
               icao: faFlight.origin?.code_icao ?? faFlight.origin?.code,
               iata: faFlight.origin?.code_iata,
               name: faFlight.origin?.name ?? 'Unknown',
@@ -353,20 +419,20 @@ export class FlightService {
           diverted: faFlight.diverted ?? false,
           cancelled: faFlight.cancelled ?? false,
           positionOnly: faFlight.position_only ?? false,
-          originCode: faFlight.origin.code,
-          originCodeIcao: faFlight.origin.code_icao ?? null,
-          originCodeIata: faFlight.origin.code_iata ?? null,
-          originCodeLid: faFlight.origin.code_lid ?? null,
-          originTimezone: faFlight.origin.timezone ?? null,
-          originName: faFlight.origin.name ?? null,
-          originCity: faFlight.origin.city ?? null,
-          destinationCode: faFlight.destination?.code ?? null,
-          destinationCodeIcao: faFlight.destination?.code_icao ?? null,
-          destinationCodeIata: faFlight.destination?.code_iata ?? null,
-          destinationCodeLid: faFlight.destination?.code_lid ?? null,
-          destinationTimezone: faFlight.destination?.timezone ?? null,
-          destinationName: faFlight.destination?.name ?? null,
-          destinationCity: faFlight.destination?.city ?? null,
+          originCode: faFlight?.origin?.code ?? 'Unknown',
+          originCodeIcao: faFlight?.origin?.code_icao ?? null,
+          originCodeIata: faFlight?.origin?.code_iata ?? null,
+          originCodeLid: faFlight?.origin?.code_lid ?? null,
+          originTimezone: faFlight?.origin?.timezone ?? null,
+          originName: faFlight?.origin?.name ?? null,
+          originCity: faFlight?.origin?.city ?? null,
+          destinationCode: faFlight?.destination?.code ?? 'Unknown',
+          destinationCodeIcao: faFlight?.destination?.code_icao ?? null,
+          destinationCodeIata: faFlight?.destination?.code_iata ?? null,
+          destinationCodeLid: faFlight?.destination?.code_lid ?? null,
+          destinationTimezone: faFlight?.destination?.timezone ?? null,
+          destinationName: faFlight?.destination?.name ?? null,
+          destinationCity: faFlight?.destination?.city ?? null,
           flightId: newFlight.id,
         },
       });
@@ -414,7 +480,7 @@ export class FlightService {
 
             if (aeroDataBoxRes.ok) {
               const json = await aeroDataBoxRes.json();
-              
+
               // Create aircraft record with AeroDataBox data
               aircraft = await prisma.aircraft.create({
                 data: {
@@ -478,7 +544,7 @@ export class FlightService {
             }
           } catch (error) {
             console.error('Error fetching from AeroDataBox:', error);
-            
+
             // Fallback to Planespotters for image only
             let planespotterImage: string | null = null;
             let planespotterAttribution: string | null = null;
@@ -585,12 +651,11 @@ export class FlightService {
     }
   }
 
-  async getFlightTrack({ iata, icao, date }: GetFlightTrackParams) {
-    const searchDate = new Date(date ?? Date.now());
-    searchDate.setUTCHours(0, 0, 0, 0);
-
-    const nextDate = new Date(searchDate);
-    nextDate.setDate(searchDate.getDate() + 1);
+  async getFlightTrack({ iata, icao, date, timezone }: GetFlightTrackDTO) {
+    const dateToUse = date ?? new Date().toISOString().split('T')[0];
+    const tz = timezone ?? 'UTC';
+    const { startOfDayUtc: searchDate, endOfDayUtc: nextDate } =
+      this.parseDateInTimezone(dateToUse, tz);
 
     // Find the flight in the database
     const existingFlight = await prisma.flight.findFirst({
@@ -613,14 +678,17 @@ export class FlightService {
         flightAwareData: true,
       },
     });
-
     if (!existingFlight) {
-      throw new BadRequestException('Flight not found in database');
+      throw new HttpException(
+        'Flight not found in database',
+        HttpStatus.NOT_FOUND,
+      );
     }
 
     if (!existingFlight.flightAwareData?.faFlightId) {
-      throw new BadRequestException(
+      throw new HttpException(
         'FlightAware data not available for this flight',
+        HttpStatus.NOT_FOUND,
       );
     }
 
@@ -628,7 +696,113 @@ export class FlightService {
     const cacheKey = `flight:track:${faFlightId}`;
     const cacheTTL = 30; // 30 seconds
 
-    // Check Redis cache first
+    // Check if flight has concluded (landed more than 2 hours ago)
+    const flightAwareData = existingFlight.flightAwareData;
+    const hasLanded =
+      flightAwareData.actualOn ||
+      flightAwareData.actualIn ||
+      flightAwareData.estimatedOn;
+
+    let isFlightConcluded = false;
+    if (hasLanded) {
+      const landingTimeValue =
+        flightAwareData.actualOn ||
+        flightAwareData.actualIn ||
+        flightAwareData.estimatedOn;
+      const landingTime = new Date(landingTimeValue as Date);
+      const now = new Date();
+      const hoursSinceLanding =
+        (now.getTime() - landingTime.getTime()) / (1000 * 60 * 60);
+
+      // Consider flight concluded if it landed more than 2 hours ago
+      isFlightConcluded = hoursSinceLanding > 2;
+    }
+
+    // If flight is concluded, check if we have positions in database
+    if (isFlightConcluded) {
+      console.log(
+        `Flight ${faFlightId} has concluded. Checking database for track data.`,
+      );
+
+      const existingPositions = await prisma.flightPositions.findMany({
+        where: {
+          flightId: existingFlight.id,
+        },
+        orderBy: {
+          timestamp: 'asc',
+        },
+      });
+
+      if (existingPositions.length > 0) {
+        console.log(
+          `FlightTrack: Returning ${existingPositions.length} positions from database for concluded flight ${faFlightId}`,
+        );
+
+        // Calculate actual distance if available
+        let actualDistance = null;
+        if (existingPositions.length >= 2) {
+          // Simple distance calculation (you could improve this)
+          const first = existingPositions[0];
+          const last = existingPositions[existingPositions.length - 1];
+          const R = 3440.065; // Earth radius in nautical miles
+          const firstLat = Number(first.latitude);
+          const firstLon = Number(first.longitude);
+          const lastLat = Number(last.latitude);
+          const lastLon = Number(last.longitude);
+          const dLat = ((lastLat - firstLat) * Math.PI) / 180;
+          const dLon = ((lastLon - firstLon) * Math.PI) / 180;
+          const a =
+            Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos((firstLat * Math.PI) / 180) *
+              Math.cos((lastLat * Math.PI) / 180) *
+              Math.sin(dLon / 2) *
+              Math.sin(dLon / 2);
+          const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+          actualDistance = R * c;
+        }
+
+        return {
+          actual_distance: actualDistance,
+          positions: existingPositions.map((pos) => ({
+            fa_flight_id: faFlightId,
+            altitude: pos.altitude,
+            altitude_change:
+              pos.altitudeChange === 'Climb'
+                ? 'C'
+                : pos.altitudeChange === 'Descend'
+                  ? 'D'
+                  : '-',
+            groundspeed: pos.groundSpeed,
+            heading: pos.heading ?? null,
+            latitude: pos.latitude,
+            longitude: pos.longitude,
+            timestamp: pos.timestamp.toISOString(),
+            update_type:
+              pos.updatedType === 'Projected'
+                ? 'P'
+                : pos.updatedType === 'Oceanic'
+                  ? 'O'
+                  : pos.updatedType === 'Radar'
+                    ? 'Z'
+                    : pos.updatedType === 'ADSB'
+                      ? 'A'
+                      : pos.updatedType === 'Multilateration'
+                        ? 'M'
+                        : pos.updatedType === 'Datalink'
+                          ? 'D'
+                          : pos.updatedType === 'Surface_And_Near_Surface'
+                            ? 'X'
+                            : pos.updatedType === 'Spaced_Based'
+                              ? 'S'
+                              : pos.updatedType === 'Virtual_Event'
+                                ? 'V'
+                                : null,
+          })),
+        };
+      }
+    }
+
+    // Check Redis cache first for active flights
     try {
       if (this.redis) {
         const cached = await this.redis.get(cacheKey);
@@ -643,7 +817,10 @@ export class FlightService {
       console.warn('Redis cache read error in flight service:', error);
     }
 
-    // Fetch track data from FlightAware API
+    // Fetch track data from FlightAware API (only for active/recent flights)
+    console.log(
+      `FlightTrack: Fetching live data from FlightAware for ${faFlightId}`,
+    );
     const trackData = await this.flightAwareService.getFlightTrack(faFlightId);
 
     if (!trackData || !trackData.positions) {

@@ -14,5 +14,9 @@ export class GetFlightDTO {
   @ApiPropertyOptional()
   @IsString()
   @IsOptional()
-  searchedDate?: string;
+  date?: string;
+
+  @ApiProperty()
+  @IsString()
+  timezone: string;
 }

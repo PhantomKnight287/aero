@@ -16,7 +16,7 @@ class _$RouteAirportEntity extends RouteAirportEntity {
   @override
   final String timeZone;
   @override
-  final String shortName;
+  final String? shortName;
   @override
   final String countryCode;
   @override
@@ -33,7 +33,7 @@ class _$RouteAirportEntity extends RouteAirportEntity {
       required this.icao,
       required this.name,
       required this.timeZone,
-      required this.shortName,
+      this.shortName,
       required this.countryCode,
       required this.municipalityName,
       required this.location})
@@ -175,8 +175,7 @@ class RouteAirportEntityBuilder
                 name, r'RouteAirportEntity', 'name'),
             timeZone: BuiltValueNullFieldError.checkNotNull(
                 timeZone, r'RouteAirportEntity', 'timeZone'),
-            shortName: BuiltValueNullFieldError.checkNotNull(
-                shortName, r'RouteAirportEntity', 'shortName'),
+            shortName: shortName,
             countryCode: BuiltValueNullFieldError.checkNotNull(
                 countryCode, r'RouteAirportEntity', 'countryCode'),
             municipalityName: BuiltValueNullFieldError.checkNotNull(

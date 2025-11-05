@@ -136,12 +136,8 @@ class _FlightMapState extends State<FlightMap> {
           options: MapOptions(
             initialCenter: const LatLng(28.086815545374254, 76.50837368121545),
             initialZoom: 5,
-            cameraConstraint: CameraConstraint.contain(
-              bounds: LatLngBounds(
-                const LatLng(-90, -180),
-                const LatLng(90, 180),
-              ),
-            ),
+            
+            cameraConstraint: CameraConstraint.containLatitude()
           ),
           children: [
             openStreetMapTileLayer,
@@ -188,7 +184,7 @@ class _FlightMapState extends State<FlightMap> {
                   ),
                 ],
               ),
-            if (widget.flightTrackPoints.isEmpty)
+            if (widget.flightTrackPoints.isEmpty && widget.coordinates.isNotEmpty)
               PolylineLayer(
                 polylines: [
                   Polyline(
@@ -201,7 +197,7 @@ class _FlightMapState extends State<FlightMap> {
                 ],
               ),
             if (widget.flightTrackPoints.isNotEmpty)
-              PolylineLayer(
+              PolylineLayer(drawInSingleWorld: false,
                 polylines: [
                   Polyline(
                     points: widget.flightTrackPoints,
@@ -249,4 +245,29 @@ class _FlightMapState extends State<FlightMap> {
       ],
     );
   }
+}
+
+List<LatLng> normalizeFlightPath(List<LatLng> points) {
+  if (points.length < 2) return points;
+
+  List<LatLng> normalized = [points[0]];
+
+  for (int i = 1; i < points.length; i++) {
+    double prevLng = normalized.last.longitude;
+    double currentLng = points[i].longitude;
+
+    // Calculate the difference
+    double diff = currentLng - prevLng;
+
+    // If difference is > 180, we're going the long way
+    if (diff > 180) {
+      currentLng -= 360;
+    } else if (diff < -180) {
+      currentLng += 360;
+    }
+
+    normalized.add(LatLng(points[i].latitude, currentLng));
+  }
+
+  return normalized;
 }

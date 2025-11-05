@@ -832,6 +832,54 @@
         ]
       }
     },
+    "/v1/flights/tracked": {
+      "get": {
+        "description": "Returns a list of all flights that have been tracked in the system, sorted by most recently created. Limited to 50 most recent flights.",
+        "operationId": "FlightsController_getTrackedFlights_v1",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "List of tracked flights with complete flight information",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TrackedFlightsResponseEntity"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericErrorEntity"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericErrorEntity"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ],
+        "summary": "Get all tracked flights",
+        "tags": [
+          "Flights"
+        ]
+      }
+    },
     "/v1/flight/track": {
       "get": {
         "description": "Get the flight path with all position data points for a specific flight",
@@ -864,6 +912,16 @@
             "description": "Flight date (ISO format). Defaults to current date if not provided",
             "schema": {
               "example": "2024-03-20",
+              "type": "string"
+            }
+          },
+          {
+            "name": "timezone",
+            "required": true,
+            "in": "query",
+            "description": "The timezone from which the request is being made.",
+            "schema": {
+              "example": "IST",
               "type": "string"
             }
           }
@@ -947,20 +1005,21 @@
             }
           },
           {
-            "name": "searchedDate",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
             "name": "date",
             "required": false,
             "in": "query",
             "description": "Flight date (ISO format). Defaults to current date if not provided",
             "schema": {
               "example": "2024-03-20",
+              "type": "string"
+            }
+          },
+          {
+            "name": "timezone",
+            "required": true,
+            "in": "query",
+            "description": "The timezone from which the request is being made.",
+            "schema": {
               "type": "string"
             }
           }
@@ -1426,100 +1485,6 @@
           "flights"
         ]
       },
-      "FlightPositionEntity": {
-        "type": "object",
-        "properties": {
-          "fa_flight_id": {
-            "type": "string",
-            "description": "FlightAware flight ID for this position"
-          },
-          "altitude": {
-            "type": "number",
-            "description": "Aircraft altitude in hundreds of feet",
-            "example": 350
-          },
-          "altitude_change": {
-            "type": "string",
-            "description": "Altitude change indicator",
-            "enum": [
-              "C",
-              "D",
-              "-"
-            ],
-            "example": "C"
-          },
-          "groundspeed": {
-            "type": "number",
-            "description": "Groundspeed in knots",
-            "example": 450
-          },
-          "heading": {
-            "type": "number",
-            "description": "Aircraft heading in degrees (0-360)",
-            "example": 270,
-            "minimum": 0,
-            "maximum": 360
-          },
-          "latitude": {
-            "type": "number",
-            "description": "Latitude position",
-            "example": 40.7128
-          },
-          "longitude": {
-            "type": "number",
-            "description": "Longitude position",
-            "example": -74.006
-          },
-          "timestamp": {
-            "type": "string",
-            "description": "Time that position was received",
-            "example": "2024-03-20T14:30:00Z"
-          },
-          "update_type": {
-            "type": "string",
-            "description": "Update type: P=projected, O=oceanic, Z=radar, A=ADS-B, M=multilateration, D=datalink, X=surface and near surface, S=space-based, V=virtual event",
-            "enum": [
-              "P",
-              "O",
-              "Z",
-              "A",
-              "M",
-              "D",
-              "X",
-              "S",
-              "V"
-            ]
-          }
-        },
-        "required": [
-          "altitude",
-          "altitude_change",
-          "groundspeed",
-          "latitude",
-          "longitude",
-          "timestamp"
-        ]
-      },
-      "FlightTrackResponseEntity": {
-        "type": "object",
-        "properties": {
-          "actual_distance": {
-            "type": "number",
-            "description": "Distance flown in miles as of the latest position point",
-            "example": 2450
-          },
-          "positions": {
-            "description": "Array of flight positions",
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/FlightPositionEntity"
-            }
-          }
-        },
-        "required": [
-          "positions"
-        ]
-      },
       "AircraftEntity": {
         "type": "object",
         "properties": {
@@ -1556,10 +1521,7 @@
           "payload": {
             "type": "object"
           }
-        },
-        "required": [
-          "model"
-        ]
+        }
       },
       "PartialAirlineEntity": {
         "type": "object",
@@ -1571,6 +1533,9 @@
             "type": "string"
           },
           "icao": {
+            "type": "string"
+          },
+          "image": {
             "type": "string"
           }
         },
@@ -1626,7 +1591,6 @@
           "icao",
           "name",
           "timeZone",
-          "shortName",
           "countryCode",
           "municipalityName",
           "location"
@@ -1990,6 +1954,122 @@
           "cargo",
           "greatCircleDistance",
           "date"
+        ]
+      },
+      "TrackedFlightsResponseEntity": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "total": {
+            "type": "number"
+          },
+          "flights": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FlightResponseEntity"
+            }
+          }
+        },
+        "required": [
+          "success",
+          "total",
+          "flights"
+        ]
+      },
+      "FlightPositionEntity": {
+        "type": "object",
+        "properties": {
+          "fa_flight_id": {
+            "type": "string",
+            "description": "FlightAware flight ID for this position"
+          },
+          "altitude": {
+            "type": "number",
+            "description": "Aircraft altitude in hundreds of feet",
+            "example": 350
+          },
+          "altitude_change": {
+            "type": "string",
+            "description": "Altitude change indicator",
+            "enum": [
+              "C",
+              "D",
+              "-"
+            ],
+            "example": "C"
+          },
+          "groundspeed": {
+            "type": "number",
+            "description": "Groundspeed in knots",
+            "example": 450
+          },
+          "heading": {
+            "type": "number",
+            "description": "Aircraft heading in degrees (0-360)",
+            "example": 270,
+            "minimum": 0,
+            "maximum": 360
+          },
+          "latitude": {
+            "type": "number",
+            "description": "Latitude position",
+            "example": 40.7128
+          },
+          "longitude": {
+            "type": "number",
+            "description": "Longitude position",
+            "example": -74.006
+          },
+          "timestamp": {
+            "type": "string",
+            "description": "Time that position was received",
+            "example": "2024-03-20T14:30:00Z"
+          },
+          "update_type": {
+            "type": "string",
+            "description": "Update type: P=projected, O=oceanic, Z=radar, A=ADS-B, M=multilateration, D=datalink, X=surface and near surface, S=space-based, V=virtual event",
+            "enum": [
+              "P",
+              "O",
+              "Z",
+              "A",
+              "M",
+              "D",
+              "X",
+              "S",
+              "V"
+            ]
+          }
+        },
+        "required": [
+          "altitude",
+          "altitude_change",
+          "groundspeed",
+          "latitude",
+          "longitude",
+          "timestamp"
+        ]
+      },
+      "FlightTrackResponseEntity": {
+        "type": "object",
+        "properties": {
+          "actual_distance": {
+            "type": "number",
+            "description": "Distance flown in miles as of the latest position point",
+            "example": 2450
+          },
+          "positions": {
+            "description": "Array of flight positions",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FlightPositionEntity"
+            }
+          }
+        },
+        "required": [
+          "positions"
         ]
       }
     }

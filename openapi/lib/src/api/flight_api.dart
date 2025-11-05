@@ -27,6 +27,7 @@ class FlightApi {
   /// Parameters:
   /// * [iata] - IATA flight number
   /// * [icao] - ICAO flight number
+  /// * [timezone] - The timezone from which the request is being made.
   /// * [date] - Flight date (ISO format). Defaults to current date if not provided
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
@@ -40,6 +41,7 @@ class FlightApi {
   Future<Response<FlightTrackResponseEntity>> flightControllerGetFlightTrackV1({ 
     required String iata,
     required String icao,
+    required String timezone,
     String? date,
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
@@ -71,6 +73,7 @@ class FlightApi {
       r'iata': encodeQueryParameter(_serializers, iata, const FullType(String)),
       r'icao': encodeQueryParameter(_serializers, icao, const FullType(String)),
       if (date != null) r'date': encodeQueryParameter(_serializers, date, const FullType(String)),
+      r'timezone': encodeQueryParameter(_serializers, timezone, const FullType(String)),
     };
 
     final _response = await _dio.request<Object>(
@@ -119,7 +122,7 @@ class FlightApi {
   /// Parameters:
   /// * [iata] - IATA flight number
   /// * [icao] - ICAO flight number
-  /// * [searchedDate] 
+  /// * [timezone] - The timezone from which the request is being made.
   /// * [date] - Flight date (ISO format). Defaults to current date if not provided
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
@@ -133,7 +136,7 @@ class FlightApi {
   Future<Response<FlightResponseEntity>> flightControllerGetFlightV1({ 
     required String iata,
     required String icao,
-    String? searchedDate,
+    required String timezone,
     String? date,
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
@@ -164,8 +167,8 @@ class FlightApi {
     final _queryParameters = <String, dynamic>{
       r'iata': encodeQueryParameter(_serializers, iata, const FullType(String)),
       r'icao': encodeQueryParameter(_serializers, icao, const FullType(String)),
-      if (searchedDate != null) r'searchedDate': encodeQueryParameter(_serializers, searchedDate, const FullType(String)),
       if (date != null) r'date': encodeQueryParameter(_serializers, date, const FullType(String)),
+      r'timezone': encodeQueryParameter(_serializers, timezone, const FullType(String)),
     };
 
     final _response = await _dio.request<Object>(

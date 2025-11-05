@@ -49,5 +49,6 @@ export 'package:openapi/src/model/route_airport_entity.dart';
 export 'package:openapi/src/model/route_info_entity.dart';
 export 'package:openapi/src/model/stringified_great_circle_distance_entity.dart';
 export 'package:openapi/src/model/time_entity.dart';
+export 'package:openapi/src/model/tracked_flights_response_entity.dart';
 export 'package:openapi/src/model/user_entity.dart';
 

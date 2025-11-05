@@ -32,7 +32,7 @@ abstract class AircraftEntity implements Built<AircraftEntity, AircraftEntityBui
   String? get registration;
 
   @BuiltValueField(wireName: r'model')
-  String get model;
+  String? get model;
 
   @BuiltValueField(wireName: r'image')
   String? get image;
@@ -95,11 +95,13 @@ class _$AircraftEntitySerializer implements PrimitiveSerializer<AircraftEntity> 
         specifiedType: const FullType(String),
       );
     }
-    yield r'model';
-    yield serializers.serialize(
-      object.model,
-      specifiedType: const FullType(String),
-    );
+    if (object.model != null) {
+      yield r'model';
+      yield serializers.serialize(
+        object.model,
+        specifiedType: const FullType(String),
+      );
+    }
     if (object.image != null) {
       yield r'image';
       yield serializers.serialize(

@@ -35,7 +35,7 @@ abstract class RouteAirportEntity implements Built<RouteAirportEntity, RouteAirp
   String get timeZone;
 
   @BuiltValueField(wireName: r'shortName')
-  String get shortName;
+  String? get shortName;
 
   @BuiltValueField(wireName: r'countryCode')
   String get countryCode;
@@ -89,11 +89,13 @@ class _$RouteAirportEntitySerializer implements PrimitiveSerializer<RouteAirport
       object.timeZone,
       specifiedType: const FullType(String),
     );
-    yield r'shortName';
-    yield serializers.serialize(
-      object.shortName,
-      specifiedType: const FullType(String),
-    );
+    if (object.shortName != null) {
+      yield r'shortName';
+      yield serializers.serialize(
+        object.shortName,
+        specifiedType: const FullType(String),
+      );
+    }
     yield r'countryCode';
     yield serializers.serialize(
       object.countryCode,

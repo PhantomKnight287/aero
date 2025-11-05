@@ -14,7 +14,7 @@ Method | HTTP request | Description
 
 
 # **flightControllerGetFlightTrackV1**
-> FlightTrackResponseEntity flightControllerGetFlightTrackV1(iata, icao, date)
+> FlightTrackResponseEntity flightControllerGetFlightTrackV1(iata, icao, timezone, date)
 
 Get flight track/path
 
@@ -27,10 +27,11 @@ import 'package:openapi/api.dart';
 final api = Openapi().getFlightApi();
 final String iata = UA123; // String | IATA flight number
 final String icao = UAL123; // String | ICAO flight number
+final String timezone = timezone_example; // String | The timezone from which the request is being made.
 final String date = 2024-03-20; // String | Flight date (ISO format). Defaults to current date if not provided
 
 try {
-    final response = api.flightControllerGetFlightTrackV1(iata, icao, date);
+    final response = api.flightControllerGetFlightTrackV1(iata, icao, timezone, date);
     print(response);
 } catch on DioException (e) {
     print('Exception when calling FlightApi->flightControllerGetFlightTrackV1: $e\n');
@@ -43,6 +44,7 @@ Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **iata** | **String**| IATA flight number | 
  **icao** | **String**| ICAO flight number | 
+ **timezone** | **String**| The timezone from which the request is being made. | 
  **date** | **String**| Flight date (ISO format). Defaults to current date if not provided | [optional] 
 
 ### Return type
@@ -61,7 +63,7 @@ Name | Type | Description  | Notes
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **flightControllerGetFlightV1**
-> FlightResponseEntity flightControllerGetFlightV1(iata, icao, searchedDate, date)
+> FlightResponseEntity flightControllerGetFlightV1(iata, icao, timezone, date)
 
 Get flight details
 
@@ -74,11 +76,11 @@ import 'package:openapi/api.dart';
 final api = Openapi().getFlightApi();
 final String iata = UA123; // String | IATA flight number
 final String icao = UAL123; // String | ICAO flight number
-final String searchedDate = searchedDate_example; // String | 
+final String timezone = timezone_example; // String | The timezone from which the request is being made.
 final String date = 2024-03-20; // String | Flight date (ISO format). Defaults to current date if not provided
 
 try {
-    final response = api.flightControllerGetFlightV1(iata, icao, searchedDate, date);
+    final response = api.flightControllerGetFlightV1(iata, icao, timezone, date);
     print(response);
 } catch on DioException (e) {
     print('Exception when calling FlightApi->flightControllerGetFlightV1: $e\n');
@@ -91,7 +93,7 @@ Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **iata** | **String**| IATA flight number | 
  **icao** | **String**| ICAO flight number | 
- **searchedDate** | **String**|  | [optional] 
+ **timezone** | **String**| The timezone from which the request is being made. | 
  **date** | **String**| Flight date (ISO format). Defaults to current date if not provided | [optional] 
 
 ### Return type

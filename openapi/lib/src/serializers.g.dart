@@ -43,6 +43,7 @@ Serializers _$serializers = (Serializers().toBuilder()
       ..add(RouteInfoEntity.serializer)
       ..add(StringifiedGreatCircleDistanceEntity.serializer)
       ..add(TimeEntity.serializer)
+      ..add(TrackedFlightsResponseEntity.serializer)
       ..add(UserEntity.serializer)
       ..addBuilderFactory(
           const FullType(BuiltList, const [const FullType(FlightEntity)]),
@@ -51,6 +52,10 @@ Serializers _$serializers = (Serializers().toBuilder()
           const FullType(
               BuiltList, const [const FullType(FlightPositionEntity)]),
           () => ListBuilder<FlightPositionEntity>())
+      ..addBuilderFactory(
+          const FullType(
+              BuiltList, const [const FullType(FlightResponseEntity)]),
+          () => ListBuilder<FlightResponseEntity>())
       ..addBuilderFactory(
           const FullType(BuiltList, const [
             const FullType(

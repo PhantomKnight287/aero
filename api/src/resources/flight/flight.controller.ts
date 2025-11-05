@@ -19,10 +19,10 @@ import {
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 
-import { GetFlightDTO } from './dto/get-flight.dto';
 import { GetFlightTrackDTO } from './dto/get-flight-track.dto';
-import { FlightResponseEntity } from './entities/flight.entity';
+import { GetFlightDTO } from './dto/get-flight.dto';
 import { FlightTrackResponseEntity } from './entities/flight-track.entity';
+import { FlightResponseEntity } from './entities/flight.entity';
 import { FlightService } from './flight.service';
 
 @Controller('flight')
@@ -76,12 +76,14 @@ export class FlightController {
     description: 'Internal server error',
     type: GenericErrorEntity,
   })
+  @ApiQuery({
+    type: String,
+    name: 'timezone',
+    description: 'The timezone from which the request is being made.',
+    required: true,
+  })
   async getFlightTrack(@Query() query: GetFlightTrackDTO) {
-    return await this.flightService.getFlightTrack({
-      iata: query.iata,
-      icao: query.icao,
-      date: query.date,
-    });
+    return await this.flightService.getFlightTrack(query);
   }
 
   @Get()
@@ -129,11 +131,13 @@ export class FlightController {
     description: 'Internal server error',
     type: GenericErrorEntity,
   })
+  @ApiQuery({
+    type: String,
+    name: 'timezone',
+    description: 'The timezone from which the request is being made.',
+    required: true,
+  })
   async getFlight(@Query() query: GetFlightDTO) {
-    return await this.flightService.getFlight({
-      iata: query.iata,
-      icao: query.icao,
-      date: query.searchedDate,
-    });
+    return await this.flightService.getFlight(query);
   }
 }

@@ -39,6 +39,7 @@ doc/RouteAirportEntity.md
 doc/RouteInfoEntity.md
 doc/StringifiedGreatCircleDistanceEntity.md
 doc/TimeEntity.md
+doc/TrackedFlightsResponseEntity.md
 doc/UserEntity.md
 lib/openapi.dart
 lib/src/api.dart
@@ -88,6 +89,7 @@ lib/src/model/route_airport_entity.dart
 lib/src/model/route_info_entity.dart
 lib/src/model/stringified_great_circle_distance_entity.dart
 lib/src/model/time_entity.dart
+lib/src/model/tracked_flights_response_entity.dart
 lib/src/model/user_entity.dart
 lib/src/serializers.dart
 pubspec.yaml

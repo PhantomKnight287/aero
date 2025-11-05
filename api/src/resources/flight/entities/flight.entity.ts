@@ -209,7 +209,7 @@ export class AircraftEntity {
   @ApiPropertyOptional()
   registration: string;
 
-  @ApiProperty()
+  @ApiPropertyOptional()
   model: string;
 
   @ApiPropertyOptional()
@@ -246,6 +246,9 @@ class PartialAirlineEntity {
 
   @ApiPropertyOptional()
   icao?: string;
+
+  @ApiPropertyOptional()
+  image?: string;
 }
 class LocationEntity {
   @ApiProperty()
@@ -268,7 +271,7 @@ class RouteAirportEntity {
   @ApiProperty()
   timeZone: string;
 
-  @ApiProperty()
+  @ApiPropertyOptional()
   shortName: string;
 
   @ApiProperty()

@@ -360,4 +360,190 @@ export class FlightsService {
     //   );
     // }
   }
+
+  async getTrackedFlights() {
+    try {
+      // Fetch all flights from the database, ordered by most recently created
+      const flights = await prisma.flight.findMany({
+        orderBy: {
+          createdAt: 'desc',
+        },
+        include: {
+          greatCircleDistance: true,
+          flightAwareData: {
+            omit: {
+              faFlightId: true,
+            },
+          },
+        },
+      });
+
+      // Collect all unique airport codes to query
+      const airportCodes = new Set<string>();
+      // Collect all unique airline codes to query
+      const airlineIataCodes = new Set<string>();
+      const airlineIcaoCodes = new Set<string>();
+      flights.forEach((flight) => {
+        const departure = flight.departure as any;
+        const arrival = flight.arrival as any;
+        const airline = (flight as any).airline as any;
+        
+        if (departure?.airport?.iata) airportCodes.add(departure.airport.iata);
+        if (departure?.airport?.icao) airportCodes.add(departure.airport.icao);
+        if (arrival?.airport?.iata) airportCodes.add(arrival.airport.iata);
+        if (arrival?.airport?.icao) airportCodes.add(arrival.airport.icao);
+
+        if (airline?.iata) airlineIataCodes.add(airline.iata);
+        if (airline?.icao) airlineIcaoCodes.add(airline.icao);
+      });
+
+      // Query airport table for all relevant airports
+      const airports = await prisma.airport.findMany({
+        where: {
+          OR: [
+            { iataCode: { in: Array.from(airportCodes) } },
+            { ident: { in: Array.from(airportCodes) } },
+          ],
+        },
+      });
+
+      // Query airline table for all relevant airlines
+      const airlines = await prisma.airline.findMany({
+        where: {
+          OR: [
+            { iata: { in: Array.from(airlineIataCodes) } },
+            { icao: { in: Array.from(airlineIcaoCodes) } },
+          ],
+        },
+        select: {
+          iata: true,
+          icao: true,
+          image: true,
+        },
+      });
+
+      // Create a map for quick airport lookup by code
+      const airportMap = new Map<string, any>();
+      airports.forEach((airport) => {
+        if (airport.iataCode) airportMap.set(airport.iataCode, airport);
+        if (airport.ident) airportMap.set(airport.ident, airport);
+      });
+
+      // Create maps for quick airline lookup by code
+      const airlineByIata = new Map<string, any>();
+      const airlineByIcao = new Map<string, any>();
+      airlines.forEach((airline) => {
+        if (airline.iata) airlineByIata.set(airline.iata, airline);
+        if (airline.icao) airlineByIcao.set(airline.icao, airline);
+      });
+
+      // Transform the flights to match the expected response format
+      const transformedFlights = flights.map((flight) => {
+        const flightData = flight as any;
+        
+        // Handle aircraft data
+        const stored = flight.aircraft as any | undefined;
+        const aircraft = stored
+          ? {
+              modeS: stored.modeS ?? stored.hexIcao,
+              age: (stored.ageYears ?? stored.age)?.toString(),
+              image: stored.image?.url ?? stored.image,
+              attribution:
+                stored.attribution ?? stored.image?.htmlAttributions?.join(' '),
+              isFreighter: stored.isFreighter ?? false,
+              model: stored.typeName ?? stored.modelCode ?? stored.model,
+              registration:
+                stored.reg ?? stored.registration ?? stored.registrataion,
+              aircraft_id: stored.aircraft_id ?? stored.id?.toString(),
+              payload: stored.payload,
+              deliveryDate: stored.deliveryDate
+                ? new Date(stored.deliveryDate).toISOString()
+                : undefined,
+              firstFlightDate: stored.firstFlightDate
+                ? new Date(stored.firstFlightDate).toISOString()
+                : undefined,
+            }
+          : undefined;
+
+        // Fill in missing airport location data
+        const departure = flightData.departure;
+        const arrival = flightData.arrival;
+        const airlineData = flightData.airline;
+
+        if (departure?.airport) {
+          const depAirport = 
+            airportMap.get(departure.airport.iata) || 
+            airportMap.get(departure.airport.icao);
+          
+          if (depAirport) {
+            departure.airport.location = departure.airport.location || {};
+            if (!departure.airport.location.lat || departure.airport.location.lat === 0) {
+              departure.airport.location.lat = Number(depAirport.lat);
+            }
+            if (!departure.airport.location.lon || departure.airport.location.lon === 0) {
+              departure.airport.location.lon = Number(depAirport.long);
+            }
+            if (!departure.airport.name || departure.airport.name === 'Unknown') {
+              departure.airport.name = depAirport.name;
+            }
+            if (!departure.airport.municipalityName || departure.airport.municipalityName === 'Unknown') {
+              departure.airport.municipalityName = depAirport.municipality || depAirport.name;
+            }
+          }
+        }
+
+        if (arrival?.airport) {
+          const arrAirport = 
+            airportMap.get(arrival.airport.iata) || 
+            airportMap.get(arrival.airport.icao);
+          
+          if (arrAirport) {
+            arrival.airport.location = arrival.airport.location || {};
+            if (!arrival.airport.location.lat || arrival.airport.location.lat === 0) {
+              arrival.airport.location.lat = Number(arrAirport.lat);
+            }
+            if (!arrival.airport.location.lon || arrival.airport.location.lon === 0) {
+              arrival.airport.location.lon = Number(arrAirport.long);
+            }
+            if (!arrival.airport.name || arrival.airport.name === 'Unknown') {
+              arrival.airport.name = arrAirport.name;
+            }
+            if (!arrival.airport.municipalityName || arrival.airport.municipalityName === 'Unknown') {
+              arrival.airport.municipalityName = arrAirport.municipality || arrAirport.name;
+            }
+          }
+        }
+
+        // Enrich airline with image from airline table when available
+        if (airlineData) {
+          const matchedAirline =
+            (airlineData.iata && airlineByIata.get(airlineData.iata)) ||
+            (airlineData.icao && airlineByIcao.get(airlineData.icao));
+          if (matchedAirline?.image) {
+            airlineData.image = airlineData.image || matchedAirline.image;
+          }
+        }
+
+        return {
+          ...flight,
+          aircraft,
+          departure,
+          arrival,
+          airline: airlineData,
+        };
+      });
+
+      return {
+        success: true,
+        total: transformedFlights.length,
+        flights: transformedFlights,
+      };
+    } catch (error) {
+      console.error('Error fetching tracked flights:', error);
+      throw new HttpException(
+        'Failed to fetch tracked flights',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
 }

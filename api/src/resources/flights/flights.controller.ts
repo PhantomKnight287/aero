@@ -14,7 +14,10 @@ import { AirlineEntity } from '../airlines/entities/airline.entity';
 import { GetAirlineDTO } from './dto/get-airline.dto';
 import { GetFlightsBoundsDTO } from './dto/get-flights-bounds.dto';
 import { GetFlightsDTO } from './dto/get-flights.dto';
-import { FlightsResponseEntity } from './entities/flight.entity';
+import {
+  FlightsResponseEntity,
+  TrackedFlightsResponseEntity,
+} from './entities/flight.entity';
 import { FlightsService } from './flights.service';
 
 @Controller('flights')
@@ -180,5 +183,20 @@ export class FlightsController {
   @ApiUnauthorizedResponse({ type: GenericErrorEntity })
   getFlightsInBounds(@Query() query: GetFlightsBoundsDTO) {
     return this.flightsService.getFlightsInBounds(query);
+  }
+
+  @Get('tracked')
+  @ApiOperation({
+    summary: 'Get all tracked flights',
+    description:
+      'Returns a list of all flights that have been tracked in the system, sorted by most recently created. Limited to 50 most recent flights.',
+  })
+  @ApiOkResponse({
+    type: TrackedFlightsResponseEntity,
+    description: 'List of tracked flights with complete flight information',
+  })
+  @ApiUnauthorizedResponse({ type: GenericErrorEntity })
+  getTrackedFlights() {
+    return this.flightsService.getTrackedFlights();
   }
 }

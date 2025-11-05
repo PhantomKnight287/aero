@@ -1,5 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { FlightStatus, FlightType } from '@prisma/client';
+import { FlightResponseEntity } from 'src/resources/flight/entities/flight.entity';
 
 class AirlineInfo {
   @ApiProperty()
@@ -104,4 +105,15 @@ export class FlightsResponseEntity {
 
   @ApiProperty({ type: [FlightEntity] })
   flights: FlightEntity[];
+}
+
+export class TrackedFlightsResponseEntity {
+  @ApiProperty()
+  success: boolean;
+
+  @ApiProperty()
+  total: number;
+
+  @ApiProperty({ type: [FlightResponseEntity] })
+  flights: FlightResponseEntity[];
 }

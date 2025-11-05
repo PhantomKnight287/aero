@@ -12,6 +12,7 @@ Method | HTTP request | Description
 [**flightsControllerGetAirlineV1**](FlightsApi.md#flightscontrollergetairlinev1) | **POST** /v1/flights/airline | Get airline
 [**flightsControllerGetFlightsInBoundsV1**](FlightsApi.md#flightscontrollergetflightsinboundsv1) | **GET** /v1/flights/bounds | Get flights within geographic bounds(deprecated - will return nothing)
 [**flightsControllerGetFlightsV1**](FlightsApi.md#flightscontrollergetflightsv1) | **GET** /v1/flights | Get flights between two airports
+[**flightsControllerGetTrackedFlightsV1**](FlightsApi.md#flightscontrollergettrackedflightsv1) | **GET** /v1/flights/tracked | Get all tracked flights
 
 
 # **flightsControllerGetAirlineV1**
@@ -141,6 +142,45 @@ Name | Type | Description  | Notes
 ### Return type
 
 [**FlightsResponseEntity**](FlightsResponseEntity.md)
+
+### Authorization
+
+[JWT-auth](../README.md#JWT-auth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **flightsControllerGetTrackedFlightsV1**
+> TrackedFlightsResponseEntity flightsControllerGetTrackedFlightsV1()
+
+Get all tracked flights
+
+Returns a list of all flights that have been tracked in the system, sorted by most recently created. Limited to 50 most recent flights.
+
+### Example
+```dart
+import 'package:openapi/api.dart';
+
+final api = Openapi().getFlightsApi();
+
+try {
+    final response = api.flightsControllerGetTrackedFlightsV1();
+    print(response);
+} catch on DioException (e) {
+    print('Exception when calling FlightsApi->flightsControllerGetTrackedFlightsV1: $e\n');
+}
+```
+
+### Parameters
+This endpoint does not need any parameter.
+
+### Return type
+
+[**TrackedFlightsResponseEntity**](TrackedFlightsResponseEntity.md)
 
 ### Authorization
 

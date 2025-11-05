@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:ui';
 
 import 'package:built_collection/built_collection.dart';
+import 'package:intl/intl.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:openapi/openapi.dart';
 import 'package:plane_pal/formatters/time.dart';
@@ -26,6 +27,7 @@ import 'package:material_design_icons_flutter/material_design_icons_flutter.dart
 import 'package:provider/provider.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:animated_flip_counter/animated_flip_counter.dart';
+import 'package:retry/retry.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({
@@ -81,6 +83,36 @@ class _HomeScreenState extends State<HomeScreen>
   List<LatLng> coordinates = [];
   List<LatLng> flightTrackPoints = [];
   FlightPositionEntity? currentPosition;
+  BuiltList<FlightResponseEntity> trackedFlights = BuiltList.from([]);
+  bool loadingTrackedFlights = false;
+  bool _isInAir = false;
+
+  bool _isPastFlight(dynamic positionTimestamp) {
+    if (positionTimestamp == null) return false;
+    DateTime? ts;
+    if (positionTimestamp is DateTime) {
+      ts = positionTimestamp.toUtc();
+    } else if (positionTimestamp is String) {
+      ts = DateTime.tryParse(positionTimestamp)?.toUtc();
+    }
+    if (ts == null) return false;
+    final nowUtc = DateTime.now().toUtc();
+    return nowUtc.difference(ts).inHours > 24;
+  }
+
+  void _updateInAirStatus([FlightPositionEntity? latestPosition]) {
+    final pos = latestPosition ?? currentPosition;
+    if (pos == null) {
+      _isInAir = false;
+      return;
+    }
+    // Consider flight airborne if recent (not past) and moving/at altitude
+    final ts = pos.timestamp;
+    final notPast = !_isPastFlight(ts);
+    final altitudeOk = (pos.altitude) > 0;
+    final speedOk = (pos.groundspeed) > 30; // small threshold to avoid on-ground taxi
+    _isInAir = notPast && (altitudeOk || speedOk);
+  }
 
   @override
   void initState() {
@@ -93,7 +125,27 @@ class _HomeScreenState extends State<HomeScreen>
         systemNavigationBarIconBrightness: Brightness.dark,
       ),
     );
+    _loadTrackedFlights();
     super.initState();
+  }
+
+  Future<void> _loadTrackedFlights() async {
+    setState(() {
+      loadingTrackedFlights = true;
+    });
+    try {
+      final flights = await _flightService.getTrackedFlights();
+      setState(() {
+        trackedFlights = flights;
+        loadingTrackedFlights = false;
+      });
+    } catch (e, stack) {
+      print('Failed to load tracked flights: $e');
+      print(stack);
+      setState(() {
+        loadingTrackedFlights = false;
+      });
+    }
   }
 
   Future<List<Object>> _search(String query) async {
@@ -158,10 +210,19 @@ class _HomeScreenState extends State<HomeScreen>
             _secondsUntilNextUpdate = 30; // Reset countdown on each poll
           });
 
-          final trackData = await _flightService.getFlightTrack(
-            iata,
-            icao,
-            date: date,
+          // Retry up to 3 times with exponential backoff
+          final trackData = await retry(
+            () => _flightService.getFlightTrack(
+              iata,
+              icao,
+              date: date,
+            ),
+            maxAttempts: 3,
+            delayFactor: const Duration(seconds: 2),
+            maxDelay: const Duration(seconds: 10),
+            onRetry: (e) {
+              print('Retrying flight track fetch after error: $e');
+            },
           );
 
           if (trackData != null && trackData.positions.isNotEmpty) {
@@ -175,11 +236,16 @@ class _HomeScreenState extends State<HomeScreen>
 
               // Update the latest position
               currentPosition = trackData.positions.last;
+              _updateInAirStatus(currentPosition);
             });
+            // Stop polling if no longer airborne or if flight is past
+            if (!_isInAir) {
+              _stopTrackPolling();
+            }
           }
         } catch (e) {
-          print('Failed to poll flight track: $e');
-          // Continue polling even if one request fails
+          print('Failed to poll flight track after 3 retries: $e');
+          // Continue polling even if all retries fail
         }
       },
     );
@@ -192,17 +258,18 @@ class _HomeScreenState extends State<HomeScreen>
     _countdownTimer = null;
   }
 
-  Future<void> _loadFlightInfo(String iataCode, String icaoCode, DateTime date) async {
+  Future<void> _loadFlightInfo(
+      String iataCode, String icaoCode, DateTime date) async {
     loading = true;
     setState(() {});
-    
+
     try {
       final info = await _flightService.getFlightInfoWithNumber(
         iataCode,
         icaoCode,
         date: date,
       );
-      
+
       if (info == null) {
         setState(() {
           error = 'No flight information found';
@@ -210,7 +277,7 @@ class _HomeScreenState extends State<HomeScreen>
         });
         return;
       }
-      
+
       coordinates = [
         LatLng(
           info.departure.airport.location.lat.toDouble(),
@@ -239,11 +306,16 @@ class _HomeScreenState extends State<HomeScreen>
               .toList();
 
           currentPosition = trackData.positions.last;
+          _updateInAirStatus(currentPosition);
 
-          // Start polling for updates
-          _startTrackPolling(iataCode, icaoCode, date);
+          // Start polling for updates only if airborne
+          if (_isInAir) {
+            _startTrackPolling(iataCode, icaoCode, date);
+          }
         }
-      } catch (e) {
+      } catch (e,stack) {
+        print(e);
+        print(stack);
         print('Failed to fetch flight track: $e');
       }
 
@@ -343,9 +415,12 @@ class _HomeScreenState extends State<HomeScreen>
 
               // Get the latest position (last in the list)
               currentPosition = trackData.positions.last;
+              _updateInAirStatus(currentPosition);
 
-              // Start polling for updates
-              _startTrackPolling(iata, icao, selectedDate!);
+              // Start polling for updates only if airborne
+              if (_isInAir) {
+                _startTrackPolling(iata, icao, selectedDate!);
+              }
             }
           } catch (e) {
             print('Failed to fetch flight track: $e');
@@ -450,7 +525,7 @@ class _HomeScreenState extends State<HomeScreen>
               ),
             ),
           // Flight info overlay at top center
-          if (currentPosition != null)
+          if (_isInAir && currentPosition != null)
             Positioned(
               top: MediaQuery.of(context).padding.top + 10,
               left: 20,
@@ -501,7 +576,34 @@ class _HomeScreenState extends State<HomeScreen>
                                   loading = false;
                                   _flightController.clear();
                                 });
-                              })
+                              },
+                              onRefreshTracking: () {
+                                // Stop current polling
+                                _stopTrackPolling();
+
+                                // Extract flight identifiers
+                                final flightNo = _flightInfo!.flightNo;
+                                final date = DateTime.parse((_flightInfo!
+                                            .departure.revisedTime ??
+                                        _flightInfo!.departure.scheduledTime)
+                                    .utc);
+
+                                // Restart polling with the current flight info
+                                _startTrackPolling(
+                                  flightNo, // IATA
+                                  flightNo, // ICAO (using same as they're usually the same)
+                                  date,
+                                );
+
+                                // Show a snackbar to confirm
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Tracking refreshed'),
+                                    duration: Duration(seconds: 2),
+                                  ),
+                                );
+                              },
+                            )
                           : Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -688,7 +790,7 @@ class _HomeScreenState extends State<HomeScreen>
                                             });
                                           },
                                         );
-                                      } else {
+                                      } else if (index == 1) {
                                         final tmrh = DateTime(
                                           date.year,
                                           date.month,
@@ -709,14 +811,82 @@ class _HomeScreenState extends State<HomeScreen>
                                             selectedDate = tmrh;
                                             flights = BuiltList.from([]);
                                             setState(() {});
-                                            flights =
-                                                await _flightService.getFlights(
-                                              departureAirport!.iataCode ??
-                                                  departureAirport!.ident,
-                                              arrivalAirport!.iataCode ??
-                                                  arrivalAirport!.ident,
-                                              tmrh.toIso8601String(),
-                                            );
+                                            try {
+                                              if (arrivalAirport != null &&
+                                                  departureAirport != null) {
+                                                flights = await _flightService
+                                                    .getFlights(
+                                                  departureAirport!.iataCode ??
+                                                      departureAirport!.ident,
+                                                  arrivalAirport!.iataCode ??
+                                                      arrivalAirport!.ident,
+                                                  tmrh.toIso8601String(),
+                                                );
+                                              } else {
+                                                await _loadFlightInfo(
+                                                  "${selectedAirline!.iata}$selectedFlightNumber",
+                                                  "${selectedAirline!.icao}$selectedFlightNumber",
+                                                  tmrh,
+                                                );
+                                              }
+                                            } catch (e, stack) {
+                                              print(e);
+                                              print(stack);
+                                              setState(() {
+                                                selectedDate = null;
+                                              });
+                                            }
+                                            setState(() {
+                                              loading = false;
+                                            });
+                                          },
+                                        );
+                                      } else {
+                                        final yesterday = DateTime(
+                                          date.year,
+                                          date.month,
+                                          date.day - 1,
+                                        );
+                                        return ListTile(
+                                          title: Text(
+                                            "Yesterday",
+                                          ),
+                                          leading: Icon(
+                                            MdiIcons.calendarArrowLeft,
+                                          ),
+                                          subtitle: Text(
+                                            formatDayAndMonth(yesterday),
+                                          ),
+                                          onTap: () async {
+                                            loading = true;
+                                            selectedDate = yesterday;
+                                            flights = BuiltList.from([]);
+                                            setState(() {});
+                                            try {
+                                              if (arrivalAirport != null &&
+                                                  departureAirport != null) {
+                                                flights = await _flightService
+                                                    .getFlights(
+                                                  departureAirport!.iataCode ??
+                                                      departureAirport!.ident,
+                                                  arrivalAirport!.iataCode ??
+                                                      arrivalAirport!.ident,
+                                                  yesterday.toIso8601String(),
+                                                );
+                                              } else {
+                                                await _loadFlightInfo(
+                                                  "${selectedAirline!.iata}$selectedFlightNumber",
+                                                  "${selectedAirline!.icao}$selectedFlightNumber",
+                                                  yesterday,
+                                                );
+                                              }
+                                            } catch (e, stack) {
+                                              print(e);
+                                              print(stack);
+                                              setState(() {
+                                                selectedDate = null;
+                                              });
+                                            }
                                             setState(() {
                                               loading = false;
                                             });
@@ -726,7 +896,7 @@ class _HomeScreenState extends State<HomeScreen>
                                     },
                                     shrinkWrap: true,
                                     padding: EdgeInsets.zero,
-                                    itemCount: 2,
+                                    itemCount: 3,
                                   ),
                                 if (selectedAirline != null &&
                                     _flightController.text.isNotEmpty &&
@@ -918,6 +1088,169 @@ class _HomeScreenState extends State<HomeScreen>
                                     itemCount: results.length,
                                     physics: NeverScrollableScrollPhysics(),
                                   ),
+                                // Tracked flights section
+                                if (selectedAirline == null &&
+                                    arrivalAirport == null &&
+                                    departureAirport == null &&
+                                    selectedFlightNumber == null &&
+                                    results.isEmpty &&
+                                    !loading &&
+                                    trackedFlights.isNotEmpty)
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 8.0,
+                                          vertical: 12.0,
+                                        ),
+                                        child: Text(
+                                          "Recently Tracked",
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.grey[700],
+                                          ),
+                                        ),
+                                      ),
+                                      ListView.separated(
+                                        separatorBuilder: (context, index) {
+                                          return Divider(
+                                            height: 1,
+                                            thickness: 0.5,
+                                            color: Colors.grey.withOpacity(0.2),
+                                          );
+                                        },
+                                        itemBuilder: (context, index) {
+                                          final flight = trackedFlights[index];
+                                          return InkWell(
+                                            onTap: () => _loadFlightInfo(
+                                              flight.flightNo,
+                                              flight.flightNo,
+                                              flight.date,
+                                            ),
+                                            child: Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                vertical: 4,
+                                                horizontal: 4.0,
+                                              ),
+                                              child: Row(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.center,
+                                                children: [
+                                                  Container(
+                                                    width: 48,
+                                                    height: 48,
+                                                    decoration: BoxDecoration(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              8),
+                                                    ),
+                                                    padding: EdgeInsets.all(8),
+                                                    child: flight.airline
+                                                                .image !=
+                                                            null
+                                                        ? SvgPicture.network(
+                                                            flight
+                                                                .airline.image!,
+                                                            width: 24,
+                                                            height: 18,
+                                                          )
+                                                        : CachedNetworkImage(
+                                                            imageUrl:
+                                                                "https://airlabs.co/img/airline/m/${flight.airline.iata}.png",
+                                                            fit: BoxFit.contain,
+                                                            errorWidget:
+                                                                (context, url,
+                                                                    error) {
+                                                              return Icon(
+                                                                MdiIcons
+                                                                    .airplane,
+                                                                size: 24,
+                                                                color:
+                                                                    Colors.grey,
+                                                              );
+                                                            },
+                                                          ),
+                                                  ),
+                                                  SizedBox(width: 12),
+                                                  Expanded(
+                                                    child: Column(
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .start,
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .center,
+                                                      children: [
+                                                        Text(
+                                                          "${flight.departure.airport.iata} → ${flight.arrival.airport.iata}",
+                                                          style: TextStyle(
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                            fontSize: 15,
+                                                          ),
+                                                        ),
+                                                        SizedBox(height: 4),
+                                                        Text(
+                                                          "${flight.departure.airport.municipalityName} to ${flight.arrival.airport.municipalityName}",
+                                                          style: TextStyle(
+                                                            fontSize: 12,
+                                                            color: Colors
+                                                                .grey[600],
+                                                          ),
+                                                          overflow: TextOverflow
+                                                              .ellipsis,
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                  Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment.end,
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .center,
+                                                    children: [
+                                                      Text(
+                                                        DateFormat(
+                                                                'dd MMM yyyy')
+                                                            .format(
+                                                                flight.date),
+                                                        style: TextStyle(
+                                                          fontSize: 13,
+                                                          fontWeight:
+                                                              FontWeight.w600,
+                                                        ),
+                                                      ),
+                                                      SizedBox(height: 4),
+                                                      Text(
+                                                        flight.flightAwareData !=
+                                                                null
+                                                            ? "${flight.flightAwareData!.identIata} • ${flight.flightAwareData!.identIcao}"
+                                                            : flight.flightNo,
+                                                        style: TextStyle(
+                                                          fontSize: 12,
+                                                          color:
+                                                              Colors.grey[600],
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                        shrinkWrap: true,
+                                        padding: EdgeInsets.zero,
+                                        itemCount: trackedFlights.length,
+                                        physics: NeverScrollableScrollPhysics(),
+                                      ),
+                                    ],
+                                  ),
                                 ListView.separated(
                                   separatorBuilder: (context, index) {
                                     return Divider(
@@ -1026,11 +1359,11 @@ class _HomeScreenState extends State<HomeScreen>
                                                       ),
                                                       style: TextStyle(
                                                         fontSize: 13,
-                                                        color: currentTime
-                                                                .isAfter(
+                                                        color:
+                                                            currentTime.isAfter(
                                                                     departureTime)
-                                                            ? Colors.red
-                                                            : Colors.green,
+                                                                ? Colors.red
+                                                                : Colors.green,
                                                         fontWeight:
                                                             FontWeight.bold,
                                                       ),
@@ -1058,11 +1391,11 @@ class _HomeScreenState extends State<HomeScreen>
                                                       ),
                                                       style: TextStyle(
                                                         fontSize: 13,
-                                                        color: currentTime
-                                                                .isAfter(
+                                                        color:
+                                                            currentTime.isAfter(
                                                                     arrivalTime)
-                                                            ? Colors.red
-                                                            : Colors.green,
+                                                                ? Colors.red
+                                                                : Colors.green,
                                                         fontWeight:
                                                             FontWeight.bold,
                                                       ),

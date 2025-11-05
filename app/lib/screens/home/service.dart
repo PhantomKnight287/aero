@@ -21,11 +21,17 @@ class HomeService {
   }
 
   Future<List<Object>> search(String query) async {
-    final airlines = await searchAirlines(query.trim());
-    final airports = await searchAirports(query.trim());
+    final results = await Future.wait([
+      searchAirlines(query.trim()),
+      searchAirports(query.trim()),
+    ]);
+    
+    final airlines = results[0];
+    final airports = results[1];
+    
     return [
-      ...airports,
       ...airlines,
+      ...airports,
     ];
   }
 }

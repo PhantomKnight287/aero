@@ -34,10 +34,13 @@ class FlightDataService {
     DateTime? date,
   }) async {
     date = date ?? DateTime.now();
+    final timezone = date.timeZoneName;
     final res = await _flightApi.flightControllerGetFlightV1(
       iata: iata,
       icao: icao,
-      date: "${date.year}-${date.month}-${date.day}",
+      date:
+          "${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}",
+      timezone: timezone,
     );
     return res.data;
   }
@@ -86,7 +89,9 @@ class FlightDataService {
       final response = await _flightApi.flightControllerGetFlightV1(
         iata: '', // Empty since we're using ICAO24
         icao: icao24,
-        date: "${DateTime.now().year}-${DateTime.now().month}-${DateTime.now().day}",
+        date:
+            "${DateTime.now().year}-${DateTime.now().month.toString().padLeft(2, '0')}-${DateTime.now().day.toString().padLeft(2, '0')}",
+        timezone: DateTime.now().timeZoneName,
       );
       return response.data;
     } catch (e) {
@@ -109,15 +114,33 @@ class FlightDataService {
       final response = await _flightApi.flightControllerGetFlightTrackV1(
         iata: iata,
         icao: icao,
-        date: "${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}",
+        date:
+            "${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}",
+        timezone: DateTime.now().timeZoneName,
       );
       return response.data;
-    } catch (e) {
+    } catch (e, stack) {
+      print(e);
+      print(stack);
       if (e is DioException) {
         throw ApiException(message: getErrorMessage(e.response?.data));
       }
       throw ApiException(
         message: 'Failed to fetch flight track: $e',
+      );
+    }
+  }
+
+  Future<BuiltList<FlightResponseEntity>> getTrackedFlights() async {
+    try {
+      final response = await _flightsApi.flightsControllerGetTrackedFlightsV1();
+      return response.data!.flights;
+    } catch (e) {
+      if (e is DioException) {
+        throw ApiException(message: getErrorMessage(e.response?.data));
+      }
+      throw ApiException(
+        message: 'Failed to fetch tracked flights: $e',
       );
     }
   }

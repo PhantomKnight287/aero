@@ -10,7 +10,7 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **modeS** | **String** |  | [optional] 
 **registration** | **String** |  | [optional] 
-**model** | **String** |  | 
+**model** | **String** |  | [optional] 
 **image** | **String** |  | [optional] 
 **aircraftId** | **String** |  | [optional] 
 **age** | **String** |  | [optional] 

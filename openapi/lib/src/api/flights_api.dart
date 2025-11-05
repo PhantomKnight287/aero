@@ -14,6 +14,7 @@ import 'package:openapi/src/model/flights_controller_get_flights_in_bounds_v1200
 import 'package:openapi/src/model/flights_response_entity.dart';
 import 'package:openapi/src/model/generic_error_entity.dart';
 import 'package:openapi/src/model/get_airline_dto.dart';
+import 'package:openapi/src/model/tracked_flights_response_entity.dart';
 
 class FlightsApi {
 
@@ -301,6 +302,85 @@ class FlightsApi {
     }
 
     return Response<FlightsResponseEntity>(
+      data: _responseData,
+      headers: _response.headers,
+      isRedirect: _response.isRedirect,
+      requestOptions: _response.requestOptions,
+      redirects: _response.redirects,
+      statusCode: _response.statusCode,
+      statusMessage: _response.statusMessage,
+      extra: _response.extra,
+    );
+  }
+
+  /// Get all tracked flights
+  /// Returns a list of all flights that have been tracked in the system, sorted by most recently created. Limited to 50 most recent flights.
+  ///
+  /// Parameters:
+  /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
+  /// * [headers] - Can be used to add additional headers to the request
+  /// * [extras] - Can be used to add flags to the request
+  /// * [validateStatus] - A [ValidateStatus] callback that can be used to determine request success based on the HTTP status of the response
+  /// * [onSendProgress] - A [ProgressCallback] that can be used to get the send progress
+  /// * [onReceiveProgress] - A [ProgressCallback] that can be used to get the receive progress
+  ///
+  /// Returns a [Future] containing a [Response] with a [TrackedFlightsResponseEntity] as data
+  /// Throws [DioException] if API call or serialization fails
+  Future<Response<TrackedFlightsResponseEntity>> flightsControllerGetTrackedFlightsV1({ 
+    CancelToken? cancelToken,
+    Map<String, dynamic>? headers,
+    Map<String, dynamic>? extra,
+    ValidateStatus? validateStatus,
+    ProgressCallback? onSendProgress,
+    ProgressCallback? onReceiveProgress,
+  }) async {
+    final _path = r'/v1/flights/tracked';
+    final _options = Options(
+      method: r'GET',
+      headers: <String, dynamic>{
+        ...?headers,
+      },
+      extra: <String, dynamic>{
+        'secure': <Map<String, String>>[
+          {
+            'type': 'http',
+            'scheme': 'bearer',
+            'name': 'JWT-auth',
+          },
+        ],
+        ...?extra,
+      },
+      validateStatus: validateStatus,
+    );
+
+    final _response = await _dio.request<Object>(
+      _path,
+      options: _options,
+      cancelToken: cancelToken,
+      onSendProgress: onSendProgress,
+      onReceiveProgress: onReceiveProgress,
+    );
+
+    TrackedFlightsResponseEntity? _responseData;
+
+    try {
+      final rawResponse = _response.data;
+      _responseData = rawResponse == null ? null : _serializers.deserialize(
+        rawResponse,
+        specifiedType: const FullType(TrackedFlightsResponseEntity),
+      ) as TrackedFlightsResponseEntity;
+
+    } catch (error, stackTrace) {
+      throw DioException(
+        requestOptions: _response.requestOptions,
+        response: _response,
+        type: DioExceptionType.unknown,
+        error: error,
+        stackTrace: stackTrace,
+      );
+    }
+
+    return Response<TrackedFlightsResponseEntity>(
       data: _responseData,
       headers: _response.headers,
       isRedirect: _response.isRedirect,

@@ -14,6 +14,7 @@ part 'partial_airline_entity.g.dart';
 /// * [name] 
 /// * [iata] 
 /// * [icao] 
+/// * [image] 
 @BuiltValue()
 abstract class PartialAirlineEntity implements Built<PartialAirlineEntity, PartialAirlineEntityBuilder> {
   @BuiltValueField(wireName: r'name')
@@ -24,6 +25,9 @@ abstract class PartialAirlineEntity implements Built<PartialAirlineEntity, Parti
 
   @BuiltValueField(wireName: r'icao')
   String? get icao;
+
+  @BuiltValueField(wireName: r'image')
+  String? get image;
 
   PartialAirlineEntity._();
 
@@ -64,6 +68,13 @@ class _$PartialAirlineEntitySerializer implements PrimitiveSerializer<PartialAir
       yield r'icao';
       yield serializers.serialize(
         object.icao,
+        specifiedType: const FullType(String),
+      );
+    }
+    if (object.image != null) {
+      yield r'image';
+      yield serializers.serialize(
+        object.image,
         specifiedType: const FullType(String),
       );
     }
@@ -110,6 +121,13 @@ class _$PartialAirlineEntitySerializer implements PrimitiveSerializer<PartialAir
             specifiedType: const FullType(String),
           ) as String;
           result.icao = valueDes;
+          break;
+        case r'image':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType(String),
+          ) as String;
+          result.image = valueDes;
           break;
         default:
           unhandled.add(key);

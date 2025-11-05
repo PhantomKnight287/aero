@@ -33,6 +33,7 @@
     "@paralleldrive/cuid2": "^2.2.2",
     "@prisma/client": "^6.1.0",
     "@scalar/nestjs-api-reference": "^0.3.174",
+    "@types/luxon": "^3.7.1",
     "argon2": "^0.41.1",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
@@ -40,6 +41,7 @@
     "helmet": "^8.0.0",
     "ioredis": "^5.8.1",
     "jsonwebtoken": "^9.0.2",
+    "luxon": "^3.7.2",
     "morgan": "^1.10.0",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1"

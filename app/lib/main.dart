@@ -1,4 +1,3 @@
-import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:plane_pal/constants/main.dart';
 import 'package:plane_pal/notifiers/user.dart';
 import 'package:plane_pal/routes/main.dart';
@@ -8,7 +7,6 @@ import 'package:toastification/toastification.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  MapboxOptions.setAccessToken(MAPBOX_API_KEY);
   runApp(
     MultiProvider(
       providers: [

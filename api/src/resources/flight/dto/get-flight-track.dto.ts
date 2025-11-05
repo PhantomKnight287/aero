@@ -25,4 +25,13 @@ export class GetFlightTrackDTO {
   @IsString()
   @IsOptional()
   date?: string;
+
+  @ApiPropertyOptional({
+    description:
+      'Timezone of the user or intended context. Accepts IANA (e.g., Asia/Kolkata) or common abbreviations (e.g., IST, CEST). Defaults to UTC.',
+    example: 'IST',
+  })
+  @IsString()
+  @IsOptional()
+  timezone?: string;
 }

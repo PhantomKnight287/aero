@@ -12,7 +12,7 @@ class _$AircraftEntity extends AircraftEntity {
   @override
   final String? registration;
   @override
-  final String model;
+  final String? model;
   @override
   final String? image;
   @override
@@ -36,7 +36,7 @@ class _$AircraftEntity extends AircraftEntity {
   _$AircraftEntity._(
       {this.modeS,
       this.registration,
-      required this.model,
+      this.model,
       this.image,
       this.aircraftId,
       this.age,
@@ -196,8 +196,7 @@ class AircraftEntityBuilder
         _$AircraftEntity._(
           modeS: modeS,
           registration: registration,
-          model: BuiltValueNullFieldError.checkNotNull(
-              model, r'AircraftEntity', 'model'),
+          model: model,
           image: image,
           aircraftId: aircraftId,
           age: age,

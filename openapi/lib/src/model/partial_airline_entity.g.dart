@@ -13,12 +13,15 @@ class _$PartialAirlineEntity extends PartialAirlineEntity {
   final String? iata;
   @override
   final String? icao;
+  @override
+  final String? image;
 
   factory _$PartialAirlineEntity(
           [void Function(PartialAirlineEntityBuilder)? updates]) =>
       (PartialAirlineEntityBuilder()..update(updates))._build();
 
-  _$PartialAirlineEntity._({required this.name, this.iata, this.icao})
+  _$PartialAirlineEntity._(
+      {required this.name, this.iata, this.icao, this.image})
       : super._();
   @override
   PartialAirlineEntity rebuild(
@@ -35,7 +38,8 @@ class _$PartialAirlineEntity extends PartialAirlineEntity {
     return other is PartialAirlineEntity &&
         name == other.name &&
         iata == other.iata &&
-        icao == other.icao;
+        icao == other.icao &&
+        image == other.image;
   }
 
   @override
@@ -44,6 +48,7 @@ class _$PartialAirlineEntity extends PartialAirlineEntity {
     _$hash = $jc(_$hash, name.hashCode);
     _$hash = $jc(_$hash, iata.hashCode);
     _$hash = $jc(_$hash, icao.hashCode);
+    _$hash = $jc(_$hash, image.hashCode);
     _$hash = $jf(_$hash);
     return _$hash;
   }
@@ -53,7 +58,8 @@ class _$PartialAirlineEntity extends PartialAirlineEntity {
     return (newBuiltValueToStringHelper(r'PartialAirlineEntity')
           ..add('name', name)
           ..add('iata', iata)
-          ..add('icao', icao))
+          ..add('icao', icao)
+          ..add('image', image))
         .toString();
   }
 }
@@ -74,6 +80,10 @@ class PartialAirlineEntityBuilder
   String? get icao => _$this._icao;
   set icao(String? icao) => _$this._icao = icao;
 
+  String? _image;
+  String? get image => _$this._image;
+  set image(String? image) => _$this._image = image;
+
   PartialAirlineEntityBuilder() {
     PartialAirlineEntity._defaults(this);
   }
@@ -84,6 +94,7 @@ class PartialAirlineEntityBuilder
       _name = $v.name;
       _iata = $v.iata;
       _icao = $v.icao;
+      _image = $v.image;
       _$v = null;
     }
     return this;
@@ -109,6 +120,7 @@ class PartialAirlineEntityBuilder
               name, r'PartialAirlineEntity', 'name'),
           iata: iata,
           icao: icao,
+          image: image,
         );
     replace(_$result);
     return _$result;
