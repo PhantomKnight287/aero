@@ -524,7 +524,7 @@ class _HomeScreenState extends State<HomeScreen>
                 secondsRemaining: _secondsUntilNextUpdate,
               ),
             ),
-          // Flight info overlay at top center
+          
           if (_isInAir && currentPosition != null)
             Positioned(
               top: MediaQuery.of(context).padding.top + 10,
@@ -538,6 +538,7 @@ class _HomeScreenState extends State<HomeScreen>
                 ),
               ),
             ),
+        
           DraggableScrollableSheet(
             initialChildSize: .25,
             controller: _controller,

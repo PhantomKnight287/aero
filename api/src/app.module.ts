@@ -10,6 +10,7 @@ import { AirportsModule } from './resources/airports/airports.module';
 import { AuthModule } from './resources/auth/auth.module';
 import { FlightModule } from './resources/flight/flight.module';
 import { FlightsModule } from './resources/flights/flights.module';
+import { AlertsModule } from './resources/alerts/alerts.module';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { FlightsModule } from './resources/flights/flights.module';
     AirlinesModule,
     FlightsModule,
     FlightModule,
+    AlertsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
@@ -50,6 +52,7 @@ export class AppModule implements NestModule {
       .exclude('/v(.*)/airports')
       .exclude('/v(.*)/airlines')
       .exclude('/static/(.*)')
+      .exclude(`/alerts/(.*)`)
       .forRoutes('*');
   }
 }

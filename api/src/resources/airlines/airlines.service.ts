@@ -10,24 +10,22 @@ export class AirlinesService {
         ? {
             OR: [
               {
-                name: { contains: query.search, mode: 'insensitive' },
+                name: { search: query.search },
               },
               {
-                icao: { contains: query.search, mode: 'insensitive' },
+                icao: { search: query.search },
               },
               {
-                iata: { contains: query.search, mode: 'insensitive' },
+                iata: { search: query.search },
               },
               {
                 iata: {
-                  equals: query.search.substring(0, 2),
-                  mode: 'insensitive',
+                  search: query.search.substring(0, 2),
                 },
               },
               {
                 icao: {
-                  equals: query.search.substring(0, 3),
-                  mode: 'insensitive',
+                  search: query.search.substring(0, 3),
                 },
               },
             ],

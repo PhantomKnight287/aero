@@ -6,7 +6,7 @@
 
 generator client {
   provider        = "prisma-client-js"
-  previewFeatures = ["omitApi"]
+  previewFeatures = ["fullTextSearchPostgres","omitApi"]
 }
 
 datasource db {
@@ -54,6 +54,11 @@ model Airport {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
+  @@index([ident])
+  @@index([municipality])
+  @@index([gpsCode])
+  @@index([iataCode])
+  @@index([name])
   @@map("airports")
 }
 
@@ -69,6 +74,9 @@ model Airline {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("airlines")
+  @@index([name])
+  @@index([icao])
+  @@index([iata])
 }
 
 model Aircraft {
