@@ -1,4 +1,5 @@
 import { GenericErrorEntity } from 'src/common/entites/generic-error.entity';
+import { Auth } from 'src/decorators/auth/auth.decorator';
 
 import {
   BadRequestException,
@@ -18,6 +19,7 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
+import { User } from '@prisma/client';
 
 import { GetFlightTrackDTO } from './dto/get-flight-track.dto';
 import { GetFlightDTO } from './dto/get-flight.dto';
@@ -82,8 +84,8 @@ export class FlightController {
     description: 'The timezone from which the request is being made.',
     required: true,
   })
-  async getFlightTrack(@Query() query: GetFlightTrackDTO) {
-    return await this.flightService.getFlightTrack(query);
+  async getFlightTrack(@Query() query: GetFlightTrackDTO, @Auth() auth: User) {
+    return await this.flightService.getFlightTrack(query, auth.id);
   }
 
   @Get()
@@ -137,7 +139,15 @@ export class FlightController {
     description: 'The timezone from which the request is being made.',
     required: true,
   })
-  async getFlight(@Query() query: GetFlightDTO) {
-    return await this.flightService.getFlight(query);
+  @ApiQuery({
+    type: Boolean,
+    default: false,
+    required: false,
+    name: 'forceUpdate',
+    description:
+      'Force update the flight data(used to refresh the flight data)',
+  })
+  async getFlight(@Query() query: GetFlightDTO, @Auth() auth: User) {
+    return await this.flightService.getFlight(query, auth.id);
   }
 }

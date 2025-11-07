@@ -2,7 +2,9 @@ import 'dart:async';
 import 'dart:ui';
 
 import 'package:built_collection/built_collection.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:openapi/openapi.dart';
 import 'package:plane_pal/screens/home/service.dart';
@@ -18,12 +20,9 @@ import 'package:plane_pal/screens/home/widgets/search_results_list.dart';
 import 'package:plane_pal/screens/home/widgets/selected_filters.dart';
 import 'package:plane_pal/screens/home/widgets/tracked_flights_list.dart';
 import 'package:plane_pal/services/main.dart';
-import 'package:plane_pal/constants/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_animations/flutter_map_animations.dart';
-import 'package:flutter_map_cancellable_tile_provider/flutter_map_cancellable_tile_provider.dart';
 import 'package:gap/gap.dart';
 import 'package:retry/retry.dart';
 
@@ -35,18 +34,6 @@ class HomeScreen extends StatefulWidget {
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
-
-TileLayer get openStreetMapTileLayer => TileLayer(
-      urlTemplate:
-          'https://api.mapbox.com/styles/v1/mapbox/streets-v12/tiles/{z}/{x}/{y}?access_token={accessToken}',
-      userAgentPackageName: 'com.phantomknight287.planepal',
-      tileProvider: CancellableNetworkTileProvider(),
-      additionalOptions: const {
-        'accessToken': MAPBOX_API_KEY,
-      },
-      tileSize: 512,
-      zoomOffset: -1,
-    );
 
 class _HomeScreenState extends State<HomeScreen>
     with WidgetsBindingObserver, TickerProviderStateMixin {
@@ -96,7 +83,7 @@ class _HomeScreenState extends State<HomeScreen>
     }
     if (ts == null) return false;
     final nowUtc = DateTime.now().toUtc();
-    return nowUtc.difference(ts).inHours > 24;
+    return nowUtc.difference(ts).inHours > 2;
   }
 
   void _updateInAirStatus([FlightPositionEntity? latestPosition]) {
@@ -261,7 +248,11 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   Future<void> _loadFlightInfo(
-      String iataCode, String icaoCode, DateTime date) async {
+    String iataCode,
+    String icaoCode,
+    DateTime date, {
+    bool forceUpdate = false,
+  }) async {
     loading = true;
     setState(() {});
 
@@ -270,6 +261,7 @@ class _HomeScreenState extends State<HomeScreen>
         iataCode,
         icaoCode,
         date: date,
+        forceUpdate: forceUpdate,
       );
 
       if (info == null) {
@@ -346,6 +338,7 @@ class _HomeScreenState extends State<HomeScreen>
       print(stack);
       setState(() {
         error = 'Failed to load flight information: $e';
+        selectedDate=null;
       });
     } finally {
       setState(() {
@@ -515,6 +508,7 @@ class _HomeScreenState extends State<HomeScreen>
               flightTrackPoints: flightTrackPoints,
               currentHeading: currentPosition?.heading?.toDouble(),
               onAircraftSelected: _onAircraftSelected,
+              isFlightInAir: _isInAir,
             ),
           ),
           // Countdown timer at top right
@@ -561,6 +555,14 @@ class _HomeScreenState extends State<HomeScreen>
                       child: _flightInfo != null
                           ? FlightInfoWidget(
                               info: _flightInfo!,
+                              onRefreshFlightData: () {
+                                _loadFlightInfo(
+                                  _flightInfo!.flightNo,
+                                  _flightInfo!.flightNo,
+                                  _flightInfo!.date.toLocal(),
+                                  forceUpdate: true,
+                                );
+                              },
                               onClose: () {
                                 _stopTrackPolling();
                                 setState(() {
@@ -581,20 +583,14 @@ class _HomeScreenState extends State<HomeScreen>
                                 });
                               },
                               onRefreshTracking: () {
-                                // Stop current polling
                                 _stopTrackPolling();
 
-                                // Extract flight identifiers
                                 final flightNo = _flightInfo!.flightNo;
-                                final date = DateTime.parse((_flightInfo!
-                                            .departure.revisedTime ??
-                                        _flightInfo!.departure.scheduledTime)
-                                    .utc);
+                                final date = _flightInfo!.date.toLocal();
 
-                                // Restart polling with the current flight info
                                 _startTrackPolling(
-                                  flightNo, // IATA
-                                  flightNo, // ICAO (using same as they're usually the same)
+                                  flightNo,
+                                  flightNo,
                                   date,
                                 );
 
@@ -740,6 +736,43 @@ class _HomeScreenState extends State<HomeScreen>
                                       });
                                     },
                                   ),
+                                if (selectedAirline != null &&
+                                    _flightController.text.isNotEmpty &&
+                                    selectedFlightNumber == null)
+                                  ListTile(
+                                    title: Text(
+                                      selectedAirline!.name,
+                                    ),
+                                    subtitle: Text(
+                                      "${selectedAirline!.iata}${_flightController.text.toUpperCase()} / ${selectedAirline!.icao}${_flightController.text.toUpperCase()}",
+                                    ),
+                                    leading: selectedAirline!.image != null &&
+                                            selectedAirline!.image!.isNotEmpty
+                                        ? SvgPicture.network(
+                                            selectedAirline!.image!,
+                                            width: 24,
+                                            height: 18,
+                                          )
+                                        : CachedNetworkImage(
+                                            imageUrl:
+                                                "https://airlabs.co/img/airline/m/${selectedAirline!.iata}.png",
+                                            width: 24,
+                                            height: 18,
+                                            errorWidget: (context, url, error) {
+                                              return SizedBox(
+                                                height: 0,
+                                                width: 0,
+                                              );
+                                            },
+                                          ),
+                                    onTap: () {
+                                      selectedFlightNumber =
+                                          _flightController.text;
+                                      FocusScope.of(context).unfocus();
+                                      _flightController.clear();
+                                      setState(() {});
+                                    },
+                                  ),
                                 SearchResultsList(
                                   results: results,
                                   loading: loading,
@@ -752,6 +785,7 @@ class _HomeScreenState extends State<HomeScreen>
                                     } else {
                                       arrivalAirport = airport;
                                     }
+                                    
                                     _flightController.clear();
                                     results.clear();
                                     setState(() {});

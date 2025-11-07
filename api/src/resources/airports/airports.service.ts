@@ -16,17 +16,26 @@ export class AirportsService {
               OR: [
                 {
                   name: {
-                    search,
+                    contains: search,
+                    mode: 'insensitive',
                   },
                 },
                 {
                   ident: {
-                    search,
+                    contains: search,
+                    mode: 'insensitive',
                   },
                 },
                 {
                   iataCode: {
-                    search,
+                    contains: search,
+                    mode: 'insensitive',
+                  },
+                },
+                {
+                  municipality: {
+                    contains: search,
+                    mode: 'insensitive',
                   },
                 },
               ],

@@ -32,6 +32,7 @@ class FlightDataService {
     String iata,
     String icao, {
     DateTime? date,
+    bool? forceUpdate,
   }) async {
     date = date ?? DateTime.now();
     final timezone = date.timeZoneName;
@@ -41,6 +42,7 @@ class FlightDataService {
       date:
           "${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}",
       timezone: timezone,
+      forceUpdate: forceUpdate ?? false,
     );
     return res.data;
   }

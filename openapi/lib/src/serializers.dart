@@ -18,15 +18,21 @@ import 'package:openapi/src/model/aircraft_entity.dart';
 import 'package:openapi/src/model/aircraft_flight_entity.dart';
 import 'package:openapi/src/model/airline_entity.dart';
 import 'package:openapi/src/model/airline_info.dart';
+import 'package:openapi/src/model/airline_stats_entity.dart';
 import 'package:openapi/src/model/airport_entity.dart';
 import 'package:openapi/src/model/airport_info.dart';
+import 'package:openapi/src/model/airport_stats_entity.dart';
 import 'package:openapi/src/model/airport_type.dart';
 import 'package:openapi/src/model/fligh_type.dart';
 import 'package:openapi/src/model/flight_aware_data_entity.dart';
+import 'package:openapi/src/model/flight_distance_entity.dart';
+import 'package:openapi/src/model/flight_duration_entity.dart';
 import 'package:openapi/src/model/flight_entity.dart';
 import 'package:openapi/src/model/flight_position_entity.dart';
 import 'package:openapi/src/model/flight_response_entity.dart';
 import 'package:openapi/src/model/flight_status.dart';
+import 'package:openapi/src/model/flight_summary_airline_entity.dart';
+import 'package:openapi/src/model/flight_summary_entity.dart';
 import 'package:openapi/src/model/flight_track_response_entity.dart';
 import 'package:openapi/src/model/flights_controller_get_flights_in_bounds_v1200_response.dart';
 import 'package:openapi/src/model/flights_controller_get_flights_in_bounds_v1200_response_bounds.dart';
@@ -39,13 +45,17 @@ import 'package:openapi/src/model/get_airline_dto.dart';
 import 'package:openapi/src/model/location_entity.dart';
 import 'package:openapi/src/model/login_dto.dart';
 import 'package:openapi/src/model/login_entity.dart';
+import 'package:openapi/src/model/most_flown_aircraft_entity.dart';
 import 'package:openapi/src/model/partial_airline_entity.dart';
+import 'package:openapi/src/model/passport_entity.dart';
+import 'package:openapi/src/model/profile_stats_response_entity.dart';
 import 'package:openapi/src/model/register_dto.dart';
 import 'package:openapi/src/model/register_entity.dart';
 import 'package:openapi/src/model/route_airport_entity.dart';
 import 'package:openapi/src/model/route_info_entity.dart';
 import 'package:openapi/src/model/stringified_great_circle_distance_entity.dart';
 import 'package:openapi/src/model/time_entity.dart';
+import 'package:openapi/src/model/top_route_entity.dart';
 import 'package:openapi/src/model/tracked_flights_response_entity.dart';
 import 'package:openapi/src/model/user_entity.dart';
 
@@ -56,15 +66,21 @@ part 'serializers.g.dart';
   AircraftFlightEntity,
   AirlineEntity,
   AirlineInfo,
+  AirlineStatsEntity,
   AirportEntity,
   AirportInfo,
+  AirportStatsEntity,
   AirportType,
   FlighType,
   FlightAwareDataEntity,
+  FlightDistanceEntity,
+  FlightDurationEntity,
   FlightEntity,
   FlightPositionEntity,
   FlightResponseEntity,
   FlightStatus,
+  FlightSummaryAirlineEntity,
+  FlightSummaryEntity,
   FlightTrackResponseEntity,
   FlightsControllerGetFlightsInBoundsV1200Response,
   FlightsControllerGetFlightsInBoundsV1200ResponseBounds,
@@ -77,13 +93,17 @@ part 'serializers.g.dart';
   LocationEntity,
   LoginDTO,
   LoginEntity,
+  MostFlownAircraftEntity,
   PartialAirlineEntity,
+  PassportEntity,
+  ProfileStatsResponseEntity,
   RegisterDTO,
   RegisterEntity,
   RouteAirportEntity,
   RouteInfoEntity,
   StringifiedGreatCircleDistanceEntity,
   TimeEntity,
+  TopRouteEntity,
   TrackedFlightsResponseEntity,
   UserEntity,
 ])

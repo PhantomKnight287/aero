@@ -124,6 +124,7 @@ class FlightApi {
   /// * [icao] - ICAO flight number
   /// * [timezone] - The timezone from which the request is being made.
   /// * [date] - Flight date (ISO format). Defaults to current date if not provided
+  /// * [forceUpdate] - Force update the flight data(used to refresh the flight data)
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -138,6 +139,7 @@ class FlightApi {
     required String icao,
     required String timezone,
     String? date,
+    bool? forceUpdate = false,
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
     Map<String, dynamic>? extra,
@@ -169,6 +171,7 @@ class FlightApi {
       r'icao': encodeQueryParameter(_serializers, icao, const FullType(String)),
       if (date != null) r'date': encodeQueryParameter(_serializers, date, const FullType(String)),
       r'timezone': encodeQueryParameter(_serializers, timezone, const FullType(String)),
+      if (forceUpdate != null) r'forceUpdate': encodeQueryParameter(_serializers, forceUpdate, const FullType(bool)),
     };
 
     final _response = await _dio.request<Object>(

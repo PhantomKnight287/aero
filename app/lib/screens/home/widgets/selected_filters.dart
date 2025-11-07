@@ -59,22 +59,6 @@ class SelectedFilters extends StatelessWidget {
               ),
             ),
           ),
-        if (arrivalAirport != null)
-          GestureDetector(
-            onTap: onAirlineClear,
-            child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              margin: EdgeInsets.only(right: 8),
-              decoration: BoxDecoration(
-                color: Color(0xffe7e0e8),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Text(
-                arrivalAirport!.iataCode ?? arrivalAirport!.ident,
-                style: TextStyle(fontWeight: FontWeight.w500),
-              ),
-            ),
-          ),
         if (departureAirport != null)
           GestureDetector(
             onTap: onDepartureAirportClear,
@@ -87,6 +71,22 @@ class SelectedFilters extends StatelessWidget {
               ),
               child: Text(
                 departureAirport!.iataCode ?? departureAirport!.ident,
+                style: TextStyle(fontWeight: FontWeight.w500),
+              ),
+            ),
+          ),
+        if (arrivalAirport != null)
+          GestureDetector(
+            onTap: onAirlineClear,
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              margin: EdgeInsets.only(right: 8),
+              decoration: BoxDecoration(
+                color: Color(0xffe7e0e8),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Text(
+                arrivalAirport!.iataCode ?? arrivalAirport!.ident,
                 style: TextStyle(fontWeight: FontWeight.w500),
               ),
             ),

@@ -6,11 +6,8 @@ import 'package:material_design_icons_flutter/material_design_icons_flutter.dart
 import 'package:openapi/openapi.dart';
 import 'package:plane_pal/constants/main.dart';
 import 'package:plane_pal/extensions/datetime.dart';
-import 'package:plane_pal/extensions/duration.dart';
 import 'package:plane_pal/formatters/time.dart';
 import 'package:plane_pal/screens/home/widgets/flight_route_info.dart';
-import 'package:plane_pal/utils/duration.dart';
-import 'package:plane_pal/utils/distance.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tz;
 
@@ -18,11 +15,13 @@ class FlightInfoWidget extends StatefulWidget {
   final FlightResponseEntity info;
   final Function() onClose;
   final Function()? onRefreshTracking;
+  final Function()? onRefreshFlightData;
   const FlightInfoWidget({
     super.key,
     required this.info,
     required this.onClose,
     this.onRefreshTracking,
+    this.onRefreshFlightData,
   });
 
   @override
@@ -144,7 +143,7 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
                           color: Theme.of(context).textTheme.titleSmall?.color,
                           fontSize: 12,
                         ),
-                      )
+                      ),
                     ],
                   ),
                 ],
@@ -170,6 +169,18 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
                             ],
                           ),
                         ),
+                      PopupMenuItem(
+                        value: 'refresh_flight_data',
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.refresh,
+                            ),
+                            SizedBox(width: 8),
+                            Text('Refresh flight data'),
+                          ],
+                        ),
+                      ),
                       PopupMenuItem(
                         value: 'send_to_wearable',
                         child: Row(
@@ -223,6 +234,9 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
                               widget.info.arrival.airport.municipalityName,
                         });
                       }
+                      if (value == "refresh_flight_data") {
+                        widget.onRefreshFlightData?.call();
+                      }
                     },
                   ),
                   SizedBox(
@@ -244,10 +258,16 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
               Text(
                 getTimeMessage(
                   DateTime.parse(
-                    (departure.revisedTime ?? departure.scheduledTime).utc,
+                    (departure.revisedTime ??
+                            departure.predictedTime ??
+                            departure.scheduledTime)
+                        .utc,
                   ),
                   DateTime.parse(
-                    (arrival.revisedTime ?? arrival.predictedTime)!.utc,
+                    (arrival.revisedTime ??
+                            arrival.predictedTime ??
+                            arrival.scheduledTime)!
+                        .utc,
                   ),
                 ),
                 style: TextStyle(
@@ -255,41 +275,30 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              Text(
-                "Total ${calculateFlightDuration(
-                  departureTime:
-                      (departure.revisedTime ?? departure.scheduledTime).utc,
-                  departureTimezone: departure.airport.timeZone,
-                  arrivalTime: (widget.info.arrival.revisedTime ??
-                          widget.info.arrival.predictedTime)!
-                      .utc,
-                  arrivalTimezone: widget.info.arrival.airport.timeZone,
-                ).toHumanReadable()} ${widget.info.greatCircleDistance.km != null ? "• ${formatDistance(double.parse(widget.info.greatCircleDistance.km!), Localizations.localeOf(context).toString())}" : ""}",
-                style: TextStyle(
-                  fontWeight: FontWeight.w600,
-                  color: Colors.grey[600],
-                ),
-              ),
             ],
           ),
           FlightRouteInfo(
             arrivalCode: arrival.airport.iata,
-            arrivalDelay:
-                _calculateDelay(arrival.revisedTime, arrival.scheduledTime),
+            arrivalDelay: _calculateDelay(arrival.revisedTime,
+                arrival.predictedTime ?? arrival.scheduledTime),
             arrivalName: arrival.airport.name,
             arrivalSubtitle: "",
             arrivalTerminal: arrival.terminal,
-            arrivalTime: DateTime.parse(
-                (arrival.revisedTime ?? arrival.predictedTime)!.utc),
+            arrivalTime: DateTime.parse((arrival.revisedTime ??
+                    arrival.predictedTime ??
+                    arrival.scheduledTime)!
+                .utc),
             arrivalTimezone: arrival.airport.timeZone,
             departureCode: departure.airport.iata,
-            departureDelay:
-                _calculateDelay(departure.revisedTime, departure.scheduledTime),
+            departureDelay: _calculateDelay(departure.revisedTime,
+                departure.predictedTime ?? departure.scheduledTime),
             departureName: departure.airport.name,
             departureSubtitle: "",
             departureTerminal: departure.terminal,
-            departureTime: DateTime.parse(
-                (departure.revisedTime ?? departure.scheduledTime).utc),
+            departureTime: DateTime.parse((departure.revisedTime ??
+                    departure.predictedTime ??
+                    departure.scheduledTime)
+                .utc),
             departureTimezone: departure.airport.timeZone,
             statusColor: Colors.green,
             use24Hrs: MediaQuery.of(context).alwaysUse24HourFormat,
@@ -299,6 +308,10 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
                 widget.info.flightAwareData?.gateOrigin ?? departure.gate,
             arrivalBaggage: widget.info.flightAwareData?.baggageClaim ??
                 arrival.baggageBelt,
+            distanceKm: widget.info.greatCircleDistance.km != null
+                ? double.tryParse(widget.info.greatCircleDistance.km!)
+                : null,
+            flightAwareDataEntity: widget.info.flightAwareData,
           ),
           Gap(8),
           Text(
@@ -353,7 +366,7 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
             ),
           ),
           Gap(8),
-          if (widget.info.aircraft?.model != null )
+          if (widget.info.aircraft?.model != null)
             Text(
               widget.info.aircraft!.model!,
               style: TextStyle(

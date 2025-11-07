@@ -27,7 +27,7 @@ import 'package:openapi/api.dart';
 final api = Openapi().getFlightApi();
 final String iata = UA123; // String | IATA flight number
 final String icao = UAL123; // String | ICAO flight number
-final String timezone = timezone_example; // String | The timezone from which the request is being made.
+final String timezone = IST; // String | The timezone from which the request is being made.
 final String date = 2024-03-20; // String | Flight date (ISO format). Defaults to current date if not provided
 
 try {
@@ -63,7 +63,7 @@ Name | Type | Description  | Notes
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **flightControllerGetFlightV1**
-> FlightResponseEntity flightControllerGetFlightV1(iata, icao, timezone, date)
+> FlightResponseEntity flightControllerGetFlightV1(iata, icao, timezone, date, forceUpdate)
 
 Get flight details
 
@@ -78,9 +78,10 @@ final String iata = UA123; // String | IATA flight number
 final String icao = UAL123; // String | ICAO flight number
 final String timezone = timezone_example; // String | The timezone from which the request is being made.
 final String date = 2024-03-20; // String | Flight date (ISO format). Defaults to current date if not provided
+final bool forceUpdate = true; // bool | Force update the flight data(used to refresh the flight data)
 
 try {
-    final response = api.flightControllerGetFlightV1(iata, icao, timezone, date);
+    final response = api.flightControllerGetFlightV1(iata, icao, timezone, date, forceUpdate);
     print(response);
 } catch on DioException (e) {
     print('Exception when calling FlightApi->flightControllerGetFlightV1: $e\n');
@@ -95,6 +96,7 @@ Name | Type | Description  | Notes
  **icao** | **String**| ICAO flight number | 
  **timezone** | **String**| The timezone from which the request is being made. | 
  **date** | **String**| Flight date (ISO format). Defaults to current date if not provided | [optional] 
+ **forceUpdate** | **bool**| Force update the flight data(used to refresh the flight data) | [optional] [default to false]
 
 ### Return type
 

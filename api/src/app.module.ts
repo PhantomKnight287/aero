@@ -11,6 +11,7 @@ import { AuthModule } from './resources/auth/auth.module';
 import { FlightModule } from './resources/flight/flight.module';
 import { FlightsModule } from './resources/flights/flights.module';
 import { AlertsModule } from './resources/alerts/alerts.module';
+import { ProfileModule } from './resources/profile/profile.module';
 
 @Module({
   imports: [
@@ -40,6 +41,7 @@ import { AlertsModule } from './resources/alerts/alerts.module';
     FlightsModule,
     FlightModule,
     AlertsModule,
+    ProfileModule,
   ],
   controllers: [AppController],
   providers: [AppService],

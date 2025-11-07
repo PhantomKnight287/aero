@@ -3,24 +3,9 @@ import 'package:openapi/openapi.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_animations/flutter_map_animations.dart';
-import 'package:flutter_map_cancellable_tile_provider/flutter_map_cancellable_tile_provider.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:plane_pal/constants/main.dart';
+import 'package:plane_pal/constants/map.dart';
 
-TileLayer get openStreetMapTileLayer => TileLayer(
-      urlTemplate:
-          'https://api.mapbox.com/styles/v1/mapbox/streets-v12/tiles/{z}/{x}/{y}?access_token={accessToken}',
-      userAgentPackageName: 'com.phantomknight287.planepal',
-      tileProvider: CancellableNetworkTileProvider(),
-      additionalOptions: const {
-        'accessToken': MAPBOX_API_KEY,
-      },
-      tileSize: 512,
-      zoomOffset: -1,
-    );
-
-/// Get the visible bounds of the map with reasonable limits to prevent
-/// querying flights across the entire world
 MapBounds getVisibleMapBounds(AnimatedMapController mapController) {
   final mapState = mapController.mapController.camera;
   final center = mapState.center;
@@ -100,6 +85,7 @@ class FlightMap extends StatefulWidget {
   final double? currentHeading;
   final Function(FlightsControllerGetFlightsInBoundsV1200ResponseFlightsInner)?
       onAircraftSelected;
+  final bool isFlightInAir;
 
   const FlightMap({
     super.key,
@@ -110,6 +96,7 @@ class FlightMap extends StatefulWidget {
     this.flightTrackPoints = const [],
     this.currentHeading,
     this.onAircraftSelected,
+    this.isFlightInAir = false,
   });
 
   @override
@@ -134,11 +121,10 @@ class _FlightMapState extends State<FlightMap> {
         FlutterMap(
           mapController: widget.mapController.mapController,
           options: MapOptions(
-            initialCenter: const LatLng(28.086815545374254, 76.50837368121545),
-            initialZoom: 5,
-            
-            cameraConstraint: CameraConstraint.containLatitude()
-          ),
+              initialCenter:
+                  const LatLng(28.086815545374254, 76.50837368121545),
+              initialZoom: 5,
+              cameraConstraint: CameraConstraint.containLatitude()),
           children: [
             openStreetMapTileLayer,
             MarkerLayer(
@@ -147,17 +133,41 @@ class _FlightMapState extends State<FlightMap> {
                   Marker(
                     point: LatLng(double.parse(widget.arrivalAirport!.lat),
                         double.parse(widget.arrivalAirport!.long)),
-                    width: 10,
-                    height: 10,
-                    child: FlutterLogo(),
+                    width: 18,
+                    height: 18,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.redAccent,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.white, width: 2),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.2),
+                            blurRadius: 4,
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 if (widget.departureAirport != null)
                   Marker(
                     point: LatLng(double.parse(widget.departureAirport!.lat),
                         double.parse(widget.departureAirport!.long)),
-                    width: 10,
-                    height: 10,
-                    child: FlutterLogo(),
+                    width: 18,
+                    height: 18,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.green,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.white, width: 2),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.2),
+                            blurRadius: 4,
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
               ],
             ),
@@ -184,7 +194,8 @@ class _FlightMapState extends State<FlightMap> {
                   ),
                 ],
               ),
-            if (widget.flightTrackPoints.isEmpty && widget.coordinates.isNotEmpty)
+            if (widget.flightTrackPoints.isEmpty &&
+                widget.coordinates.isNotEmpty)
               PolylineLayer(
                 polylines: [
                   Polyline(
@@ -197,7 +208,8 @@ class _FlightMapState extends State<FlightMap> {
                 ],
               ),
             if (widget.flightTrackPoints.isNotEmpty)
-              PolylineLayer(drawInSingleWorld: false,
+              PolylineLayer(
+                drawInSingleWorld: false,
                 polylines: [
                   Polyline(
                     points: widget.flightTrackPoints,
@@ -210,7 +222,8 @@ class _FlightMapState extends State<FlightMap> {
                   ),
                 ],
               ),
-            if (widget.flightTrackPoints.isNotEmpty)
+            // Show moving aircraft marker only when airborne
+            if (widget.flightTrackPoints.isNotEmpty && widget.isFlightInAir)
               MarkerLayer(
                 markers: [
                   Marker(
@@ -240,34 +253,51 @@ class _FlightMapState extends State<FlightMap> {
                   ),
                 ],
               ),
+            // When not airborne, show static origin/destination markers from track points
+            if (widget.flightTrackPoints.isNotEmpty && !widget.isFlightInAir)
+              MarkerLayer(
+                markers: [
+                  Marker(
+                    point: widget.flightTrackPoints.first,
+                    width: 18,
+                    height: 18,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.green,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.white, width: 2),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.2),
+                            blurRadius: 4,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  Marker(
+                    point: widget.flightTrackPoints.last,
+                    width: 18,
+                    height: 18,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.redAccent,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.white, width: 2),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.2),
+                            blurRadius: 4,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
           ],
         ),
       ],
     );
   }
-}
-
-List<LatLng> normalizeFlightPath(List<LatLng> points) {
-  if (points.length < 2) return points;
-
-  List<LatLng> normalized = [points[0]];
-
-  for (int i = 1; i < points.length; i++) {
-    double prevLng = normalized.last.longitude;
-    double currentLng = points[i].longitude;
-
-    // Calculate the difference
-    double diff = currentLng - prevLng;
-
-    // If difference is > 180, we're going the long way
-    if (diff > 180) {
-      currentLng -= 360;
-    } else if (diff < -180) {
-      currentLng += 360;
-    }
-
-    normalized.add(LatLng(points[i].latitude, currentLng));
-  }
-
-  return normalized;
 }

@@ -1022,6 +1022,16 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "forceUpdate",
+            "required": false,
+            "in": "query",
+            "description": "Force update the flight data(used to refresh the flight data)",
+            "schema": {
+              "default": false,
+              "type": "boolean"
+            }
           }
         ],
         "responses": {
@@ -1074,6 +1084,54 @@
         "summary": "Get flight details",
         "tags": [
           "Flight"
+        ]
+      }
+    },
+    "/v1/profile/@me": {
+      "get": {
+        "description": "Returns comprehensive statistics about tracked flights including passport data, aircraft stats, airlines, airports, and routes",
+        "operationId": "ProfileController_getProfileStats_v1",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Profile statistics including passport data and flight analytics",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProfileStatsResponseEntity"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericErrorEntity"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericErrorEntity"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ],
+        "summary": "Get profile stats",
+        "tags": [
+          "Profile"
         ]
       }
     }
@@ -2070,6 +2128,270 @@
         },
         "required": [
           "positions"
+        ]
+      },
+      "MostFlownAircraftEntity": {
+        "type": "object",
+        "properties": {
+          "aircraftName": {
+            "type": "string"
+          },
+          "flightCount": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "aircraftName",
+          "flightCount"
+        ]
+      },
+      "PassportEntity": {
+        "type": "object",
+        "properties": {
+          "totalFlights": {
+            "type": "number",
+            "description": "Total number of flights taken"
+          },
+          "totalDistanceKm": {
+            "type": "number",
+            "description": "Total distance in kilometers"
+          },
+          "totalDurationMinutes": {
+            "type": "number",
+            "description": "Total flight duration in minutes (including delays)"
+          },
+          "totalAirports": {
+            "type": "number",
+            "description": "Number of unique airports"
+          },
+          "totalAirlines": {
+            "type": "number",
+            "description": "Number of unique airlines"
+          }
+        },
+        "required": [
+          "totalFlights",
+          "totalDistanceKm",
+          "totalDurationMinutes",
+          "totalAirports",
+          "totalAirlines"
+        ]
+      },
+      "FlightSummaryAirlineEntity": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "iata": {
+            "type": "string"
+          },
+          "icao": {
+            "type": "string"
+          },
+          "image": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
+      "FlightSummaryEntity": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "flightNo": {
+            "type": "string"
+          },
+          "callSign": {
+            "type": "string"
+          },
+          "airline": {
+            "$ref": "#/components/schemas/FlightSummaryAirlineEntity"
+          },
+          "departureAirportCode": {
+            "type": "string",
+            "description": "Departure airport code (IATA or ICAO)"
+          },
+          "departureAirportName": {
+            "type": "string",
+            "description": "Departure airport name"
+          },
+          "arrivalAirportCode": {
+            "type": "string",
+            "description": "Arrival airport code (IATA or ICAO)"
+          },
+          "arrivalAirportName": {
+            "type": "string",
+            "description": "Arrival airport name"
+          },
+          "date": {
+            "type": "string",
+            "description": "Flight date (ISO string)"
+          }
+        },
+        "required": [
+          "id",
+          "flightNo",
+          "callSign",
+          "airline",
+          "departureAirportCode",
+          "departureAirportName",
+          "arrivalAirportCode",
+          "arrivalAirportName",
+          "date"
+        ]
+      },
+      "FlightDistanceEntity": {
+        "type": "object",
+        "properties": {
+          "flight": {
+            "$ref": "#/components/schemas/FlightSummaryEntity"
+          },
+          "distanceKm": {
+            "type": "number",
+            "description": "Distance in kilometers"
+          }
+        },
+        "required": [
+          "flight",
+          "distanceKm"
+        ]
+      },
+      "FlightDurationEntity": {
+        "type": "object",
+        "properties": {
+          "flight": {
+            "$ref": "#/components/schemas/FlightSummaryEntity"
+          },
+          "durationMinutes": {
+            "type": "number",
+            "description": "Duration in minutes"
+          }
+        },
+        "required": [
+          "flight",
+          "durationMinutes"
+        ]
+      },
+      "AirlineStatsEntity": {
+        "type": "object",
+        "properties": {
+          "airlineName": {
+            "type": "string"
+          },
+          "airlineIata": {
+            "type": "string"
+          },
+          "airlineIcao": {
+            "type": "string"
+          },
+          "image": {
+            "type": "string",
+            "description": "Airline image URL from DB, when available"
+          },
+          "flightCount": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "airlineName",
+          "airlineIata",
+          "flightCount"
+        ]
+      },
+      "AirportStatsEntity": {
+        "type": "object",
+        "properties": {
+          "airportCode": {
+            "type": "string"
+          },
+          "airportName": {
+            "type": "string"
+          },
+          "departureCount": {
+            "type": "number",
+            "description": "Number of flights departing from this airport"
+          }
+        },
+        "required": [
+          "airportCode",
+          "airportName",
+          "departureCount"
+        ]
+      },
+      "TopRouteEntity": {
+        "type": "object",
+        "properties": {
+          "origin": {
+            "type": "string"
+          },
+          "destination": {
+            "type": "string"
+          },
+          "flightCount": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "origin",
+          "destination",
+          "flightCount"
+        ]
+      },
+      "ProfileStatsResponseEntity": {
+        "type": "object",
+        "properties": {
+          "mostFlownAircraft": {
+            "$ref": "#/components/schemas/MostFlownAircraftEntity"
+          },
+          "passport": {
+            "$ref": "#/components/schemas/PassportEntity"
+          },
+          "shortestDistanceFlight": {
+            "$ref": "#/components/schemas/FlightDistanceEntity"
+          },
+          "longestDistanceFlight": {
+            "$ref": "#/components/schemas/FlightDistanceEntity"
+          },
+          "shortestDurationFlight": {
+            "$ref": "#/components/schemas/FlightDurationEntity"
+          },
+          "longestDurationFlight": {
+            "$ref": "#/components/schemas/FlightDurationEntity"
+          },
+          "airlines": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AirlineStatsEntity"
+            }
+          },
+          "airports": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AirportStatsEntity"
+            }
+          },
+          "topRoutes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TopRouteEntity"
+            }
+          }
+        },
+        "required": [
+          "mostFlownAircraft",
+          "passport",
+          "shortestDistanceFlight",
+          "longestDistanceFlight",
+          "shortestDurationFlight",
+          "longestDurationFlight",
+          "airlines",
+          "airports",
+          "topRoutes"
         ]
       }
     }

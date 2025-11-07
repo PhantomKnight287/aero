@@ -77,6 +77,7 @@ Class | Method | HTTP request | Description
 [*FlightsApi*](doc/FlightsApi.md) | [**flightsControllerGetFlightsInBoundsV1**](doc/FlightsApi.md#flightscontrollergetflightsinboundsv1) | **GET** /v1/flights/bounds | Get flights within geographic bounds(deprecated - will return nothing)
 [*FlightsApi*](doc/FlightsApi.md) | [**flightsControllerGetFlightsV1**](doc/FlightsApi.md#flightscontrollergetflightsv1) | **GET** /v1/flights | Get flights between two airports
 [*FlightsApi*](doc/FlightsApi.md) | [**flightsControllerGetTrackedFlightsV1**](doc/FlightsApi.md#flightscontrollergettrackedflightsv1) | **GET** /v1/flights/tracked | Get all tracked flights
+[*ProfileApi*](doc/ProfileApi.md) | [**profileControllerGetProfileStatsV1**](doc/ProfileApi.md#profilecontrollergetprofilestatsv1) | **GET** /v1/profile/@me | Get profile stats
 
 
 ## Documentation For Models
@@ -85,15 +86,21 @@ Class | Method | HTTP request | Description
  - [AircraftFlightEntity](doc/AircraftFlightEntity.md)
  - [AirlineEntity](doc/AirlineEntity.md)
  - [AirlineInfo](doc/AirlineInfo.md)
+ - [AirlineStatsEntity](doc/AirlineStatsEntity.md)
  - [AirportEntity](doc/AirportEntity.md)
  - [AirportInfo](doc/AirportInfo.md)
+ - [AirportStatsEntity](doc/AirportStatsEntity.md)
  - [AirportType](doc/AirportType.md)
  - [FlighType](doc/FlighType.md)
  - [FlightAwareDataEntity](doc/FlightAwareDataEntity.md)
+ - [FlightDistanceEntity](doc/FlightDistanceEntity.md)
+ - [FlightDurationEntity](doc/FlightDurationEntity.md)
  - [FlightEntity](doc/FlightEntity.md)
  - [FlightPositionEntity](doc/FlightPositionEntity.md)
  - [FlightResponseEntity](doc/FlightResponseEntity.md)
  - [FlightStatus](doc/FlightStatus.md)
+ - [FlightSummaryAirlineEntity](doc/FlightSummaryAirlineEntity.md)
+ - [FlightSummaryEntity](doc/FlightSummaryEntity.md)
  - [FlightTrackResponseEntity](doc/FlightTrackResponseEntity.md)
  - [FlightsControllerGetFlightsInBoundsV1200Response](doc/FlightsControllerGetFlightsInBoundsV1200Response.md)
  - [FlightsControllerGetFlightsInBoundsV1200ResponseBounds](doc/FlightsControllerGetFlightsInBoundsV1200ResponseBounds.md)
@@ -106,13 +113,17 @@ Class | Method | HTTP request | Description
  - [LocationEntity](doc/LocationEntity.md)
  - [LoginDTO](doc/LoginDTO.md)
  - [LoginEntity](doc/LoginEntity.md)
+ - [MostFlownAircraftEntity](doc/MostFlownAircraftEntity.md)
  - [PartialAirlineEntity](doc/PartialAirlineEntity.md)
+ - [PassportEntity](doc/PassportEntity.md)
+ - [ProfileStatsResponseEntity](doc/ProfileStatsResponseEntity.md)
  - [RegisterDTO](doc/RegisterDTO.md)
  - [RegisterEntity](doc/RegisterEntity.md)
  - [RouteAirportEntity](doc/RouteAirportEntity.md)
  - [RouteInfoEntity](doc/RouteInfoEntity.md)
  - [StringifiedGreatCircleDistanceEntity](doc/StringifiedGreatCircleDistanceEntity.md)
  - [TimeEntity](doc/TimeEntity.md)
+ - [TopRouteEntity](doc/TopRouteEntity.md)
  - [TrackedFlightsResponseEntity](doc/TrackedFlightsResponseEntity.md)
  - [UserEntity](doc/UserEntity.md)
 

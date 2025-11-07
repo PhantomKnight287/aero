@@ -12,17 +12,27 @@ class HomeService {
   Future<BuiltList<AirlineEntity>> searchAirlines(String query,
       {CancelToken? cancelToken}) async {
     if (query.isEmpty) return BuiltList.from([]);
-    final res = await _airlinesApi.airlinesControllerGetAirlinesV1(
-        search: query, cancelToken: cancelToken);
-    return res.data!;
+    try {
+      final res = await _airlinesApi.airlinesControllerGetAirlinesV1(
+        search: query,
+        cancelToken: cancelToken,
+      );
+      return res.data!;
+    } catch (e) {
+      return BuiltList.from([]);
+    }
   }
 
   Future<BuiltList<AirportEntity>> searchAirports(String query,
       {CancelToken? cancelToken}) async {
     if (query.isEmpty) return BuiltList.from([]);
-    final res = await _airportsApi.airportsControllerGetAirportsV1(
-        search: query, cancelToken: cancelToken);
-    return res.data!;
+    try {
+      final res = await _airportsApi.airportsControllerGetAirportsV1(
+          search: query, cancelToken: cancelToken);
+      return res.data!;
+    } catch (e) {
+      return BuiltList.from([]);
+    }
   }
 
   Future<List<Object>> search(
