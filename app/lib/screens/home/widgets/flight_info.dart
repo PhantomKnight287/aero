@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:built_collection/built_collection.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -8,10 +9,16 @@ import 'package:material_design_icons_flutter/material_design_icons_flutter.dart
 import 'package:openapi/openapi.dart';
 import 'package:plane_pal/constants/main.dart';
 import 'package:plane_pal/extensions/datetime.dart';
+import 'package:plane_pal/extensions/duration.dart';
 import 'package:plane_pal/formatters/time.dart';
 import 'package:plane_pal/screens/home/widgets/flight_route_info.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tz;
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:screenshot/screenshot.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:plane_pal/utils/duration.dart';
 
 class FlightInfoWidget extends StatefulWidget {
   final FlightResponseEntity info;
@@ -34,6 +41,7 @@ class FlightInfoWidget extends StatefulWidget {
 
 class _FlightInfoWidgetState extends State<FlightInfoWidget> {
   bool _showAircraftPayload = false;
+  final ScreenshotController _screenshotController = ScreenshotController();
 
   String _formatKey(String key) {
     final withSpaces = key
@@ -75,6 +83,396 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
       }
     }
     return "$value";
+  }
+
+  Widget _buildShareableCard() {
+    final departure = widget.info.departure;
+    final arrival = widget.info.arrival;
+    final airline = widget.info.airline;
+
+    final departureTime = DateTime.parse(
+      (departure.revisedTime ?? departure.scheduledTime).utc,
+    );
+    final arrivalTime = DateTime.parse(
+      (arrival.revisedTime ?? arrival.scheduledTime).utc,
+    );
+    final departureScheduled = DateTime.parse(departure.scheduledTime.utc);
+    final arrivalScheduled = DateTime.parse(arrival.scheduledTime.utc);
+
+    // Calculate delays
+    final departureDelay = departure.revisedTime != null
+        ? departureTime.difference(departureScheduled)
+        : null;
+    final arrivalDelay = arrival.revisedTime != null
+        ? arrivalTime.difference(arrivalScheduled)
+        : null;
+
+    Duration duration;
+    try {
+      duration = calculateFlightDuration(
+        departureTime: departureTime.toIso8601String(),
+        departureTimezone: departure.airport.timeZone ?? 'UTC',
+        arrivalTime: arrivalTime.toIso8601String(),
+        arrivalTimezone: arrival.airport.timeZone ?? 'UTC',
+      );
+    } catch (e) {
+      duration = arrivalTime.difference(departureTime);
+    }
+
+    return Container(
+      width: 400,
+      height: 600,
+      decoration: BoxDecoration(
+        color: const Color(0xFF2A2A1E), // Dark yellow-brown base
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Stack(
+        children: [
+          Positioned.fill(
+            child: Opacity(
+              opacity: 0.3,
+              child: SvgPicture.asset(
+                'assets/background/world.svg',
+                fit: BoxFit.cover,
+                colorFilter: ColorFilter.mode(
+                  Colors.black.withOpacity(0.3),
+                  BlendMode.darken,
+                ),
+              ),
+            ),
+          ),
+
+          Positioned.fill(
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: RadialGradient(
+                  center: Alignment.topLeft,
+                  radius: 1.5,
+                  colors: [
+                    const Color(0xFFFFD700).withOpacity(0.3),
+                    const Color(0xFFFFD700).withOpacity(0.1),
+                    Colors.transparent,
+                  ],
+                  stops: const [0.0, 0.3, 1.0],
+                ),
+              ),
+            ),
+          ),
+          // Content
+          Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    if (airline.image != null)
+                      SvgPicture.network(
+                        airline.image!,
+                        width: 48,
+                        height: 48,
+                      )
+                    else if (airline.iata != null && airline.iata!.isNotEmpty)
+                      CachedNetworkImage(
+                        imageUrl:
+                            "https://airlabs.co/img/airline/m/${airline.iata}.png",
+                        width: 48,
+                        height: 48,
+                        errorWidget: (context, url, error) =>
+                            const SizedBox.shrink(),
+                      ),
+                    const Gap(12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            airline.name ?? 'Airline',
+                            style: const TextStyle(
+                              fontSize: 28,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                          const Gap(4),
+                          Text(
+                            widget.info.flightNo,
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white70,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const Spacer(),
+                // Middle section - Departure and Arrival
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    // Departure
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Departure',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey[300],
+                            ),
+                          ),
+                          const Gap(8),
+                          Row(
+                            children: [
+                              Text(
+                                departure.airport.iata ?? 'N/A',
+                                style: const TextStyle(
+                                  fontSize: 32,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              const Gap(8),
+                              const Icon(
+                                Icons.flight_takeoff,
+                                color: Colors.white,
+                                size: 24,
+                              ),
+                            ],
+                          ),
+                          const Gap(4),
+                          Text(
+                            departure.airport.municipalityName ?? 'Unknown',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey[300],
+                            ),
+                          ),
+                          const Gap(4),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                departureTime.toTimezoneString(
+                                  departure.airport.timeZone ?? 'UTC',
+                                  use24Hrs: false,
+                                ),
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  color: Color(0xFFFFA500), // Yellow-orange
+                                ),
+                              ),
+                              if (departureDelay != null &&
+                                  departureDelay != Duration.zero)
+                                Text(
+                                  departureDelay.isNegative
+                                      ? '${departureDelay.abs().toHumanReadable()} early'
+                                      : '${departureDelay.toHumanReadable()} late',
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    color: departureDelay.isNegative
+                                        ? Colors.green[300]
+                                        : Colors.red[300],
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    // Arrival
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text(
+                            'Arrival',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey[300],
+                            ),
+                          ),
+                          const Gap(8),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              const Icon(
+                                Icons.flight_land,
+                                color: Colors.white,
+                                size: 24,
+                              ),
+                              const Gap(8),
+                              Text(
+                                arrival.airport.iata ?? 'N/A',
+                                style: const TextStyle(
+                                  fontSize: 32,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const Gap(4),
+                          Text(
+                            arrival.airport.municipalityName ?? 'Unknown',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey[300],
+                            ),
+                            textAlign: TextAlign.right,
+                          ),
+                          const Gap(4),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Text(
+                                arrivalTime.toTimezoneString(
+                                  arrival.airport.timeZone ?? 'UTC',
+                                  use24Hrs: false,
+                                ),
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  color: Color(0xFFFFA500), // Yellow-orange
+                                ),
+                              ),
+                              if (arrivalDelay != null &&
+                                  arrivalDelay != Duration.zero)
+                                Text(
+                                  arrivalDelay.isNegative
+                                      ? '${arrivalDelay.abs().toHumanReadable()} early'
+                                      : '${arrivalDelay.toHumanReadable()} late',
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    color: arrivalDelay.isNegative
+                                        ? Colors.green[300]
+                                        : Colors.red[300],
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const Spacer(),
+
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    _buildShareableDetailItem(
+                      Icons.access_time,
+                      'Duration',
+                      duration.toHumanReadable(),
+                    ),
+                    _buildShareableDetailItem(
+                      Icons.calendar_today,
+                      'Flight Date',
+                      formatDayAndMonth(departureTime),
+                    ),
+                    _buildShareableDetailItem(
+                      Icons.airplanemode_active,
+                      'Aircraft',
+                      widget.info.aircraft?.registration ?? 'N/A',
+                    ),
+                  ],
+                ),
+                const Gap(16),
+                Divider(
+                  color: Colors.grey.shade300,
+                  thickness: 0.5,
+                ),
+                Center(
+                  child: Text(
+                    'Aero',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey[400],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildShareableDetailItem(IconData icon, String label, String value) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, color: Colors.white, size: 20),
+        const Gap(8),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 11,
+                color: Colors.grey[300],
+              ),
+            ),
+            const Gap(2),
+            Text(
+              value,
+              style: const TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Future<void> _shareFlightCard() async {
+    try {
+      // Capture screenshot
+      final imageBytes = await _screenshotController.captureFromWidget(
+        _buildShareableCard(),
+        pixelRatio: 2.0,
+        delay: const Duration(milliseconds: 100),
+      );
+
+      if (imageBytes.isEmpty) {
+        return;
+      }
+
+      // Save to temporary file
+      final tempDir = await getTemporaryDirectory();
+      final file = File(
+          '${tempDir.path}/flight_card_${DateTime.now().millisecondsSinceEpoch}.png');
+      await file.writeAsBytes(imageBytes);
+
+      // Share the file
+      await Share.shareXFiles(
+        [XFile(file.path)],
+        text: 'Check out my flight!',
+      );
+    } catch (e) {
+      // Handle error silently or show a snackbar
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to share flight card: $e'),
+          ),
+        );
+      }
+    }
   }
 
   @override
@@ -241,6 +639,9 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
                       if (value == "refresh_flight_data") {
                         widget.onRefreshFlightData?.call();
                       }
+                      if (value == "share") {
+                        _shareFlightCard();
+                      }
                     },
                   ),
                   SizedBox(
@@ -365,6 +766,15 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
                       );
                     }),
                   ),
+                  if (widget.info.flightAwareData?.codesharesIata != null)
+                    ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      title: Text(
+                          "Could be known as ${widget.info.flightAwareData!.codesharesIata!.join(", ")}"),
+                      subtitle:
+                          Text("These airlines are codesharing on this flight"),
+                      leading: Icon(Icons.flight_takeoff),
+                    )
                 ],
               ),
             ),
@@ -646,7 +1056,7 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
               ),
             ),
           // if (widget.flightPositions.isNotEmpty)
-      
+
           //   Column(
           //     crossAxisAlignment: CrossAxisAlignment.start,
           //     children: [
@@ -676,7 +1086,6 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
           //       ),
           //     ],
           //   ),
-      
         ],
       ),
     );
@@ -712,12 +1121,14 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
     // Altitude is in 100ft units, so multiply by 100
     final positions = widget.flightPositions.toList().map((pos) {
       return _ChartPosition(
-        altitude: pos.altitude.toDouble() * 100, // Convert from 100ft units to feet
+        altitude:
+            pos.altitude.toDouble() * 100, // Convert from 100ft units to feet
         speed: pos.groundspeed.toDouble(),
         timestamp: DateTime.parse(pos.timestamp),
       );
-    }).toList()..sort((a, b) => a.timestamp.compareTo(b.timestamp));
-    
+    }).toList()
+      ..sort((a, b) => a.timestamp.compareTo(b.timestamp));
+
     if (positions.isEmpty) {
       return LineChartData();
     }
@@ -738,7 +1149,7 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
     // Ensure we have valid ranges with padding
     final altitudeRange = maxAltitude - minAltitude;
     final speedRange = maxSpeed - minSpeed;
-    
+
     if (altitudeRange == 0) {
       minAltitude = (minAltitude - 1000).clamp(0, double.infinity);
       maxAltitude = maxAltitude + 1000;
@@ -748,7 +1159,7 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
       minAltitude = (minAltitude - padding).clamp(0, double.infinity);
       maxAltitude = maxAltitude + padding;
     }
-    
+
     if (speedRange == 0) {
       minSpeed = (minSpeed - 50).clamp(0, double.infinity);
       maxSpeed = maxSpeed + 50;
@@ -769,12 +1180,12 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
 
     for (int i = 0; i < positions.length; i++) {
       final pos = positions[i];
-      
+
       // Normalize both to 0-1 range (both use full chart height)
       final altitudeY = finalAltitudeRange > 0
           ? ((pos.altitude - minAltitude) / finalAltitudeRange)
           : 0.5;
-      
+
       final speedY = finalSpeedRange > 0
           ? ((pos.speed - minSpeed) / finalSpeedRange)
           : 0.5;
@@ -789,8 +1200,8 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
     }
 
     // Calculate intervals for X axis labels
-    final xInterval = positions.length > 1 
-        ? (positions.length - 1) / 4.0  // Show ~5 labels
+    final xInterval = positions.length > 1
+        ? (positions.length - 1) / 4.0 // Show ~5 labels
         : 1.0;
 
     return LineChartData(

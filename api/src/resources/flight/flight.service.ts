@@ -183,8 +183,33 @@ export class FlightService {
           } as AircraftEntity)
         : undefined;
 
+      // Query airline from DB to get correct name and image
+      const storedAirline = existingFlight.airline as any;
+      const airlineIata = storedAirline?.iata;
+      const airlineIcao = storedAirline?.icao;
+
+      const dbAirline = await prisma.airline.findFirst({
+        where: {
+          OR: [
+            airlineIata ? { iata: airlineIata } : undefined,
+            airlineIcao ? { icao: airlineIcao } : undefined,
+          ].filter(Boolean),
+        },
+      });
+
+      // Merge airline data: prefer DB, fallback to stored
+      const mergedAirline = dbAirline
+        ? {
+            name: dbAirline.name,
+            iata: dbAirline.iata,
+            icao: dbAirline.icao,
+            image: dbAirline.image,
+          }
+        : storedAirline;
+
       return {
         ...existingFlight,
+        airline: mergedAirline,
         aircraft: aircraft
           ? ({
               modeS: aircraft.hexIcao,
@@ -280,6 +305,19 @@ export class FlightService {
           }
         : null;
 
+      // Resolve airline from DB using IATA/ICAO
+      const airlineIata = faFlight.operator_iata ?? undefined;
+      const airlineIcao = faFlight.operator_icao ?? undefined;
+
+      const dbAirline = await prisma.airline.findFirst({
+        where: {
+          OR: [
+            airlineIata ? { iata: airlineIata } : undefined,
+            airlineIcao ? { icao: airlineIcao } : undefined,
+          ].filter(Boolean),
+        },
+      });
+
       // Resolve airport coordinates from DB using IATA/ICAO
       const depIata = faFlight.origin?.code_iata ?? undefined;
       const depIcao =
@@ -322,9 +360,10 @@ export class FlightService {
           type: faFlight.aircraft_type,
         },
         airline: {
-          name: faFlight.operator ?? faFlight.operator_iata ?? 'Unknown',
-          iata: faFlight.operator_iata,
-          icao: faFlight.operator_icao,
+          name: dbAirline?.name ?? faFlight.operator ?? faFlight.operator_iata ?? 'Unknown',
+          iata: dbAirline?.iata ?? faFlight.operator_iata,
+          icao: dbAirline?.icao ?? faFlight.operator_icao,
+          image: dbAirline?.image ?? null,
         },
         arrival: {
           airport: {
@@ -740,15 +779,45 @@ export class FlightService {
         },
       });
 
+      // Query airline from DB to get correct name and image
+      const storedAirlineFinal = flightWithAwareData?.airline as any;
+      const airlineIataFinal = storedAirlineFinal?.iata;
+      const airlineIcaoFinal = storedAirlineFinal?.icao;
+
+      const dbAirlineFinal = await prisma.airline.findFirst({
+        where: {
+          OR: [
+            airlineIataFinal ? { iata: airlineIataFinal } : undefined,
+            airlineIcaoFinal ? { icao: airlineIcaoFinal } : undefined,
+          ].filter(Boolean),
+        },
+      });
+
+      // Merge airline data: prefer DB, fallback to stored
+      const mergedAirlineFinal = dbAirlineFinal
+        ? {
+            name: dbAirlineFinal.name,
+            iata: dbAirlineFinal.iata,
+            icao: dbAirlineFinal.icao,
+            image: dbAirlineFinal.image,
+          }
+        : storedAirlineFinal;
+
       // Preserve the normalized aircraft data in the response
       if (flightWithAwareData && normalizedAircraft) {
         return {
           ...flightWithAwareData,
+          airline: mergedAirlineFinal,
           aircraft: normalizedAircraft,
         };
       }
 
-      return flightWithAwareData ?? newFlight;
+      return flightWithAwareData
+        ? {
+            ...flightWithAwareData,
+            airline: mergedAirlineFinal,
+          }
+        : newFlight;
     } catch (error) {
       if (
         error instanceof UnauthorizedException ||
