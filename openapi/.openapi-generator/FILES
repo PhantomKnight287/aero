@@ -119,5 +119,3 @@ lib/src/model/tracked_flights_response_entity.dart
 lib/src/model/user_entity.dart
 lib/src/serializers.dart
 pubspec.yaml
-test/aircraft_stats_entity_test.dart
-test/aircraft_with_age_test.dart

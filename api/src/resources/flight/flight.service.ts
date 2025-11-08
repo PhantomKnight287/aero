@@ -243,7 +243,9 @@ export class FlightService {
           await this.flightAwareService.searchFlightsByIdent(faFlightId);
 
         if (!flightAwareResponse || !flightAwareResponse.flights?.length) {
-          throw new BadRequestException('Flight not found');
+          throw new BadRequestException(
+            'Unable to fetch flight information. Please make sure the flight number is correct.',
+          );
         }
 
         // When using fa_flight_id, we get exactly 1 flight in the array
@@ -259,7 +261,9 @@ export class FlightService {
           await this.flightAwareService.searchFlightsByIdent(flightAwareIdent);
 
         if (!flightAwareResponse || !flightAwareResponse.flights?.length) {
-          throw new BadRequestException('Flight not found');
+          throw new BadRequestException(
+            'Unable to fetch flight information. Please make sure the flight number is correct.',
+          );
         }
 
         // Use the first flight or try to match by date
@@ -360,7 +364,11 @@ export class FlightService {
           type: faFlight.aircraft_type,
         },
         airline: {
-          name: dbAirline?.name ?? faFlight.operator ?? faFlight.operator_iata ?? 'Unknown',
+          name:
+            dbAirline?.name ??
+            faFlight.operator ??
+            faFlight.operator_iata ??
+            'Unknown',
           iata: dbAirline?.iata ?? faFlight.operator_iata,
           icao: dbAirline?.icao ?? faFlight.operator_icao,
           image: dbAirline?.image ?? null,
@@ -489,6 +497,7 @@ export class FlightService {
         atcIdent: faFlight.atc_ident ?? null,
         inboundFaFlightId: faFlight.inbound_fa_flight_id ?? null,
         codesharesIata: faFlight.codeshares_iata ?? [],
+        codesharesIcao: faFlight.codeshares ?? [],
         departureDelay: faFlight.departure_delay ?? null,
         arrivalDelay: faFlight.arrival_delay ?? null,
         filedEte: faFlight.filed_ete ?? null,

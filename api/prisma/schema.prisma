@@ -272,7 +272,10 @@ model FlightAwareData {
   inboundFaFlightId String? @map("inbound_fa_flight_id")
 
   /// IATA codeshares
-  codesharesIata String[] @map("codeshares_iata")
+  codesharesIata String[] @default([]) @map("codeshares_iata")
+
+  /// ICAO codeshares
+  codesharesIcao String[] @default([]) @map("codeshares_icao")
 
   /// Departure delay in seconds (negative = early)
   departureDelay Int? @map("departure_delay")

@@ -43,6 +43,9 @@ export class FlightAwareDataEntity {
   @ApiPropertyOptional({ type: [String] })
   codesharesIata?: string[];
 
+  @ApiPropertyOptional({ type: [String] })
+  codesharesIcao?: string[];
+
   @ApiPropertyOptional({
     description: 'Departure delay in seconds (negative = early)',
   })

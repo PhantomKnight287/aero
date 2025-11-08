@@ -26,6 +26,7 @@ part 'flight_aware_data_entity.g.dart';
 /// * [atcIdent] 
 /// * [inboundFaFlightId] 
 /// * [codesharesIata] 
+/// * [codesharesIcao] 
 /// * [departureDelay] - Departure delay in seconds (negative = early)
 /// * [arrivalDelay] - Arrival delay in seconds (negative = early)
 /// * [filedEte] - Estimated time en route in seconds
@@ -121,6 +122,9 @@ abstract class FlightAwareDataEntity implements Built<FlightAwareDataEntity, Fli
 
   @BuiltValueField(wireName: r'codesharesIata')
   BuiltList<String>? get codesharesIata;
+
+  @BuiltValueField(wireName: r'codesharesIcao')
+  BuiltList<String>? get codesharesIcao;
 
   /// Departure delay in seconds (negative = early)
   @BuiltValueField(wireName: r'departureDelay')
@@ -401,6 +405,13 @@ class _$FlightAwareDataEntitySerializer implements PrimitiveSerializer<FlightAwa
       yield r'codesharesIata';
       yield serializers.serialize(
         object.codesharesIata,
+        specifiedType: const FullType(BuiltList, [FullType(String)]),
+      );
+    }
+    if (object.codesharesIcao != null) {
+      yield r'codesharesIcao';
+      yield serializers.serialize(
+        object.codesharesIcao,
         specifiedType: const FullType(BuiltList, [FullType(String)]),
       );
     }
@@ -865,6 +876,13 @@ class _$FlightAwareDataEntitySerializer implements PrimitiveSerializer<FlightAwa
             specifiedType: const FullType(BuiltList, [FullType(String)]),
           ) as BuiltList<String>;
           result.codesharesIata.replace(valueDes);
+          break;
+        case r'codesharesIcao':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType(BuiltList, [FullType(String)]),
+          ) as BuiltList<String>;
+          result.codesharesIcao.replace(valueDes);
           break;
         case r'departureDelay':
           final valueDes = serializers.deserialize(

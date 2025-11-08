@@ -19,6 +19,7 @@ import 'package:screenshot/screenshot.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:plane_pal/utils/duration.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class FlightInfoWidget extends StatefulWidget {
   final FlightResponseEntity info;
@@ -120,10 +121,10 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
     }
 
     return Container(
-      width: 400,
+      width: 450,
       height: 600,
       decoration: BoxDecoration(
-        color: const Color(0xFF2A2A1E), // Dark yellow-brown base
+        color: const Color(0xFF1A1A1A), // Clean dark base
         borderRadius: BorderRadius.circular(16),
       ),
       child: Stack(
@@ -149,8 +150,8 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
                   center: Alignment.topLeft,
                   radius: 1.5,
                   colors: [
-                    const Color(0xFFFFD700).withOpacity(0.3),
-                    const Color(0xFFFFD700).withOpacity(0.1),
+                    Colors.white.withOpacity(0.08),
+                    Colors.white.withOpacity(0.03),
                     Colors.transparent,
                   ],
                   stops: const [0.0, 0.3, 1.0],
@@ -165,19 +166,20 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     if (airline.image != null)
                       SvgPicture.network(
                         airline.image!,
-                        width: 48,
-                        height: 48,
+                        width: 32,
+                        height: 32,
                       )
                     else if (airline.iata != null && airline.iata!.isNotEmpty)
                       CachedNetworkImage(
                         imageUrl:
                             "https://airlabs.co/img/airline/m/${airline.iata}.png",
-                        width: 48,
-                        height: 48,
+                        width: 32,
+                        height: 32,
                         errorWidget: (context, url, error) =>
                             const SizedBox.shrink(),
                       ),
@@ -188,17 +190,18 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
                         children: [
                           Text(
                             airline.name ?? 'Airline',
-                            style: const TextStyle(
-                              fontSize: 28,
+                            style: TextStyle(
+                              fontFamily: "Geist",
+                              fontSize: 20,
                               fontWeight: FontWeight.bold,
                               color: Colors.white,
                             ),
                           ),
-                          const Gap(4),
                           Text(
-                            widget.info.flightNo,
-                            style: const TextStyle(
-                              fontSize: 18,
+                            "${widget.info.flightNo} ${widget.info.flightAwareData?.identIata != null ? "• ${widget.info.flightAwareData?.identIata}" : ''}",
+                            style: TextStyle(
+                              fontFamily: "Geist",
+                              fontSize: 16,
                               fontWeight: FontWeight.w600,
                               color: Colors.white70,
                             ),
@@ -206,14 +209,38 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
                         ],
                       ),
                     ),
+                    // Distance info - simple and clean
+                    if (widget.info.greatCircleDistance.km != null)
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text(
+                            '${double.parse(widget.info.greatCircleDistance.km!).toStringAsFixed(0)} km',
+                            style: TextStyle(
+                              fontFamily: "Geist",
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                          const Gap(2),
+                          Text(
+                            '${(double.parse(widget.info.greatCircleDistance.km!) * 0.621371).toStringAsFixed(0)} mi',
+                            style: TextStyle(
+                              fontFamily: "Geist",
+                              fontSize: 12,
+                              color: Colors.grey[400],
+                            ),
+                          ),
+                        ],
+                      ),
                   ],
                 ),
                 const Spacer(),
-                // Middle section - Departure and Arrival
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Departure
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -221,6 +248,7 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
                           Text(
                             'Departure',
                             style: TextStyle(
+                              fontFamily: "Geist",
                               fontSize: 12,
                               color: Colors.grey[300],
                             ),
@@ -230,7 +258,8 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
                             children: [
                               Text(
                                 departure.airport.iata ?? 'N/A',
-                                style: const TextStyle(
+                                style: TextStyle(
+                                  fontFamily: "Geist",
                                   fontSize: 32,
                                   fontWeight: FontWeight.bold,
                                   color: Colors.white,
@@ -248,6 +277,7 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
                           Text(
                             departure.airport.municipalityName ?? 'Unknown',
                             style: TextStyle(
+                              fontFamily: "Geist",
                               fontSize: 14,
                               color: Colors.grey[300],
                             ),
@@ -261,10 +291,11 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
                                   departure.airport.timeZone ?? 'UTC',
                                   use24Hrs: false,
                                 ),
-                                style: const TextStyle(
+                                style: TextStyle(
+                                  fontFamily: "Geist",
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600,
-                                  color: Color(0xFFFFA500), // Yellow-orange
+                                  color: Colors.white,
                                 ),
                               ),
                               if (departureDelay != null &&
@@ -274,6 +305,7 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
                                       ? '${departureDelay.abs().toHumanReadable()} early'
                                       : '${departureDelay.toHumanReadable()} late',
                                   style: TextStyle(
+                                    fontFamily: "Geist",
                                     fontSize: 11,
                                     color: departureDelay.isNegative
                                         ? Colors.green[300]
@@ -286,7 +318,6 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
                         ],
                       ),
                     ),
-                    // Arrival
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.end,
@@ -294,6 +325,7 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
                           Text(
                             'Arrival',
                             style: TextStyle(
+                              fontFamily: "Geist",
                               fontSize: 12,
                               color: Colors.grey[300],
                             ),
@@ -310,7 +342,8 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
                               const Gap(8),
                               Text(
                                 arrival.airport.iata ?? 'N/A',
-                                style: const TextStyle(
+                                style: TextStyle(
+                                  fontFamily: "Geist",
                                   fontSize: 32,
                                   fontWeight: FontWeight.bold,
                                   color: Colors.white,
@@ -322,6 +355,7 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
                           Text(
                             arrival.airport.municipalityName ?? 'Unknown',
                             style: TextStyle(
+                              fontFamily: "Geist",
                               fontSize: 14,
                               color: Colors.grey[300],
                             ),
@@ -336,10 +370,11 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
                                   arrival.airport.timeZone ?? 'UTC',
                                   use24Hrs: false,
                                 ),
-                                style: const TextStyle(
+                                style: TextStyle(
+                                  fontFamily: "Geist",
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600,
-                                  color: Color(0xFFFFA500), // Yellow-orange
+                                  color: Colors.white,
                                 ),
                               ),
                               if (arrivalDelay != null &&
@@ -349,6 +384,7 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
                                       ? '${arrivalDelay.abs().toHumanReadable()} early'
                                       : '${arrivalDelay.toHumanReadable()} late',
                                   style: TextStyle(
+                                    fontFamily: "Geist",
                                     fontSize: 11,
                                     color: arrivalDelay.isNegative
                                         ? Colors.green[300]
@@ -365,6 +401,7 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
                 ),
                 const Spacer(),
 
+                // Clean details section
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
@@ -375,29 +412,49 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
                     ),
                     _buildShareableDetailItem(
                       Icons.calendar_today,
-                      'Flight Date',
+                      'Date',
                       formatDayAndMonth(departureTime),
                     ),
                     _buildShareableDetailItem(
-                      Icons.airplanemode_active,
+                      Icons.flight,
                       'Aircraft',
-                      widget.info.aircraft?.registration ?? 'N/A',
+                      widget.info.aircraft?.model
+                              ?.split(' ')
+                              .take(2)
+                              .join(' ') ??
+                          widget.info.aircraft?.registration ??
+                          'N/A',
                     ),
                   ],
                 ),
                 const Gap(16),
                 Divider(
-                  color: Colors.grey.shade300,
+                  color: Colors.grey.shade700,
                   thickness: 0.5,
                 ),
-                Center(
-                  child: Text(
-                    'Aero',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey[400],
+                const Gap(12),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Powered by Aero',
+                      style: TextStyle(
+                        fontFamily: "Geist",
+                        fontSize: 11,
+                        color: Colors.grey[500],
+                        fontStyle: FontStyle.italic,
+                      ),
                     ),
-                  ),
+                    if (widget.info.aircraft?.registration != null)
+                      Text(
+                        widget.info.aircraft!.registration!,
+                        style: GoogleFonts.jetBrainsMono(
+                          fontSize: 10,
+                          color: Colors.grey[500],
+                          letterSpacing: 1.2,
+                        ),
+                      ),
+                  ],
                 ),
               ],
             ),
@@ -408,34 +465,40 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
   }
 
   Widget _buildShareableDetailItem(IconData icon, String label, String value) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(icon, color: Colors.white, size: 20),
-        const Gap(8),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 11,
-                color: Colors.grey[300],
-              ),
+    return Expanded(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            icon,
+            color: Colors.white70,
+            size: 20,
+          ),
+          const Gap(6),
+          Text(
+            label,
+            style: TextStyle(
+              fontFamily: "Geist",
+              fontSize: 11,
+              color: Colors.grey[500],
+              fontWeight: FontWeight.w500,
             ),
-            const Gap(2),
-            Text(
-              value,
-              style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: Colors.white,
-              ),
+          ),
+          const Gap(2),
+          Text(
+            value,
+            style: TextStyle(
+              fontFamily: "Geist",
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: Colors.white,
             ),
-          ],
-        ),
-      ],
+            textAlign: TextAlign.center,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
+      ),
     );
   }
 
@@ -443,7 +506,7 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
     try {
       // Capture screenshot
       final imageBytes = await _screenshotController.captureFromWidget(
-        _buildShareableCard(),
+        InheritedTheme.captureAll(context, _buildShareableCard()),
         pixelRatio: 2.0,
         delay: const Duration(milliseconds: 100),
       );
@@ -546,6 +609,24 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
                           fontSize: 12,
                         ),
                       ),
+                      if (widget.info.flightAwareData?.identIata != null) ...[
+                        Text(
+                          " • ",
+                          style:
+                              Theme.of(context).textTheme.titleSmall?.copyWith(
+                                    fontSize: 12,
+                                  ),
+                        ),
+                        Text(
+                          widget.info.flightAwareData?.identIata ?? '',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color:
+                                Theme.of(context).textTheme.titleSmall?.color,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ]
                     ],
                   ),
                 ],
@@ -766,13 +847,16 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
                       );
                     }),
                   ),
-                  if (widget.info.flightAwareData?.codesharesIata != null)
+                  if (widget.info.flightAwareData?.codesharesIcao != null &&
+                      widget.info.flightAwareData!.codesharesIcao!.isNotEmpty)
                     ListTile(
                       contentPadding: EdgeInsets.zero,
                       title: Text(
-                          "Could be known as ${widget.info.flightAwareData!.codesharesIata!.join(", ")}"),
-                      subtitle:
-                          Text("These airlines are codesharing on this flight"),
+                        "Could be known as ${widget.info.flightAwareData!.codesharesIcao!.join(", ")}",
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
                       leading: Icon(Icons.flight_takeoff),
                     )
                 ],
@@ -1055,276 +1139,8 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
                 ),
               ),
             ),
-          // if (widget.flightPositions.isNotEmpty)
-
-          //   Column(
-          //     crossAxisAlignment: CrossAxisAlignment.start,
-          //     children: [
-          //       // Legend
-          //       Padding(
-          //         padding: const EdgeInsets.symmetric(vertical: 8.0),
-          //         child: Row(
-          //           mainAxisAlignment: MainAxisAlignment.center,
-          //           children: [
-          //             _buildLegendItem(
-          //               'Altitude',
-          //               Colors.blue,
-          //             ),
-          //             const SizedBox(width: 24),
-          //             _buildLegendItem(
-          //               'Speed',
-          //               Colors.orange,
-          //             ),
-          //           ],
-          //         ),
-          //       ),
-          //       SizedBox(
-          //         height: 200,
-          //         child: LineChart(
-          //           _buildChartData(),
-          //         ),
-          //       ),
-          //     ],
-          //   ),
         ],
       ),
-    );
-  }
-
-  Widget _buildLegendItem(String label, Color color) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          width: 10,
-          height: 10,
-          decoration: BoxDecoration(
-            color: color,
-            shape: BoxShape.circle,
-          ),
-        ),
-        const SizedBox(width: 8),
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
-            color: Colors.grey[700],
-          ),
-        ),
-      ],
-    );
-  }
-
-  LineChartData _buildChartData() {
-    // Convert positions to list with parsed data
-    // Altitude is in 100ft units, so multiply by 100
-    final positions = widget.flightPositions.toList().map((pos) {
-      return _ChartPosition(
-        altitude:
-            pos.altitude.toDouble() * 100, // Convert from 100ft units to feet
-        speed: pos.groundspeed.toDouble(),
-        timestamp: DateTime.parse(pos.timestamp),
-      );
-    }).toList()
-      ..sort((a, b) => a.timestamp.compareTo(b.timestamp));
-
-    if (positions.isEmpty) {
-      return LineChartData();
-    }
-
-    // Find min/max values for scaling
-    double minAltitude = double.infinity;
-    double maxAltitude = double.negativeInfinity;
-    double minSpeed = double.infinity;
-    double maxSpeed = double.negativeInfinity;
-
-    for (var pos in positions) {
-      if (pos.altitude < minAltitude) minAltitude = pos.altitude;
-      if (pos.altitude > maxAltitude) maxAltitude = pos.altitude;
-      if (pos.speed < minSpeed) minSpeed = pos.speed;
-      if (pos.speed > maxSpeed) maxSpeed = pos.speed;
-    }
-
-    // Ensure we have valid ranges with padding
-    final altitudeRange = maxAltitude - minAltitude;
-    final speedRange = maxSpeed - minSpeed;
-
-    if (altitudeRange == 0) {
-      minAltitude = (minAltitude - 1000).clamp(0, double.infinity);
-      maxAltitude = maxAltitude + 1000;
-    } else {
-      // Add 10% padding
-      final padding = altitudeRange * 0.1;
-      minAltitude = (minAltitude - padding).clamp(0, double.infinity);
-      maxAltitude = maxAltitude + padding;
-    }
-
-    if (speedRange == 0) {
-      minSpeed = (minSpeed - 50).clamp(0, double.infinity);
-      maxSpeed = maxSpeed + 50;
-    } else {
-      // Add 10% padding
-      final padding = speedRange * 0.1;
-      minSpeed = (minSpeed - padding).clamp(0, double.infinity);
-      maxSpeed = maxSpeed + padding;
-    }
-
-    final finalAltitudeRange = maxAltitude - minAltitude;
-    final finalSpeedRange = maxSpeed - minSpeed;
-
-    // Create spots for altitude and speed
-    // Both use full 0-1 range, but will be displayed with separate Y-axes
-    final altitudeSpots = <FlSpot>[];
-    final speedSpots = <FlSpot>[];
-
-    for (int i = 0; i < positions.length; i++) {
-      final pos = positions[i];
-
-      // Normalize both to 0-1 range (both use full chart height)
-      final altitudeY = finalAltitudeRange > 0
-          ? ((pos.altitude - minAltitude) / finalAltitudeRange)
-          : 0.5;
-
-      final speedY = finalSpeedRange > 0
-          ? ((pos.speed - minSpeed) / finalSpeedRange)
-          : 0.5;
-
-      altitudeSpots.add(FlSpot(i.toDouble(), altitudeY));
-      speedSpots.add(FlSpot(i.toDouble(), speedY));
-    }
-
-    // Format time for X axis
-    String formatTime(DateTime time) {
-      return '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
-    }
-
-    // Calculate intervals for X axis labels
-    final xInterval = positions.length > 1
-        ? (positions.length - 1) / 4.0 // Show ~5 labels
-        : 1.0;
-
-    return LineChartData(
-      lineTouchData: LineTouchData(
-        enabled: false, // Disable tooltip
-      ),
-      gridData: FlGridData(
-        show: true,
-        drawVerticalLine: false,
-        horizontalInterval: 0.25,
-        getDrawingHorizontalLine: (value) {
-          return FlLine(
-            color: Colors.grey.withOpacity(0.2),
-            strokeWidth: 1,
-          );
-        },
-      ),
-      titlesData: FlTitlesData(
-        show: true,
-        rightTitles: AxisTitles(
-          sideTitles: SideTitles(
-            showTitles: true,
-            reservedSize: 55,
-            interval: 0.25,
-            getTitlesWidget: (value, meta) {
-              // Right Y-axis shows speed (orange)
-              final normalized = value; // 0.0-1.0
-              final speed = minSpeed + normalized * finalSpeedRange;
-              return Text(
-                '${speed.toInt()}kt',
-                style: TextStyle(
-                  color: Colors.orange,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 10,
-                ),
-              );
-            },
-          ),
-        ),
-        topTitles: AxisTitles(
-          sideTitles: SideTitles(showTitles: false),
-        ),
-        bottomTitles: AxisTitles(
-          sideTitles: SideTitles(
-            showTitles: true,
-            reservedSize: 30,
-            interval: xInterval,
-            getTitlesWidget: (value, meta) {
-              final index = value.toInt();
-              if (index >= 0 && index < positions.length) {
-                return Padding(
-                  padding: const EdgeInsets.only(top: 8.0),
-                  child: Text(
-                    formatTime(positions[index].timestamp),
-                    style: TextStyle(
-                      color: Colors.grey[600],
-                      fontWeight: FontWeight.bold,
-                      fontSize: 10,
-                    ),
-                  ),
-                );
-              }
-              return const Text('');
-            },
-          ),
-        ),
-        leftTitles: AxisTitles(
-          sideTitles: SideTitles(
-            showTitles: true,
-            reservedSize: 55,
-            interval: 0.25,
-            getTitlesWidget: (value, meta) {
-              // Left Y-axis shows altitude (blue)
-              final normalized = value; // 0.0-1.0
-              final altitude = minAltitude + normalized * finalAltitudeRange;
-              return Text(
-                '${altitude.toInt()}ft',
-                style: TextStyle(
-                  color: Colors.blue,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 10,
-                ),
-              );
-            },
-          ),
-        ),
-      ),
-      borderData: FlBorderData(
-        show: true,
-        border: Border.all(color: Colors.grey.withOpacity(0.3)),
-      ),
-      minX: 0,
-      maxX: (positions.length - 1).toDouble().clamp(0, double.infinity),
-      minY: 0,
-      maxY: 1,
-      lineBarsData: [
-        // Altitude line (uses full 0-1 range, left Y-axis)
-        LineChartBarData(
-          spots: altitudeSpots,
-          isCurved: true,
-          color: Colors.blue,
-          barWidth: 3,
-          isStrokeCapRound: true,
-          dotData: FlDotData(show: false),
-          belowBarData: BarAreaData(
-            show: true,
-            color: Colors.blue.withOpacity(0.3),
-          ),
-        ),
-        // Speed line (uses full 0-1 range, right Y-axis)
-        LineChartBarData(
-          spots: speedSpots,
-          isCurved: true,
-          color: Colors.orange,
-          barWidth: 3,
-          isStrokeCapRound: true,
-          dotData: FlDotData(show: false),
-          belowBarData: BarAreaData(
-            show: true,
-            color: Colors.orange.withOpacity(0.3),
-          ),
-        ),
-      ],
     );
   }
 

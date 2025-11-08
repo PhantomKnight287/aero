@@ -24,6 +24,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_map_animations/flutter_map_animations.dart';
 import 'package:gap/gap.dart';
+import 'package:plane_pal/utils/error.dart';
 import 'package:retry/retry.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -340,10 +341,17 @@ class _HomeScreenState extends State<HomeScreen>
     } catch (e, stack) {
       print('Error loading flight: $e');
       print(stack);
-      setState(() {
-        error = 'Failed to load flight information: $e';
-        selectedDate = null;
-      });
+      if (e is DioException) {
+        final errorMessage = getErrorMessage(e.response?.data);
+        setState(() {
+          error = errorMessage;
+        });
+      } else {
+        setState(() {
+          error = 'Failed to load flight information: $e';
+        });
+      }
+      selectedDate = null;
     } finally {
       setState(() {
         loading = false;
@@ -488,9 +496,16 @@ class _HomeScreenState extends State<HomeScreen>
     } catch (e, stack) {
       print('Error handling aircraft selection: $e');
       print(stack);
-      setState(() {
-        error = 'Failed to load flight information: $e';
-      });
+      if (e is DioException) {
+        final errorMessage = getErrorMessage(e.response?.data);
+        setState(() {
+          error = errorMessage;
+        });
+      } else {
+        setState(() {
+          error = 'Failed to load flight information: $e';
+        });
+      }
     } finally {
       setState(() {
         loading = false;
@@ -610,252 +625,476 @@ class _HomeScreenState extends State<HomeScreen>
                                 );
                               },
                             )
-                          : Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                SearchHeader(),
-                                Row(
+                          : loading &&
+                                  (selectedDate != null ||
+                                      selectedAirline != null &&
+                                          selectedFlightNumber != null)
+                              ? _buildFlightInfoSkeleton()
+                              : Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    SelectedFilters(
-                                      onAirlineClear: () {
-                                        selectedAirline = null;
-                                        setState(() {});
-                                      },
-                                      onFlightNumberClear: () {
-                                        selectedFlightNumber = null;
-                                        setState(() {});
-                                      },
-                                      onAirportsClear: () {
-                                        arrivalAirport = null;
-                                        departureAirport = null;
-                                        setState(() {});
-                                      },
-                                      onDepartureAirportClear: () {
-                                        departureAirport = null;
-                                        setState(() {});
-                                      },
-                                      selectedAirline: selectedAirline,
-                                      arrivalAirport: arrivalAirport,
-                                      departureAirport: departureAirport,
-                                      selectedFlightNumber:
-                                          selectedFlightNumber,
+                                    SearchHeader(),
+                                    Row(
+                                      children: [
+                                        SelectedFilters(
+                                          onAirlineClear: () {
+                                            selectedAirline = null;
+                                            setState(() {});
+                                          },
+                                          onFlightNumberClear: () {
+                                            selectedFlightNumber = null;
+                                            setState(() {});
+                                          },
+                                          onAirportsClear: () {
+                                            arrivalAirport = null;
+                                            departureAirport = null;
+                                            setState(() {});
+                                          },
+                                          onDepartureAirportClear: () {
+                                            departureAirport = null;
+                                            setState(() {});
+                                          },
+                                          selectedAirline: selectedAirline,
+                                          arrivalAirport: arrivalAirport,
+                                          departureAirport: departureAirport,
+                                          selectedFlightNumber:
+                                              selectedFlightNumber,
+                                        ),
+                                        Expanded(
+                                          child: FlightSearchBar(
+                                            searchController: _flightController,
+                                            isSearchEnabled: !(arrivalAirport !=
+                                                        null &&
+                                                    departureAirport != null) &&
+                                                !(selectedAirline != null &&
+                                                    selectedFlightNumber !=
+                                                        null),
+                                            hintText: selectedFlightNumber !=
+                                                    null
+                                                ? "Select date"
+                                                : selectedAirline != null &&
+                                                        arrivalAirport ==
+                                                            null &&
+                                                        departureAirport == null
+                                                    ? "Flight No"
+                                                    : departureAirport == null
+                                                        ? "Search airline, flight or airport"
+                                                        : arrivalAirport == null
+                                                            ? "Search arrival airport"
+                                                            : "Select date",
+                                            onSearchChanged: (p0) async {
+                                              if (arrivalAirport != null &&
+                                                  departureAirport != null)
+                                                return;
+                                              if (_debounce?.isActive ??
+                                                  false) {
+                                                _debounce?.cancel();
+                                              }
+                                              if (selectedAirline != null) {
+                                                setState(() {});
+                                                return null;
+                                              }
+                                              _debounce = Timer(
+                                                  const Duration(
+                                                    milliseconds: 300,
+                                                  ), () async {
+                                                loading = true;
+                                                results = [];
+                                                setState(() {});
+                                                results = await _search(p0);
+                                                loading = false;
+                                                setState(() {});
+                                              });
+                                            },
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                    Expanded(
-                                      child: FlightSearchBar(
-                                        searchController: _flightController,
-                                        isSearchEnabled: !(arrivalAirport !=
-                                                    null &&
-                                                departureAirport != null) &&
-                                            !(selectedAirline != null &&
-                                                selectedFlightNumber != null),
-                                        hintText: selectedFlightNumber != null
-                                            ? "Select date"
-                                            : selectedAirline != null &&
-                                                    arrivalAirport == null &&
-                                                    departureAirport == null
-                                                ? "Flight No"
-                                                : departureAirport == null
-                                                    ? "Search airline, flight or airport"
-                                                    : arrivalAirport == null
-                                                        ? "Search arrival airport"
-                                                        : "Select date",
-                                        onSearchChanged: (p0) async {
-                                          if (arrivalAirport != null &&
-                                              departureAirport != null) return;
-                                          if (_debounce?.isActive ?? false) {
-                                            _debounce?.cancel();
+                                    Gap(16),
+                                    if (arrivalAirport == null &&
+                                        departureAirport == null &&
+                                        selectedAirline != null &&
+                                        selectedFlightNumber == null)
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 8.0),
+                                        child: Text(
+                                          "Tip: For flight numbers like 6E1045, just enter 1045",
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: Colors.grey[600],
+                                            fontStyle: FontStyle.italic,
+                                          ),
+                                        ),
+                                      ),
+                                    if (error != null)
+                                      Center(
+                                        child: Text(
+                                          error!,
+                                          style: TextStyle(
+                                            color: Colors.red,
+                                          ),
+                                        ),
+                                      ),
+                                    if (((arrivalAirport != null &&
+                                                departureAirport != null) ||
+                                            (selectedAirline != null &&
+                                                selectedFlightNumber !=
+                                                    null)) &&
+                                        selectedDate == null)
+                                      DateSelectionList(
+                                        onDateSelected: (date) async {
+                                          loading = true;
+                                          selectedDate = date;
+                                          flights = BuiltList.from([]);
+                                          setState(() {});
+                                          try {
+                                            if (arrivalAirport != null &&
+                                                departureAirport != null) {
+                                              flights = await _flightService
+                                                  .getFlights(
+                                                departureAirport!.iataCode ??
+                                                    departureAirport!.ident,
+                                                arrivalAirport!.iataCode ??
+                                                    arrivalAirport!.ident,
+                                                date.toIso8601String(),
+                                              );
+                                            } else {
+                                              await _loadFlightInfo(
+                                                "${selectedAirline!.iata}$selectedFlightNumber",
+                                                "${selectedAirline!.icao}$selectedFlightNumber",
+                                                date,
+                                              );
+                                            }
+                                          } catch (e, stack) {
+                                            print(e);
+                                            print(stack);
+                                            setState(() {
+                                              selectedDate = null;
+                                            });
                                           }
-                                          if (selectedAirline != null) {
-                                            setState(() {});
-                                            return null;
-                                          }
-                                          _debounce = Timer(
-                                              const Duration(
-                                                milliseconds: 300,
-                                              ), () async {
-                                            loading = true;
-                                            results = [];
-                                            setState(() {});
-                                            results = await _search(p0);
+                                          setState(() {
                                             loading = false;
-                                            setState(() {});
                                           });
                                         },
                                       ),
+                                    if (selectedAirline != null &&
+                                        _flightController.text.isNotEmpty &&
+                                        selectedFlightNumber == null)
+                                      ListTile(
+                                        title: Text(
+                                          selectedAirline!.name,
+                                        ),
+                                        subtitle: Text(
+                                          "${selectedAirline!.iata}${_flightController.text.toUpperCase()} / ${selectedAirline!.icao}${_flightController.text.toUpperCase()}",
+                                        ),
+                                        leading:
+                                            selectedAirline!.image != null &&
+                                                    selectedAirline!
+                                                        .image!.isNotEmpty
+                                                ? SvgPicture.network(
+                                                    selectedAirline!.image!,
+                                                    width: 24,
+                                                    height: 18,
+                                                  )
+                                                : CachedNetworkImage(
+                                                    imageUrl:
+                                                        "https://airlabs.co/img/airline/m/${selectedAirline!.iata}.png",
+                                                    width: 24,
+                                                    height: 18,
+                                                    errorWidget:
+                                                        (context, url, error) {
+                                                      return SizedBox(
+                                                        height: 0,
+                                                        width: 0,
+                                                      );
+                                                    },
+                                                  ),
+                                        onTap: () {
+                                          selectedFlightNumber =
+                                              _flightController.text;
+                                          FocusScope.of(context).unfocus();
+                                          _flightController.clear();
+                                          setState(() {});
+                                        },
+                                      ),
+                                    SearchResultsList(
+                                      results: results,
+                                      loading: loading,
+                                      selectedAirline: selectedAirline,
+                                      selectedFlightNumber:
+                                          selectedFlightNumber,
+                                      flightController: _flightController,
+                                      onAirportSelected: (airport) {
+                                        if (departureAirport == null) {
+                                          departureAirport = airport;
+                                        } else {
+                                          arrivalAirport = airport;
+                                        }
+
+                                        _flightController.clear();
+                                        results.clear();
+                                        setState(() {});
+                                      },
+                                      onAirlineSelected: (airline) {
+                                        selectedAirline = airline;
+                                        final text = _flightController.text;
+
+                                        if (!((text
+                                                    .replaceFirst(
+                                                        airline.iata, "")
+                                                    .length ==
+                                                text.length) ||
+                                            (text
+                                                    .replaceFirst(
+                                                        airline.icao, "")
+                                                    .length ==
+                                                text.length))) {
+                                          _flightController.text =
+                                              _flightController.text
+                                                  .replaceFirst(
+                                                      airline.icao, '');
+                                        } else {
+                                          _flightController.clear();
+                                        }
+
+                                        results.clear();
+                                        setState(() {});
+                                      },
+                                      onFlightNumberSelected: (flightNumber) {
+                                        selectedFlightNumber = flightNumber;
+                                        FocusScope.of(context).unfocus();
+                                        _flightController.clear();
+                                        setState(() {});
+                                      },
+                                    ),
+                                    if (selectedAirline == null &&
+                                        arrivalAirport == null &&
+                                        departureAirport == null &&
+                                        selectedFlightNumber == null &&
+                                        results.isEmpty &&
+                                        !loading &&
+                                        trackedFlights.isNotEmpty)
+                                      TrackedFlightsList(
+                                        trackedFlights: trackedFlights,
+                                        onFlightTap:
+                                            (iata, icao, date, forceUpdate) =>
+                                                _loadFlightInfo(
+                                          iata,
+                                          icao,
+                                          date,
+                                          forceUpdate: forceUpdate,
+                                        ),
+                                      ),
+                                    FlightsList(
+                                      flights: flights,
+                                      selectedDate: selectedDate,
+                                      onFlightTap: _loadFlightInfo,
                                     ),
                                   ],
                                 ),
-                                Gap(16),
-                                if (arrivalAirport == null &&
-                                    departureAirport == null &&
-                                    selectedAirline != null &&
-                                    selectedFlightNumber == null)
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 8.0),
-                                    child: Text(
-                                      "Tip: For flight numbers like 6E1045, just enter 1045",
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        color: Colors.grey[600],
-                                        fontStyle: FontStyle.italic,
-                                      ),
-                                    ),
-                                  ),
-                                if (((arrivalAirport != null &&
-                                            departureAirport != null) ||
-                                        (selectedAirline != null &&
-                                            selectedFlightNumber != null)) &&
-                                    selectedDate == null)
-                                  DateSelectionList(
-                                    onDateSelected: (date) async {
-                                      loading = true;
-                                      selectedDate = date;
-                                      flights = BuiltList.from([]);
-                                      setState(() {});
-                                      try {
-                                        if (arrivalAirport != null &&
-                                            departureAirport != null) {
-                                          flights =
-                                              await _flightService.getFlights(
-                                            departureAirport!.iataCode ??
-                                                departureAirport!.ident,
-                                            arrivalAirport!.iataCode ??
-                                                arrivalAirport!.ident,
-                                            date.toIso8601String(),
-                                          );
-                                        } else {
-                                          await _loadFlightInfo(
-                                            "${selectedAirline!.iata}$selectedFlightNumber",
-                                            "${selectedAirline!.icao}$selectedFlightNumber",
-                                            date,
-                                          );
-                                        }
-                                      } catch (e, stack) {
-                                        print(e);
-                                        print(stack);
-                                        setState(() {
-                                          selectedDate = null;
-                                        });
-                                      }
-                                      setState(() {
-                                        loading = false;
-                                      });
-                                    },
-                                  ),
-                                if (selectedAirline != null &&
-                                    _flightController.text.isNotEmpty &&
-                                    selectedFlightNumber == null)
-                                  ListTile(
-                                    title: Text(
-                                      selectedAirline!.name,
-                                    ),
-                                    subtitle: Text(
-                                      "${selectedAirline!.iata}${_flightController.text.toUpperCase()} / ${selectedAirline!.icao}${_flightController.text.toUpperCase()}",
-                                    ),
-                                    leading: selectedAirline!.image != null &&
-                                            selectedAirline!.image!.isNotEmpty
-                                        ? SvgPicture.network(
-                                            selectedAirline!.image!,
-                                            width: 24,
-                                            height: 18,
-                                          )
-                                        : CachedNetworkImage(
-                                            imageUrl:
-                                                "https://airlabs.co/img/airline/m/${selectedAirline!.iata}.png",
-                                            width: 24,
-                                            height: 18,
-                                            errorWidget: (context, url, error) {
-                                              return SizedBox(
-                                                height: 0,
-                                                width: 0,
-                                              );
-                                            },
-                                          ),
-                                    onTap: () {
-                                      selectedFlightNumber =
-                                          _flightController.text;
-                                      FocusScope.of(context).unfocus();
-                                      _flightController.clear();
-                                      setState(() {});
-                                    },
-                                  ),
-                                SearchResultsList(
-                                  results: results,
-                                  loading: loading,
-                                  selectedAirline: selectedAirline,
-                                  selectedFlightNumber: selectedFlightNumber,
-                                  flightController: _flightController,
-                                  onAirportSelected: (airport) {
-                                    if (departureAirport == null) {
-                                      departureAirport = airport;
-                                    } else {
-                                      arrivalAirport = airport;
-                                    }
-
-                                    _flightController.clear();
-                                    results.clear();
-                                    setState(() {});
-                                  },
-                                  onAirlineSelected: (airline) {
-                                    selectedAirline = airline;
-                                    final text = _flightController.text;
-
-                                    if (!((text
-                                                .replaceFirst(airline.iata, "")
-                                                .length ==
-                                            text.length) ||
-                                        (text
-                                                .replaceFirst(airline.icao, "")
-                                                .length ==
-                                            text.length))) {
-                                      _flightController.text = _flightController
-                                          .text
-                                          .replaceFirst(airline.icao, '');
-                                    } else {
-                                      _flightController.clear();
-                                    }
-
-                                    results.clear();
-                                    setState(() {});
-                                  },
-                                  onFlightNumberSelected: (flightNumber) {
-                                    selectedFlightNumber = flightNumber;
-                                    FocusScope.of(context).unfocus();
-                                    _flightController.clear();
-                                    setState(() {});
-                                  },
-                                ),
-                                if (selectedAirline == null &&
-                                    arrivalAirport == null &&
-                                    departureAirport == null &&
-                                    selectedFlightNumber == null &&
-                                    results.isEmpty &&
-                                    !loading &&
-                                    trackedFlights.isNotEmpty)
-                                  TrackedFlightsList(
-                                    trackedFlights: trackedFlights,
-                                    onFlightTap:
-                                        (iata, icao, date, forceUpdate) =>
-                                            _loadFlightInfo(
-                                      iata,
-                                      icao,
-                                      date,
-                                      forceUpdate: forceUpdate,
-                                    ),
-                                  ),
-                                FlightsList(
-                                  flights: flights,
-                                  selectedDate: selectedDate,
-                                  onFlightTap: _loadFlightInfo,
-                                ),
-                              ],
-                            ),
                     ),
                   ),
                 ),
               );
             },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFlightInfoSkeleton() {
+    return Padding(
+      padding: const EdgeInsets.all(4.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        spacing: 4,
+        children: [
+          // Header skeleton
+          Row(
+            spacing: 8,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Container(
+                width: 30,
+                height: 30,
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(4),
+                ),
+              ),
+              Column(
+                spacing: 2,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    width: 200,
+                    height: 18,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[300],
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ),
+                  const Gap(4),
+                  Container(
+                    width: 150,
+                    height: 14,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[300],
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ),
+                ],
+              ),
+              Spacer(),
+              Container(
+                width: 24,
+                height: 24,
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(4),
+                ),
+              ),
+              Container(
+                width: 24,
+                height: 24,
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(4),
+                ),
+              ),
+            ],
+          ),
+          Divider(),
+          // Time message skeleton
+          Container(
+            width: 180,
+            height: 20,
+            decoration: BoxDecoration(
+              color: Colors.grey[300],
+              borderRadius: BorderRadius.circular(4),
+            ),
+          ),
+          const Gap(8),
+          // Route info skeleton
+          Container(
+            height: 120,
+            decoration: BoxDecoration(
+              color: Colors.grey[200],
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            width: 60,
+                            height: 12,
+                            decoration: BoxDecoration(
+                              color: Colors.grey[300],
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                          ),
+                          const Gap(8),
+                          Container(
+                            width: 80,
+                            height: 24,
+                            decoration: BoxDecoration(
+                              color: Colors.grey[300],
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                          ),
+                          const Gap(4),
+                          Container(
+                            width: 100,
+                            height: 14,
+                            decoration: BoxDecoration(
+                              color: Colors.grey[300],
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                          ),
+                          const Gap(4),
+                          Container(
+                            width: 70,
+                            height: 16,
+                            decoration: BoxDecoration(
+                              color: Colors.grey[300],
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                          ),
+                        ],
+                      ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Container(
+                            width: 60,
+                            height: 12,
+                            decoration: BoxDecoration(
+                              color: Colors.grey[300],
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                          ),
+                          const Gap(8),
+                          Container(
+                            width: 80,
+                            height: 24,
+                            decoration: BoxDecoration(
+                              color: Colors.grey[300],
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                          ),
+                          const Gap(4),
+                          Container(
+                            width: 100,
+                            height: 14,
+                            decoration: BoxDecoration(
+                              color: Colors.grey[300],
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                          ),
+                          const Gap(4),
+                          Container(
+                            width: 70,
+                            height: 16,
+                            decoration: BoxDecoration(
+                              color: Colors.grey[300],
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const Gap(8),
+          // "Worth Noting" section skeleton
+          Container(
+            width: 100,
+            height: 18,
+            decoration: BoxDecoration(
+              color: Colors.grey[300],
+              borderRadius: BorderRadius.circular(4),
+            ),
+          ),
+          const Gap(8),
+          Container(
+            height: 60,
+            decoration: BoxDecoration(
+              color: Colors.grey[200],
+              borderRadius: BorderRadius.circular(5),
+            ),
           ),
         ],
       ),

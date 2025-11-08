@@ -22,6 +22,7 @@ Name | Type | Description | Notes
 **atcIdent** | **String** |  | [optional] 
 **inboundFaFlightId** | **String** |  | [optional] 
 **codesharesIata** | **BuiltList&lt;String&gt;** |  | [optional] 
+**codesharesIcao** | **BuiltList&lt;String&gt;** |  | [optional] 
 **departureDelay** | **num** | Departure delay in seconds (negative = early) | [optional] 
 **arrivalDelay** | **num** | Arrival delay in seconds (negative = early) | [optional] 
 **filedEte** | **num** | Estimated time en route in seconds | [optional] 

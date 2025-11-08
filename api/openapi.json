@@ -1768,6 +1768,12 @@
               "type": "string"
             }
           },
+          "codesharesIcao": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
           "departureDelay": {
             "type": "number",
             "description": "Departure delay in seconds (negative = early)"

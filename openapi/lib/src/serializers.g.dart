@@ -90,6 +90,9 @@ Serializers _$serializers = (Serializers().toBuilder()
               FlightsControllerGetFlightsInBoundsV1200ResponseFlightsInner>())
       ..addBuilderFactory(
           const FullType(BuiltList, const [const FullType(String)]),
+          () => ListBuilder<String>())
+      ..addBuilderFactory(
+          const FullType(BuiltList, const [const FullType(String)]),
           () => ListBuilder<String>()))
     .build();
 

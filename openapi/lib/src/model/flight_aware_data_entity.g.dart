@@ -36,6 +36,8 @@ class _$FlightAwareDataEntity extends FlightAwareDataEntity {
   @override
   final BuiltList<String>? codesharesIata;
   @override
+  final BuiltList<String>? codesharesIcao;
+  @override
   final num? departureDelay;
   @override
   final num? arrivalDelay;
@@ -157,6 +159,7 @@ class _$FlightAwareDataEntity extends FlightAwareDataEntity {
       this.atcIdent,
       this.inboundFaFlightId,
       this.codesharesIata,
+      this.codesharesIcao,
       this.departureDelay,
       this.arrivalDelay,
       this.filedEte,
@@ -236,6 +239,7 @@ class _$FlightAwareDataEntity extends FlightAwareDataEntity {
         atcIdent == other.atcIdent &&
         inboundFaFlightId == other.inboundFaFlightId &&
         codesharesIata == other.codesharesIata &&
+        codesharesIcao == other.codesharesIcao &&
         departureDelay == other.departureDelay &&
         arrivalDelay == other.arrivalDelay &&
         filedEte == other.filedEte &&
@@ -306,6 +310,7 @@ class _$FlightAwareDataEntity extends FlightAwareDataEntity {
     _$hash = $jc(_$hash, atcIdent.hashCode);
     _$hash = $jc(_$hash, inboundFaFlightId.hashCode);
     _$hash = $jc(_$hash, codesharesIata.hashCode);
+    _$hash = $jc(_$hash, codesharesIcao.hashCode);
     _$hash = $jc(_$hash, departureDelay.hashCode);
     _$hash = $jc(_$hash, arrivalDelay.hashCode);
     _$hash = $jc(_$hash, filedEte.hashCode);
@@ -378,6 +383,7 @@ class _$FlightAwareDataEntity extends FlightAwareDataEntity {
           ..add('atcIdent', atcIdent)
           ..add('inboundFaFlightId', inboundFaFlightId)
           ..add('codesharesIata', codesharesIata)
+          ..add('codesharesIcao', codesharesIcao)
           ..add('departureDelay', departureDelay)
           ..add('arrivalDelay', arrivalDelay)
           ..add('filedEte', filedEte)
@@ -497,6 +503,12 @@ class FlightAwareDataEntityBuilder
       _$this._codesharesIata ??= ListBuilder<String>();
   set codesharesIata(ListBuilder<String>? codesharesIata) =>
       _$this._codesharesIata = codesharesIata;
+
+  ListBuilder<String>? _codesharesIcao;
+  ListBuilder<String> get codesharesIcao =>
+      _$this._codesharesIcao ??= ListBuilder<String>();
+  set codesharesIcao(ListBuilder<String>? codesharesIcao) =>
+      _$this._codesharesIcao = codesharesIcao;
 
   num? _departureDelay;
   num? get departureDelay => _$this._departureDelay;
@@ -751,6 +763,7 @@ class FlightAwareDataEntityBuilder
       _atcIdent = $v.atcIdent;
       _inboundFaFlightId = $v.inboundFaFlightId;
       _codesharesIata = $v.codesharesIata?.toBuilder();
+      _codesharesIcao = $v.codesharesIcao?.toBuilder();
       _departureDelay = $v.departureDelay;
       _arrivalDelay = $v.arrivalDelay;
       _filedEte = $v.filedEte;
@@ -841,6 +854,7 @@ class FlightAwareDataEntityBuilder
             atcIdent: atcIdent,
             inboundFaFlightId: inboundFaFlightId,
             codesharesIata: _codesharesIata?.build(),
+            codesharesIcao: _codesharesIcao?.build(),
             departureDelay: departureDelay,
             arrivalDelay: arrivalDelay,
             filedEte: filedEte,
@@ -909,6 +923,8 @@ class FlightAwareDataEntityBuilder
       try {
         _$failedField = 'codesharesIata';
         _codesharesIata?.build();
+        _$failedField = 'codesharesIcao';
+        _codesharesIcao?.build();
       } catch (e) {
         throw BuiltValueNestedFieldError(
             r'FlightAwareDataEntity', _$failedField, e.toString());
