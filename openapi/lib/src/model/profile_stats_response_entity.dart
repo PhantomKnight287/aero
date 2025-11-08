@@ -8,6 +8,7 @@ import 'package:openapi/src/model/airline_stats_entity.dart';
 import 'package:openapi/src/model/flight_distance_entity.dart';
 import 'package:built_collection/built_collection.dart';
 import 'package:openapi/src/model/airport_stats_entity.dart';
+import 'package:openapi/src/model/aircraft_stats_entity.dart';
 import 'package:openapi/src/model/top_route_entity.dart';
 import 'package:openapi/src/model/most_flown_aircraft_entity.dart';
 import 'package:openapi/src/model/passport_entity.dart';
@@ -20,6 +21,7 @@ part 'profile_stats_response_entity.g.dart';
 ///
 /// Properties:
 /// * [mostFlownAircraft] 
+/// * [aircraftStats] 
 /// * [passport] 
 /// * [shortestDistanceFlight] 
 /// * [longestDistanceFlight] 
@@ -32,6 +34,9 @@ part 'profile_stats_response_entity.g.dart';
 abstract class ProfileStatsResponseEntity implements Built<ProfileStatsResponseEntity, ProfileStatsResponseEntityBuilder> {
   @BuiltValueField(wireName: r'mostFlownAircraft')
   MostFlownAircraftEntity get mostFlownAircraft;
+
+  @BuiltValueField(wireName: r'aircraftStats')
+  AircraftStatsEntity? get aircraftStats;
 
   @BuiltValueField(wireName: r'passport')
   PassportEntity get passport;
@@ -85,6 +90,13 @@ class _$ProfileStatsResponseEntitySerializer implements PrimitiveSerializer<Prof
       object.mostFlownAircraft,
       specifiedType: const FullType(MostFlownAircraftEntity),
     );
+    if (object.aircraftStats != null) {
+      yield r'aircraftStats';
+      yield serializers.serialize(
+        object.aircraftStats,
+        specifiedType: const FullType(AircraftStatsEntity),
+      );
+    }
     yield r'passport';
     yield serializers.serialize(
       object.passport,
@@ -154,6 +166,13 @@ class _$ProfileStatsResponseEntitySerializer implements PrimitiveSerializer<Prof
             specifiedType: const FullType(MostFlownAircraftEntity),
           ) as MostFlownAircraftEntity;
           result.mostFlownAircraft.replace(valueDes);
+          break;
+        case r'aircraftStats':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType(AircraftStatsEntity),
+          ) as AircraftStatsEntity;
+          result.aircraftStats.replace(valueDes);
           break;
         case r'passport':
           final valueDes = serializers.deserialize(

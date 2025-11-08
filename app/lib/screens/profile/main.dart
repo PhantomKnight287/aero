@@ -42,6 +42,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
               ListTile(
                 title: Text(
+                  "Flight Stats",
+                ),
+                onTap: () async {
+                  GoRouter.of(context).push(
+                    "/profile/stats",
+                  );
+                },
+              ),
+              ListTile(
+                title: Text(
                   "Connected Wear Os Devices",
                 ),
                 onTap: () async {

@@ -88,7 +88,9 @@ class FlightRouteInfo extends StatelessWidget {
               isDeparture: true,
             ),
             _buildMidDivider(
-                totalDuration: totalDuration, distanceKm: distanceKm),
+              totalDuration: totalDuration,
+              distanceKm: distanceKm,
+            ),
             _buildStopRow(
               code: arrivalCode,
               name: arrivalName,
@@ -271,11 +273,9 @@ class FlightRouteInfo extends StatelessWidget {
         Expanded(child: Divider(color: Colors.grey.shade300)),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-          margin: const EdgeInsets.symmetric(horizontal: 8),
-          decoration: BoxDecoration(
-            color: Colors.grey.shade100,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: Colors.grey.shade300),
+          margin: const EdgeInsets.symmetric(
+            horizontal: 4,
+            vertical: 4,
           ),
           child: Text(
             centerText,

@@ -123,9 +123,55 @@ class TopRouteEntity {
   flightCount: number;
 }
 
+class AircraftWithAge {
+  @ApiProperty()
+  aircraftName: string;
+
+  @ApiProperty()
+  tailNumber: string;
+
+  @ApiPropertyOptional()
+  age?: number;
+
+  @ApiPropertyOptional()
+  image?: string;
+}
+
+class AircraftStatsEntity {
+  @ApiProperty()
+  mostFlownAircraftName: string;
+
+  @ApiProperty()
+  mostFlownAircraftFlightCount: number;
+
+  @ApiPropertyOptional()
+  mostFlownAircraftImage?: string;
+
+  @ApiProperty({ type: [FlightSummaryEntity] })
+  mostFlownAircraftFlights: FlightSummaryEntity[];
+
+  @ApiProperty()
+  mostCommonTailNumber: string;
+
+  @ApiProperty()
+  mostCommonTailNumberCount: number;
+
+  @ApiPropertyOptional()
+  medianAge?: number;
+
+  @ApiPropertyOptional({ type: AircraftWithAge })
+  youngestAircraft?: AircraftWithAge;
+
+  @ApiPropertyOptional({ type: AircraftWithAge })
+  oldestAircraft?: AircraftWithAge;
+}
+
 export class ProfileStatsResponseEntity {
   @ApiProperty({ type: MostFlownAircraftEntity })
   mostFlownAircraft: MostFlownAircraftEntity;
+
+  @ApiPropertyOptional({ type: AircraftStatsEntity })
+  aircraftStats?: AircraftStatsEntity;
 
   @ApiProperty({ type: PassportEntity })
   passport: PassportEntity;

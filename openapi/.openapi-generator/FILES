@@ -3,6 +3,8 @@ README.md
 analysis_options.yaml
 doc/AircraftEntity.md
 doc/AircraftFlightEntity.md
+doc/AircraftStatsEntity.md
+doc/AircraftWithAge.md
 doc/AirlineEntity.md
 doc/AirlineInfo.md
 doc/AirlineStatsEntity.md
@@ -70,6 +72,8 @@ lib/src/auth/oauth.dart
 lib/src/date_serializer.dart
 lib/src/model/aircraft_entity.dart
 lib/src/model/aircraft_flight_entity.dart
+lib/src/model/aircraft_stats_entity.dart
+lib/src/model/aircraft_with_age.dart
 lib/src/model/airline_entity.dart
 lib/src/model/airline_info.dart
 lib/src/model/airline_stats_entity.dart
@@ -115,14 +119,5 @@ lib/src/model/tracked_flights_response_entity.dart
 lib/src/model/user_entity.dart
 lib/src/serializers.dart
 pubspec.yaml
-test/airline_stats_entity_test.dart
-test/airport_stats_entity_test.dart
-test/flight_distance_entity_test.dart
-test/flight_duration_entity_test.dart
-test/flight_summary_airline_entity_test.dart
-test/flight_summary_entity_test.dart
-test/most_flown_aircraft_entity_test.dart
-test/passport_entity_test.dart
-test/profile_api_test.dart
-test/profile_stats_response_entity_test.dart
-test/top_route_entity_test.dart
+test/aircraft_stats_entity_test.dart
+test/aircraft_with_age_test.dart

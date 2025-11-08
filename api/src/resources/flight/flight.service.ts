@@ -141,7 +141,8 @@ export class FlightService {
       let aircraft: Aircraft | null = null;
       if (existingFlight?.aircraft) {
         const stored = existingFlight.aircraft as any;
-        const hexCandidate: string | undefined = stored?.modeS ?? stored?.hexIcao;
+        const hexCandidate: string | undefined =
+          stored?.modeS ?? stored?.hexIcao;
         const regCandidate: string | undefined =
           stored?.reg ?? stored?.registration ?? stored?.registrataion;
         if (hexCandidate) {
@@ -327,8 +328,7 @@ export class FlightService {
         },
         arrival: {
           airport: {
-            icao:
-              faFlight.destination?.code_icao ?? faFlight.destination?.code,
+            icao: faFlight.destination?.code_icao ?? faFlight.destination?.code,
             iata: faFlight.destination?.code_iata,
             name: faFlight.destination?.name ?? 'Unknown',
             municipalityName: faFlight.destination?.city ?? 'Unknown',
@@ -398,23 +398,24 @@ export class FlightService {
       };
 
       // Update existing flight if forceUpdate is true, otherwise create new
-      const newFlight = forceUpdate && existingFlight
-        ? await prisma.flight.update({
-            where: { id: existingFlight.id },
-            data: flightData,
-            include: {
-              greatCircleDistance: true,
-            },
-          })
-        : await prisma.flight.create({
-            data: {
-              ...flightData,
-              id: `flight_${createId()}`,
-            },
-            include: {
-              greatCircleDistance: true,
-            },
-          });
+      const newFlight =
+        forceUpdate && existingFlight
+          ? await prisma.flight.update({
+              where: { id: existingFlight.id },
+              data: flightData,
+              include: {
+                greatCircleDistance: true,
+              },
+            })
+          : await prisma.flight.create({
+              data: {
+                ...flightData,
+                id: `flight_${createId()}`,
+              },
+              include: {
+                greatCircleDistance: true,
+              },
+            });
 
       // Handle greatCircleDistance separately (upsert)
       if (greatCircleDistance) {
@@ -528,10 +529,9 @@ export class FlightService {
         });
       } else {
         // Check if FlightAwareData exists, then update or create
-        const existingFlightAwareData =
-          await prisma.flightAwareData.findFirst({
-            where: { faFlightId: faFlight.fa_flight_id },
-          });
+        const existingFlightAwareData = await prisma.flightAwareData.findFirst({
+          where: { faFlightId: faFlight.fa_flight_id },
+        });
 
         if (existingFlightAwareData) {
           await prisma.flightAwareData.update({
@@ -831,10 +831,10 @@ export class FlightService {
       isFlightConcluded = hoursSinceLanding > 2;
     }
 
-    // If flight is concluded, check if we have positions in database
-    if (isFlightConcluded) {
+    // If flight is concluded and all positions are fetched, return database data
+    if (isFlightConcluded && existingFlight.allFlightPositionsFetched) {
       console.log(
-        `Flight ${faFlightId} has concluded. Checking database for track data.`,
+        `Flight ${faFlightId} has concluded and all positions are fetched. Returning database data.`,
       );
 
       const existingPositions = await prisma.flightPositions.findMany({
@@ -916,24 +916,36 @@ export class FlightService {
       }
     }
 
-    // Check Redis cache first for active flights
-    try {
-      if (this.redis) {
-        const cached = await this.redis.get(cacheKey);
-        if (cached) {
-          console.log(
-            `FlightTrack: Returning cached data for ${faFlightId} from application cache`,
-          );
-          return JSON.parse(cached);
-        }
-      }
-    } catch (error) {
-      console.warn('Redis cache read error in flight service:', error);
+    // If flight is concluded but positions aren't all fetched, fetch from API
+    const shouldSkipCache =
+      isFlightConcluded && !existingFlight.allFlightPositionsFetched;
+
+    if (shouldSkipCache) {
+      console.log(
+        `Flight ${faFlightId} has concluded but positions not fully fetched. Fetching complete track data from FlightAware.`,
+      );
     }
 
-    // Fetch track data from FlightAware API (only for active/recent flights)
+    // Check Redis cache first for active flights (skip cache for concluded flights that need refetch)
+    if (!shouldSkipCache) {
+      try {
+        if (this.redis) {
+          const cached = await this.redis.get(cacheKey);
+          if (cached) {
+            console.log(
+              `FlightTrack: Returning cached data for ${faFlightId} from application cache`,
+            );
+            return JSON.parse(cached);
+          }
+        }
+      } catch (error) {
+        console.warn('Redis cache read error in flight service:', error);
+      }
+    }
+
+    // Fetch track data from FlightAware API
     console.log(
-      `FlightTrack: Fetching live data from FlightAware for ${faFlightId}`,
+      `FlightTrack: Fetching ${isFlightConcluded ? 'complete' : 'live'} data from FlightAware for ${faFlightId}`,
     );
     const trackData = await this.flightAwareService.getFlightTrack(faFlightId);
 
@@ -1030,6 +1042,17 @@ export class FlightService {
             },
           });
         }
+
+        // If flight is concluded, mark all positions as fetched
+        if (isFlightConcluded) {
+          await tx.flight.update({
+            where: { id: existingFlight.id },
+            data: { allFlightPositionsFetched: true },
+          });
+          console.log(
+            `FlightTrack: Marked all positions as fetched for concluded flight ${faFlightId}`,
+          );
+        }
       },
       { timeout: 60000 },
     );
@@ -1050,20 +1073,23 @@ export class FlightService {
       })),
     };
 
-    // Cache the response in Redis for 30 seconds
-    try {
-      if (this.redis) {
-        await this.redis.setex(
-          cacheKey,
-          cacheTTL,
-          JSON.stringify(responseData),
-        );
-        console.log(
-          `FlightTrack: Cached track data for ${faFlightId} for ${cacheTTL} seconds`,
-        );
+    // Cache the response in Redis for 30 seconds (skip caching for concluded flights)
+    // Concluded flights are already persisted in the database and don't need caching
+    if (!isFlightConcluded) {
+      try {
+        if (this.redis) {
+          await this.redis.setex(
+            cacheKey,
+            cacheTTL,
+            JSON.stringify(responseData),
+          );
+          console.log(
+            `FlightTrack: Cached track data for ${faFlightId} for ${cacheTTL} seconds`,
+          );
+        }
+      } catch (error) {
+        console.warn('Redis cache write error in flight service:', error);
       }
-    } catch (error) {
-      console.warn('Redis cache write error in flight service:', error);
     }
 
     return responseData;

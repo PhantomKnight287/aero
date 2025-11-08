@@ -9,6 +9,7 @@ import 'package:openapi/api.dart';
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **mostFlownAircraft** | [**MostFlownAircraftEntity**](MostFlownAircraftEntity.md) |  | 
+**aircraftStats** | [**AircraftStatsEntity**](AircraftStatsEntity.md) |  | [optional] 
 **passport** | [**PassportEntity**](PassportEntity.md) |  | 
 **shortestDistanceFlight** | [**FlightDistanceEntity**](FlightDistanceEntity.md) |  | 
 **longestDistanceFlight** | [**FlightDistanceEntity**](FlightDistanceEntity.md) |  | 

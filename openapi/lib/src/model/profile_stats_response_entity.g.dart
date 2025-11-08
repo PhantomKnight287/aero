@@ -10,6 +10,8 @@ class _$ProfileStatsResponseEntity extends ProfileStatsResponseEntity {
   @override
   final MostFlownAircraftEntity mostFlownAircraft;
   @override
+  final AircraftStatsEntity? aircraftStats;
+  @override
   final PassportEntity passport;
   @override
   final FlightDistanceEntity shortestDistanceFlight;
@@ -32,6 +34,7 @@ class _$ProfileStatsResponseEntity extends ProfileStatsResponseEntity {
 
   _$ProfileStatsResponseEntity._(
       {required this.mostFlownAircraft,
+      this.aircraftStats,
       required this.passport,
       required this.shortestDistanceFlight,
       required this.longestDistanceFlight,
@@ -55,6 +58,7 @@ class _$ProfileStatsResponseEntity extends ProfileStatsResponseEntity {
     if (identical(other, this)) return true;
     return other is ProfileStatsResponseEntity &&
         mostFlownAircraft == other.mostFlownAircraft &&
+        aircraftStats == other.aircraftStats &&
         passport == other.passport &&
         shortestDistanceFlight == other.shortestDistanceFlight &&
         longestDistanceFlight == other.longestDistanceFlight &&
@@ -69,6 +73,7 @@ class _$ProfileStatsResponseEntity extends ProfileStatsResponseEntity {
   int get hashCode {
     var _$hash = 0;
     _$hash = $jc(_$hash, mostFlownAircraft.hashCode);
+    _$hash = $jc(_$hash, aircraftStats.hashCode);
     _$hash = $jc(_$hash, passport.hashCode);
     _$hash = $jc(_$hash, shortestDistanceFlight.hashCode);
     _$hash = $jc(_$hash, longestDistanceFlight.hashCode);
@@ -85,6 +90,7 @@ class _$ProfileStatsResponseEntity extends ProfileStatsResponseEntity {
   String toString() {
     return (newBuiltValueToStringHelper(r'ProfileStatsResponseEntity')
           ..add('mostFlownAircraft', mostFlownAircraft)
+          ..add('aircraftStats', aircraftStats)
           ..add('passport', passport)
           ..add('shortestDistanceFlight', shortestDistanceFlight)
           ..add('longestDistanceFlight', longestDistanceFlight)
@@ -107,6 +113,12 @@ class ProfileStatsResponseEntityBuilder
       _$this._mostFlownAircraft ??= MostFlownAircraftEntityBuilder();
   set mostFlownAircraft(MostFlownAircraftEntityBuilder? mostFlownAircraft) =>
       _$this._mostFlownAircraft = mostFlownAircraft;
+
+  AircraftStatsEntityBuilder? _aircraftStats;
+  AircraftStatsEntityBuilder get aircraftStats =>
+      _$this._aircraftStats ??= AircraftStatsEntityBuilder();
+  set aircraftStats(AircraftStatsEntityBuilder? aircraftStats) =>
+      _$this._aircraftStats = aircraftStats;
 
   PassportEntityBuilder? _passport;
   PassportEntityBuilder get passport =>
@@ -167,6 +179,7 @@ class ProfileStatsResponseEntityBuilder
     final $v = _$v;
     if ($v != null) {
       _mostFlownAircraft = $v.mostFlownAircraft.toBuilder();
+      _aircraftStats = $v.aircraftStats?.toBuilder();
       _passport = $v.passport.toBuilder();
       _shortestDistanceFlight = $v.shortestDistanceFlight.toBuilder();
       _longestDistanceFlight = $v.longestDistanceFlight.toBuilder();
@@ -199,6 +212,7 @@ class ProfileStatsResponseEntityBuilder
       _$result = _$v ??
           _$ProfileStatsResponseEntity._(
             mostFlownAircraft: mostFlownAircraft.build(),
+            aircraftStats: _aircraftStats?.build(),
             passport: passport.build(),
             shortestDistanceFlight: shortestDistanceFlight.build(),
             longestDistanceFlight: longestDistanceFlight.build(),
@@ -213,6 +227,8 @@ class ProfileStatsResponseEntityBuilder
       try {
         _$failedField = 'mostFlownAircraft';
         mostFlownAircraft.build();
+        _$failedField = 'aircraftStats';
+        _aircraftStats?.build();
         _$failedField = 'passport';
         passport.build();
         _$failedField = 'shortestDistanceFlight';

@@ -397,30 +397,55 @@ export class FlightsService {
         if (airline?.icao) airlineIcaoCodes.add(airline.icao);
       });
 
-      // Query airport table for all relevant airports
-      const airports = await prisma.airport.findMany({
-        where: {
-          OR: [
-            { iataCode: { in: Array.from(airportCodes) } },
-            { ident: { in: Array.from(airportCodes) } },
-          ],
-        },
-      });
+      // Parallelize airport and airline queries using Promise.allSettled
+      // This allows both queries to run simultaneously and handles failures gracefully
+      const airportCodesArray = Array.from(airportCodes);
+      const airlineIataCodesArray = Array.from(airlineIataCodes);
+      const airlineIcaoCodesArray = Array.from(airlineIcaoCodes);
 
-      // Query airline table for all relevant airlines
-      const airlines = await prisma.airline.findMany({
-        where: {
-          OR: [
-            { iata: { in: Array.from(airlineIataCodes) } },
-            { icao: { in: Array.from(airlineIcaoCodes) } },
-          ],
-        },
-        select: {
-          iata: true,
-          icao: true,
-          image: true,
-        },
-      });
+      const [airportsResult, airlinesResult] = await Promise.allSettled([
+        // Query airport table for all relevant airports
+        airportCodesArray.length > 0
+          ? prisma.airport.findMany({
+              where: {
+                OR: [
+                  { iataCode: { in: airportCodesArray } },
+                  { ident: { in: airportCodesArray } },
+                ],
+              },
+            })
+          : Promise.resolve([]),
+        // Query airline table for all relevant airlines
+        airlineIataCodesArray.length > 0 || airlineIcaoCodesArray.length > 0
+          ? prisma.airline.findMany({
+              where: {
+                OR: [
+                  { iata: { in: airlineIataCodesArray } },
+                  { icao: { in: airlineIcaoCodesArray } },
+                ],
+              },
+              select: {
+                iata: true,
+                icao: true,
+                image: true,
+              },
+            })
+          : Promise.resolve([]),
+      ]);
+
+      // Extract results, defaulting to empty arrays if queries failed
+      const airports =
+        airportsResult.status === 'fulfilled' ? airportsResult.value : [];
+      const airlines =
+        airlinesResult.status === 'fulfilled' ? airlinesResult.value : [];
+
+      // Log errors if any occurred (but continue processing)
+      if (airportsResult.status === 'rejected') {
+        console.error('Error fetching airports:', airportsResult.reason);
+      }
+      if (airlinesResult.status === 'rejected') {
+        console.error('Error fetching airlines:', airlinesResult.reason);
+      }
 
       // Create a map for quick airport lookup by code
       const airportMap = new Map<string, any>();

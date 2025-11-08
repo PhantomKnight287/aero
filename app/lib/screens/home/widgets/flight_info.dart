@@ -1,6 +1,8 @@
+import 'package:built_collection/built_collection.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:fl_chart/fl_chart.dart';
 import 'package:gap/gap.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:openapi/openapi.dart';
@@ -16,12 +18,14 @@ class FlightInfoWidget extends StatefulWidget {
   final Function() onClose;
   final Function()? onRefreshTracking;
   final Function()? onRefreshFlightData;
+  final BuiltList<FlightPositionEntity> flightPositions;
   const FlightInfoWidget({
     super.key,
     required this.info,
     required this.onClose,
     this.onRefreshTracking,
     this.onRefreshFlightData,
+    required this.flightPositions,
   });
 
   @override
@@ -266,7 +270,7 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
                   DateTime.parse(
                     (arrival.revisedTime ??
                             arrival.predictedTime ??
-                            arrival.scheduledTime)!
+                            arrival.scheduledTime)
                         .utc,
                   ),
                 ),
@@ -286,7 +290,7 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
             arrivalTerminal: arrival.terminal,
             arrivalTime: DateTime.parse((arrival.revisedTime ??
                     arrival.predictedTime ??
-                    arrival.scheduledTime)!
+                    arrival.scheduledTime)
                 .utc),
             arrivalTimezone: arrival.airport.timeZone,
             departureCode: departure.airport.iata,
@@ -641,8 +645,275 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
                 ),
               ),
             ),
+          // if (widget.flightPositions.isNotEmpty)
+      
+          //   Column(
+          //     crossAxisAlignment: CrossAxisAlignment.start,
+          //     children: [
+          //       // Legend
+          //       Padding(
+          //         padding: const EdgeInsets.symmetric(vertical: 8.0),
+          //         child: Row(
+          //           mainAxisAlignment: MainAxisAlignment.center,
+          //           children: [
+          //             _buildLegendItem(
+          //               'Altitude',
+          //               Colors.blue,
+          //             ),
+          //             const SizedBox(width: 24),
+          //             _buildLegendItem(
+          //               'Speed',
+          //               Colors.orange,
+          //             ),
+          //           ],
+          //         ),
+          //       ),
+          //       SizedBox(
+          //         height: 200,
+          //         child: LineChart(
+          //           _buildChartData(),
+          //         ),
+          //       ),
+          //     ],
+          //   ),
+      
         ],
       ),
+    );
+  }
+
+  Widget _buildLegendItem(String label, Color color) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 10,
+          height: 10,
+          decoration: BoxDecoration(
+            color: color,
+            shape: BoxShape.circle,
+          ),
+        ),
+        const SizedBox(width: 8),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+            color: Colors.grey[700],
+          ),
+        ),
+      ],
+    );
+  }
+
+  LineChartData _buildChartData() {
+    // Convert positions to list with parsed data
+    // Altitude is in 100ft units, so multiply by 100
+    final positions = widget.flightPositions.toList().map((pos) {
+      return _ChartPosition(
+        altitude: pos.altitude.toDouble() * 100, // Convert from 100ft units to feet
+        speed: pos.groundspeed.toDouble(),
+        timestamp: DateTime.parse(pos.timestamp),
+      );
+    }).toList()..sort((a, b) => a.timestamp.compareTo(b.timestamp));
+    
+    if (positions.isEmpty) {
+      return LineChartData();
+    }
+
+    // Find min/max values for scaling
+    double minAltitude = double.infinity;
+    double maxAltitude = double.negativeInfinity;
+    double minSpeed = double.infinity;
+    double maxSpeed = double.negativeInfinity;
+
+    for (var pos in positions) {
+      if (pos.altitude < minAltitude) minAltitude = pos.altitude;
+      if (pos.altitude > maxAltitude) maxAltitude = pos.altitude;
+      if (pos.speed < minSpeed) minSpeed = pos.speed;
+      if (pos.speed > maxSpeed) maxSpeed = pos.speed;
+    }
+
+    // Ensure we have valid ranges with padding
+    final altitudeRange = maxAltitude - minAltitude;
+    final speedRange = maxSpeed - minSpeed;
+    
+    if (altitudeRange == 0) {
+      minAltitude = (minAltitude - 1000).clamp(0, double.infinity);
+      maxAltitude = maxAltitude + 1000;
+    } else {
+      // Add 10% padding
+      final padding = altitudeRange * 0.1;
+      minAltitude = (minAltitude - padding).clamp(0, double.infinity);
+      maxAltitude = maxAltitude + padding;
+    }
+    
+    if (speedRange == 0) {
+      minSpeed = (minSpeed - 50).clamp(0, double.infinity);
+      maxSpeed = maxSpeed + 50;
+    } else {
+      // Add 10% padding
+      final padding = speedRange * 0.1;
+      minSpeed = (minSpeed - padding).clamp(0, double.infinity);
+      maxSpeed = maxSpeed + padding;
+    }
+
+    final finalAltitudeRange = maxAltitude - minAltitude;
+    final finalSpeedRange = maxSpeed - minSpeed;
+
+    // Create spots for altitude and speed
+    // Both use full 0-1 range, but will be displayed with separate Y-axes
+    final altitudeSpots = <FlSpot>[];
+    final speedSpots = <FlSpot>[];
+
+    for (int i = 0; i < positions.length; i++) {
+      final pos = positions[i];
+      
+      // Normalize both to 0-1 range (both use full chart height)
+      final altitudeY = finalAltitudeRange > 0
+          ? ((pos.altitude - minAltitude) / finalAltitudeRange)
+          : 0.5;
+      
+      final speedY = finalSpeedRange > 0
+          ? ((pos.speed - minSpeed) / finalSpeedRange)
+          : 0.5;
+
+      altitudeSpots.add(FlSpot(i.toDouble(), altitudeY));
+      speedSpots.add(FlSpot(i.toDouble(), speedY));
+    }
+
+    // Format time for X axis
+    String formatTime(DateTime time) {
+      return '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
+    }
+
+    // Calculate intervals for X axis labels
+    final xInterval = positions.length > 1 
+        ? (positions.length - 1) / 4.0  // Show ~5 labels
+        : 1.0;
+
+    return LineChartData(
+      lineTouchData: LineTouchData(
+        enabled: false, // Disable tooltip
+      ),
+      gridData: FlGridData(
+        show: true,
+        drawVerticalLine: false,
+        horizontalInterval: 0.25,
+        getDrawingHorizontalLine: (value) {
+          return FlLine(
+            color: Colors.grey.withOpacity(0.2),
+            strokeWidth: 1,
+          );
+        },
+      ),
+      titlesData: FlTitlesData(
+        show: true,
+        rightTitles: AxisTitles(
+          sideTitles: SideTitles(
+            showTitles: true,
+            reservedSize: 55,
+            interval: 0.25,
+            getTitlesWidget: (value, meta) {
+              // Right Y-axis shows speed (orange)
+              final normalized = value; // 0.0-1.0
+              final speed = minSpeed + normalized * finalSpeedRange;
+              return Text(
+                '${speed.toInt()}kt',
+                style: TextStyle(
+                  color: Colors.orange,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 10,
+                ),
+              );
+            },
+          ),
+        ),
+        topTitles: AxisTitles(
+          sideTitles: SideTitles(showTitles: false),
+        ),
+        bottomTitles: AxisTitles(
+          sideTitles: SideTitles(
+            showTitles: true,
+            reservedSize: 30,
+            interval: xInterval,
+            getTitlesWidget: (value, meta) {
+              final index = value.toInt();
+              if (index >= 0 && index < positions.length) {
+                return Padding(
+                  padding: const EdgeInsets.only(top: 8.0),
+                  child: Text(
+                    formatTime(positions[index].timestamp),
+                    style: TextStyle(
+                      color: Colors.grey[600],
+                      fontWeight: FontWeight.bold,
+                      fontSize: 10,
+                    ),
+                  ),
+                );
+              }
+              return const Text('');
+            },
+          ),
+        ),
+        leftTitles: AxisTitles(
+          sideTitles: SideTitles(
+            showTitles: true,
+            reservedSize: 55,
+            interval: 0.25,
+            getTitlesWidget: (value, meta) {
+              // Left Y-axis shows altitude (blue)
+              final normalized = value; // 0.0-1.0
+              final altitude = minAltitude + normalized * finalAltitudeRange;
+              return Text(
+                '${altitude.toInt()}ft',
+                style: TextStyle(
+                  color: Colors.blue,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 10,
+                ),
+              );
+            },
+          ),
+        ),
+      ),
+      borderData: FlBorderData(
+        show: true,
+        border: Border.all(color: Colors.grey.withOpacity(0.3)),
+      ),
+      minX: 0,
+      maxX: (positions.length - 1).toDouble().clamp(0, double.infinity),
+      minY: 0,
+      maxY: 1,
+      lineBarsData: [
+        // Altitude line (uses full 0-1 range, left Y-axis)
+        LineChartBarData(
+          spots: altitudeSpots,
+          isCurved: true,
+          color: Colors.blue,
+          barWidth: 3,
+          isStrokeCapRound: true,
+          dotData: FlDotData(show: false),
+          belowBarData: BarAreaData(
+            show: true,
+            color: Colors.blue.withOpacity(0.3),
+          ),
+        ),
+        // Speed line (uses full 0-1 range, right Y-axis)
+        LineChartBarData(
+          spots: speedSpots,
+          isCurved: true,
+          color: Colors.orange,
+          barWidth: 3,
+          isStrokeCapRound: true,
+          dotData: FlDotData(show: false),
+          belowBarData: BarAreaData(
+            show: true,
+            color: Colors.orange.withOpacity(0.3),
+          ),
+        ),
+      ],
     );
   }
 
@@ -706,4 +977,17 @@ String formatAge(double age) {
 
 String formatDate(DateTime date) {
   return '${MONTHS[date.month - 1]} ${date.day}, ${date.year}';
+}
+
+// Helper class for chart data
+class _ChartPosition {
+  final double altitude;
+  final double speed;
+  final DateTime timestamp;
+
+  _ChartPosition({
+    required this.altitude,
+    required this.speed,
+    required this.timestamp,
+  });
 }

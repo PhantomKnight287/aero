@@ -84,6 +84,8 @@ Class | Method | HTTP request | Description
 
  - [AircraftEntity](doc/AircraftEntity.md)
  - [AircraftFlightEntity](doc/AircraftFlightEntity.md)
+ - [AircraftStatsEntity](doc/AircraftStatsEntity.md)
+ - [AircraftWithAge](doc/AircraftWithAge.md)
  - [AirlineEntity](doc/AirlineEntity.md)
  - [AirlineInfo](doc/AirlineInfo.md)
  - [AirlineStatsEntity](doc/AirlineStatsEntity.md)

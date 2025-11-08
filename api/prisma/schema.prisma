@@ -218,9 +218,10 @@ model Flight {
   date      DateTime
   callSign  String   @map("call_sign")
 
-  createdAt       DateTime          @default(now()) @map("created_at")
-  updatedAt       DateTime          @updatedAt @map("updated_at")
-  FlightPositions FlightPositions[]
+  createdAt                 DateTime          @default(now()) @map("created_at")
+  updatedAt                 DateTime          @updatedAt @map("updated_at")
+  FlightPositions           FlightPositions[]
+  allFlightPositionsFetched Boolean           @default(false) @map("all_flight_positions_fetched")
 
   user   User   @relation(fields: [userId], references: [id])
   userId String

@@ -2145,38 +2145,6 @@
           "flightCount"
         ]
       },
-      "PassportEntity": {
-        "type": "object",
-        "properties": {
-          "totalFlights": {
-            "type": "number",
-            "description": "Total number of flights taken"
-          },
-          "totalDistanceKm": {
-            "type": "number",
-            "description": "Total distance in kilometers"
-          },
-          "totalDurationMinutes": {
-            "type": "number",
-            "description": "Total flight duration in minutes (including delays)"
-          },
-          "totalAirports": {
-            "type": "number",
-            "description": "Number of unique airports"
-          },
-          "totalAirlines": {
-            "type": "number",
-            "description": "Number of unique airlines"
-          }
-        },
-        "required": [
-          "totalFlights",
-          "totalDistanceKm",
-          "totalDurationMinutes",
-          "totalAirports",
-          "totalAirlines"
-        ]
-      },
       "FlightSummaryAirlineEntity": {
         "type": "object",
         "properties": {
@@ -2243,6 +2211,101 @@
           "arrivalAirportCode",
           "arrivalAirportName",
           "date"
+        ]
+      },
+      "AircraftWithAge": {
+        "type": "object",
+        "properties": {
+          "aircraftName": {
+            "type": "string"
+          },
+          "tailNumber": {
+            "type": "string"
+          },
+          "age": {
+            "type": "number"
+          },
+          "image": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "aircraftName",
+          "tailNumber"
+        ]
+      },
+      "AircraftStatsEntity": {
+        "type": "object",
+        "properties": {
+          "mostFlownAircraftName": {
+            "type": "string"
+          },
+          "mostFlownAircraftFlightCount": {
+            "type": "number"
+          },
+          "mostFlownAircraftImage": {
+            "type": "string"
+          },
+          "mostFlownAircraftFlights": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FlightSummaryEntity"
+            }
+          },
+          "mostCommonTailNumber": {
+            "type": "string"
+          },
+          "mostCommonTailNumberCount": {
+            "type": "number"
+          },
+          "medianAge": {
+            "type": "number"
+          },
+          "youngestAircraft": {
+            "$ref": "#/components/schemas/AircraftWithAge"
+          },
+          "oldestAircraft": {
+            "$ref": "#/components/schemas/AircraftWithAge"
+          }
+        },
+        "required": [
+          "mostFlownAircraftName",
+          "mostFlownAircraftFlightCount",
+          "mostFlownAircraftFlights",
+          "mostCommonTailNumber",
+          "mostCommonTailNumberCount"
+        ]
+      },
+      "PassportEntity": {
+        "type": "object",
+        "properties": {
+          "totalFlights": {
+            "type": "number",
+            "description": "Total number of flights taken"
+          },
+          "totalDistanceKm": {
+            "type": "number",
+            "description": "Total distance in kilometers"
+          },
+          "totalDurationMinutes": {
+            "type": "number",
+            "description": "Total flight duration in minutes (including delays)"
+          },
+          "totalAirports": {
+            "type": "number",
+            "description": "Number of unique airports"
+          },
+          "totalAirlines": {
+            "type": "number",
+            "description": "Number of unique airlines"
+          }
+        },
+        "required": [
+          "totalFlights",
+          "totalDistanceKm",
+          "totalDurationMinutes",
+          "totalAirports",
+          "totalAirlines"
         ]
       },
       "FlightDistanceEntity": {
@@ -2347,6 +2410,9 @@
         "properties": {
           "mostFlownAircraft": {
             "$ref": "#/components/schemas/MostFlownAircraftEntity"
+          },
+          "aircraftStats": {
+            "$ref": "#/components/schemas/AircraftStatsEntity"
           },
           "passport": {
             "$ref": "#/components/schemas/PassportEntity"

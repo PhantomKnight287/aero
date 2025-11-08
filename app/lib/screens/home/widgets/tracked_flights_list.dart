@@ -7,7 +7,7 @@ import 'package:openapi/openapi.dart';
 
 class TrackedFlightsList extends StatelessWidget {
   final BuiltList<FlightResponseEntity> trackedFlights;
-  final Function(String iata, String icao, DateTime date) onFlightTap;
+  final Function(String iata, String icao, DateTime date,bool forceUpdate) onFlightTap;
 
   const TrackedFlightsList({
     super.key,
@@ -53,6 +53,7 @@ class TrackedFlightsList extends StatelessWidget {
                 flight.flightNo,
                 flight.flightNo,
                 flight.date,
+                true,
               ),
               child: Padding(
                 padding: const EdgeInsets.symmetric(

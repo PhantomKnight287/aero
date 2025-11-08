@@ -72,6 +72,7 @@ class _HomeScreenState extends State<HomeScreen>
   bool loadingTrackedFlights = false;
   bool _isInAir = false;
   CancelToken? _cancelToken;
+  BuiltList<FlightPositionEntity> flightPositions = BuiltList.from([]);
 
   bool _isPastFlight(dynamic positionTimestamp) {
     if (positionTimestamp == null) return false;
@@ -222,6 +223,7 @@ class _HomeScreenState extends State<HomeScreen>
                         pos.longitude.toDouble(),
                       ))
                   .toList();
+              flightPositions = trackData.positions;
 
               // Update the latest position
               currentPosition = trackData.positions.last;
@@ -299,6 +301,8 @@ class _HomeScreenState extends State<HomeScreen>
                   ))
               .toList();
 
+          flightPositions = trackData.positions;
+
           currentPosition = trackData.positions.last;
           _updateInAirStatus(currentPosition);
 
@@ -338,7 +342,7 @@ class _HomeScreenState extends State<HomeScreen>
       print(stack);
       setState(() {
         error = 'Failed to load flight information: $e';
-        selectedDate=null;
+        selectedDate = null;
       });
     } finally {
       setState(() {
@@ -407,6 +411,8 @@ class _HomeScreenState extends State<HomeScreen>
                         pos.longitude.toDouble(),
                       ))
                   .toList();
+
+              flightPositions = trackData.positions;
 
               // Get the latest position (last in the list)
               currentPosition = trackData.positions.last;
@@ -555,6 +561,7 @@ class _HomeScreenState extends State<HomeScreen>
                       child: _flightInfo != null
                           ? FlightInfoWidget(
                               info: _flightInfo!,
+                              flightPositions: flightPositions,
                               onRefreshFlightData: () {
                                 _loadFlightInfo(
                                   _flightInfo!.flightNo,
@@ -785,7 +792,7 @@ class _HomeScreenState extends State<HomeScreen>
                                     } else {
                                       arrivalAirport = airport;
                                     }
-                                    
+
                                     _flightController.clear();
                                     results.clear();
                                     setState(() {});
@@ -828,7 +835,14 @@ class _HomeScreenState extends State<HomeScreen>
                                     trackedFlights.isNotEmpty)
                                   TrackedFlightsList(
                                     trackedFlights: trackedFlights,
-                                    onFlightTap: _loadFlightInfo,
+                                    onFlightTap:
+                                        (iata, icao, date, forceUpdate) =>
+                                            _loadFlightInfo(
+                                      iata,
+                                      icao,
+                                      date,
+                                      forceUpdate: forceUpdate,
+                                    ),
                                   ),
                                 FlightsList(
                                   flights: flights,
