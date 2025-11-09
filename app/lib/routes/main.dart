@@ -4,6 +4,7 @@ import 'package:plane_pal/screens/auth/register/main.dart';
 import 'package:plane_pal/screens/home/main.dart';
 import 'package:plane_pal/screens/loading/loading.dart';
 import 'package:plane_pal/screens/profile/main.dart';
+import 'package:plane_pal/screens/profile/app_icon/main.dart';
 import 'package:plane_pal/screens/profile/stats/main.dart';
 import 'package:plane_pal/screens/wearables/list/main.dart';
 import 'package:go_router/go_router.dart';
@@ -49,6 +50,12 @@ class AeroRouter {
         path: "/profile/stats",
         builder: (context, state) {
           return FlightStatsScreen();
+        },
+      ),
+      GoRoute(
+        path: "/profile/app-icon",
+        builder: (context, state) {
+          return const AppIconScreen();
         },
       ),
       GoRoute(

@@ -51,7 +51,7 @@ fun HomeScreen(
     ) {
         if (token == null)
             item {
-                Text("Welcome to PlanePal")
+                Text("Welcome to Aero")
             }
         item {
             if (token == null) {

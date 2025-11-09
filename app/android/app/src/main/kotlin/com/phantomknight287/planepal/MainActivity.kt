@@ -1,7 +1,9 @@
 package com.phantomknight287.planepal
 
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.PersistableBundle
 import android.util.Log
@@ -24,6 +26,7 @@ class MainActivity : FlutterActivity() {
         super.onCreate(savedInstanceState, persistentState)
         Log.d("DeepLinkDebug", "onCreate called with intent: ${intent?.data}")
         handleIntent(intent)
+        startService(Intent(this, ChangeAppIconService::class.java))
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -119,7 +122,17 @@ class MainActivity : FlutterActivity() {
                         }
                     }
                 }
-
+                "changeAppIcon"->{
+                    try {
+                        // Accept icon ID as argument, or read from SharedPreferences if not provided
+                        val iconId = call.argument<String>("iconId")
+                        ChangeAppIconService().changeAppIcon(applicationContext, iconId)
+                        result.success(null)
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                        result.error("ERROR", e.message, null)
+                    }
+                }
                 else -> result.notImplemented()
             }
         }

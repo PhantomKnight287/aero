@@ -4,9 +4,24 @@ import 'package:plane_pal/routes/main.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:toastification/toastification.dart';
+import 'package:variable_app_icon/variable_app_icon.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  VariableAppIcon.androidAppIconIds = [
+    "appIcon.DEFAULT",
+    "appIcon.ZERO_TWO",
+    "appIcon.ZERO_THREE",
+    "appIcon.ZERO_FOUR",
+    "appIcon.ZERO_FIVE",
+    "appIcon.ZERO_SIX",
+    "appIcon.ONE_ONE",
+    "appIcon.ONE_TWO",
+    "appIcon.ONE_THREE",
+    "appIcon.ONE_FOUR",
+    "appIcon.ONE_FIVE",
+    "appIcon.ONE_SIX",
+  ];
   runApp(
     MultiProvider(
       providers: [
@@ -35,7 +50,7 @@ class MainApp extends StatelessWidget {
           scaffoldBackgroundColor: Colors.white,
           fontFamily: "Geist",
           brightness: Brightness.light,
-          primaryColor: Colors.blueAccent,
+          primaryColor: Colors.black,
           navigationBarTheme: NavigationBarThemeData(
             labelTextStyle: const WidgetStatePropertyAll(
               TextStyle(
@@ -43,7 +58,7 @@ class MainApp extends StatelessWidget {
               ),
             ),
             backgroundColor: const Color(0xfffafafa),
-            indicatorColor: Colors.blueAccent.withValues(
+            indicatorColor: Colors.black.withValues(
               alpha: .4,
             ),
           ),

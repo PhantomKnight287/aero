@@ -128,6 +128,7 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
         borderRadius: BorderRadius.circular(16),
       ),
       child: Stack(
+        clipBehavior: Clip.antiAlias,
         children: [
           Positioned.fill(
             child: Opacity(
@@ -253,7 +254,6 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
                               color: Colors.grey[300],
                             ),
                           ),
-                          const Gap(8),
                           Row(
                             children: [
                               Text(
@@ -273,7 +273,6 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
                               ),
                             ],
                           ),
-                          const Gap(4),
                           Text(
                             departure.airport.municipalityName ?? 'Unknown',
                             style: TextStyle(
@@ -315,6 +314,15 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
                                 ),
                             ],
                           ),
+                          _buildShareableAirportDetails(
+                            terminal: departure.terminal,
+                            gate: widget.info.flightAwareData?.gateOrigin ??
+                                departure.gate,
+                            baggage: null, // No baggage for departure
+                            runway:
+                                widget.info.flightAwareData?.actualRunwayOff,
+                            alignment: CrossAxisAlignment.start,
+                          ),
                         ],
                       ),
                     ),
@@ -330,7 +338,6 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
                               color: Colors.grey[300],
                             ),
                           ),
-                          const Gap(8),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.end,
                             children: [
@@ -351,7 +358,6 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
                               ),
                             ],
                           ),
-                          const Gap(4),
                           Text(
                             arrival.airport.municipalityName ?? 'Unknown',
                             style: TextStyle(
@@ -393,6 +399,17 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
                                   ),
                                 ),
                             ],
+                          ),
+                          _buildShareableAirportDetails(
+                            terminal: arrival.terminal,
+                            gate:
+                                widget.info.flightAwareData?.gateDestination ??
+                                    arrival.gate,
+                            baggage:
+                                widget.info.flightAwareData?.baggageClaim ??
+                                    arrival.baggageBelt,
+                            runway: widget.info.flightAwareData?.actualRunwayOn,
+                            alignment: CrossAxisAlignment.end,
                           ),
                         ],
                       ),
@@ -496,6 +513,93 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
             textAlign: TextAlign.center,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildShareableAirportDetails({
+    required String? terminal,
+    required String? gate,
+    required String? baggage,
+    required String? runway,
+    required CrossAxisAlignment alignment,
+  }) {
+    final items = <Widget>[];
+
+    // Terminal
+    if (terminal != null && terminal.isNotEmpty) {
+      items.add(_buildShareableDetailRow(
+        'Terminal',
+        terminal,
+        alignment: alignment,
+      ));
+    }
+
+    // Gate
+    if (gate != null && gate.isNotEmpty) {
+      items.add(_buildShareableDetailRow(
+        'Gate',
+        gate,
+        alignment: alignment,
+      ));
+    }
+
+    // Baggage belt (only for arrival, if available)
+    if (baggage != null && baggage.isNotEmpty) {
+      items.add(_buildShareableDetailRow(
+        'Baggage',
+        baggage,
+        alignment: alignment,
+      ));
+    }
+
+    // Runway
+    if (runway != null && runway.isNotEmpty) {
+      items.add(_buildShareableDetailRow(
+        'Runway',
+        runway,
+        alignment: alignment,
+      ));
+    }
+
+    if (items.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return Column(
+      crossAxisAlignment: alignment,
+      children: items,
+    );
+  }
+
+  Widget _buildShareableDetailRow(
+    String label,
+    String value, {
+    required CrossAxisAlignment alignment,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4.0),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            '$label: ',
+            style: TextStyle(
+              fontFamily: "Geist",
+              fontSize: 10,
+              color: Colors.grey[500],
+            ),
+          ),
+          Text(
+            value,
+            style: TextStyle(
+              fontFamily: "Geist",
+              fontSize: 10,
+              color: Colors.white70,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ],
       ),
