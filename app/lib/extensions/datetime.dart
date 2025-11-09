@@ -56,15 +56,25 @@ String getTimezoneDifference(String timezone1, String timezone2) {
   // Calculate difference in minutes
   final differenceInMinutes = (offset1 - offset2) ~/ 60;
 
+  // Handle case where difference is 0
+  if (differenceInMinutes == 0) {
+    return 'same timezone';
+  }
+
   // Calculate hours and remaining minutes
   final hours = differenceInMinutes ~/ 60;
   final minutes = differenceInMinutes.abs() % 60;
 
+  // Determine the sign
+  final isPositive = differenceInMinutes > 0;
+  final sign = isPositive ? '+' : '-';
+
   // Build the string
   final StringBuffer result = StringBuffer();
+  result.write(sign);
 
   if (hours != 0) {
-    result.write('$hours hr');
+    result.write('${hours.abs()} hr');
     if (hours.abs() != 1) result.write('s');
   }
 
@@ -73,11 +83,6 @@ String getTimezoneDifference(String timezone1, String timezone2) {
     if (hours != 0) result.write(' ');
     result.write('$minutes min');
     if (minutes != 1) result.write('s');
-  }
-
-  // Handle case where difference is 0
-  if (result.isEmpty) {
-    return 'same timezone';
   }
 
   return result.toString();

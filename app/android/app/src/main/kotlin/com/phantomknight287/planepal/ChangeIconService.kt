@@ -46,8 +46,38 @@ class ChangeAppIconService : Service() {
             sp.getString("flutter.selected_app_icon", "DEFAULT") ?: "DEFAULT"
         }
 
-        if (!isAliasEnabled(context, aliasName)) {
-            setAliasEnabled(context, aliasName)
+        // Only apply icon change if explicitly requested (iconId != null)
+        // or if we're in release build (auto-apply on startup)
+        // In debug builds, don't auto-apply on startup to avoid interfering with debugger
+        val isDebugBuild = BuildConfig.DEBUG
+        if (iconId != null || !isDebugBuild) {
+            if (!isAliasEnabled(context, aliasName)) {
+                setAliasEnabled(context, aliasName)
+            }
+        } else {
+            // Debug build: Just ensure DEFAULT is enabled for debugger compatibility
+            // Don't change to stored preference automatically
+            ensureDefaultEnabledForDebugger(context)
+        }
+    }
+    
+    /**
+     * In debug builds, ensure DEFAULT alias is always enabled for debugger compatibility
+     */
+    private fun ensureDefaultEnabledForDebugger(context: Context) {
+        try {
+            val defaultComponent = getComponentName(context, "DEFAULT")
+            val state = context.packageManager.getComponentEnabledSetting(defaultComponent)
+            if (state != PackageManager.COMPONENT_ENABLED_STATE_ENABLED) {
+                context.packageManager.setComponentEnabledSetting(
+                    defaultComponent,
+                    PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
+                    PackageManager.DONT_KILL_APP
+                )
+                Log.d(TAG, "Ensured DEFAULT alias is enabled for debugger")
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error ensuring DEFAULT alias is enabled", e)
         }
     }
 
@@ -91,6 +121,8 @@ class ChangeAppIconService : Service() {
         val packageManager = context.packageManager
         Log.d(TAG, "Changing app icon to: $aliasName")
         
+        // Always enable only the selected alias and disable all others
+        // This ensures only one app icon appears at a time
         aliases.forEach { alias ->
             try {
                 val componentName = getComponentName(context, alias)
@@ -106,7 +138,6 @@ class ChangeAppIconService : Service() {
                 )
             } catch (e: IllegalArgumentException) {
                 Log.e(TAG, "Failed to set component state for alias: $alias - ${e.message}")
-                // Continue with other aliases
             } catch (e: Exception) {
                 Log.e(TAG, "Unexpected error setting component state for alias: $alias", e)
             }

@@ -589,7 +589,8 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
             style: TextStyle(
               fontFamily: "Geist",
               fontSize: 10,
-              color: Colors.grey[500],
+              color: Colors.white,
+              fontWeight: FontWeight.w600,
             ),
           ),
           Text(

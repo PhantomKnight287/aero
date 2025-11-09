@@ -174,7 +174,7 @@ class FlightRouteInfo extends StatelessWidget {
               _buildInfoPills(
                 terminal: effTerminal,
                 gate: effGate,
-                baggage: effBaggage,
+                baggage: isDeparture ? null : effBaggage,
                 runway: effRunway,
                 isDeparture: isDeparture,
               ),

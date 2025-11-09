@@ -20,9 +20,10 @@ model User {
   email    String @unique
   password String
 
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  createdAt DateTime        @default(now()) @map("created_at")
+  updatedAt DateTime        @updatedAt @map("updated_at")
   flights   Flight[]
+  bookings  FlightBooking[]
 
   @@map("users")
 }
@@ -222,11 +223,80 @@ model Flight {
   updatedAt                 DateTime          @updatedAt @map("updated_at")
   FlightPositions           FlightPositions[]
   allFlightPositionsFetched Boolean           @default(false) @map("all_flight_positions_fetched")
+  bookings                  FlightBooking[]
 
   user   User   @relation(fields: [userId], references: [id])
   userId String
 
   @@map("flight")
+}
+
+enum SeatType {
+  window
+  middle
+  aisle
+  jumpseat
+  captain
+  pilot
+  copilot
+  flight_engineer
+  flight_attendant
+  observer
+  other
+}
+
+enum SeatingClass {
+  economy
+  premium_economy
+  business
+  first
+  private
+  other
+}
+
+enum BookingReason {
+  personal
+  business
+  crew
+  training
+  repositioning
+  other
+}
+
+model FlightBooking {
+  id String @id @unique @default(cuid())
+
+  /// Booking code/confirmation code (e.g., "ABC123")
+  bookingCode String? @map("booking_code")
+
+  /// Seat number (e.g., "12A", "1F")
+  seatNumber String? @map("seat_number")
+
+  /// Type of seat position
+  seatType SeatType? @map("seat_type")
+
+  /// Class of service
+  seatingClass SeatingClass? @map("seating_class")
+
+  /// Reason for the flight
+  reason BookingReason?
+
+  /// Notes about the booking
+  notes String?
+
+  flight   Flight @relation(fields: [flightId], references: [id], onDelete: Cascade)
+  flightId String @map("flight_id")
+
+  user   User   @relation(fields: [userId], references: [id])
+  userId String @map("user_id")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([flightId])
+  @@index([userId])
+  @@index([bookingCode])
+  @@map("flight_bookings")
 }
 
 model FlightAwareData {

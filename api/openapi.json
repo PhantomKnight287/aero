@@ -1087,6 +1087,375 @@
         ]
       }
     },
+    "/v1/flight/booking": {
+      "post": {
+        "description": "Create a new booking for a flight with booking details",
+        "operationId": "FlightController_createFlightBooking_v1",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateFlightBookingDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Flight booking created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FlightBookingEntity"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request parameters or flight not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericErrorEntity"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "User is not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericErrorEntity"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericErrorEntity"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ],
+        "summary": "Create a flight booking",
+        "tags": [
+          "Flight"
+        ]
+      }
+    },
+    "/v1/flight/booking/{bookingId}": {
+      "put": {
+        "description": "Update an existing flight booking",
+        "operationId": "FlightController_updateFlightBooking_v1",
+        "parameters": [
+          {
+            "name": "bookingId",
+            "required": true,
+            "in": "path",
+            "description": "ID of the booking to update",
+            "schema": {
+              "example": "booking_abc123",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateFlightBookingDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Flight booking updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FlightBookingEntity"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericErrorEntity"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "User is not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericErrorEntity"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Booking not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericErrorEntity"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericErrorEntity"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ],
+        "summary": "Update a flight booking",
+        "tags": [
+          "Flight"
+        ]
+      },
+      "get": {
+        "description": "Get details of a specific flight booking",
+        "operationId": "FlightController_getFlightBooking_v1",
+        "parameters": [
+          {
+            "name": "bookingId",
+            "required": true,
+            "in": "path",
+            "description": "ID of the booking to retrieve",
+            "schema": {
+              "example": "booking_abc123",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Flight booking retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FlightBookingEntity"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "User is not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericErrorEntity"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Booking not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericErrorEntity"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericErrorEntity"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ],
+        "summary": "Get a flight booking",
+        "tags": [
+          "Flight"
+        ]
+      },
+      "delete": {
+        "description": "Delete a flight booking",
+        "operationId": "FlightController_deleteFlightBooking_v1",
+        "parameters": [
+          {
+            "name": "bookingId",
+            "required": true,
+            "in": "path",
+            "description": "ID of the booking to delete",
+            "schema": {
+              "example": "booking_abc123",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Flight booking deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Booking deleted successfully"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "User is not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericErrorEntity"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Booking not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericErrorEntity"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericErrorEntity"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ],
+        "summary": "Delete a flight booking",
+        "tags": [
+          "Flight"
+        ]
+      }
+    },
+    "/v1/flight/booking/flight/{flightId}": {
+      "get": {
+        "description": "Get all bookings associated with a specific flight",
+        "operationId": "FlightController_getFlightBookingsByFlightId_v1",
+        "parameters": [
+          {
+            "name": "flightId",
+            "required": true,
+            "in": "path",
+            "description": "ID of the flight",
+            "schema": {
+              "example": "flight_abc123",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Flight bookings retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/FlightBookingEntity"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Flight not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericErrorEntity"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "User is not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericErrorEntity"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericErrorEntity"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ],
+        "summary": "Get all bookings for a flight",
+        "tags": [
+          "Flight"
+        ]
+      }
+    },
     "/v1/profile/@me": {
       "get": {
         "description": "Returns comprehensive statistics about tracked flights including passport data, aircraft stats, airlines, airports, and routes",
@@ -1967,6 +2336,104 @@
           "updatedAt"
         ]
       },
+      "FlightBookingEntity": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique booking identifier",
+            "example": "booking_abc123"
+          },
+          "bookingCode": {
+            "type": "object",
+            "description": "Booking code/confirmation code (e.g., \"ABC123\")",
+            "example": "ABC123"
+          },
+          "seatNumber": {
+            "type": "object",
+            "description": "Seat number (e.g., \"12A\", \"1F\")",
+            "example": "12A"
+          },
+          "seatType": {
+            "type": "string",
+            "description": "Type of seat position",
+            "enum": [
+              "window",
+              "middle",
+              "aisle",
+              "jumpseat",
+              "captain",
+              "pilot",
+              "copilot",
+              "flight_engineer",
+              "flight_attendant",
+              "observer",
+              "other"
+            ],
+            "example": "window"
+          },
+          "seatingClass": {
+            "type": "string",
+            "description": "Class of service",
+            "enum": [
+              "economy",
+              "premium_economy",
+              "business",
+              "first",
+              "private",
+              "other"
+            ],
+            "example": "economy"
+          },
+          "reason": {
+            "type": "string",
+            "description": "Reason for the flight",
+            "enum": [
+              "personal",
+              "business",
+              "crew",
+              "training",
+              "repositioning",
+              "other"
+            ],
+            "example": "personal"
+          },
+          "notes": {
+            "type": "object",
+            "description": "Additional notes about the booking",
+            "example": "Window seat preferred"
+          },
+          "flightId": {
+            "type": "string",
+            "description": "Flight ID associated with this booking",
+            "example": "flight_abc123"
+          },
+          "userId": {
+            "type": "string",
+            "description": "User ID who owns this booking",
+            "example": "user_abc123"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Date and time when the booking was created",
+            "example": "2024-03-20T10:00:00Z"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Date and time when the booking was last updated",
+            "example": "2024-03-20T10:00:00Z"
+          }
+        },
+        "required": [
+          "id",
+          "flightId",
+          "userId",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
       "FlightResponseEntity": {
         "type": "object",
         "properties": {
@@ -2006,6 +2473,13 @@
           },
           "flightAwareData": {
             "$ref": "#/components/schemas/FlightAwareDataEntity"
+          },
+          "bookings": {
+            "description": "Bookings associated with this flight",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FlightBookingEntity"
+            }
           }
         },
         "required": [
@@ -2135,6 +2609,155 @@
         "required": [
           "positions"
         ]
+      },
+      "CreateFlightBookingDTO": {
+        "type": "object",
+        "properties": {
+          "flightId": {
+            "type": "string",
+            "description": "Flight ID to associate the booking with",
+            "example": "flight_abc123"
+          },
+          "bookingCode": {
+            "type": "string",
+            "description": "Booking code/confirmation code (e.g., \"ABC123\")",
+            "example": "ABC123",
+            "maxLength": 50
+          },
+          "seatNumber": {
+            "type": "string",
+            "description": "Seat number (e.g., \"12A\", \"1F\")",
+            "example": "12A",
+            "maxLength": 10
+          },
+          "seatType": {
+            "type": "string",
+            "description": "Type of seat position",
+            "enum": [
+              "window",
+              "middle",
+              "aisle",
+              "jumpseat",
+              "captain",
+              "pilot",
+              "copilot",
+              "flight_engineer",
+              "flight_attendant",
+              "observer",
+              "other"
+            ],
+            "example": "window"
+          },
+          "seatingClass": {
+            "type": "string",
+            "description": "Class of service",
+            "enum": [
+              "economy",
+              "premium_economy",
+              "business",
+              "first",
+              "private",
+              "other"
+            ],
+            "example": "economy"
+          },
+          "reason": {
+            "type": "string",
+            "description": "Reason for the flight",
+            "enum": [
+              "personal",
+              "business",
+              "crew",
+              "training",
+              "repositioning",
+              "other"
+            ],
+            "example": "personal",
+            "default": "personal"
+          },
+          "notes": {
+            "type": "string",
+            "description": "Additional notes about the booking",
+            "example": "Window seat preferred",
+            "maxLength": 500
+          }
+        },
+        "required": [
+          "flightId"
+        ]
+      },
+      "UpdateFlightBookingDTO": {
+        "type": "object",
+        "properties": {
+          "bookingCode": {
+            "type": "object",
+            "description": "Booking code/confirmation code (e.g., \"ABC123\"). Set to null to clear.",
+            "example": "ABC123",
+            "maxLength": 50,
+            "nullable": true
+          },
+          "seatNumber": {
+            "type": "object",
+            "description": "Seat number (e.g., \"12A\", \"1F\"). Set to null to clear.",
+            "example": "12A",
+            "maxLength": 10,
+            "nullable": true
+          },
+          "seatType": {
+            "type": "string",
+            "description": "Type of seat position. Set to null to clear.",
+            "enum": [
+              "window",
+              "middle",
+              "aisle",
+              "jumpseat",
+              "captain",
+              "pilot",
+              "copilot",
+              "flight_engineer",
+              "flight_attendant",
+              "observer",
+              "other"
+            ],
+            "example": "window",
+            "nullable": true
+          },
+          "seatingClass": {
+            "type": "string",
+            "description": "Class of service. Set to null to clear.",
+            "enum": [
+              "economy",
+              "premium_economy",
+              "business",
+              "first",
+              "private",
+              "other"
+            ],
+            "example": "economy",
+            "nullable": true
+          },
+          "reason": {
+            "type": "string",
+            "description": "Reason for the flight. Set to null to clear.",
+            "enum": [
+              "personal",
+              "business",
+              "crew",
+              "training",
+              "repositioning",
+              "other"
+            ],
+            "example": "personal",
+            "nullable": true
+          },
+          "notes": {
+            "type": "object",
+            "description": "Additional notes about the booking. Set to null to clear.",
+            "example": "Window seat preferred",
+            "maxLength": 500,
+            "nullable": true
+          }
+        }
       },
       "MostFlownAircraftEntity": {
         "type": "object",

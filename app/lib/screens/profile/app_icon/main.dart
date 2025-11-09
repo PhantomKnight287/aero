@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dynamic_icon_plus/flutter_dynamic_icon_plus.dart';
-import 'package:restart_app/restart_app.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:variable_app_icon/variable_app_icon.dart';
 
 class AppIconScreen extends StatefulWidget {
   const AppIconScreen({super.key});
@@ -20,8 +18,8 @@ class _AppIconScreenState extends State<AppIconScreen> {
     {'id': 'ZERO_TWO', 'name': 'Default', 'asset': 'assets/logos/0-1.png'},
     {'id': 'ZERO_THREE', 'name': 'Icon 2', 'asset': 'assets/logos/0-2.png'},
     {'id': 'ZERO_FOUR', 'name': 'Icon 3', 'asset': 'assets/logos/0-3.png'},
-    {'id': 'ZERO_FIVE', 'name': 'Icon 4', 'asset': 'assets/logos/0-4.png'},
-    // {'id': 'ONE_FIVE', 'name': 'Icon 5', 'asset': 'assets/logos/0-5.png'},
+    {'id': 'DEFAULT', 'name': 'Icon 4', 'asset': 'assets/logos/0-4.png'},
+    {'id': 'ZERO_FIVE', 'name': 'Icon 5', 'asset': 'assets/logos/0-5.png'},
     {'id': 'ZERO_SIX', 'name': 'Icon 6', 'asset': 'assets/logos/0-6.png'},
     {'id': 'ONE_ONE', 'name': 'Icon 7', 'asset': 'assets/logos/1-1.png'},
     {'id': 'ONE_TWO', 'name': 'Icon 8', 'asset': 'assets/logos/1-2.png'},

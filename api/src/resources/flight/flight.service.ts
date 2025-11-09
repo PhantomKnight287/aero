@@ -10,6 +10,7 @@ import {
   HttpStatus,
   Injectable,
   InternalServerErrorException,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -18,6 +19,8 @@ import { Aircraft } from '@prisma/client';
 
 import { GetFlightTrackDTO } from './dto/get-flight-track.dto';
 import { GetFlightDTO } from './dto/get-flight.dto';
+import { CreateFlightBookingDTO } from './dto/create-flight-booking.dto';
+import { UpdateFlightBookingDTO } from './dto/update-flight-booking.dto';
 import { AircraftEntity } from './entities/flight.entity';
 
 @Injectable()
@@ -133,6 +136,14 @@ export class FlightService {
       include: {
         greatCircleDistance: true,
         flightAwareData: true,
+        bookings: {
+          where: {
+            userId,
+          },
+          orderBy: {
+            createdAt: 'desc',
+          },
+        },
       },
     });
 
@@ -225,6 +236,7 @@ export class FlightService {
               payload: aircraft.payload as any,
             } satisfies AircraftEntity)
           : normalizedFromStored,
+        bookings: existingFlight.bookings || [],
       };
     }
 
@@ -785,6 +797,14 @@ export class FlightService {
               faFlightId: true,
             },
           },
+          bookings: {
+            where: {
+              userId,
+            },
+            orderBy: {
+              createdAt: 'desc',
+            },
+          },
         },
       });
 
@@ -818,6 +838,7 @@ export class FlightService {
           ...flightWithAwareData,
           airline: mergedAirlineFinal,
           aircraft: normalizedAircraft,
+          bookings: flightWithAwareData.bookings || [],
         };
       }
 
@@ -825,8 +846,12 @@ export class FlightService {
         ? {
             ...flightWithAwareData,
             airline: mergedAirlineFinal,
+            bookings: flightWithAwareData.bookings || [],
           }
-        : newFlight;
+        : {
+            ...newFlight,
+            bookings: [],
+          };
     } catch (error) {
       if (
         error instanceof UnauthorizedException ||
@@ -1171,5 +1196,180 @@ export class FlightService {
     }
 
     return responseData;
+  }
+
+  async createFlightBooking(
+    createBookingDto: CreateFlightBookingDTO,
+    userId: string,
+  ) {
+    // Verify that the flight exists and belongs to the user
+    const flight = await prisma.flight.findFirst({
+      where: {
+        id: createBookingDto.flightId,
+        userId,
+      },
+    });
+
+    if (!flight) {
+      throw new BadRequestException(
+        'Flight not found or does not belong to the user',
+      );
+    }
+
+    // Check if booking already exists for this flight and user
+    const existingBooking = await prisma.flightBooking.findFirst({
+      where: {
+        flightId: createBookingDto.flightId,
+        userId,
+      },
+    });
+
+    if (existingBooking) {
+      throw new BadRequestException(
+        'A booking already exists for this flight. Use update endpoint to modify it.',
+      );
+    }
+
+    // Create the booking
+    const booking = await prisma.flightBooking.create({
+      data: {
+        flightId: createBookingDto.flightId,
+        userId,
+        bookingCode: createBookingDto.bookingCode ?? null,
+        seatNumber: createBookingDto.seatNumber ?? null,
+        seatType: createBookingDto.seatType ?? null,
+        seatingClass: createBookingDto.seatingClass ?? null,
+        reason: createBookingDto.reason ?? 'personal',
+        notes: createBookingDto.notes ?? null,
+      },
+    });
+
+    return booking;
+  }
+
+  async updateFlightBooking(
+    bookingId: string,
+    updateBookingDto: UpdateFlightBookingDTO,
+    userId: string,
+  ) {
+    // Verify that the booking exists and belongs to the user
+    const existingBooking = await prisma.flightBooking.findFirst({
+      where: {
+        id: bookingId,
+        userId,
+      },
+    });
+
+    if (!existingBooking) {
+      throw new NotFoundException(
+        'Booking not found or does not belong to the user',
+      );
+    }
+
+    // Build update data object, only including fields that are provided
+    // If a field is explicitly set to null, we'll set it to null in the database
+    // If undefined, the field won't be updated (partial update)
+    const updateData: any = {};
+    if (updateBookingDto.bookingCode !== undefined) {
+      // Convert empty strings to null for consistency
+      updateData.bookingCode =
+        updateBookingDto.bookingCode === '' ? null : updateBookingDto.bookingCode;
+    }
+    if (updateBookingDto.seatNumber !== undefined) {
+      updateData.seatNumber =
+        updateBookingDto.seatNumber === '' ? null : updateBookingDto.seatNumber;
+    }
+    if (updateBookingDto.seatType !== undefined) {
+      updateData.seatType = updateBookingDto.seatType;
+    }
+    if (updateBookingDto.seatingClass !== undefined) {
+      updateData.seatingClass = updateBookingDto.seatingClass;
+    }
+    if (updateBookingDto.reason !== undefined) {
+      updateData.reason = updateBookingDto.reason;
+    }
+    if (updateBookingDto.notes !== undefined) {
+      updateData.notes =
+        updateBookingDto.notes === '' ? null : updateBookingDto.notes;
+    }
+
+    // Update the booking
+    const updatedBooking = await prisma.flightBooking.update({
+      where: {
+        id: bookingId,
+      },
+      data: updateData,
+    });
+
+    return updatedBooking;
+  }
+
+  async getFlightBooking(bookingId: string, userId: string) {
+    const booking = await prisma.flightBooking.findFirst({
+      where: {
+        id: bookingId,
+        userId,
+      },
+    });
+
+    if (!booking) {
+      throw new NotFoundException(
+        'Booking not found or does not belong to the user',
+      );
+    }
+
+    return booking;
+  }
+
+  async getFlightBookingsByFlightId(flightId: string, userId: string) {
+    // Verify that the flight belongs to the user
+    const flight = await prisma.flight.findFirst({
+      where: {
+        id: flightId,
+        userId,
+      },
+    });
+
+    if (!flight) {
+      throw new BadRequestException(
+        'Flight not found or does not belong to the user',
+      );
+    }
+
+    const bookings = await prisma.flightBooking.findMany({
+      where: {
+        flightId,
+        userId,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+
+    return bookings;
+  }
+
+  async deleteFlightBooking(bookingId: string, userId: string) {
+    // Verify that the booking exists and belongs to the user
+    const existingBooking = await prisma.flightBooking.findFirst({
+      where: {
+        id: bookingId,
+        userId,
+      },
+    });
+
+    if (!existingBooking) {
+      throw new NotFoundException(
+        'Booking not found or does not belong to the user',
+      );
+    }
+
+    await prisma.flightBooking.delete({
+      where: {
+        id: bookingId,
+      },
+    });
+
+    return { message: 'Booking deleted successfully' };
   }
 }

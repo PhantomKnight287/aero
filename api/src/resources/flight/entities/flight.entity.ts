@@ -1,5 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
+import { FlightBookingEntity } from './flight-booking.entity';
+
 export class FlightAwareDataEntity {
   @ApiProperty()
   id: string;
@@ -370,4 +372,10 @@ export class FlightResponseEntity {
 
   @ApiPropertyOptional()
   flightAwareData?: FlightAwareDataEntity;
+
+  @ApiPropertyOptional({
+    description: 'Bookings associated with this flight',
+    type: [FlightBookingEntity],
+  })
+  bookings?: FlightBookingEntity[];
 }
