@@ -6,6 +6,8 @@
 import 'package:openapi/src/model/partial_airline_entity.dart';
 import 'package:openapi/src/model/stringified_great_circle_distance_entity.dart';
 import 'package:openapi/src/model/aircraft_entity.dart';
+import 'package:built_collection/built_collection.dart';
+import 'package:openapi/src/model/flight_booking_entity.dart';
 import 'package:openapi/src/model/route_info_entity.dart';
 import 'package:openapi/src/model/flight_aware_data_entity.dart';
 import 'package:built_value/built_value.dart';
@@ -28,6 +30,7 @@ part 'flight_response_entity.g.dart';
 /// * [date] 
 /// * [image] 
 /// * [flightAwareData] 
+/// * [bookings] - Bookings associated with this flight
 @BuiltValue()
 abstract class FlightResponseEntity implements Built<FlightResponseEntity, FlightResponseEntityBuilder> {
   @BuiltValueField(wireName: r'id')
@@ -65,6 +68,10 @@ abstract class FlightResponseEntity implements Built<FlightResponseEntity, Fligh
 
   @BuiltValueField(wireName: r'flightAwareData')
   FlightAwareDataEntity? get flightAwareData;
+
+  /// Bookings associated with this flight
+  @BuiltValueField(wireName: r'bookings')
+  BuiltList<FlightBookingEntity>? get bookings;
 
   FlightResponseEntity._();
 
@@ -153,6 +160,13 @@ class _$FlightResponseEntitySerializer implements PrimitiveSerializer<FlightResp
       yield serializers.serialize(
         object.flightAwareData,
         specifiedType: const FullType(FlightAwareDataEntity),
+      );
+    }
+    if (object.bookings != null) {
+      yield r'bookings';
+      yield serializers.serialize(
+        object.bookings,
+        specifiedType: const FullType(BuiltList, [FullType(FlightBookingEntity)]),
       );
     }
   }
@@ -261,6 +275,13 @@ class _$FlightResponseEntitySerializer implements PrimitiveSerializer<FlightResp
             specifiedType: const FullType(FlightAwareDataEntity),
           ) as FlightAwareDataEntity;
           result.flightAwareData.replace(valueDes);
+          break;
+        case r'bookings':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType(BuiltList, [FullType(FlightBookingEntity)]),
+          ) as BuiltList<FlightBookingEntity>;
+          result.bookings.replace(valueDes);
           break;
         default:
           unhandled.add(key);

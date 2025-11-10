@@ -18,8 +18,18 @@ Serializers _$serializers = (Serializers().toBuilder()
       ..add(AirportInfo.serializer)
       ..add(AirportStatsEntity.serializer)
       ..add(AirportType.serializer)
+      ..add(CreateFlightBookingDTO.serializer)
+      ..add(CreateFlightBookingDTOReasonEnum.serializer)
+      ..add(CreateFlightBookingDTOSeatTypeEnum.serializer)
+      ..add(CreateFlightBookingDTOSeatingClassEnum.serializer)
       ..add(FlighType.serializer)
       ..add(FlightAwareDataEntity.serializer)
+      ..add(FlightBookingEntity.serializer)
+      ..add(FlightBookingEntityReasonEnum.serializer)
+      ..add(FlightBookingEntitySeatTypeEnum.serializer)
+      ..add(FlightBookingEntitySeatingClassEnum.serializer)
+      ..add(FlightCandidateEntity.serializer)
+      ..add(FlightControllerDeleteFlightBookingV1200Response.serializer)
       ..add(FlightDistanceEntity.serializer)
       ..add(FlightDurationEntity.serializer)
       ..add(FlightEntity.serializer)
@@ -27,9 +37,12 @@ Serializers _$serializers = (Serializers().toBuilder()
       ..add(FlightPositionEntityAltitudeChangeEnum.serializer)
       ..add(FlightPositionEntityUpdateTypeEnum.serializer)
       ..add(FlightResponseEntity.serializer)
+      ..add(FlightSearchResponseEntity.serializer)
       ..add(FlightStatus.serializer)
       ..add(FlightSummaryAirlineEntity.serializer)
+      ..add(FlightSummaryDestinationEntity.serializer)
       ..add(FlightSummaryEntity.serializer)
+      ..add(FlightSummaryOriginEntity.serializer)
       ..add(FlightTrackResponseEntity.serializer)
       ..add(FlightsControllerGetFlightsInBoundsV1200Response.serializer)
       ..add(FlightsControllerGetFlightsInBoundsV1200ResponseBounds.serializer)
@@ -56,6 +69,10 @@ Serializers _$serializers = (Serializers().toBuilder()
       ..add(TimeEntity.serializer)
       ..add(TopRouteEntity.serializer)
       ..add(TrackedFlightsResponseEntity.serializer)
+      ..add(UpdateFlightBookingDTO.serializer)
+      ..add(UpdateFlightBookingDTOReasonEnum.serializer)
+      ..add(UpdateFlightBookingDTOSeatTypeEnum.serializer)
+      ..add(UpdateFlightBookingDTOSeatingClassEnum.serializer)
       ..add(UserEntity.serializer)
       ..addBuilderFactory(
           const FullType(BuiltList, const [const FullType(AirlineStatsEntity)]),
@@ -66,6 +83,14 @@ Serializers _$serializers = (Serializers().toBuilder()
       ..addBuilderFactory(
           const FullType(BuiltList, const [const FullType(TopRouteEntity)]),
           () => ListBuilder<TopRouteEntity>())
+      ..addBuilderFactory(
+          const FullType(
+              BuiltList, const [const FullType(FlightBookingEntity)]),
+          () => ListBuilder<FlightBookingEntity>())
+      ..addBuilderFactory(
+          const FullType(
+              BuiltList, const [const FullType(FlightCandidateEntity)]),
+          () => ListBuilder<FlightCandidateEntity>())
       ..addBuilderFactory(
           const FullType(BuiltList, const [const FullType(FlightEntity)]),
           () => ListBuilder<FlightEntity>())

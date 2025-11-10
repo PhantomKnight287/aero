@@ -379,3 +379,90 @@ export class FlightResponseEntity {
   })
   bookings?: FlightBookingEntity[];
 }
+
+class FlightSummaryOriginEntity {
+  @ApiProperty()
+  code: string;
+
+  @ApiPropertyOptional()
+  codeIata?: string;
+
+  @ApiPropertyOptional()
+  codeIcao?: string;
+
+  @ApiPropertyOptional()
+  name?: string;
+
+  @ApiPropertyOptional()
+  city?: string;
+}
+
+class FlightSummaryDestinationEntity {
+  @ApiProperty()
+  code: string;
+
+  @ApiPropertyOptional()
+  codeIata?: string;
+
+  @ApiPropertyOptional()
+  codeIcao?: string;
+
+  @ApiPropertyOptional()
+  name?: string;
+
+  @ApiPropertyOptional()
+  city?: string;
+}
+
+class FlightSummaryAirlineEntity {
+  @ApiProperty()
+  name: string;
+
+  @ApiPropertyOptional()
+  iata?: string;
+
+  @ApiPropertyOptional()
+  icao?: string;
+
+  @ApiPropertyOptional()
+  image?: string;
+}
+
+export class FlightCandidateEntity {
+  @ApiProperty({
+    description: 'FlightAware flight ID for fetching full details',
+  })
+  faFlightId: string;
+
+  @ApiProperty({ description: 'Flight identifier (e.g., "AC113")' })
+  ident: string;
+
+  @ApiProperty()
+  origin: FlightSummaryOriginEntity;
+
+  @ApiProperty()
+  destination: FlightSummaryDestinationEntity;
+
+  @ApiPropertyOptional()
+  scheduledOut?: Date;
+
+  @ApiPropertyOptional()
+  scheduledOff?: Date;
+
+  @ApiProperty({ description: 'Flight status description' })
+  status: string;
+
+  @ApiProperty()
+  airline: FlightSummaryAirlineEntity;
+}
+
+export class FlightSearchResponseEntity {
+  @ApiProperty({
+    description: 'Array of flight candidates',
+    type: [FlightCandidateEntity],
+  })
+  flights: FlightCandidateEntity[];
+
+  @ApiProperty({ description: 'Number of flights found' })
+  count: number;
+}

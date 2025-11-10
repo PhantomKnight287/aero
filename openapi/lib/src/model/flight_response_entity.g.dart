@@ -31,6 +31,8 @@ class _$FlightResponseEntity extends FlightResponseEntity {
   final String? image;
   @override
   final FlightAwareDataEntity? flightAwareData;
+  @override
+  final BuiltList<FlightBookingEntity>? bookings;
 
   factory _$FlightResponseEntity(
           [void Function(FlightResponseEntityBuilder)? updates]) =>
@@ -48,7 +50,8 @@ class _$FlightResponseEntity extends FlightResponseEntity {
       required this.greatCircleDistance,
       required this.date,
       this.image,
-      this.flightAwareData})
+      this.flightAwareData,
+      this.bookings})
       : super._();
   @override
   FlightResponseEntity rebuild(
@@ -74,7 +77,8 @@ class _$FlightResponseEntity extends FlightResponseEntity {
         greatCircleDistance == other.greatCircleDistance &&
         date == other.date &&
         image == other.image &&
-        flightAwareData == other.flightAwareData;
+        flightAwareData == other.flightAwareData &&
+        bookings == other.bookings;
   }
 
   @override
@@ -92,6 +96,7 @@ class _$FlightResponseEntity extends FlightResponseEntity {
     _$hash = $jc(_$hash, date.hashCode);
     _$hash = $jc(_$hash, image.hashCode);
     _$hash = $jc(_$hash, flightAwareData.hashCode);
+    _$hash = $jc(_$hash, bookings.hashCode);
     _$hash = $jf(_$hash);
     return _$hash;
   }
@@ -110,7 +115,8 @@ class _$FlightResponseEntity extends FlightResponseEntity {
           ..add('greatCircleDistance', greatCircleDistance)
           ..add('date', date)
           ..add('image', image)
-          ..add('flightAwareData', flightAwareData))
+          ..add('flightAwareData', flightAwareData)
+          ..add('bookings', bookings))
         .toString();
   }
 }
@@ -179,6 +185,12 @@ class FlightResponseEntityBuilder
   set flightAwareData(FlightAwareDataEntityBuilder? flightAwareData) =>
       _$this._flightAwareData = flightAwareData;
 
+  ListBuilder<FlightBookingEntity>? _bookings;
+  ListBuilder<FlightBookingEntity> get bookings =>
+      _$this._bookings ??= ListBuilder<FlightBookingEntity>();
+  set bookings(ListBuilder<FlightBookingEntity>? bookings) =>
+      _$this._bookings = bookings;
+
   FlightResponseEntityBuilder() {
     FlightResponseEntity._defaults(this);
   }
@@ -198,6 +210,7 @@ class FlightResponseEntityBuilder
       _date = $v.date;
       _image = $v.image;
       _flightAwareData = $v.flightAwareData?.toBuilder();
+      _bookings = $v.bookings?.toBuilder();
       _$v = null;
     }
     return this;
@@ -238,6 +251,7 @@ class FlightResponseEntityBuilder
                 date, r'FlightResponseEntity', 'date'),
             image: image,
             flightAwareData: _flightAwareData?.build(),
+            bookings: _bookings?.build(),
           );
     } catch (_) {
       late String _$failedField;
@@ -256,6 +270,8 @@ class FlightResponseEntityBuilder
 
         _$failedField = 'flightAwareData';
         _flightAwareData?.build();
+        _$failedField = 'bookings';
+        _bookings?.build();
       } catch (e) {
         throw BuiltValueNestedFieldError(
             r'FlightResponseEntity', _$failedField, e.toString());

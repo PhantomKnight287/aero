@@ -24,4 +24,11 @@ export class GetFlightDTO {
   @IsBoolean()
   @IsOptional()
   forceUpdate?: boolean;
+
+  @ApiPropertyOptional({
+    description: 'FlightAware flight ID to fetch a specific flight',
+  })
+  @IsString()
+  @IsOptional()
+  faFlightId?: string;
 }

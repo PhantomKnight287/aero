@@ -26,6 +26,7 @@ class FlightInfoWidget extends StatefulWidget {
   final Function() onClose;
   final Function()? onRefreshTracking;
   final Function()? onRefreshFlightData;
+  final Function()? onBookingDetails;
   final BuiltList<FlightPositionEntity> flightPositions;
   const FlightInfoWidget({
     super.key,
@@ -33,6 +34,7 @@ class FlightInfoWidget extends StatefulWidget {
     required this.onClose,
     this.onRefreshTracking,
     this.onRefreshFlightData,
+    this.onBookingDetails,
     required this.flightPositions,
   });
 
@@ -53,6 +55,13 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
         .map((w) => w.isEmpty
             ? w
             : '${w[0].toUpperCase()}${w.length > 1 ? w.substring(1) : ''}')
+        .join(' ');
+  }
+
+  String _formatEnumName(String enumName) {
+    return enumName
+        .split('_')
+        .map((word) => '${word[0].toUpperCase()}${word.substring(1)}')
         .join(' ');
   }
 
@@ -195,7 +204,7 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
                               fontFamily: "Geist",
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
-                              color: Colors.white,
+                              color: Colors.white.withOpacity(0.9),
                             ),
                           ),
                           Text(
@@ -221,7 +230,7 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
                               fontFamily: "Geist",
                               fontSize: 15,
                               fontWeight: FontWeight.bold,
-                              color: Colors.white,
+                              color: Colors.white.withOpacity(0.9),
                             ),
                           ),
                           const Gap(2),
@@ -262,13 +271,13 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
                                   fontFamily: "Geist",
                                   fontSize: 32,
                                   fontWeight: FontWeight.bold,
-                                  color: Colors.white,
+                                  color: Colors.white.withOpacity(0.9),
                                 ),
                               ),
                               const Gap(8),
-                              const Icon(
+                              Icon(
                                 Icons.flight_takeoff,
-                                color: Colors.white,
+                                color: Colors.white.withOpacity(0.9),
                                 size: 24,
                               ),
                             ],
@@ -294,7 +303,7 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
                                   fontFamily: "Geist",
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600,
-                                  color: Colors.white,
+                                  color: Colors.white.withOpacity(0.9),
                                 ),
                               ),
                               if (departureDelay != null &&
@@ -341,9 +350,9 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.end,
                             children: [
-                              const Icon(
+                              Icon(
                                 Icons.flight_land,
-                                color: Colors.white,
+                                color: Colors.white.withOpacity(0.9),
                                 size: 24,
                               ),
                               const Gap(8),
@@ -353,7 +362,7 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
                                   fontFamily: "Geist",
                                   fontSize: 32,
                                   fontWeight: FontWeight.bold,
-                                  color: Colors.white,
+                                  color: Colors.white.withOpacity(0.9),
                                 ),
                               ),
                             ],
@@ -380,7 +389,7 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
                                   fontFamily: "Geist",
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600,
-                                  color: Colors.white,
+                                  color: Colors.white.withOpacity(0.9),
                                 ),
                               ),
                               if (arrivalDelay != null &&
@@ -508,7 +517,7 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
               fontFamily: "Geist",
               fontSize: 13,
               fontWeight: FontWeight.w600,
-              color: Colors.white,
+              color: Colors.white.withOpacity(0.9),
             ),
             textAlign: TextAlign.center,
             maxLines: 2,
@@ -589,7 +598,7 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
             style: TextStyle(
               fontFamily: "Geist",
               fontSize: 10,
-              color: Colors.white,
+              color: Colors.white.withOpacity(0.9),
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -791,6 +800,16 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
                           ],
                         ),
                       ),
+                      PopupMenuItem(
+                        value: 'booking_details',
+                        child: Row(
+                          children: [
+                            Icon(Icons.confirmation_number),
+                            SizedBox(width: 8),
+                            Text('Booking details'),
+                          ],
+                        ),
+                      ),
                     ],
                     onSelected: (value) async {
                       if (value == "refresh_tracking") {
@@ -827,6 +846,9 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
                       }
                       if (value == "share") {
                         _shareFlightCard();
+                      }
+                      if (value == "booking_details") {
+                        widget.onBookingDetails?.call();
                       }
                     },
                   ),
@@ -957,7 +979,7 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
                     ListTile(
                       contentPadding: EdgeInsets.zero,
                       title: Text(
-                        "Could be known as ${widget.info.flightAwareData!.codesharesIcao!.join(", ")}",
+                        "Operated as ${widget.info.flightAwareData!.codesharesIcao!.join(", ")}",
                         style: TextStyle(
                           fontWeight: FontWeight.w600,
                         ),
@@ -968,6 +990,109 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
               ),
             ),
           ),
+          // Booking Details Section
+          if (widget.info.bookings != null && widget.info.bookings!.isNotEmpty) ...[
+            Gap(8),
+            Text(
+              "Booking Details",
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            Container(
+              decoration: BoxDecoration(
+                border: Border.all(
+                  color: Colors.grey.shade300,
+                ),
+                borderRadius: BorderRadius.circular(5),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(8.0).copyWith(
+                  top: 0,
+                  bottom: 0,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  spacing: 8,
+                  children: [
+                    Builder(builder: (context) {
+                      final booking = widget.info.bookings!.first;
+                      
+                      // Extract string values from JsonObject
+                      String? _extractString(dynamic jsonObject) {
+                        if (jsonObject == null) return null;
+                        if (jsonObject is String) return jsonObject;
+                        try {
+                          final value = (jsonObject as dynamic).value;
+                          if (value is String) return value;
+                          return value?.toString();
+                        } catch (e) {
+                          return jsonObject.toString();
+                        }
+                      }
+                      
+                      final bookingCode = _extractString(booking.bookingCode);
+                      final seatNumber = _extractString(booking.seatNumber);
+                      final seatingClass = booking.seatingClass?.name;
+                      final seatType = booking.seatType?.name;
+                      final reason = booking.reason?.name;
+                      
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (bookingCode != null && bookingCode.isNotEmpty)
+                            ListTile(
+                              contentPadding: EdgeInsets.zero,
+                              leading: Icon(Icons.confirmation_number),
+                              title: Text(
+                                'Booking Code: $bookingCode',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          if (seatNumber != null && seatNumber.isNotEmpty)
+                            ListTile(
+                              contentPadding: EdgeInsets.zero,
+                              leading: Icon(Icons.event_seat),
+                              title: Text(
+                                'Seat: $seatNumber${seatType != null ? ' (${_formatEnumName(seatType)})' : ''}',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          if (seatingClass != null)
+                            ListTile(
+                              contentPadding: EdgeInsets.zero,
+                              leading: Icon(Icons.airline_seat_recline_normal),
+                              title: Text(
+                                'Class: ${_formatEnumName(seatingClass)}',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          if (reason != null)
+                            ListTile(
+                              contentPadding: EdgeInsets.zero,
+                              leading: Icon(Icons.flight_takeoff),
+                              title: Text(
+                                'Reason: ${_formatEnumName(reason)}',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                        ],
+                      );
+                    }),
+                  ],
+                ),
+              ),
+            ),
+          ],
           Gap(8),
           if (widget.info.aircraft?.model != null)
             Text(

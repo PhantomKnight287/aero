@@ -10,9 +10,11 @@ import 'package:openapi/openapi.dart';
 import 'package:plane_pal/screens/home/service.dart';
 import 'package:plane_pal/screens/home/widgets/animated_flight_info_bar.dart';
 import 'package:plane_pal/screens/home/widgets/date_selection_list.dart';
+import 'package:plane_pal/screens/home/widgets/booking_details_sheet.dart';
 import 'package:plane_pal/screens/home/widgets/flight_info.dart';
 import 'package:plane_pal/screens/home/widgets/flight_map.dart';
 import 'package:plane_pal/screens/home/widgets/flight_search_bar.dart';
+import 'package:plane_pal/screens/home/widgets/flight_selection_list.dart';
 import 'package:plane_pal/screens/home/widgets/flights_list.dart';
 import 'package:plane_pal/screens/home/widgets/refresh_countdown_timer.dart';
 import 'package:plane_pal/screens/home/widgets/search_header.dart';
@@ -74,6 +76,11 @@ class _HomeScreenState extends State<HomeScreen>
   bool _isInAir = false;
   CancelToken? _cancelToken;
   BuiltList<FlightPositionEntity> flightPositions = BuiltList.from([]);
+  FlightSearchResponseEntity? _flightSearchResults;
+  bool _showFlightSelection = false;
+  String? _pendingIata;
+  String? _pendingIcao;
+  DateTime? _pendingDate;
 
   bool _isPastFlight(dynamic positionTimestamp) {
     if (positionTimestamp == null) return false;
@@ -255,89 +262,85 @@ class _HomeScreenState extends State<HomeScreen>
     String icaoCode,
     DateTime date, {
     bool forceUpdate = false,
+    String? faFlightId,
   }) async {
     loading = true;
     setState(() {});
 
     try {
+      // If faFlightId is provided, fetch the flight directly
+      // Otherwise, search for flights first to check for multiple results
+      if (faFlightId != null) {
+        final info = await _flightService.getFlightInfoWithNumber(
+          iataCode,
+          icaoCode,
+          date: date,
+          forceUpdate: forceUpdate,
+          faFlightId: faFlightId,
+        );
+
+        if (info == null) {
+          setState(() {
+            error = 'No flight information found';
+            loading = false;
+            _showFlightSelection = false;
+          });
+          return;
+        }
+
+        _processFlightInfo(info, iataCode, icaoCode, date);
+        return;
+      }
+
+      // Search for flights first
+      final searchResults = await _flightService.searchFlights(
+        iataCode,
+        icaoCode,
+        date: date,
+      );
+
+      if (searchResults == null || searchResults.count == 0) {
+        setState(() {
+          error = 'No flights found';
+          loading = false;
+          _showFlightSelection = false;
+        });
+        return;
+      }
+
+      // If multiple flights found, show selection UI
+      if (searchResults.count > 1) {
+        setState(() {
+          _flightSearchResults = searchResults;
+          _showFlightSelection = true;
+          _pendingIata = iataCode;
+          _pendingIcao = icaoCode;
+          _pendingDate = date;
+          loading = false;
+        });
+        return;
+      }
+
+      // Single flight found, use its faFlightId to fetch full details
+      final singleFlight = searchResults.flights.first;
       final info = await _flightService.getFlightInfoWithNumber(
         iataCode,
         icaoCode,
         date: date,
         forceUpdate: forceUpdate,
+        faFlightId: singleFlight.faFlightId,
       );
 
       if (info == null) {
         setState(() {
           error = 'No flight information found';
           loading = false;
+          _showFlightSelection = false;
         });
         return;
       }
 
-      coordinates = [
-        LatLng(
-          info.departure.airport.location.lat.toDouble(),
-          info.departure.airport.location.lon.toDouble(),
-        ),
-        LatLng(
-          info.arrival.airport.location.lat.toDouble(),
-          info.arrival.airport.location.lon.toDouble(),
-        ),
-      ];
-
-      // Fetch flight track data
-      try {
-        final trackData = await _flightService.getFlightTrack(
-          iataCode,
-          icaoCode,
-          date: date,
-        );
-
-        if (trackData != null && trackData.positions.isNotEmpty) {
-          flightTrackPoints = trackData.positions
-              .map((pos) => LatLng(
-                    pos.latitude.toDouble(),
-                    pos.longitude.toDouble(),
-                  ))
-              .toList();
-
-          flightPositions = trackData.positions;
-
-          currentPosition = trackData.positions.last;
-          _updateInAirStatus(currentPosition);
-
-          // Start polling for updates only if airborne
-          if (_isInAir) {
-            _startTrackPolling(iataCode, icaoCode, date);
-          }
-        }
-      } catch (e, stack) {
-        print(e);
-        print(stack);
-        print('Failed to fetch flight track: $e');
-      }
-
-      // Animate map to current position or destination
-      _mapController.animateTo(
-        dest: currentPosition != null
-            ? LatLng(
-                currentPosition!.latitude.toDouble(),
-                currentPosition!.longitude.toDouble(),
-              )
-            : coordinates[1],
-      );
-
-      setState(() {
-        _flightInfo = info;
-      });
-
-      // Expand the bottom sheet
-      _controller.animateTo(
-        0.75,
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
-      );
+      _processFlightInfo(info, iataCode, icaoCode, date);
     } catch (e, stack) {
       print('Error loading flight: $e');
       print(stack);
@@ -352,11 +355,134 @@ class _HomeScreenState extends State<HomeScreen>
         });
       }
       selectedDate = null;
+      _showFlightSelection = false;
     } finally {
       setState(() {
         loading = false;
       });
     }
+  }
+
+  void _processFlightInfo(
+    FlightResponseEntity info,
+    String iataCode,
+    String icaoCode,
+    DateTime date,
+  ) {
+    coordinates = [
+      LatLng(
+        info.departure.airport.location.lat.toDouble(),
+        info.departure.airport.location.lon.toDouble(),
+      ),
+      LatLng(
+        info.arrival.airport.location.lat.toDouble(),
+        info.arrival.airport.location.lon.toDouble(),
+      ),
+    ];
+
+    // Fetch flight track data
+    try {
+      final trackData = _flightService.getFlightTrack(
+        iataCode,
+        icaoCode,
+        date: date,
+      );
+
+      trackData.then((track) {
+        if (track != null && track.positions.isNotEmpty) {
+          setState(() {
+            flightTrackPoints = track.positions
+                .map((pos) => LatLng(
+                      pos.latitude.toDouble(),
+                      pos.longitude.toDouble(),
+                    ))
+                .toList();
+
+            flightPositions = track.positions;
+
+            currentPosition = track.positions.last;
+            _updateInAirStatus(currentPosition);
+
+            // Start polling for updates only if airborne
+            if (_isInAir) {
+              _startTrackPolling(iataCode, icaoCode, date);
+            }
+          });
+        }
+      }).catchError((e, stack) {
+        print(e);
+        print(stack);
+        print('Failed to fetch flight track: $e');
+      });
+    } catch (e, stack) {
+      print(e);
+      print(stack);
+      print('Failed to fetch flight track: $e');
+    }
+
+    // Animate map to current position or destination
+    _mapController.animateTo(
+      dest: currentPosition != null
+          ? LatLng(
+              currentPosition!.latitude.toDouble(),
+              currentPosition!.longitude.toDouble(),
+            )
+          : coordinates[1],
+    );
+
+    setState(() {
+      _flightInfo = info;
+      _showFlightSelection = false;
+    });
+
+    // Expand the bottom sheet
+    _controller.animateTo(
+      0.75,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+    );
+  }
+
+  void _showBookingDetailsSheet() {
+    if (_flightInfo == null) return;
+
+    // Get the first booking if it exists
+    final existingBooking = _flightInfo!.bookings != null &&
+            _flightInfo!.bookings!.isNotEmpty
+        ? _flightInfo!.bookings!.first
+        : null;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => BookingDetailsSheet(
+        flightId: _flightInfo!.id,
+        existingBooking: existingBooking,
+        onSaved: () {
+          // Refresh flight data to get updated booking
+          if (_flightInfo != null) {
+            _loadFlightInfo(
+              _flightInfo!.flightNo,
+              _flightInfo!.flightNo,
+              _flightInfo!.date.toLocal(),
+              forceUpdate: true,
+            );
+          }
+        },
+        onDeleted: () {
+          // Refresh flight data after deletion
+          if (_flightInfo != null) {
+            _loadFlightInfo(
+              _flightInfo!.flightNo,
+              _flightInfo!.flightNo,
+              _flightInfo!.date.toLocal(),
+              forceUpdate: true,
+            );
+          }
+        },
+      ),
+    );
   }
 
   Future<void> _onAircraftSelected(
@@ -385,109 +511,12 @@ class _HomeScreenState extends State<HomeScreen>
         final iata = aircraft.identIata ?? '';
         final icao = aircraft.identIcao ?? '';
 
-        // Get flight information using the flight identifiers
-        final info = await _flightService.getFlightInfoWithNumber(
+        // Use the search flow to handle multiple flights
+        await _loadFlightInfo(
           iata,
           icao,
-          date: selectedDate!,
+          selectedDate!,
         );
-
-        if (info != null) {
-          coordinates = [
-            LatLng(
-              info.departure.airport.location.lat.toDouble(),
-              info.departure.airport.location.lon.toDouble(),
-            ),
-            LatLng(
-              info.arrival.airport.location.lat.toDouble(),
-              info.arrival.airport.location.lon.toDouble(),
-            ),
-          ];
-
-          // Fetch flight track data
-          try {
-            final trackData = await _flightService.getFlightTrack(
-              iata,
-              icao,
-              date: selectedDate!,
-            );
-
-            if (trackData != null && trackData.positions.isNotEmpty) {
-              flightTrackPoints = trackData.positions
-                  .map((pos) => LatLng(
-                        pos.latitude.toDouble(),
-                        pos.longitude.toDouble(),
-                      ))
-                  .toList();
-
-              flightPositions = trackData.positions;
-
-              // Get the latest position (last in the list)
-              currentPosition = trackData.positions.last;
-              _updateInAirStatus(currentPosition);
-
-              // Start polling for updates only if airborne
-              if (_isInAir) {
-                _startTrackPolling(iata, icao, selectedDate!);
-              }
-            }
-          } catch (e) {
-            print('Failed to fetch flight track: $e');
-            // Continue without track data
-          }
-
-          // Animate map to show the current flight location or route midpoint
-          _mapController.animateTo(
-            dest: currentPosition != null
-                ? LatLng(
-                    currentPosition!.latitude.toDouble(),
-                    currentPosition!.longitude.toDouble(),
-                  )
-                : LatLng(
-                    (info.departure.airport.location.lat.toDouble() +
-                            info.arrival.airport.location.lat.toDouble()) /
-                        2,
-                    (info.departure.airport.location.lon.toDouble() +
-                            info.arrival.airport.location.lon.toDouble()) /
-                        2,
-                  ),
-          );
-
-          setState(() {
-            _flightInfo = info;
-            departureAirport = AirportEntity((b) => b
-              ..ident = info.departure.airport.iata
-              ..iataCode = info.departure.airport.iata
-              ..name = info.departure.airport.name
-              ..lat = info.departure.airport.location.lat.toString()
-              ..long = info.departure.airport.location.lon.toString()
-              ..isoCountry = info.departure.airport.countryCode
-              ..type = AirportType.largeAirport
-              ..build());
-
-            arrivalAirport = AirportEntity((b) => b
-              ..ident = info.arrival.airport.iata
-              ..iataCode = info.arrival.airport.iata
-              ..name = info.arrival.airport.name
-              ..lat = info.arrival.airport.location.lat.toString()
-              ..long = info.arrival.airport.location.lon.toString()
-              ..isoCountry = info.arrival.airport.countryCode
-              ..type = AirportType.largeAirport
-              ..build());
-          });
-
-          // Expand the bottom sheet to show flight details
-          _controller.animateTo(
-            0.75,
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeInOut,
-          );
-        } else {
-          setState(() {
-            error =
-                'No flight information found for ${aircraft.identIata ?? aircraft.identIcao ?? "unknown flight"}';
-          });
-        }
       } else {
         setState(() {
           error = 'No flight identifiers available';
@@ -573,64 +602,87 @@ class _HomeScreenState extends State<HomeScreen>
                       padding: const EdgeInsets.all(
                         8.0,
                       ),
-                      child: _flightInfo != null
-                          ? FlightInfoWidget(
-                              info: _flightInfo!,
-                              flightPositions: flightPositions,
-                              onRefreshFlightData: () {
-                                _loadFlightInfo(
-                                  _flightInfo!.flightNo,
-                                  _flightInfo!.flightNo,
-                                  _flightInfo!.date.toLocal(),
-                                  forceUpdate: true,
-                                );
-                              },
-                              onClose: () {
-                                _stopTrackPolling();
-                                setState(() {
-                                  _flightInfo = null;
-                                  arrivalAirport = null;
-                                  departureAirport = null;
-                                  coordinates = [];
-                                  flightTrackPoints = [];
-                                  currentPosition = null;
-                                  selectedDate = null;
-                                  selectedAirline = null;
-                                  selectedFlightNumber = null;
-                                  flights = BuiltList.from([]);
-                                  error = null;
-                                  isLoading = false;
-                                  loading = false;
-                                  _flightController.clear();
-                                });
-                              },
-                              onRefreshTracking: () {
-                                _stopTrackPolling();
-
-                                final flightNo = _flightInfo!.flightNo;
-                                final date = _flightInfo!.date.toLocal();
-
-                                _startTrackPolling(
-                                  flightNo,
-                                  flightNo,
-                                  date,
-                                );
-
-                                // Show a snackbar to confirm
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text('Tracking refreshed'),
-                                    duration: Duration(seconds: 2),
-                                  ),
-                                );
+                      child: _showFlightSelection && _flightSearchResults != null
+                          ? FlightSelectionList(
+                              flights: _flightSearchResults!.flights,
+                              onFlightSelected: (faFlightId) {
+                                // Use the stored identifiers and date
+                                if (_pendingIata != null &&
+                                    _pendingIcao != null &&
+                                    _pendingDate != null) {
+                                  // Load flight with selected faFlightId
+                                  _loadFlightInfo(
+                                    _pendingIata!,
+                                    _pendingIcao!,
+                                    _pendingDate!,
+                                    faFlightId: faFlightId,
+                                  );
+                                }
                               },
                             )
-                          : loading &&
-                                  (selectedDate != null ||
-                                      selectedAirline != null &&
-                                          selectedFlightNumber != null)
-                              ? _buildFlightInfoSkeleton()
-                              : Column(
+                          : _flightInfo != null
+                              ? FlightInfoWidget(
+                                  info: _flightInfo!,
+                                  flightPositions: flightPositions,
+                                  onRefreshFlightData: () {
+                                    _loadFlightInfo(
+                                      _flightInfo!.flightNo,
+                                      _flightInfo!.flightNo,
+                                      _flightInfo!.date.toLocal(),
+                                      forceUpdate: true,
+                                    );
+                                  },
+                                  onClose: () {
+                                    _stopTrackPolling();
+                                    setState(() {
+                                      _flightInfo = null;
+                                      arrivalAirport = null;
+                                      departureAirport = null;
+                                      coordinates = [];
+                                      flightTrackPoints = [];
+                                      currentPosition = null;
+                                      selectedDate = null;
+                                      selectedAirline = null;
+                                      selectedFlightNumber = null;
+                                      flights = BuiltList.from([]);
+                                      error = null;
+                                      isLoading = false;
+                                      loading = false;
+                                      _showFlightSelection = false;
+                                      _flightSearchResults = null;
+                                      _flightController.clear();
+                                    });
+                                  },
+                                  onRefreshTracking: () {
+                                    _stopTrackPolling();
+
+                                    final flightNo = _flightInfo!.flightNo;
+                                    final date = _flightInfo!.date.toLocal();
+
+                                    _startTrackPolling(
+                                      flightNo,
+                                      flightNo,
+                                      date,
+                                    );
+
+                                    // Show a snackbar to confirm
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text('Tracking refreshed'),
+                                        duration: Duration(seconds: 2),
+                                      ),
+                                    );
+                                  },
+                                  onBookingDetails: () {
+                                    _showBookingDetailsSheet();
+                                  },
+                                )
+                              : loading &&
+                                      (selectedDate != null ||
+                                          selectedAirline != null &&
+                                              selectedFlightNumber != null)
+                                  ? _buildFlightInfoSkeleton()
+                                  : Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     SearchHeader(),

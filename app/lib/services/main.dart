@@ -33,6 +33,7 @@ class FlightDataService {
     String icao, {
     DateTime? date,
     bool? forceUpdate,
+    String? faFlightId,
   }) async {
     date = date ?? DateTime.now();
     final timezone = date.timeZoneName;
@@ -43,8 +44,34 @@ class FlightDataService {
           "${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}",
       timezone: timezone,
       forceUpdate: forceUpdate ?? false,
+      faFlightId: faFlightId,
     );
     return res.data;
+  }
+
+  Future<FlightSearchResponseEntity?> searchFlights(
+    String iata,
+    String icao, {
+    DateTime? date,
+  }) async {
+    try {
+      final searchDate = date ?? DateTime.now();
+      final timezone = searchDate.timeZoneName;
+      final res = await _flightApi.flightControllerSearchFlightsV1(
+        iata: iata,
+        icao: icao,
+        date: "${searchDate.year}-${searchDate.month.toString().padLeft(2, '0')}-${searchDate.day.toString().padLeft(2, '0')}",
+        timezone: timezone,
+      );
+      return res.data;
+    } catch (e) {
+      if (e is DioException) {
+        throw ApiException(message: getErrorMessage(e.response?.data));
+      }
+      throw ApiException(
+        message: 'Failed to search flights: $e',
+      );
+    }
   }
 
   Future<BuiltList<FlightEntity>> getFlights(

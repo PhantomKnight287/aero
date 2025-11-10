@@ -19,9 +19,14 @@ import { Aircraft } from '@prisma/client';
 
 import { GetFlightTrackDTO } from './dto/get-flight-track.dto';
 import { GetFlightDTO } from './dto/get-flight.dto';
+import { GetFlightSearchDTO } from './dto/get-flight-search.dto';
 import { CreateFlightBookingDTO } from './dto/create-flight-booking.dto';
 import { UpdateFlightBookingDTO } from './dto/update-flight-booking.dto';
-import { AircraftEntity } from './entities/flight.entity';
+import {
+  AircraftEntity,
+  FlightCandidateEntity,
+  FlightSearchResponseEntity,
+} from './entities/flight.entity';
 
 @Injectable()
 export class FlightService {
@@ -109,7 +114,7 @@ export class FlightService {
   }
 
   async getFlight(
-    { iata, icao, date, timezone, forceUpdate }: GetFlightDTO,
+    { iata, icao, date, timezone, forceUpdate, faFlightId }: GetFlightDTO,
     userId: string,
   ) {
     // Parse date with timezone consideration
@@ -245,14 +250,80 @@ export class FlightService {
       let flightAwareResponse: any;
       let faFlight: any;
 
-      // If forceUpdate is true and we have an existing flight with fa_flight_id, use that
-      if (forceUpdate && existingFlight?.flightAwareData?.faFlightId) {
-        const faFlightId = existingFlight.flightAwareData.faFlightId;
+      // If faFlightId is provided, try to get from Redis cache first to avoid API call
+      if (faFlightId) {
         console.log(
-          `Force update: Using existing fa_flight_id ${faFlightId} to fetch from FlightAware`,
+          `Fetching specific flight using fa_flight_id ${faFlightId}`,
+        );
+
+        // Try to get from Redis cache first (cached from searchFlights)
+        let cachedFlight: any = null;
+        if (this.redis) {
+          try {
+            const flightCacheKey = `flightaware:flight:by_id:${faFlightId}`;
+            const cached = await this.redis.get(flightCacheKey);
+            if (cached) {
+              cachedFlight = JSON.parse(cached);
+              console.log(
+                `Retrieved flight ${faFlightId} from Redis cache (saving API call)`,
+              );
+            }
+          } catch (error) {
+            console.warn('Failed to read flight from Redis cache:', error);
+          }
+        }
+
+        if (cachedFlight) {
+          // Use cached flight data
+          faFlight = cachedFlight;
+          // Create a FlightAwareResponse-like structure for compatibility
+          flightAwareResponse = {
+            flights: [cachedFlight],
+            links: {},
+            num_pages: 1,
+          };
+        } else {
+          // Cache miss - fetch from FlightAware API
+          console.log(
+            `Cache miss for ${faFlightId}, fetching from FlightAware API`,
+          );
+          flightAwareResponse =
+            await this.flightAwareService.searchFlightsByIdent(faFlightId);
+
+          if (!flightAwareResponse || !flightAwareResponse.flights?.length) {
+            throw new BadRequestException(
+              'Unable to fetch flight information with the provided flight ID.',
+            );
+          }
+
+          // When using fa_flight_id, we get exactly 1 flight in the array
+          faFlight = flightAwareResponse.flights[0];
+
+          // Cache it for future use (cache miss scenario)
+          if (this.redis) {
+            try {
+              const flightCacheKey = `flightaware:flight:by_id:${faFlightId}`;
+              await this.redis.setex(
+                flightCacheKey,
+                3600,
+                JSON.stringify(faFlight),
+              );
+              console.log(`Cached flight ${faFlightId} in Redis for future use`);
+            } catch (error) {
+              console.warn('Failed to cache flight in Redis:', error);
+            }
+          }
+        }
+      } else if (forceUpdate && existingFlight?.flightAwareData?.faFlightId) {
+        // If forceUpdate is true and we have an existing flight with fa_flight_id, use that
+        const existingFaFlightId = existingFlight.flightAwareData.faFlightId;
+        console.log(
+          `Force update: Using existing fa_flight_id ${existingFaFlightId} to fetch from FlightAware`,
         );
         flightAwareResponse =
-          await this.flightAwareService.searchFlightsByIdent(faFlightId);
+          await this.flightAwareService.searchFlightsByIdent(
+            existingFaFlightId,
+          );
 
         if (!flightAwareResponse || !flightAwareResponse.flights?.length) {
           throw new BadRequestException(
@@ -861,6 +932,195 @@ export class FlightService {
       }
       console.error('Error fetching flight data:', error);
       throw new InternalServerErrorException('Failed to fetch flight data');
+    }
+  }
+
+  async searchFlights(
+    { iata, icao, date, timezone }: GetFlightSearchDTO,
+    userId: string,
+  ): Promise<FlightSearchResponseEntity> {
+    // Parse date with timezone consideration if provided
+    let searchDate: Date | null = null;
+    let nextDate: Date | null = null;
+
+    if (date) {
+      const { startOfDayUtc, endOfDayUtc } = this.parseDateInTimezone(
+        date,
+        timezone,
+      );
+      searchDate = startOfDayUtc;
+      nextDate = endOfDayUtc;
+    }
+
+    // Fetch flights from FlightAware API
+    try {
+      const flightAwareIdent = icao || iata;
+      if (!flightAwareIdent) {
+        throw new BadRequestException('Flight identifier required');
+      }
+
+      const flightAwareResponse =
+        await this.flightAwareService.searchFlightsByIdent(flightAwareIdent);
+
+      if (!flightAwareResponse || !flightAwareResponse.flights?.length) {
+        return {
+          flights: [],
+          count: 0,
+        };
+      }
+
+      // Filter flights by date if provided
+      let filteredFlights = flightAwareResponse.flights;
+      if (searchDate && nextDate) {
+        filteredFlights = flightAwareResponse.flights.filter((flight: any) => {
+          const flightDate = flight.scheduled_out
+            ? new Date(flight.scheduled_out)
+            : flight.scheduled_off
+              ? new Date(flight.scheduled_off)
+              : null;
+
+          if (flightDate) {
+            return flightDate >= searchDate && flightDate < nextDate;
+          }
+          return false;
+        });
+      }
+
+      // Cache individual flights by faFlightId in Redis for later retrieval
+      // This avoids making a second API call when user selects a flight
+      // Use a distinct cache key prefix to avoid conflicts with FlightAware service cache
+      if (this.redis) {
+        try {
+          for (const faFlight of filteredFlights) {
+            const flightCacheKey = `flightaware:flight:by_id:${faFlight.fa_flight_id}`;
+            // Cache for 1 hour (3600 seconds) - FlightAware data is relatively stable
+            await this.redis.setex(
+              flightCacheKey,
+              3600,
+              JSON.stringify(faFlight),
+            );
+          }
+          console.log(
+            `Cached ${filteredFlights.length} flights in Redis for retrieval (key: flightaware:flight:by_id:*)`,
+          );
+        } catch (error) {
+          console.warn('Failed to cache flights in Redis:', error);
+        }
+      }
+
+      // Collect unique airline IATA/ICAO codes to query database in batch
+      const airlineCodes = new Set<string>();
+      filteredFlights.forEach((faFlight: any) => {
+        if (faFlight.operator_iata) {
+          airlineCodes.add(`iata:${faFlight.operator_iata}`);
+        }
+        if (faFlight.operator_icao) {
+          airlineCodes.add(`icao:${faFlight.operator_icao}`);
+        }
+      });
+
+      // Query airlines from database in batch
+      const airlineMap = new Map<string, any>();
+      if (airlineCodes.size > 0) {
+        const airlineIatas = Array.from(airlineCodes)
+          .filter((code) => code.startsWith('iata:'))
+          .map((code) => code.replace('iata:', ''));
+        const airlineIcaos = Array.from(airlineCodes)
+          .filter((code) => code.startsWith('icao:'))
+          .map((code) => code.replace('icao:', ''));
+
+        const dbAirlines = await prisma.airline.findMany({
+          where: {
+            OR: [
+              airlineIatas.length > 0
+                ? { iata: { in: airlineIatas } }
+                : undefined,
+              airlineIcaos.length > 0
+                ? { icao: { in: airlineIcaos } }
+                : undefined,
+            ].filter(Boolean),
+          },
+        });
+
+        // Create a map for quick lookup: IATA/ICAO -> airline record
+        dbAirlines.forEach((airline) => {
+          if (airline.iata) {
+            airlineMap.set(`iata:${airline.iata}`, airline);
+          }
+          if (airline.icao) {
+            airlineMap.set(`icao:${airline.icao}`, airline);
+          }
+        });
+      }
+
+      // Map FlightAware flights to FlightCandidateEntity
+      const flightCandidates: FlightCandidateEntity[] = filteredFlights.map(
+        (faFlight: any) => {
+          // Resolve airline from database or fallback to FlightAware data
+          const airlineIata = faFlight.operator_iata;
+          const airlineIcao = faFlight.operator_icao;
+
+          // Try to get airline from database
+          const dbAirline =
+            airlineIata && airlineMap.has(`iata:${airlineIata}`)
+              ? airlineMap.get(`iata:${airlineIata}`)
+              : airlineIcao && airlineMap.has(`icao:${airlineIcao}`)
+                ? airlineMap.get(`icao:${airlineIcao}`)
+                : null;
+
+          // Use DB airline data if available, otherwise fallback to FlightAware data
+          const airlineName = dbAirline
+            ? dbAirline.name
+            : faFlight.operator ??
+              faFlight.operator_iata ??
+              faFlight.operator_icao ??
+              'Unknown';
+
+          return {
+            faFlightId: faFlight.fa_flight_id,
+            ident: faFlight.ident,
+            origin: {
+              code: faFlight.origin?.code ?? 'Unknown',
+              codeIata: faFlight.origin?.code_iata,
+              codeIcao: faFlight.origin?.code_icao ?? faFlight.origin?.code,
+              name: faFlight.origin?.name,
+              city: faFlight.origin?.city,
+            },
+            destination: {
+              code: faFlight.destination?.code ?? 'Unknown',
+              codeIata: faFlight.destination?.code_iata,
+              codeIcao:
+                faFlight.destination?.code_icao ?? faFlight.destination?.code,
+              name: faFlight.destination?.name,
+              city: faFlight.destination?.city,
+            },
+            scheduledOut: faFlight.scheduled_out
+              ? new Date(faFlight.scheduled_out)
+              : undefined,
+            scheduledOff: faFlight.scheduled_off
+              ? new Date(faFlight.scheduled_off)
+              : undefined,
+            status: faFlight.status ?? 'Unknown',
+            airline: {
+              name: airlineName,
+              iata: dbAirline?.iata ?? faFlight.operator_iata,
+              icao: dbAirline?.icao ?? faFlight.operator_icao,
+              image: dbAirline?.image ?? undefined,
+            },
+          };
+        },
+      );
+
+      return {
+        flights: flightCandidates,
+        count: flightCandidates.length,
+      };
+    } catch (error) {
+      if (error instanceof BadRequestException) {
+        throw error;
+      }
+      console.error('Error searching flights:', error);
+      throw new InternalServerErrorException('Failed to search flights');
     }
   }
 

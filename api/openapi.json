@@ -979,9 +979,107 @@
         ]
       }
     },
+    "/v1/flight/search": {
+      "get": {
+        "description": "Search for flights by identifier and optional date. Returns lightweight flight summaries for selection.",
+        "operationId": "FlightController_searchFlights_v1",
+        "parameters": [
+          {
+            "name": "iata",
+            "required": true,
+            "in": "query",
+            "description": "IATA flight number",
+            "schema": {
+              "example": "UA123",
+              "type": "string"
+            }
+          },
+          {
+            "name": "icao",
+            "required": true,
+            "in": "query",
+            "description": "ICAO flight number",
+            "schema": {
+              "example": "UAL123",
+              "type": "string"
+            }
+          },
+          {
+            "name": "date",
+            "required": false,
+            "in": "query",
+            "description": "Flight date (ISO format). Filters flights by date if provided",
+            "schema": {
+              "example": "2024-03-20",
+              "type": "string"
+            }
+          },
+          {
+            "name": "timezone",
+            "required": true,
+            "in": "query",
+            "description": "The timezone from which the request is being made.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Flight search results",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FlightSearchResponseEntity"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericErrorEntity"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "User is not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericErrorEntity"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericErrorEntity"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ],
+        "summary": "Search flights",
+        "tags": [
+          "Flight"
+        ]
+      }
+    },
     "/v1/flight": {
       "get": {
-        "description": "Get detailed information about a specific flight including real-time tracking data",
+        "description": "Get detailed information about a specific flight including real-time tracking data. Use faFlightId to fetch a specific flight after searching.",
         "operationId": "FlightController_getFlight_v1",
         "parameters": [
           {
@@ -1031,6 +1129,15 @@
             "schema": {
               "default": false,
               "type": "boolean"
+            }
+          },
+          {
+            "name": "faFlightId",
+            "required": false,
+            "in": "query",
+            "description": "FlightAware flight ID to fetch a specific flight. Use this after searching for flights to get details of a selected flight.",
+            "schema": {
+              "type": "string"
             }
           }
         ],
@@ -2610,6 +2717,134 @@
           "positions"
         ]
       },
+      "FlightSummaryOriginEntity": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "codeIata": {
+            "type": "string"
+          },
+          "codeIcao": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "city": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "code"
+        ]
+      },
+      "FlightSummaryDestinationEntity": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "codeIata": {
+            "type": "string"
+          },
+          "codeIcao": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "city": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "code"
+        ]
+      },
+      "FlightSummaryAirlineEntity": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "iata": {
+            "type": "string"
+          },
+          "icao": {
+            "type": "string"
+          },
+          "image": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
+      "FlightCandidateEntity": {
+        "type": "object",
+        "properties": {
+          "faFlightId": {
+            "type": "string",
+            "description": "FlightAware flight ID for fetching full details"
+          },
+          "ident": {
+            "type": "string",
+            "description": "Flight identifier (e.g., \"AC113\")"
+          },
+          "origin": {
+            "$ref": "#/components/schemas/FlightSummaryOriginEntity"
+          },
+          "destination": {
+            "$ref": "#/components/schemas/FlightSummaryDestinationEntity"
+          },
+          "scheduledOut": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "scheduledOff": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "description": "Flight status description"
+          },
+          "airline": {
+            "$ref": "#/components/schemas/FlightSummaryAirlineEntity"
+          }
+        },
+        "required": [
+          "faFlightId",
+          "ident",
+          "origin",
+          "destination",
+          "status",
+          "airline"
+        ]
+      },
+      "FlightSearchResponseEntity": {
+        "type": "object",
+        "properties": {
+          "flights": {
+            "description": "Array of flight candidates",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FlightCandidateEntity"
+            }
+          },
+          "count": {
+            "type": "number",
+            "description": "Number of flights found"
+          }
+        },
+        "required": [
+          "flights",
+          "count"
+        ]
+      },
       "CreateFlightBookingDTO": {
         "type": "object",
         "properties": {
@@ -2772,26 +3007,6 @@
         "required": [
           "aircraftName",
           "flightCount"
-        ]
-      },
-      "FlightSummaryAirlineEntity": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string"
-          },
-          "iata": {
-            "type": "string"
-          },
-          "icao": {
-            "type": "string"
-          },
-          "image": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "name"
         ]
       },
       "FlightSummaryEntity": {

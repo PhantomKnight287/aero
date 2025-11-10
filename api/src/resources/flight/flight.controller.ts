@@ -30,10 +30,14 @@ import { User } from '@prisma/client';
 
 import { GetFlightTrackDTO } from './dto/get-flight-track.dto';
 import { GetFlightDTO } from './dto/get-flight.dto';
+import { GetFlightSearchDTO } from './dto/get-flight-search.dto';
 import { CreateFlightBookingDTO } from './dto/create-flight-booking.dto';
 import { UpdateFlightBookingDTO } from './dto/update-flight-booking.dto';
 import { FlightTrackResponseEntity } from './entities/flight-track.entity';
-import { FlightResponseEntity } from './entities/flight.entity';
+import {
+  FlightResponseEntity,
+  FlightSearchResponseEntity,
+} from './entities/flight.entity';
 import { FlightBookingEntity } from './entities/flight-booking.entity';
 import { FlightService } from './flight.service';
 
@@ -98,11 +102,69 @@ export class FlightController {
     return await this.flightService.getFlightTrack(query, auth.id);
   }
 
+  @Get('search')
+  @ApiOperation({
+    summary: 'Search flights',
+    description:
+      'Search for flights by identifier and optional date. Returns lightweight flight summaries for selection.',
+  })
+  @ApiQuery({
+    name: 'iata',
+    required: true,
+    type: String,
+    description: 'IATA flight number',
+    example: 'UA123',
+  })
+  @ApiQuery({
+    name: 'icao',
+    required: true,
+    type: String,
+    description: 'ICAO flight number',
+    example: 'UAL123',
+  })
+  @ApiQuery({
+    name: 'date',
+    required: false,
+    type: String,
+    description:
+      'Flight date (ISO format). Filters flights by date if provided',
+    example: '2024-03-20',
+  })
+  @ApiQuery({
+    type: String,
+    name: 'timezone',
+    description: 'The timezone from which the request is being made.',
+    required: true,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Flight search results',
+    type: FlightSearchResponseEntity,
+  })
+  @ApiUnauthorizedResponse({
+    description: 'User is not authenticated',
+    type: GenericErrorEntity,
+  })
+  @ApiBadRequestResponse({
+    description: 'Invalid request parameters',
+    type: GenericErrorEntity,
+  })
+  @ApiInternalServerErrorResponse({
+    description: 'Internal server error',
+    type: GenericErrorEntity,
+  })
+  async searchFlights(
+    @Query() query: GetFlightSearchDTO,
+    @Auth() auth: User,
+  ) {
+    return await this.flightService.searchFlights(query, auth.id);
+  }
+
   @Get()
   @ApiOperation({
     summary: 'Get flight details',
     description:
-      'Get detailed information about a specific flight including real-time tracking data',
+      'Get detailed information about a specific flight including real-time tracking data. Use faFlightId to fetch a specific flight after searching.',
   })
   @ApiQuery({
     name: 'iata',
@@ -126,6 +188,27 @@ export class FlightController {
       'Flight date (ISO format). Defaults to current date if not provided',
     example: '2024-03-20',
   })
+  @ApiQuery({
+    type: String,
+    name: 'timezone',
+    description: 'The timezone from which the request is being made.',
+    required: true,
+  })
+  @ApiQuery({
+    type: Boolean,
+    default: false,
+    required: false,
+    name: 'forceUpdate',
+    description:
+      'Force update the flight data(used to refresh the flight data)',
+  })
+  @ApiQuery({
+    type: String,
+    required: false,
+    name: 'faFlightId',
+    description:
+      'FlightAware flight ID to fetch a specific flight. Use this after searching for flights to get details of a selected flight.',
+  })
   @ApiResponse({
     status: 200,
     description: 'Flight details retrieved successfully',
@@ -142,20 +225,6 @@ export class FlightController {
   @ApiInternalServerErrorResponse({
     description: 'Internal server error',
     type: GenericErrorEntity,
-  })
-  @ApiQuery({
-    type: String,
-    name: 'timezone',
-    description: 'The timezone from which the request is being made.',
-    required: true,
-  })
-  @ApiQuery({
-    type: Boolean,
-    default: false,
-    required: false,
-    name: 'forceUpdate',
-    description:
-      'Force update the flight data(used to refresh the flight data)',
   })
   async getFlight(@Query() query: GetFlightDTO, @Auth() auth: User) {
     return await this.flightService.getFlight(query, auth.id);

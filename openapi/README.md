@@ -71,8 +71,14 @@ Class | Method | HTTP request | Description
 [*AuthenticationApi*](doc/AuthenticationApi.md) | [**authControllerGetCurrentUserV1**](doc/AuthenticationApi.md#authcontrollergetcurrentuserv1) | **GET** /v1/auth/@me | Get current user
 [*AuthenticationApi*](doc/AuthenticationApi.md) | [**authControllerLoginV1**](doc/AuthenticationApi.md#authcontrollerloginv1) | **POST** /v1/auth/login | Login
 [*AuthenticationApi*](doc/AuthenticationApi.md) | [**authControllerRegisterV1**](doc/AuthenticationApi.md#authcontrollerregisterv1) | **POST** /v1/auth/register | Register
+[*FlightApi*](doc/FlightApi.md) | [**flightControllerCreateFlightBookingV1**](doc/FlightApi.md#flightcontrollercreateflightbookingv1) | **POST** /v1/flight/booking | Create a flight booking
+[*FlightApi*](doc/FlightApi.md) | [**flightControllerDeleteFlightBookingV1**](doc/FlightApi.md#flightcontrollerdeleteflightbookingv1) | **DELETE** /v1/flight/booking/{bookingId} | Delete a flight booking
+[*FlightApi*](doc/FlightApi.md) | [**flightControllerGetFlightBookingV1**](doc/FlightApi.md#flightcontrollergetflightbookingv1) | **GET** /v1/flight/booking/{bookingId} | Get a flight booking
+[*FlightApi*](doc/FlightApi.md) | [**flightControllerGetFlightBookingsByFlightIdV1**](doc/FlightApi.md#flightcontrollergetflightbookingsbyflightidv1) | **GET** /v1/flight/booking/flight/{flightId} | Get all bookings for a flight
 [*FlightApi*](doc/FlightApi.md) | [**flightControllerGetFlightTrackV1**](doc/FlightApi.md#flightcontrollergetflighttrackv1) | **GET** /v1/flight/track | Get flight track/path
 [*FlightApi*](doc/FlightApi.md) | [**flightControllerGetFlightV1**](doc/FlightApi.md#flightcontrollergetflightv1) | **GET** /v1/flight | Get flight details
+[*FlightApi*](doc/FlightApi.md) | [**flightControllerSearchFlightsV1**](doc/FlightApi.md#flightcontrollersearchflightsv1) | **GET** /v1/flight/search | Search flights
+[*FlightApi*](doc/FlightApi.md) | [**flightControllerUpdateFlightBookingV1**](doc/FlightApi.md#flightcontrollerupdateflightbookingv1) | **PUT** /v1/flight/booking/{bookingId} | Update a flight booking
 [*FlightsApi*](doc/FlightsApi.md) | [**flightsControllerGetAirlineV1**](doc/FlightsApi.md#flightscontrollergetairlinev1) | **POST** /v1/flights/airline | Get airline
 [*FlightsApi*](doc/FlightsApi.md) | [**flightsControllerGetFlightsInBoundsV1**](doc/FlightsApi.md#flightscontrollergetflightsinboundsv1) | **GET** /v1/flights/bounds | Get flights within geographic bounds(deprecated - will return nothing)
 [*FlightsApi*](doc/FlightsApi.md) | [**flightsControllerGetFlightsV1**](doc/FlightsApi.md#flightscontrollergetflightsv1) | **GET** /v1/flights | Get flights between two airports
@@ -93,16 +99,23 @@ Class | Method | HTTP request | Description
  - [AirportInfo](doc/AirportInfo.md)
  - [AirportStatsEntity](doc/AirportStatsEntity.md)
  - [AirportType](doc/AirportType.md)
+ - [CreateFlightBookingDTO](doc/CreateFlightBookingDTO.md)
  - [FlighType](doc/FlighType.md)
  - [FlightAwareDataEntity](doc/FlightAwareDataEntity.md)
+ - [FlightBookingEntity](doc/FlightBookingEntity.md)
+ - [FlightCandidateEntity](doc/FlightCandidateEntity.md)
+ - [FlightControllerDeleteFlightBookingV1200Response](doc/FlightControllerDeleteFlightBookingV1200Response.md)
  - [FlightDistanceEntity](doc/FlightDistanceEntity.md)
  - [FlightDurationEntity](doc/FlightDurationEntity.md)
  - [FlightEntity](doc/FlightEntity.md)
  - [FlightPositionEntity](doc/FlightPositionEntity.md)
  - [FlightResponseEntity](doc/FlightResponseEntity.md)
+ - [FlightSearchResponseEntity](doc/FlightSearchResponseEntity.md)
  - [FlightStatus](doc/FlightStatus.md)
  - [FlightSummaryAirlineEntity](doc/FlightSummaryAirlineEntity.md)
+ - [FlightSummaryDestinationEntity](doc/FlightSummaryDestinationEntity.md)
  - [FlightSummaryEntity](doc/FlightSummaryEntity.md)
+ - [FlightSummaryOriginEntity](doc/FlightSummaryOriginEntity.md)
  - [FlightTrackResponseEntity](doc/FlightTrackResponseEntity.md)
  - [FlightsControllerGetFlightsInBoundsV1200Response](doc/FlightsControllerGetFlightsInBoundsV1200Response.md)
  - [FlightsControllerGetFlightsInBoundsV1200ResponseBounds](doc/FlightsControllerGetFlightsInBoundsV1200ResponseBounds.md)
@@ -127,6 +140,7 @@ Class | Method | HTTP request | Description
  - [TimeEntity](doc/TimeEntity.md)
  - [TopRouteEntity](doc/TopRouteEntity.md)
  - [TrackedFlightsResponseEntity](doc/TrackedFlightsResponseEntity.md)
+ - [UpdateFlightBookingDTO](doc/UpdateFlightBookingDTO.md)
  - [UserEntity](doc/UserEntity.md)
 
 

@@ -25,16 +25,23 @@ import 'package:openapi/src/model/airport_entity.dart';
 import 'package:openapi/src/model/airport_info.dart';
 import 'package:openapi/src/model/airport_stats_entity.dart';
 import 'package:openapi/src/model/airport_type.dart';
+import 'package:openapi/src/model/create_flight_booking_dto.dart';
 import 'package:openapi/src/model/fligh_type.dart';
 import 'package:openapi/src/model/flight_aware_data_entity.dart';
+import 'package:openapi/src/model/flight_booking_entity.dart';
+import 'package:openapi/src/model/flight_candidate_entity.dart';
+import 'package:openapi/src/model/flight_controller_delete_flight_booking_v1200_response.dart';
 import 'package:openapi/src/model/flight_distance_entity.dart';
 import 'package:openapi/src/model/flight_duration_entity.dart';
 import 'package:openapi/src/model/flight_entity.dart';
 import 'package:openapi/src/model/flight_position_entity.dart';
 import 'package:openapi/src/model/flight_response_entity.dart';
+import 'package:openapi/src/model/flight_search_response_entity.dart';
 import 'package:openapi/src/model/flight_status.dart';
 import 'package:openapi/src/model/flight_summary_airline_entity.dart';
+import 'package:openapi/src/model/flight_summary_destination_entity.dart';
 import 'package:openapi/src/model/flight_summary_entity.dart';
+import 'package:openapi/src/model/flight_summary_origin_entity.dart';
 import 'package:openapi/src/model/flight_track_response_entity.dart';
 import 'package:openapi/src/model/flights_controller_get_flights_in_bounds_v1200_response.dart';
 import 'package:openapi/src/model/flights_controller_get_flights_in_bounds_v1200_response_bounds.dart';
@@ -59,6 +66,7 @@ import 'package:openapi/src/model/stringified_great_circle_distance_entity.dart'
 import 'package:openapi/src/model/time_entity.dart';
 import 'package:openapi/src/model/top_route_entity.dart';
 import 'package:openapi/src/model/tracked_flights_response_entity.dart';
+import 'package:openapi/src/model/update_flight_booking_dto.dart';
 import 'package:openapi/src/model/user_entity.dart';
 
 part 'serializers.g.dart';
@@ -75,16 +83,23 @@ part 'serializers.g.dart';
   AirportInfo,
   AirportStatsEntity,
   AirportType,
+  CreateFlightBookingDTO,
   FlighType,
   FlightAwareDataEntity,
+  FlightBookingEntity,
+  FlightCandidateEntity,
+  FlightControllerDeleteFlightBookingV1200Response,
   FlightDistanceEntity,
   FlightDurationEntity,
   FlightEntity,
   FlightPositionEntity,
   FlightResponseEntity,
+  FlightSearchResponseEntity,
   FlightStatus,
   FlightSummaryAirlineEntity,
+  FlightSummaryDestinationEntity,
   FlightSummaryEntity,
+  FlightSummaryOriginEntity,
   FlightTrackResponseEntity,
   FlightsControllerGetFlightsInBoundsV1200Response,
   FlightsControllerGetFlightsInBoundsV1200ResponseBounds,
@@ -109,6 +124,7 @@ part 'serializers.g.dart';
   TimeEntity,
   TopRouteEntity,
   TrackedFlightsResponseEntity,
+  UpdateFlightBookingDTO,
   UserEntity,
 ])
 Serializers serializers = (_$serializers.toBuilder()
@@ -119,6 +135,10 @@ Serializers serializers = (_$serializers.toBuilder()
       ..addBuilderFactory(
         const FullType(BuiltList, [FullType(AirportEntity)]),
         () => ListBuilder<AirportEntity>(),
+      )
+      ..addBuilderFactory(
+        const FullType(BuiltList, [FullType(FlightBookingEntity)]),
+        () => ListBuilder<FlightBookingEntity>(),
       )
       ..add(const OneOfSerializer())
       ..add(const AnyOfSerializer())

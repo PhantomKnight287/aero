@@ -20,6 +20,7 @@ Name | Type | Description | Notes
 **date** | [**DateTime**](DateTime.md) |  | 
 **image** | **String** |  | [optional] 
 **flightAwareData** | [**FlightAwareDataEntity**](FlightAwareDataEntity.md) |  | [optional] 
+**bookings** | [**BuiltList&lt;FlightBookingEntity&gt;**](FlightBookingEntity.md) | Bookings associated with this flight | [optional] 
 
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
 
