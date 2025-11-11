@@ -17,10 +17,10 @@ import { ConfigService } from '@nestjs/config';
 import { createId } from '@paralleldrive/cuid2';
 import { Aircraft } from '@prisma/client';
 
+import { CreateFlightBookingDTO } from './dto/create-flight-booking.dto';
+import { GetFlightSearchDTO } from './dto/get-flight-search.dto';
 import { GetFlightTrackDTO } from './dto/get-flight-track.dto';
 import { GetFlightDTO } from './dto/get-flight.dto';
-import { GetFlightSearchDTO } from './dto/get-flight-search.dto';
-import { CreateFlightBookingDTO } from './dto/create-flight-booking.dto';
 import { UpdateFlightBookingDTO } from './dto/update-flight-booking.dto';
 import {
   AircraftEntity,
@@ -308,7 +308,9 @@ export class FlightService {
                 3600,
                 JSON.stringify(faFlight),
               );
-              console.log(`Cached flight ${faFlightId} in Redis for future use`);
+              console.log(
+                `Cached flight ${faFlightId} in Redis for future use`,
+              );
             } catch (error) {
               console.warn('Failed to cache flight in Redis:', error);
             }
@@ -1071,10 +1073,10 @@ export class FlightService {
           // Use DB airline data if available, otherwise fallback to FlightAware data
           const airlineName = dbAirline
             ? dbAirline.name
-            : faFlight.operator ??
+            : (faFlight.operator ??
               faFlight.operator_iata ??
               faFlight.operator_icao ??
-              'Unknown';
+              'Unknown');
 
           return {
             faFlightId: faFlight.fa_flight_id,
@@ -1136,10 +1138,10 @@ export class FlightService {
     const existingFlight = await prisma.flight.findFirst({
       where: {
         OR: [
-          { callSign: iata },
-          { flightNo: iata },
-          { callSign: icao },
-          { flightNo: icao },
+          { callSign: { equals: iata, mode: 'insensitive' } },
+          { flightNo: { equals: iata, mode: 'insensitive' } },
+          { callSign: { equals: icao, mode: 'insensitive' } },
+          { flightNo: { equals: icao, mode: 'insensitive' } },
         ],
         userId,
         date: {
@@ -1533,7 +1535,9 @@ export class FlightService {
     if (updateBookingDto.bookingCode !== undefined) {
       // Convert empty strings to null for consistency
       updateData.bookingCode =
-        updateBookingDto.bookingCode === '' ? null : updateBookingDto.bookingCode;
+        updateBookingDto.bookingCode === ''
+          ? null
+          : updateBookingDto.bookingCode;
     }
     if (updateBookingDto.seatNumber !== undefined) {
       updateData.seatNumber =

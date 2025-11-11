@@ -447,10 +447,10 @@ class _HomeScreenState extends State<HomeScreen>
     if (_flightInfo == null) return;
 
     // Get the first booking if it exists
-    final existingBooking = _flightInfo!.bookings != null &&
-            _flightInfo!.bookings!.isNotEmpty
-        ? _flightInfo!.bookings!.first
-        : null;
+    final existingBooking =
+        _flightInfo!.bookings != null && _flightInfo!.bookings!.isNotEmpty
+            ? _flightInfo!.bookings!.first
+            : null;
 
     showModalBottomSheet(
       context: context,
@@ -602,10 +602,16 @@ class _HomeScreenState extends State<HomeScreen>
                       padding: const EdgeInsets.all(
                         8.0,
                       ),
-                      child: _showFlightSelection && _flightSearchResults != null
+                      child: _showFlightSelection &&
+                              _flightSearchResults != null
                           ? FlightSelectionList(
                               flights: _flightSearchResults!.flights,
                               onFlightSelected: (faFlightId) {
+                                setState(() {
+                                  _showFlightSelection = false;
+                                  loading = true;
+                                });
+
                                 // Use the stored identifiers and date
                                 if (_pendingIata != null &&
                                     _pendingIcao != null &&
@@ -618,6 +624,17 @@ class _HomeScreenState extends State<HomeScreen>
                                     faFlightId: faFlightId,
                                   );
                                 }
+                              },
+                              onClose: () {
+                                setState(() {
+                                  _showFlightSelection = false;
+                                  _flightSearchResults = null;
+                                  _pendingIata = null;
+                                  _pendingIcao = null;
+                                  _pendingDate = null;
+                                  loading = false;
+                                  selectedDate = null;
+                                });
                               },
                             )
                           : _flightInfo != null
@@ -683,165 +700,174 @@ class _HomeScreenState extends State<HomeScreen>
                                               selectedFlightNumber != null)
                                   ? _buildFlightInfoSkeleton()
                                   : Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    SearchHeader(),
-                                    Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
-                                        SelectedFilters(
-                                          onAirlineClear: () {
-                                            selectedAirline = null;
-                                            setState(() {});
-                                          },
-                                          onFlightNumberClear: () {
-                                            selectedFlightNumber = null;
-                                            setState(() {});
-                                          },
-                                          onAirportsClear: () {
-                                            arrivalAirport = null;
-                                            departureAirport = null;
-                                            setState(() {});
-                                          },
-                                          onDepartureAirportClear: () {
-                                            departureAirport = null;
-                                            setState(() {});
-                                          },
-                                          selectedAirline: selectedAirline,
-                                          arrivalAirport: arrivalAirport,
-                                          departureAirport: departureAirport,
-                                          selectedFlightNumber:
-                                              selectedFlightNumber,
+                                        SearchHeader(),
+                                        Row(
+                                          children: [
+                                            SelectedFilters(
+                                              onAirlineClear: () {
+                                                selectedAirline = null;
+                                                setState(() {});
+                                              },
+                                              onFlightNumberClear: () {
+                                                selectedFlightNumber = null;
+                                                setState(() {});
+                                              },
+                                              onAirportsClear: () {
+                                                arrivalAirport = null;
+                                                departureAirport = null;
+                                                setState(() {});
+                                              },
+                                              onDepartureAirportClear: () {
+                                                departureAirport = null;
+                                                setState(() {});
+                                              },
+                                              selectedAirline: selectedAirline,
+                                              arrivalAirport: arrivalAirport,
+                                              departureAirport:
+                                                  departureAirport,
+                                              selectedFlightNumber:
+                                                  selectedFlightNumber,
+                                            ),
+                                            Expanded(
+                                              child: FlightSearchBar(
+                                                searchController:
+                                                    _flightController,
+                                                isSearchEnabled:
+                                                    !(arrivalAirport != null &&
+                                                            departureAirport !=
+                                                                null) &&
+                                                        !(selectedAirline !=
+                                                                null &&
+                                                            selectedFlightNumber !=
+                                                                null),
+                                                hintText: selectedFlightNumber !=
+                                                        null
+                                                    ? "Select date"
+                                                    : selectedAirline != null &&
+                                                            arrivalAirport ==
+                                                                null &&
+                                                            departureAirport ==
+                                                                null
+                                                        ? "Flight No"
+                                                        : departureAirport ==
+                                                                null
+                                                            ? "Search airline, flight or airport"
+                                                            : arrivalAirport ==
+                                                                    null
+                                                                ? "Search arrival airport"
+                                                                : "Select date",
+                                                onSearchChanged: (p0) async {
+                                                  if (arrivalAirport != null &&
+                                                      departureAirport != null)
+                                                    return;
+                                                  if (_debounce?.isActive ??
+                                                      false) {
+                                                    _debounce?.cancel();
+                                                  }
+                                                  if (selectedAirline != null) {
+                                                    setState(() {});
+                                                    return null;
+                                                  }
+                                                  _debounce = Timer(
+                                                      const Duration(
+                                                        milliseconds: 300,
+                                                      ), () async {
+                                                    loading = true;
+                                                    results = [];
+                                                    setState(() {});
+                                                    results = await _search(p0);
+                                                    loading = false;
+                                                    setState(() {});
+                                                  });
+                                                },
+                                              ),
+                                            ),
+                                          ],
                                         ),
-                                        Expanded(
-                                          child: FlightSearchBar(
-                                            searchController: _flightController,
-                                            isSearchEnabled: !(arrivalAirport !=
-                                                        null &&
-                                                    departureAirport != null) &&
-                                                !(selectedAirline != null &&
+                                        Gap(16),
+                                        if (arrivalAirport == null &&
+                                            departureAirport == null &&
+                                            selectedAirline != null &&
+                                            selectedFlightNumber == null)
+                                          Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 8.0),
+                                            child: Text(
+                                              "Tip: For flight numbers like 6E1045, just enter 1045",
+                                              style: TextStyle(
+                                                fontSize: 12,
+                                                color: Colors.grey[600],
+                                                fontStyle: FontStyle.italic,
+                                              ),
+                                            ),
+                                          ),
+                                        if (error != null)
+                                          Center(
+                                            child: Text(
+                                              error!,
+                                              style: TextStyle(
+                                                color: Colors.red,
+                                              ),
+                                            ),
+                                          ),
+                                        if (((arrivalAirport != null &&
+                                                    departureAirport != null) ||
+                                                (selectedAirline != null &&
                                                     selectedFlightNumber !=
-                                                        null),
-                                            hintText: selectedFlightNumber !=
-                                                    null
-                                                ? "Select date"
-                                                : selectedAirline != null &&
-                                                        arrivalAirport ==
-                                                            null &&
-                                                        departureAirport == null
-                                                    ? "Flight No"
-                                                    : departureAirport == null
-                                                        ? "Search airline, flight or airport"
-                                                        : arrivalAirport == null
-                                                            ? "Search arrival airport"
-                                                            : "Select date",
-                                            onSearchChanged: (p0) async {
-                                              if (arrivalAirport != null &&
-                                                  departureAirport != null)
-                                                return;
-                                              if (_debounce?.isActive ??
-                                                  false) {
-                                                _debounce?.cancel();
+                                                        null)) &&
+                                            selectedDate == null)
+                                          DateSelectionList(
+                                            onDateSelected: (date) async {
+                                              loading = true;
+                                              selectedDate = date;
+                                              flights = BuiltList.from([]);
+                                              setState(() {});
+                                              try {
+                                                if (arrivalAirport != null &&
+                                                    departureAirport != null) {
+                                                  flights = await _flightService
+                                                      .getFlights(
+                                                    departureAirport!
+                                                            .iataCode ??
+                                                        departureAirport!.ident,
+                                                    arrivalAirport!.iataCode ??
+                                                        arrivalAirport!.ident,
+                                                    date.toIso8601String(),
+                                                  );
+                                                } else {
+                                                  await _loadFlightInfo(
+                                                    "${selectedAirline!.iata}$selectedFlightNumber",
+                                                    "${selectedAirline!.icao}$selectedFlightNumber",
+                                                    date,
+                                                  );
+                                                }
+                                              } catch (e, stack) {
+                                                print(e);
+                                                print(stack);
+                                                setState(() {
+                                                  selectedDate = null;
+                                                });
                                               }
-                                              if (selectedAirline != null) {
-                                                setState(() {});
-                                                return null;
-                                              }
-                                              _debounce = Timer(
-                                                  const Duration(
-                                                    milliseconds: 300,
-                                                  ), () async {
-                                                loading = true;
-                                                results = [];
-                                                setState(() {});
-                                                results = await _search(p0);
+                                              setState(() {
                                                 loading = false;
-                                                setState(() {});
                                               });
                                             },
                                           ),
-                                        ),
-                                      ],
-                                    ),
-                                    Gap(16),
-                                    if (arrivalAirport == null &&
-                                        departureAirport == null &&
-                                        selectedAirline != null &&
-                                        selectedFlightNumber == null)
-                                      Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 8.0),
-                                        child: Text(
-                                          "Tip: For flight numbers like 6E1045, just enter 1045",
-                                          style: TextStyle(
-                                            fontSize: 12,
-                                            color: Colors.grey[600],
-                                            fontStyle: FontStyle.italic,
-                                          ),
-                                        ),
-                                      ),
-                                    if (error != null)
-                                      Center(
-                                        child: Text(
-                                          error!,
-                                          style: TextStyle(
-                                            color: Colors.red,
-                                          ),
-                                        ),
-                                      ),
-                                    if (((arrivalAirport != null &&
-                                                departureAirport != null) ||
-                                            (selectedAirline != null &&
-                                                selectedFlightNumber !=
-                                                    null)) &&
-                                        selectedDate == null)
-                                      DateSelectionList(
-                                        onDateSelected: (date) async {
-                                          loading = true;
-                                          selectedDate = date;
-                                          flights = BuiltList.from([]);
-                                          setState(() {});
-                                          try {
-                                            if (arrivalAirport != null &&
-                                                departureAirport != null) {
-                                              flights = await _flightService
-                                                  .getFlights(
-                                                departureAirport!.iataCode ??
-                                                    departureAirport!.ident,
-                                                arrivalAirport!.iataCode ??
-                                                    arrivalAirport!.ident,
-                                                date.toIso8601String(),
-                                              );
-                                            } else {
-                                              await _loadFlightInfo(
-                                                "${selectedAirline!.iata}$selectedFlightNumber",
-                                                "${selectedAirline!.icao}$selectedFlightNumber",
-                                                date,
-                                              );
-                                            }
-                                          } catch (e, stack) {
-                                            print(e);
-                                            print(stack);
-                                            setState(() {
-                                              selectedDate = null;
-                                            });
-                                          }
-                                          setState(() {
-                                            loading = false;
-                                          });
-                                        },
-                                      ),
-                                    if (selectedAirline != null &&
-                                        _flightController.text.isNotEmpty &&
-                                        selectedFlightNumber == null)
-                                      ListTile(
-                                        title: Text(
-                                          selectedAirline!.name,
-                                        ),
-                                        subtitle: Text(
-                                          "${selectedAirline!.iata}${_flightController.text.toUpperCase()} / ${selectedAirline!.icao}${_flightController.text.toUpperCase()}",
-                                        ),
-                                        leading:
-                                            selectedAirline!.image != null &&
+                                        if (selectedAirline != null &&
+                                            _flightController.text.isNotEmpty &&
+                                            selectedFlightNumber == null)
+                                          ListTile(
+                                            title: Text(
+                                              selectedAirline!.name,
+                                            ),
+                                            subtitle: Text(
+                                              "${selectedAirline!.iata}${_flightController.text.toUpperCase()} / ${selectedAirline!.icao}${_flightController.text.toUpperCase()}",
+                                            ),
+                                            leading: selectedAirline!.image !=
+                                                        null &&
                                                     selectedAirline!
                                                         .image!.isNotEmpty
                                                 ? SvgPicture.network(
@@ -862,89 +888,90 @@ class _HomeScreenState extends State<HomeScreen>
                                                       );
                                                     },
                                                   ),
-                                        onTap: () {
-                                          selectedFlightNumber =
-                                              _flightController.text;
-                                          FocusScope.of(context).unfocus();
-                                          _flightController.clear();
-                                          setState(() {});
-                                        },
-                                      ),
-                                    SearchResultsList(
-                                      results: results,
-                                      loading: loading,
-                                      selectedAirline: selectedAirline,
-                                      selectedFlightNumber:
-                                          selectedFlightNumber,
-                                      flightController: _flightController,
-                                      onAirportSelected: (airport) {
-                                        if (departureAirport == null) {
-                                          departureAirport = airport;
-                                        } else {
-                                          arrivalAirport = airport;
-                                        }
+                                            onTap: () {
+                                              selectedFlightNumber =
+                                                  _flightController.text;
+                                              FocusScope.of(context).unfocus();
+                                              _flightController.clear();
+                                              setState(() {});
+                                            },
+                                          ),
+                                        SearchResultsList(
+                                          results: results,
+                                          loading: loading,
+                                          selectedAirline: selectedAirline,
+                                          selectedFlightNumber:
+                                              selectedFlightNumber,
+                                          flightController: _flightController,
+                                          onAirportSelected: (airport) {
+                                            if (departureAirport == null) {
+                                              departureAirport = airport;
+                                            } else {
+                                              arrivalAirport = airport;
+                                            }
 
-                                        _flightController.clear();
-                                        results.clear();
-                                        setState(() {});
-                                      },
-                                      onAirlineSelected: (airline) {
-                                        selectedAirline = airline;
-                                        final text = _flightController.text;
+                                            _flightController.clear();
+                                            results.clear();
+                                            setState(() {});
+                                          },
+                                          onAirlineSelected: (airline) {
+                                            selectedAirline = airline;
+                                            final text = _flightController.text;
 
-                                        if (!((text
-                                                    .replaceFirst(
-                                                        airline.iata, "")
-                                                    .length ==
-                                                text.length) ||
-                                            (text
-                                                    .replaceFirst(
-                                                        airline.icao, "")
-                                                    .length ==
-                                                text.length))) {
-                                          _flightController.text =
-                                              _flightController.text
-                                                  .replaceFirst(
-                                                      airline.icao, '');
-                                        } else {
-                                          _flightController.clear();
-                                        }
+                                            if (!((text
+                                                        .replaceFirst(
+                                                            airline.iata, "")
+                                                        .length ==
+                                                    text.length) ||
+                                                (text
+                                                        .replaceFirst(
+                                                            airline.icao, "")
+                                                        .length ==
+                                                    text.length))) {
+                                              _flightController.text =
+                                                  _flightController.text
+                                                      .replaceFirst(
+                                                          airline.icao, '');
+                                            } else {
+                                              _flightController.clear();
+                                            }
 
-                                        results.clear();
-                                        setState(() {});
-                                      },
-                                      onFlightNumberSelected: (flightNumber) {
-                                        selectedFlightNumber = flightNumber;
-                                        FocusScope.of(context).unfocus();
-                                        _flightController.clear();
-                                        setState(() {});
-                                      },
-                                    ),
-                                    if (selectedAirline == null &&
-                                        arrivalAirport == null &&
-                                        departureAirport == null &&
-                                        selectedFlightNumber == null &&
-                                        results.isEmpty &&
-                                        !loading &&
-                                        trackedFlights.isNotEmpty)
-                                      TrackedFlightsList(
-                                        trackedFlights: trackedFlights,
-                                        onFlightTap:
-                                            (iata, icao, date, forceUpdate) =>
-                                                _loadFlightInfo(
-                                          iata,
-                                          icao,
-                                          date,
-                                          forceUpdate: forceUpdate,
+                                            results.clear();
+                                            setState(() {});
+                                          },
+                                          onFlightNumberSelected:
+                                              (flightNumber) {
+                                            selectedFlightNumber = flightNumber;
+                                            FocusScope.of(context).unfocus();
+                                            _flightController.clear();
+                                            setState(() {});
+                                          },
                                         ),
-                                      ),
-                                    FlightsList(
-                                      flights: flights,
-                                      selectedDate: selectedDate,
-                                      onFlightTap: _loadFlightInfo,
+                                        if (selectedAirline == null &&
+                                            arrivalAirport == null &&
+                                            departureAirport == null &&
+                                            selectedFlightNumber == null &&
+                                            results.isEmpty &&
+                                            !loading &&
+                                            trackedFlights.isNotEmpty)
+                                          TrackedFlightsList(
+                                            trackedFlights: trackedFlights,
+                                            onFlightTap: (iata, icao, date,
+                                                    forceUpdate) =>
+                                                _loadFlightInfo(
+                                              iata,
+                                              icao,
+                                              date,
+                                              forceUpdate: forceUpdate,
+                                            ),
+                                          ),
+                                        FlightsList(
+                                          flights: flights,
+                                          selectedDate: selectedDate,
+                                          onFlightTap: _loadFlightInfo,
+                                        ),
+                                      ],
                                     ),
-                                  ],
-                                ),
                     ),
                   ),
                 ),

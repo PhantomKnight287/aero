@@ -652,6 +652,55 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
     }
   }
 
+  Widget _buildBanner(
+      BuildContext context, Color color, IconData icon, String title,
+      [String? subtitle]) {
+    return Container(
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.08),
+        border: Border.all(
+          color: color.withOpacity(0.3),
+        ),
+        borderRadius: BorderRadius.circular(5),
+      ),
+      child: ListTile(
+        contentPadding: EdgeInsets.zero,
+        leading: Icon(
+          icon,
+          color: color,
+        ),
+        title: Text(
+          title,
+          style: const TextStyle(
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        subtitle: subtitle != null ? Text(subtitle) : null,
+      ),
+    );
+  }
+
+  Widget _buildFlightStatusBanner(BuildContext context) {
+    final fa = widget.info.flightAwareData;
+    if (fa?.cancelled == true) {
+      return _buildBanner(
+        context,
+        Colors.red,
+        Icons.cancel,
+        'This flight has been cancelled',
+      );
+    }
+    if (fa?.diverted == true) {
+      return _buildBanner(
+        context,
+        Colors.amber,
+        Icons.warning_amber_rounded,
+        'This flight has been diverted',
+      );
+    }
+    return const SizedBox.shrink();
+  }
+
   @override
   Widget build(BuildContext context) {
     final arrival = widget.info.arrival;
@@ -791,22 +840,22 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
                         ),
                       ),
                       PopupMenuItem(
-                        value: 'share',
-                        child: Row(
-                          children: [
-                            Icon(Icons.share),
-                            SizedBox(width: 8),
-                            Text('Share'),
-                          ],
-                        ),
-                      ),
-                      PopupMenuItem(
                         value: 'booking_details',
                         child: Row(
                           children: [
                             Icon(Icons.confirmation_number),
                             SizedBox(width: 8),
                             Text('Booking details'),
+                          ],
+                        ),
+                      ),
+                      PopupMenuItem(
+                        value: 'share',
+                        child: Row(
+                          children: [
+                            Icon(Icons.share),
+                            SizedBox(width: 8),
+                            Text('Share'),
                           ],
                         ),
                       ),
@@ -865,6 +914,11 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
             ],
           ),
           Divider(),
+          if ((widget.info.flightAwareData?.cancelled == true) ||
+              (widget.info.flightAwareData?.diverted == true)) ...[
+            _buildFlightStatusBanner(context),
+            Gap(8),
+          ],
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -991,7 +1045,8 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
             ),
           ),
           // Booking Details Section
-          if (widget.info.bookings != null && widget.info.bookings!.isNotEmpty) ...[
+          if (widget.info.bookings != null &&
+              widget.info.bookings!.isNotEmpty) ...[
             Gap(8),
             Text(
               "Booking Details",
@@ -1018,7 +1073,7 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
                   children: [
                     Builder(builder: (context) {
                       final booking = widget.info.bookings!.first;
-                      
+
                       // Extract string values from JsonObject
                       String? _extractString(dynamic jsonObject) {
                         if (jsonObject == null) return null;
@@ -1031,13 +1086,13 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
                           return jsonObject.toString();
                         }
                       }
-                      
+
                       final bookingCode = _extractString(booking.bookingCode);
                       final seatNumber = _extractString(booking.seatNumber);
                       final seatingClass = booking.seatingClass?.name;
                       final seatType = booking.seatType?.name;
                       final reason = booking.reason?.name;
-                      
+
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [

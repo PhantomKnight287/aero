@@ -9,11 +9,13 @@ import 'package:plane_pal/formatters/time.dart';
 class FlightSelectionList extends StatelessWidget {
   final BuiltList<FlightCandidateEntity> flights;
   final Function(String faFlightId) onFlightSelected;
+  final VoidCallback onClose;
 
   const FlightSelectionList({
     super.key,
     required this.flights,
     required this.onFlightSelected,
+    required this.onClose,
   });
 
   String _formatRoute(FlightCandidateEntity flight) {
@@ -52,22 +54,6 @@ class FlightSelectionList extends StatelessWidget {
     } catch (e) {
       return DateFormat('HH:mm').format(scheduledTime);
     }
-  }
-
-  Color _getStatusColor(String status) {
-    final lowerStatus = status.toLowerCase();
-    if (lowerStatus.contains('on time') || lowerStatus.contains('scheduled')) {
-      return Colors.green;
-    } else if (lowerStatus.contains('delayed') || lowerStatus.contains('late')) {
-      return Colors.orange;
-    } else if (lowerStatus.contains('cancelled') || lowerStatus.contains('canceled')) {
-      return Colors.red;
-    } else if (lowerStatus.contains('departed') || lowerStatus.contains('in flight')) {
-      return Colors.blue;
-    } else if (lowerStatus.contains('arrived') || lowerStatus.contains('landed')) {
-      return Colors.grey;
-    }
-    return Colors.grey;
   }
 
   Widget _buildAirlineImage(FlightSummaryAirlineEntity airline) {
@@ -118,15 +104,49 @@ class FlightSelectionList extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Text(
-            'Found ${flights.length} ${flights.length == 1 ? 'flight' : 'flights'}. Which one is yours?',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              color: Colors.grey[800],
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 12.0),
+          decoration: BoxDecoration(
+            border: Border(
+              bottom: BorderSide(
+                color: Colors.grey[300]!,
+                width: 1,
+              ),
             ),
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Select Your Flight',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.grey[900],
+                      ),
+                    ),
+                    SizedBox(height: 2),
+                    Text(
+                      'We found ${flights.length} ${flights.length == 1 ? 'flight' : 'flights'} matching your search',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Colors.grey[600],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              IconButton(
+                icon: Icon(Icons.close, size: 20),
+                onPressed: onClose,
+                tooltip: 'Cancel',
+                padding: EdgeInsets.all(8),
+                constraints: BoxConstraints(),
+              ),
+            ],
           ),
         ),
         ListView.separated(
@@ -142,73 +162,72 @@ class FlightSelectionList extends StatelessWidget {
           itemBuilder: (context, index) {
             final flight = flights[index];
             final departureTime = _formatDepartureTime(flight);
-            final statusColor = _getStatusColor(flight.status);
 
             return InkWell(
               onTap: () => onFlightSelected(flight.faFlightId),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  vertical: 12,
-                  horizontal: 16.0,
-                ),
+              child: Container(
+                padding: const EdgeInsets.all(12.0),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Airline logo
                     Container(
                       width: 48,
                       height: 48,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
                       padding: EdgeInsets.all(8),
                       child: _buildAirlineImage(flight.airline),
                     ),
                     SizedBox(width: 12),
-                    // Flight details
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // Airline name and flight number
                           Row(
                             children: [
                               Expanded(
                                 child: Text(
                                   flight.airline.name,
                                   style: TextStyle(
-                                    fontSize: 14,
                                     fontWeight: FontWeight.w600,
+                                    fontSize: 14,
+                                    color: Colors.grey[800],
                                   ),
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                 ),
                               ),
-                              if (departureTime != null) ...[
-                                SizedBox(width: 8),
-                                Text(
-                                  departureTime,
+                              Container(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 2,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.blue[50],
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: Text(
+                                  flight.ident,
                                   style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w500,
-                                    color: Colors.grey[700],
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.blue[700],
                                   ),
                                 ),
-                              ],
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 8),
+                          Row(
+                            children: [
+                              Text(
+                                _formatRoute(flight),
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
+                              ),
                             ],
                           ),
                           SizedBox(height: 4),
-                          // Route
-                          Text(
-                            _formatRoute(flight),
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w700,
-                              color: Colors.grey[900],
-                            ),
-                          ),
-                          SizedBox(height: 2),
-                          // Airport names
                           Text(
                             '${_formatAirportName(flight, true)} → ${_formatAirportName(flight, false)}',
                             style: TextStyle(
@@ -218,37 +237,34 @@ class FlightSelectionList extends StatelessWidget {
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                           ),
-                          SizedBox(height: 4),
-                          // Status
-                          Row(
-                            children: [
-                              Container(
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: 8,
-                                  vertical: 2,
+                          if (departureTime != null) ...[
+                            SizedBox(height: 6),
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.schedule,
+                                  size: 14,
+                                  color: Colors.grey[600],
                                 ),
-                                decoration: BoxDecoration(
-                                  color: statusColor.withOpacity(0.1),
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
-                                child: Text(
-                                  flight.status,
+                                SizedBox(width: 4),
+                                Text(
+                                  'Departs at $departureTime',
                                   style: TextStyle(
-                                    fontSize: 11,
+                                    fontSize: 12,
+                                    color: Colors.grey[700],
                                     fontWeight: FontWeight.w500,
-                                    color: statusColor,
                                   ),
                                 ),
-                              ),
-                            ],
-                          ),
+                              ],
+                            ),
+                          ],
                         ],
                       ),
                     ),
-                    // Arrow indicator
                     Icon(
                       Icons.chevron_right,
                       color: Colors.grey[400],
+                      size: 24,
                     ),
                   ],
                 ),
@@ -261,4 +277,3 @@ class FlightSelectionList extends StatelessWidget {
     );
   }
 }
-
