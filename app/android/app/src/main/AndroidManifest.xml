@@ -54,7 +54,7 @@
         </activity>
 
         <activity-alias
-            android:name="com.phantomknight287.planepal.DEFAULT"
+            android:name="fyi.procrastinator.aero.DEFAULT"
             android:enabled="true"
             android:exported="true"
             android:icon="@mipmap/ic_launcher"
@@ -66,7 +66,7 @@
             </intent-filter>
         </activity-alias>
         <activity-alias
-            android:name="com.phantomknight287.planepal.ZERO_TWO"
+            android:name="fyi.procrastinator.aero.ZERO_TWO"
             android:enabled="false"
             android:exported="true"
             android:icon="@mipmap/ic_launcher_2"
@@ -78,7 +78,7 @@
             </intent-filter>
         </activity-alias>
         <activity-alias
-            android:name="com.phantomknight287.planepal.ZERO_THREE"
+            android:name="fyi.procrastinator.aero.ZERO_THREE"
             android:enabled="false"
             android:exported="true"
             android:icon="@mipmap/ic_launcher_3"
@@ -90,7 +90,7 @@
             </intent-filter>
         </activity-alias>
         <activity-alias
-            android:name="com.phantomknight287.planepal.ZERO_FOUR"
+            android:name="fyi.procrastinator.aero.ZERO_FOUR"
             android:enabled="false"
             android:exported="true"
             android:icon="@mipmap/ic_launcher_4"
@@ -102,7 +102,7 @@
             </intent-filter>
         </activity-alias>
         <activity-alias
-            android:name="com.phantomknight287.planepal.ZERO_FIVE"
+            android:name="fyi.procrastinator.aero.ZERO_FIVE"
             android:enabled="false"
             android:exported="true"
             android:icon="@mipmap/ic_launcher_5"
@@ -114,7 +114,7 @@
             </intent-filter>
         </activity-alias>
         <activity-alias
-            android:name="com.phantomknight287.planepal.ZERO_SIX"
+            android:name="fyi.procrastinator.aero.ZERO_SIX"
             android:enabled="false"
             android:exported="true"
             android:icon="@mipmap/ic_launcher_6"
@@ -126,7 +126,7 @@
             </intent-filter>
         </activity-alias>
         <activity-alias
-            android:name="com.phantomknight287.planepal.ONE_ONE"
+            android:name="fyi.procrastinator.aero.ONE_ONE"
             android:enabled="false"
             android:exported="true"
             android:icon="@mipmap/ic_launcher_7"
@@ -138,7 +138,7 @@
             </intent-filter>
         </activity-alias>
         <activity-alias
-            android:name="com.phantomknight287.planepal.ONE_TWO"
+            android:name="fyi.procrastinator.aero.ONE_TWO"
             android:enabled="false"
             android:exported="true"
             android:icon="@mipmap/ic_launcher_8"
@@ -150,7 +150,7 @@
             </intent-filter>
         </activity-alias>
         <activity-alias
-            android:name="com.phantomknight287.planepal.ONE_THREE"
+            android:name="fyi.procrastinator.aero.ONE_THREE"
             android:enabled="false"
             android:exported="true"
             android:icon="@mipmap/ic_launcher_9"
@@ -162,7 +162,7 @@
             </intent-filter>
         </activity-alias>
         <activity-alias
-            android:name="com.phantomknight287.planepal.ONE_FOUR"
+            android:name="fyi.procrastinator.aero.ONE_FOUR"
             android:enabled="false"
             android:exported="true"
             android:icon="@mipmap/ic_launcher_10"
@@ -174,7 +174,7 @@
             </intent-filter>
         </activity-alias>
         <activity-alias
-            android:name="com.phantomknight287.planepal.ONE_FIVE"
+            android:name="fyi.procrastinator.aero.ONE_FIVE"
             android:enabled="false"
             android:exported="true"
             android:icon="@mipmap/ic_launcher_11"
@@ -186,7 +186,7 @@
             </intent-filter>
         </activity-alias>
         <activity-alias
-            android:name="com.phantomknight287.planepal.ONE_SIX"
+            android:name="fyi.procrastinator.aero.ONE_SIX"
             android:enabled="false"
             android:exported="true"
             android:icon="@mipmap/ic_launcher_12"
@@ -199,7 +199,7 @@
         </activity-alias>
 
         <service
-            android:name="com.phantomknight287.planepal.WearMessageReceiver"
+            android:name="fyi.procrastinator.aero.WearMessageReceiver"
             android:exported="true">
             <intent-filter>
                 <action android:name="com.google.android.gms.wearable.MESSAGE_RECEIVED" />

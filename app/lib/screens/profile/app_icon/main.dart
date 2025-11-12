@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dynamic_icon_plus/flutter_dynamic_icon_plus.dart';
+import 'package:plane_pal/constants/main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AppIconScreen extends StatefulWidget {
@@ -54,7 +55,7 @@ class _AppIconScreenState extends State<AppIconScreen> {
       // Change the app icon using VariableAppIcon
       final iconName = iconId == 'DEFAULT' ? "DEFAULT" : iconId;
       if (await FlutterDynamicIconPlus.supportsAlternateIcons) {
-        const channel = MethodChannel("com.phantomknight287.planepal/planepal");
+        final channel = MethodChannel(METHOD_CHANNEL);
         await channel.invokeMethod("changeAppIcon", {'iconId': iconName});
         print("changed icon to $iconName");
       }

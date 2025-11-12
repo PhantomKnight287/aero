@@ -1,4 +1,4 @@
-package com.phantomknight287.planepal
+package fyi.procrastinator.aero
 
 import android.content.Intent
 import android.net.Uri
@@ -19,7 +19,7 @@ class WearMessageReceiver : WearableListenerService() {
             "/sign-in-request" -> {
                 val intent = packageManager.getLaunchIntentForPackage(packageName)?.apply {
                     data =
-                        Uri.parse("planepal://?wearable_name=${String(event.data, Charsets.UTF_8)}")
+                        Uri.parse("aero://?wearable_name=${String(event.data, Charsets.UTF_8)}")
                     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                     addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
                 }

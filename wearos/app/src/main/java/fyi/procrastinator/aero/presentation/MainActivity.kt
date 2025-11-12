@@ -1,4 +1,4 @@
-package com.phantomknight287.planepal.presentation
+package fyi.procrastinator.aero.presentation
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -7,7 +7,7 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
 import com.google.android.gms.wearable.MessageClient
 import com.google.android.gms.wearable.Wearable
-import com.phantomknight287.planepal.PlanePalDatabase
+import fyi.procrastinator.aero.PlanePalDatabase
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 

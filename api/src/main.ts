@@ -45,7 +45,7 @@ async function bootstrap() {
           relation: ['delegate_permission/common.handle_all_urls'],
           target: {
             namespace: 'android_app',
-            package_name: 'com.phantomknight287.planepal',
+            package_name: 'fyi.procrastinator.aero',
             sha256_cert_fingerprints: [
               '9E:A9:13:EE:1A:D2:F8:58:56:8F:EA:F4:5E:61:CE:29:11:0A:1A:2B:59:4B:2B:43:07:1F:9A:2F:9F:71:FE:D4',
             ],

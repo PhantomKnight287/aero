@@ -1,4 +1,4 @@
-package com.phantomknight287.planepal.presentation.theme
+package fyi.procrastinator.aero.presentation.theme
 
 import androidx.compose.runtime.Composable
 import androidx.wear.compose.material.MaterialTheme

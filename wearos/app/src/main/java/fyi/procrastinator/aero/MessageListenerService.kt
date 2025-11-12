@@ -1,4 +1,4 @@
-package com.phantomknight287.planepal
+package fyi.procrastinator.aero
 
 import android.content.Context
 import android.content.Intent
@@ -9,10 +9,10 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
 import com.google.android.gms.wearable.MessageEvent
 import com.google.android.gms.wearable.WearableListenerService
-import com.phantomknight287.planepal.presentation.MainActivity
+import fyi.procrastinator.aero.presentation.MainActivity
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
-import com.phantomknight287.planepal.entities.Flight
+import fyi.procrastinator.aero.entities.Flight
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

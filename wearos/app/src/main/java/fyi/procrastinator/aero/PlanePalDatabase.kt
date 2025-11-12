@@ -1,13 +1,13 @@
-package com.phantomknight287.planepal
+package fyi.procrastinator.aero
 
 import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import com.phantomknight287.planepal.converters.DateConverter
-import com.phantomknight287.planepal.entities.Flight
-import com.phantomknight287.planepal.entities.FlightDao
+import fyi.procrastinator.aero.converters.DateConverter
+import fyi.procrastinator.aero.entities.Flight
+import fyi.procrastinator.aero.entities.FlightDao
 
 
 @Database(entities = [Flight::class], version = 1)

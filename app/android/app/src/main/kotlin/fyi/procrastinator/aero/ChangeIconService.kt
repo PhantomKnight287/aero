@@ -1,4 +1,4 @@
-package com.phantomknight287.planepal
+package fyi.procrastinator.aero
 
 import android.app.Service
 import android.content.ComponentName
@@ -87,7 +87,7 @@ class ChangeAppIconService : Service() {
 
     /**
      * Constructs ComponentName for the activity-alias.
-     * The manifest now uses fully qualified names: com.phantomknight287.planepal.DEFAULT
+     * The manifest now uses fully qualified names: fyi.procrastinator.aero.DEFAULT
      * 
      * We construct ComponentName using the package name and the full qualified class name.
      * Since we use fully qualified names in the manifest, we need to match exactly.
@@ -98,7 +98,7 @@ class ChangeAppIconService : Service() {
         val cleanAliasName = aliasName.removePrefix(".")
         
         // Construct the full qualified class name: packageName.aliasName
-        // e.g., "com.phantomknight287.planepal.DEFAULT"
+        // e.g., "fyi.procrastinator.aero.DEFAULT"
         val fullClassName = "$packageName.$cleanAliasName"
         
         // Use ComponentName with package name and full qualified class name

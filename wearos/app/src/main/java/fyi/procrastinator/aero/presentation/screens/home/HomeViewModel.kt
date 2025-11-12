@@ -1,9 +1,9 @@
-package com.phantomknight287.planepal.presentation.screens.home
+package fyi.procrastinator.aero.presentation.screens.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.phantomknight287.planepal.PlanePalDatabase
-import com.phantomknight287.planepal.entities.Flight
+import fyi.procrastinator.aero.PlanePalDatabase
+import fyi.procrastinator.aero.entities.Flight
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn

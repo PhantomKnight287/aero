@@ -1,4 +1,4 @@
-package com.phantomknight287.planepal.presentation
+package fyi.procrastinator.aero.presentation
 
 import android.os.Build
 import android.widget.Toast
@@ -11,10 +11,10 @@ import androidx.wear.compose.navigation.composable
 import androidx.wear.compose.navigation.rememberSwipeDismissableNavController
 import com.google.android.horologist.annotations.ExperimentalHorologistApi
 import com.google.android.horologist.compose.layout.AppScaffold
-import com.phantomknight287.planepal.presentation.screens.home.HomeScreen
-import com.phantomknight287.planepal.presentation.theme.PlanePalTheme
-import com.phantomknight287.planepal.PlanePalDatabase
-import com.phantomknight287.planepal.presentation.screens.home.HomeViewModel
+import fyi.procrastinator.aero.presentation.screens.home.HomeScreen
+import fyi.procrastinator.aero.presentation.theme.PlanePalTheme
+import fyi.procrastinator.aero.PlanePalDatabase
+import fyi.procrastinator.aero.presentation.screens.home.HomeViewModel
 
 
 enum class PlanePalScreens {

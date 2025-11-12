@@ -1,4 +1,4 @@
-package com.phantomknight287.planepal.presentation.screens.home
+package fyi.procrastinator.aero.presentation.screens.home
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -13,7 +13,7 @@ import com.google.android.horologist.annotations.ExperimentalHorologistApi
 import com.google.android.horologist.compose.layout.ScalingLazyColumn
 import com.google.android.horologist.compose.layout.ScalingLazyColumnDefaults
 import com.google.android.horologist.compose.layout.rememberResponsiveColumnState
-import com.phantomknight287.planepal.dataStore
+import fyi.procrastinator.aero.dataStore
 import kotlinx.coroutines.flow.map
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.text.font.FontWeight

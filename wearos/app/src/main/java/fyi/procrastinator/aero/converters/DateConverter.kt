@@ -1,4 +1,4 @@
-package com.phantomknight287.planepal.converters
+package fyi.procrastinator.aero.converters
 
 import androidx.room.TypeConverter
 import java.util.Date

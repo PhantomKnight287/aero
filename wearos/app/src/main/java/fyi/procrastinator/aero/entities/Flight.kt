@@ -1,4 +1,4 @@
-package com.phantomknight287.planepal.entities
+package fyi.procrastinator.aero.entities
 
 import androidx.room.Dao
 import androidx.room.Entity

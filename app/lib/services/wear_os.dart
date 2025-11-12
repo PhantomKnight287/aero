@@ -1,5 +1,6 @@
 import 'package:flutter/services.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'package:plane_pal/constants/main.dart';
 
 part 'wear_os.g.dart';
 
@@ -20,7 +21,7 @@ class WearOSDevice {
 }
 
 class WearOSService {
-  static const MethodChannel _channel = MethodChannel('com.phantomknight287.planepal/planepal');
+  static const MethodChannel _channel = MethodChannel(METHOD_CHANNEL);
 
   /// Get list of connected Wear OS devices
   Future<List<WearOSDevice>> getConnectedDevices() async {

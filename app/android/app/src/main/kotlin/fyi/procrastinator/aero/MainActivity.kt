@@ -1,12 +1,17 @@
-package com.phantomknight287.planepal
+package fyi.procrastinator.aero
 
+import android.app.Notification
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Color
+import android.os.Build
 import android.os.Bundle
 import android.os.PersistableBundle
+import android.provider.CalendarContract
 import android.util.Log
+import androidx.annotation.RequiresApi
 import com.google.android.gms.tasks.Tasks
 import com.google.android.gms.wearable.Wearable
 import io.flutter.embedding.android.FlutterActivity
@@ -18,8 +23,10 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
 
+const val NOTIFICATION_CHANNEL_ID="Aero";
+
 class MainActivity : FlutterActivity() {
-    private val CHANNEL = "com.phantomknight287.planepal/planepal"
+    private val CHANNEL = "fyi.procrastinator.aero/planepal"
     private lateinit var wearOsDeviceManager: WearOsDeviceManager
 
     override fun onCreate(savedInstanceState: Bundle?, persistentState: PersistableBundle?) {
@@ -48,6 +55,16 @@ class MainActivity : FlutterActivity() {
             Log.d("DeepLinkDebug", "Sending route: $route")
             channel.invokeMethod("navigateToRoute", route)
         }
+    }
+
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun buildBaseNotification(): Notification.Builder{
+        return Notification.Builder(this,NOTIFICATION_CHANNEL_ID)
+            .setSmallIcon(R.drawable.outline_accessibility_new_24)
+            .setOngoing(true)
+            .setColor(Color.LTGRAY)
+//            .setStyle(Notification.Style.ProgressStyle())
     }
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {

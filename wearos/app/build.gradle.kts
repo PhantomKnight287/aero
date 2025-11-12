@@ -6,11 +6,11 @@ plugins {
 }
 
 android {
-    namespace = "com.phantomknight287.planepal"
+    namespace = "fyi.procrastinator.aero"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.phantomknight287.planepal"
+        applicationId = "fyi.procrastinator.aero"
         minSdk = 30
         targetSdk = 34
         versionCode = 2

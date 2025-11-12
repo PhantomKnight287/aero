@@ -1,4 +1,4 @@
-package com.phantomknight287.planepal
+package fyi.procrastinator.aero
 
 import android.content.Context
 import com.google.android.gms.tasks.Tasks
