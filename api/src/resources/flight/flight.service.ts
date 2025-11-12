@@ -1,9 +1,7 @@
-import Redis from 'ioredis';
 import { DateTime, IANAZone } from 'luxon';
 import { prisma } from 'src/db';
 import { FlightAwareService } from 'src/services/flightaware/flightaware.service';
-
-import { RedisService } from '@liaoliaots/nestjs-redis';
+import { RedisService } from 'src/services/redis/redis.service';
 import {
   BadRequestException,
   HttpException,
@@ -30,7 +28,7 @@ import {
 
 @Injectable()
 export class FlightService {
-  private redis: Redis;
+  private redis: RedisService;
 
   constructor(
     private readonly configService: ConfigService,

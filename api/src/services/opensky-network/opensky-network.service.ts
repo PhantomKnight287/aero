@@ -1,6 +1,4 @@
-import Redis from 'ioredis';
-
-import { RedisService } from '@liaoliaots/nestjs-redis';
+import { RedisService } from 'src/services/redis/redis.service';
 import {
   HttpException,
   HttpStatus,
@@ -43,7 +41,7 @@ export class OpenskyNetworkService implements OnModuleInit {
   private readonly tokenCacheKey = 'opensky_access_token';
   private readonly tokenTTL = 29.5 * 60; // 29.5 minutes in seconds
   private lastRequestTime = 0;
-  private redis: Redis;
+  private redis: RedisService;
 
   constructor(
     private readonly redisService: RedisService,

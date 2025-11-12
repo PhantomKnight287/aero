@@ -1,6 +1,4 @@
-import Redis from 'ioredis';
-
-import { RedisService } from '@liaoliaots/nestjs-redis';
+import { RedisService } from 'src/services/redis/redis.service';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
@@ -208,7 +206,7 @@ export class FlightAwareService {
   private readonly cacheTTL = 60; // 60 seconds cache (10 requests per minute limit)
   private readonly maxRequestsPerMinute = 10;
   private readonly rateLimitWindow = 60 * 1000; // 1 minute in milliseconds
-  private redis: Redis;
+  private redis: RedisService;
 
   constructor(
     private readonly redisService: RedisService,
