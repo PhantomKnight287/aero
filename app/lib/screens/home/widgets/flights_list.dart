@@ -3,7 +3,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:openapi/openapi.dart';
-import 'package:plane_pal/formatters/time.dart';
+import 'package:aero/formatters/time.dart';
 
 class FlightsList extends StatelessWidget {
   final BuiltList<FlightEntity> flights;

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:plane_pal/models/user/user.dart';
+import 'package:aero/models/user/user.dart';
 
 class UserNotifier extends ChangeNotifier {
   User? user;

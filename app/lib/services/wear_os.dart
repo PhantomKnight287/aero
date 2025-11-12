@@ -1,6 +1,6 @@
 import 'package:flutter/services.dart';
 import 'package:json_annotation/json_annotation.dart';
-import 'package:plane_pal/constants/main.dart';
+import 'package:aero/constants/main.dart';
 
 part 'wear_os.g.dart';
 

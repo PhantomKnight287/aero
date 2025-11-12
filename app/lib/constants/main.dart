@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:plane_pal/interceptors/auth.dart';
+import 'package:aero/interceptors/auth.dart';
 import 'package:openapi/openapi.dart';
 
 const SECONDARY_TEXT_COLOR = Color(0xff808080);

@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:openapi/openapi.dart';
 import 'package:intl/intl.dart';
-import 'package:plane_pal/formatters/time.dart';
+import 'package:aero/formatters/time.dart';
 
 class FlightSelectionList extends StatelessWidget {
   final BuiltList<FlightCandidateEntity> flights;

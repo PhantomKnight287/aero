@@ -1,9 +1,9 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:plane_pal/constants/main.dart';
-import 'package:plane_pal/notifiers/user.dart';
-import 'package:plane_pal/screens/loading/loading.dart';
+import 'package:aero/constants/main.dart';
+import 'package:aero/notifiers/user.dart';
+import 'package:aero/screens/loading/loading.dart';
 import 'package:provider/provider.dart';
 
 class AuthShell extends StatefulWidget {

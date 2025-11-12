@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:error_or/error_or.dart';
 import 'package:openapi/openapi.dart';
-import 'package:plane_pal/constants/main.dart';
+import 'package:aero/constants/main.dart';
 
 class AuthService {
   final _authApi = openapi.getAuthenticationApi();

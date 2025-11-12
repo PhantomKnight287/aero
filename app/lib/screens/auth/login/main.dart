@@ -3,11 +3,11 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:openapi/openapi.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:plane_pal/constants/main.dart';
-import 'package:plane_pal/notifiers/user.dart';
-import 'package:plane_pal/screens/auth/service.dart';
-import 'package:plane_pal/utils/error.dart';
-import 'package:plane_pal/widgets/input.dart';
+import 'package:aero/constants/main.dart';
+import 'package:aero/notifiers/user.dart';
+import 'package:aero/screens/auth/service.dart';
+import 'package:aero/utils/error.dart';
+import 'package:aero/widgets/input.dart';
 import 'package:provider/provider.dart';
 
 class LoginScreen extends StatefulWidget {

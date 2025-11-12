@@ -1,8 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:openapi/openapi.dart';
-import 'package:plane_pal/constants/main.dart';
-import 'package:plane_pal/services/main.dart';
-import 'package:plane_pal/utils/error.dart';
+import 'package:aero/constants/main.dart';
+import 'package:aero/services/main.dart';
+import 'package:aero/utils/error.dart';
 
 class ProfileService {
   final Dio _dio;

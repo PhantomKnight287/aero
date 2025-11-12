@@ -1,8 +1,8 @@
 import 'package:built_collection/built_collection.dart';
 import 'package:openapi/openapi.dart';
-import 'package:plane_pal/constants/main.dart';
+import 'package:aero/constants/main.dart';
 import 'package:dio/dio.dart';
-import 'package:plane_pal/utils/error.dart';
+import 'package:aero/utils/error.dart';
 
 class ApiException implements Exception {
   final String message;

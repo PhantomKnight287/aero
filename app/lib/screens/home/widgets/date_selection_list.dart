@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
-import 'package:plane_pal/formatters/time.dart';
+import 'package:aero/formatters/time.dart';
 
 class DateSelectionList extends StatelessWidget {
   final Function(DateTime date) onDateSelected;

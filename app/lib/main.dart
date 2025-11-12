@@ -1,6 +1,6 @@
-import 'package:plane_pal/constants/main.dart';
-import 'package:plane_pal/notifiers/user.dart';
-import 'package:plane_pal/routes/main.dart';
+import 'package:aero/constants/main.dart';
+import 'package:aero/notifiers/user.dart';
+import 'package:aero/routes/main.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:toastification/toastification.dart';

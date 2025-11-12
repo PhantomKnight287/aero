@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gap/gap.dart';
 import 'package:openapi/openapi.dart';
-import 'package:plane_pal/services/profile.dart';
+import 'package:aero/services/profile.dart';
 
 class FlightStatsScreen extends StatefulWidget {
   const FlightStatsScreen({super.key});

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:openapi/openapi.dart';
-import 'package:plane_pal/extensions/datetime.dart';
-import 'package:plane_pal/extensions/duration.dart';
+import 'package:aero/extensions/datetime.dart';
+import 'package:aero/extensions/duration.dart';
 import 'package:intl/intl.dart';
 
 class FlightRouteInfo extends StatelessWidget {

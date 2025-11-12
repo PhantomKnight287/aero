@@ -1,14 +1,14 @@
-import 'package:plane_pal/screens/auth/login/main.dart';
-import 'package:plane_pal/screens/auth/main.dart';
-import 'package:plane_pal/screens/auth/register/main.dart';
-import 'package:plane_pal/screens/home/main.dart';
-import 'package:plane_pal/screens/loading/loading.dart';
-import 'package:plane_pal/screens/profile/main.dart';
-import 'package:plane_pal/screens/profile/app_icon/main.dart';
-import 'package:plane_pal/screens/profile/stats/main.dart';
-import 'package:plane_pal/screens/wearables/list/main.dart';
+import 'package:aero/screens/auth/login/main.dart';
+import 'package:aero/screens/auth/main.dart';
+import 'package:aero/screens/auth/register/main.dart';
+import 'package:aero/screens/home/main.dart';
+import 'package:aero/screens/loading/loading.dart';
+import 'package:aero/screens/profile/main.dart';
+import 'package:aero/screens/profile/app_icon/main.dart';
+import 'package:aero/screens/profile/stats/main.dart';
+import 'package:aero/screens/wearables/list/main.dart';
 import 'package:go_router/go_router.dart';
-import 'package:plane_pal/screens/wearables/login/main.dart';
+import 'package:aero/screens/wearables/login/main.dart';
 
 class AeroRouter {
   static GoRouter router = GoRouter(

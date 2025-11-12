@@ -1,4 +1,4 @@
-import 'package:plane_pal/widgets/input.dart';
+import 'package:aero/widgets/input.dart';
 import 'package:flutter/material.dart';
 
 class FlightSearchBar extends StatelessWidget {

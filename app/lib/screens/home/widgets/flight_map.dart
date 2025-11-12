@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_animations/flutter_map_animations.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:plane_pal/constants/map.dart';
+import 'package:aero/constants/map.dart';
 
 MapBounds getVisibleMapBounds(AnimatedMapController mapController) {
   final mapState = mapController.mapController.camera;

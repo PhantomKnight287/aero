@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dynamic_icon_plus/flutter_dynamic_icon_plus.dart';
-import 'package:plane_pal/constants/main.dart';
+import 'package:aero/constants/main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AppIconScreen extends StatefulWidget {

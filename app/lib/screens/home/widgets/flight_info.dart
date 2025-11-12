@@ -7,18 +7,18 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:gap/gap.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:openapi/openapi.dart';
-import 'package:plane_pal/constants/main.dart';
-import 'package:plane_pal/extensions/datetime.dart';
-import 'package:plane_pal/extensions/duration.dart';
-import 'package:plane_pal/formatters/time.dart';
-import 'package:plane_pal/screens/home/widgets/flight_route_info.dart';
+import 'package:aero/constants/main.dart';
+import 'package:aero/extensions/datetime.dart';
+import 'package:aero/extensions/duration.dart';
+import 'package:aero/formatters/time.dart';
+import 'package:aero/screens/home/widgets/flight_route_info.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:screenshot/screenshot.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:plane_pal/utils/duration.dart';
+import 'package:aero/utils/duration.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class FlightInfoWidget extends StatefulWidget {

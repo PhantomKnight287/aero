@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:go_router/go_router.dart';
-import 'package:plane_pal/constants/main.dart';
+import 'package:aero/constants/main.dart';
 
 class WearablesLoginScreen extends StatefulWidget {
   final String wearableName;

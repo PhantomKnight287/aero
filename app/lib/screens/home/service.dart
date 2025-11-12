@@ -2,7 +2,7 @@
 
 import 'package:dio/dio.dart';
 import 'package:openapi/openapi.dart';
-import 'package:plane_pal/constants/main.dart';
+import 'package:aero/constants/main.dart';
 import 'package:built_collection/built_collection.dart';
 
 class HomeService {

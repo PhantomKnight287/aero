@@ -2,8 +2,8 @@ import 'package:built_value/json_object.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:openapi/openapi.dart';
-import 'package:plane_pal/services/booking_service.dart';
-import 'package:plane_pal/widgets/input.dart';
+import 'package:aero/services/booking_service.dart';
+import 'package:aero/widgets/input.dart';
 
 class BookingDetailsSheet extends StatefulWidget {
   final String flightId;
