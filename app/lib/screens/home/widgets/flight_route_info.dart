@@ -378,7 +378,32 @@ class FlightRouteInfo extends StatelessWidget {
     if (diff.inMinutes.abs() < 1) {
       return "just now";
     }
-    final String base = _formatMinutesOnly(diff);
+    
+    final Duration absDiff = diff.abs();
+    final int days = absDiff.inDays;
+    final int hours = absDiff.inHours % 24;
+    final int minutes = absDiff.inMinutes % 60;
+    
+    String base;
+    if (days > 0) {
+      // Show days when more than 24 hours
+      final List<String> parts = [];
+      parts.add("$days ${days == 1 ? 'day' : 'days'}");
+      
+      if (hours > 0) {
+        parts.add("$hours ${hours == 1 ? 'hr' : 'hrs'}");
+      }
+      
+      if (minutes > 0) {
+        parts.add("$minutes mins");
+      }
+      
+      base = parts.join(' ');
+    } else {
+      // Less than 24 hours, use the existing format
+      base = _formatMinutesOnly(diff);
+    }
+    
     if (diff.isNegative) {
       return "in $base";
     }
