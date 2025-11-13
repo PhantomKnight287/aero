@@ -1,4 +1,5 @@
 import { GenericErrorEntity } from 'src/common/entites/generic-error.entity';
+import { Auth } from 'src/decorators/auth/auth.decorator';
 
 import { Body, Controller, Get, Post, Query } from '@nestjs/common';
 import {
@@ -9,6 +10,7 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
+import { User } from '@prisma/client';
 
 import { AirlineEntity } from '../airlines/entities/airline.entity';
 import { GetAirlineDTO } from './dto/get-airline.dto';
@@ -196,7 +198,7 @@ export class FlightsController {
     description: 'List of tracked flights with complete flight information',
   })
   @ApiUnauthorizedResponse({ type: GenericErrorEntity })
-  getTrackedFlights() {
-    return this.flightsService.getTrackedFlights();
+  getTrackedFlights(@Auth() auth: User) {
+    return this.flightsService.getTrackedFlights(auth.id);
   }
 }

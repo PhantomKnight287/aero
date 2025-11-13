@@ -55,7 +55,7 @@ export class FlightsService {
     // Normalize date to start of day to ensure cache hits
     const _date = new Date(date);
     _date.setUTCHours(0, 0, 0, 0);
-    
+
     const dayEndDate = new Date(_date);
     dayEndDate.setDate(_date.getDate() + 1);
 
@@ -153,7 +153,7 @@ export class FlightsService {
           });
         }),
       );
-      
+
       console.log(
         `Cached ${flights.data.length} flights from API for ${from} on ${_date.toISOString().split('T')[0]}`,
       );
@@ -361,10 +361,13 @@ export class FlightsService {
     // }
   }
 
-  async getTrackedFlights() {
+  async getTrackedFlights(userId: string) {
     try {
       // Fetch all flights from the database, ordered by most recently created
       const flights = await prisma.flight.findMany({
+        where: {
+          userId,
+        },
         orderBy: {
           createdAt: 'desc',
         },
@@ -387,7 +390,7 @@ export class FlightsService {
         const departure = flight.departure as any;
         const arrival = flight.arrival as any;
         const airline = (flight as any).airline as any;
-        
+
         if (departure?.airport?.iata) airportCodes.add(departure.airport.iata);
         if (departure?.airport?.icao) airportCodes.add(departure.airport.icao);
         if (arrival?.airport?.iata) airportCodes.add(arrival.airport.iata);
@@ -465,7 +468,7 @@ export class FlightsService {
       // Transform the flights to match the expected response format
       const transformedFlights = flights.map((flight) => {
         const flightData = flight as any;
-        
+
         // Handle aircraft data
         const stored = flight.aircraft as any | undefined;
         const aircraft = stored
@@ -496,45 +499,68 @@ export class FlightsService {
         const airlineData = flightData.airline;
 
         if (departure?.airport) {
-          const depAirport = 
-            airportMap.get(departure.airport.iata) || 
+          const depAirport =
+            airportMap.get(departure.airport.iata) ||
             airportMap.get(departure.airport.icao);
-          
+
           if (depAirport) {
             departure.airport.location = departure.airport.location || {};
-            if (!departure.airport.location.lat || departure.airport.location.lat === 0) {
+            if (
+              !departure.airport.location.lat ||
+              departure.airport.location.lat === 0
+            ) {
               departure.airport.location.lat = Number(depAirport.lat);
             }
-            if (!departure.airport.location.lon || departure.airport.location.lon === 0) {
+            if (
+              !departure.airport.location.lon ||
+              departure.airport.location.lon === 0
+            ) {
               departure.airport.location.lon = Number(depAirport.long);
             }
-            if (!departure.airport.name || departure.airport.name === 'Unknown') {
+            if (
+              !departure.airport.name ||
+              departure.airport.name === 'Unknown'
+            ) {
               departure.airport.name = depAirport.name;
             }
-            if (!departure.airport.municipalityName || departure.airport.municipalityName === 'Unknown') {
-              departure.airport.municipalityName = depAirport.municipality || depAirport.name;
+            if (
+              !departure.airport.municipalityName ||
+              departure.airport.municipalityName === 'Unknown'
+            ) {
+              departure.airport.municipalityName =
+                depAirport.municipality || depAirport.name;
             }
           }
         }
 
         if (arrival?.airport) {
-          const arrAirport = 
-            airportMap.get(arrival.airport.iata) || 
+          const arrAirport =
+            airportMap.get(arrival.airport.iata) ||
             airportMap.get(arrival.airport.icao);
-          
+
           if (arrAirport) {
             arrival.airport.location = arrival.airport.location || {};
-            if (!arrival.airport.location.lat || arrival.airport.location.lat === 0) {
+            if (
+              !arrival.airport.location.lat ||
+              arrival.airport.location.lat === 0
+            ) {
               arrival.airport.location.lat = Number(arrAirport.lat);
             }
-            if (!arrival.airport.location.lon || arrival.airport.location.lon === 0) {
+            if (
+              !arrival.airport.location.lon ||
+              arrival.airport.location.lon === 0
+            ) {
               arrival.airport.location.lon = Number(arrAirport.long);
             }
             if (!arrival.airport.name || arrival.airport.name === 'Unknown') {
               arrival.airport.name = arrAirport.name;
             }
-            if (!arrival.airport.municipalityName || arrival.airport.municipalityName === 'Unknown') {
-              arrival.airport.municipalityName = arrAirport.municipality || arrAirport.name;
+            if (
+              !arrival.airport.municipalityName ||
+              arrival.airport.municipalityName === 'Unknown'
+            ) {
+              arrival.airport.municipalityName =
+                arrAirport.municipality || arrAirport.name;
             }
           }
         }
