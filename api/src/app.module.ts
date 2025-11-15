@@ -1,15 +1,18 @@
+import { join } from 'path';
+
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { ServeStaticModule } from '@nestjs/serve-static';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthMiddleware } from './middlewares/auth/auth.middleware';
 import { AirlinesModule } from './resources/airlines/airlines.module';
 import { AirportsModule } from './resources/airports/airports.module';
+import { AlertsModule } from './resources/alerts/alerts.module';
 import { AuthModule } from './resources/auth/auth.module';
 import { FlightModule } from './resources/flight/flight.module';
 import { FlightsModule } from './resources/flights/flights.module';
-import { AlertsModule } from './resources/alerts/alerts.module';
 import { ProfileModule } from './resources/profile/profile.module';
 import { RedisService } from './services/redis/redis.service';
 
@@ -23,6 +26,10 @@ import { RedisService } from './services/redis/redis.service';
     FlightModule,
     AlertsModule,
     ProfileModule,
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'web'),
+      exclude: ['/v*', '/docs*', '/alerts*', '/.well-known*'],
+    }),
   ],
   controllers: [AppController],
   providers: [AppService, RedisService],
@@ -36,6 +43,9 @@ export class AppModule implements NestModule {
       .exclude('/v(.*)/airports')
       .exclude('/v(.*)/airlines')
       .exclude('/static/(.*)')
+      .exclude('/assets/(.*)')
+      .exclude('/features/(.*)')
+      .exclude('/icons/(.*)')
       .exclude(`/alerts/(.*)`)
       .forRoutes('*');
   }

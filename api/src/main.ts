@@ -114,6 +114,24 @@ async function bootstrap() {
       },
     }),
   );
+
+  // SPA fallback - serve index.html for all routes that don't match API routes
+  app.use((req: Request, res: Response, next) => {
+    // Skip if it's an API route, docs, alerts, or well-known
+    if (
+      req.path.startsWith('/v') ||
+      req.path.startsWith('/docs') ||
+      req.path.startsWith('/alerts') ||
+      req.path.startsWith('/.well-known') ||
+      req.path.startsWith('/static') ||
+      req.path.includes('.') // Skip requests for static files (e.g., .js, .css, .png)
+    ) {
+      return next();
+    }
+    // Serve index.html for all other routes (SPA routing)
+    res.sendFile(join(__dirname, '..', 'web', 'index.html'));
+  });
+
   await app.listen(process.env.PORT || 5000);
 }
 bootstrap();
