@@ -183,6 +183,11 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
   Widget build(BuildContext context) {
     final arrival = widget.info.arrival;
     final departure = widget.info.departure;
+    final codeshares = widget.info.flightAwareData?.codesharesIcao
+            ?.where((code) => code.trim().isNotEmpty)
+            .map((code) => code.trim())
+            .toList(growable: false) ??
+        const <String>[];
     return Padding(
       padding: const EdgeInsets.all(
         4.0,
@@ -466,61 +471,19 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
               fontWeight: FontWeight.bold,
             ),
           ),
-          Container(
-            decoration: BoxDecoration(
-              border: Border.all(
-                color: Colors.grey.shade300,
+          const Gap(8),
+          Column(
+            children: [
+              _buildTimezonePill(
+                context: context,
+                arrival: arrival,
+                departure: departure,
               ),
-              borderRadius: BorderRadius.circular(
-                5,
-              ),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(
-                8.0,
-              ).copyWith(
-                top: 0,
-                bottom: 0,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                spacing: 8,
-                children: [
-                  ListTile(
-                    contentPadding: EdgeInsets.zero,
-                    leading: Icon(
-                      MdiIcons.clock,
-                    ),
-                    title: Builder(builder: (context) {
-                      final diff = getTimezoneDifference(
-                        widget.info.arrival.airport.timeZone,
-                        departure.airport.timeZone,
-                      );
-                      return Text(
-                        diff == "same timezone"
-                            ? "No timezone difference"
-                            : "Timezone difference of $diff",
-                        style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                        ),
-                      );
-                    }),
-                  ),
-                  if (widget.info.flightAwareData?.codesharesIcao != null &&
-                      widget.info.flightAwareData!.codesharesIcao!.isNotEmpty)
-                    ListTile(
-                      contentPadding: EdgeInsets.zero,
-                      title: Text(
-                        "Operated as ${widget.info.flightAwareData!.codesharesIcao!.join(", ")}",
-                        style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      leading: Icon(Icons.flight_takeoff),
-                    )
-                ],
-              ),
-            ),
+              if (codeshares.isNotEmpty) ...[
+                const Gap(8),
+                _buildCodesharePill(context, codeshares),
+              ],
+            ],
           ),
           // Booking Details Section
           if (widget.info.bookings != null &&
@@ -907,6 +870,192 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
     );
   }
 
+  Widget _buildTimezonePill({
+    required BuildContext context,
+    required RouteInfoEntity arrival,
+    required RouteInfoEntity departure,
+  }) {
+    final arrivalTime = _resolveEventTime(arrival);
+    if (arrivalTime == null) {
+      return const SizedBox.shrink();
+    }
+
+    final use24Hrs = MediaQuery.of(context).alwaysUse24HourFormat;
+    final arrivalTz = _sanitizeTimezone(arrival.airport.timeZone);
+    final departureTz = _sanitizeTimezone(departure.airport.timeZone);
+    final arrivalLocal =
+        arrivalTime.toTimezoneString(arrivalTz, use24Hrs: use24Hrs);
+    final arrivalInDeparture =
+        arrivalTime.toTimezoneString(departureTz, use24Hrs: use24Hrs);
+    final diff = getTimezoneDifference(arrivalTz, departureTz);
+
+    final arrivalLabel = _formatAirportLabel(arrival.airport);
+    final departureLabel = _formatAirportLabel(departure.airport);
+
+    final diffTitle = _formatDiffTitle(diff);
+    final subtitle = diff == 'same timezone'
+        ? "$arrivalLocal arrival in $arrivalLabel also reads $arrivalLocal in $departureLabel"
+        : "$arrivalLocal arrival in $arrivalLabel is $arrivalInDeparture ${_airportCity(departure.airport)} time";
+
+    final theme = Theme.of(context);
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: theme.dividerColor.withOpacity(0.4),
+        ),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 32,
+            height: 32,
+            decoration: BoxDecoration(
+              color: theme.colorScheme.primary.withOpacity(0.15),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(
+              MdiIcons.clockOutline,
+              size: 18,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: 4,
+              children: [
+                Text(
+                  diffTitle,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                Text(
+                  subtitle,
+                  style: TextStyle(
+                    color: theme.textTheme.bodySmall?.color?.withOpacity(
+                        theme.brightness == Brightness.dark ? 0.8 : 0.7),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCodesharePill(
+    BuildContext context,
+    List<String> codeshares,
+  ) {
+    final theme = Theme.of(context);
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: theme.dividerColor.withOpacity(0.4),
+        ),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 32,
+            height: 32,
+            decoration: BoxDecoration(
+              color: theme.colorScheme.secondary.withOpacity(0.18),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(
+              Icons.flight_takeoff,
+              size: 18,
+              color: theme.colorScheme.secondary,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: 6,
+              children: [
+                const Text(
+                  "Codeshare flight",
+                  style: TextStyle(fontWeight: FontWeight.w700),
+                ),
+                Text(
+                  "Also sold as ${codeshares.join(", ")}",
+                  style: TextStyle(
+                    color: theme.textTheme.bodySmall?.color?.withOpacity(
+                        theme.brightness == Brightness.dark ? 0.8 : 0.7),
+                  ),
+                ),
+                Text(
+                  "Same aircraft, different partner airline numbers.",
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: theme.textTheme.bodySmall?.color?.withOpacity(
+                        theme.brightness == Brightness.dark ? 0.7 : 0.6),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  DateTime? _resolveEventTime(RouteInfoEntity segment) {
+    final candidate =
+        segment.revisedTime ?? segment.predictedTime ?? segment.scheduledTime;
+    try {
+      return DateTime.parse(candidate.utc).toUtc();
+    } catch (_) {
+      return null;
+    }
+  }
+
+  String _formatAirportLabel(RouteAirportEntity airport) {
+    final code = _airportCode(airport);
+    if (code.isEmpty) return airport.name;
+    return "${airport.name} ($code)";
+  }
+
+  String _airportCode(RouteAirportEntity airport) {
+    return airport.iata.isNotEmpty ? airport.iata : airport.icao;
+  }
+
+  String _sanitizeTimezone(String timezone) {
+    return timezone.trim().isEmpty ? 'UTC' : timezone;
+  }
+
+  String _formatDiffTitle(String diff) {
+    if (diff == 'same timezone') {
+      return "No Timezone Change";
+    }
+    final sign = diff.startsWith('-') ? '-' : '+';
+    final remainder = diff.substring(1).trim();
+    final normalized = remainder
+        .replaceAll('hrs', 'Hours')
+        .replaceAll('hr', 'Hour')
+        .replaceAll('mins', 'Minutes')
+        .replaceAll('min', 'Minute');
+    return "$sign$normalized Timezone Change";
+  }
+
+  String _airportCity(RouteAirportEntity airport) {
+    return airport.municipalityName.isNotEmpty
+        ? airport.municipalityName
+        : airport.shortName ?? airport.name;
+  }
+
   Duration? _calculateDelay(dynamic revisedTime, dynamic scheduledTime) {
     if (revisedTime != null && scheduledTime != null) {
       return getDelay(
@@ -969,7 +1118,7 @@ String formatDate(DateTime date) {
   return '${MONTHS[date.month - 1]} ${date.day}, ${date.year}';
 }
 
-// Helper class for chart data
+// ignore: unused_element
 class _ChartPosition {
   final double altitude;
   final double speed;

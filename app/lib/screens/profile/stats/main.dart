@@ -52,10 +52,8 @@ class _FlightStatsScreenState extends State<FlightStatsScreen> {
     final colorScheme = theme.colorScheme;
 
     return Scaffold(
-      backgroundColor: colorScheme.surface,
       appBar: AppBar(
         elevation: 0,
-        backgroundColor: colorScheme.surface,
       ),
       body: SafeArea(
         child: _isLoading

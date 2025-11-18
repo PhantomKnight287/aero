@@ -491,7 +491,7 @@ export class FlightService {
           gate: faFlight.gate_destination,
         },
         cargo: false,
-        date: searchDate,
+        date: faFlight.scheduled_out ? new Date(faFlight.scheduled_out) : searchDate,
         departure: {
           airport: {
             shortName: faFlight?.origin?.name ?? 'Unknown',
