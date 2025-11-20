@@ -9,6 +9,7 @@ import 'package:retry/retry.dart';
 
 import 'package:aero/screens/home/service.dart';
 import 'package:aero/services/main.dart';
+import 'package:aero/services/widget_update_service.dart';
 import 'package:aero/utils/error.dart';
 
 enum FlightPanelState {
@@ -536,6 +537,12 @@ class HomeController extends ChangeNotifier {
 
     flightInfo = info;
     panelState = FlightPanelState.showingFlight;
+
+    // Update the widget with the fetched flight data
+    WidgetUpdateService.updateWidgetWithFlight(info).catchError((e) {
+      print('Failed to update widget: $e');
+    });
+
     notifyListeners();
   }
 

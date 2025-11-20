@@ -1,13 +1,48 @@
 import 'package:aero/constants/main.dart';
 import 'package:aero/notifiers/user.dart';
 import 'package:aero/routes/main.dart';
+import 'package:aero/services/widget_update_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:toastification/toastification.dart';
 import 'package:variable_app_icon/variable_app_icon.dart';
+import 'package:workmanager/workmanager.dart';
+
+// Workmanager callback handler
+@pragma('vm:entry-point')
+void callbackDispatcher() {
+  Workmanager().executeTask((task, inputData) async {
+    try {
+      if (task == 'widgetUpdateTask') {
+        await WidgetUpdateService.updateWidget();
+      }
+      return Future.value(true);
+    } catch (e) {
+      print('Error in workmanager task: $e');
+      return Future.value(false);
+    }
+  });
+}
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize Workmanager
+  await Workmanager().initialize(
+    callbackDispatcher,
+    isInDebugMode: false, // Set to true for debugging
+  );
+
+  // Register periodic task to update widget every 15 minutes
+  await Workmanager().registerPeriodicTask(
+    'widget-update',
+    'widgetUpdateTask',
+    frequency: const Duration(minutes: 15),
+    constraints: Constraints(
+      networkType: NetworkType.connected,
+    ),
+  );
+
   VariableAppIcon.androidAppIconIds = [
     "appIcon.DEFAULT",
     "appIcon.ZERO_TWO",
