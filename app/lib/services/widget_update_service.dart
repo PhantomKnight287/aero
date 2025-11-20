@@ -6,26 +6,68 @@ import 'package:aero/services/main.dart';
 class WidgetUpdateService {
   static final FlightDataService _flightService = FlightDataService();
 
-  /// Updates the home widget with the most recent tracked flight data
+  /// Updates the home widget with updated flight status from backend
+  /// Only updates if widget already has flight data
   static Future<void> updateWidget() async {
     try {
-      // Get tracked flights
-      final trackedFlights = await _flightService.getTrackedFlights();
+      // Check if widget has flight data
+      final flightId = await HomeWidget.getWidgetData<String>('flight_id');
+      final flightIata = await HomeWidget.getWidgetData<String>('flight_iata');
+      final flightIcao = await HomeWidget.getWidgetData<String>('flight_icao');
+      final flightDateStr = await HomeWidget.getWidgetData<String>('flight_date');
 
-      if (trackedFlights.isEmpty) {
-        // Clear widget data if no flights are tracked
-        await _clearWidgetData();
-        await HomeWidget.updateWidget(
-          androidName: 'CurrentActiveFlight',
-        );
+      // If no flight is setup in widget, do nothing
+      if (flightId == null || flightIata == null || flightIcao == null || flightDateStr == null) {
+        print('No flight setup in widget, skipping update');
         return;
       }
 
-      // Get the first tracked flight (most recent)
-      final flight = trackedFlights.first;
+      // Parse the date
+      DateTime flightDate;
+      try {
+        flightDate = DateTime.parse(flightDateStr);
+      } catch (e) {
+        print('Invalid flight date in widget: $flightDateStr');
+        await _clearWidgetData();
+        await HomeWidget.updateWidget(androidName: 'CurrentActiveFlight');
+        return;
+      }
+
+      // Check if flight has concluded (arrival time has passed)
+      final arrivalTimeStr = await HomeWidget.getWidgetData<String>('arrival_time_scheduled');
+      if (arrivalTimeStr != null) {
+        try {
+          final arrivalTime = DateTime.parse(arrivalTimeStr);
+          final now = DateTime.now();
+
+          // If arrival time has passed by more than 1 hour, clear widget
+          if (now.difference(arrivalTime).inHours > 1) {
+            print('Flight has concluded, clearing widget');
+            await _clearWidgetData();
+            await HomeWidget.updateWidget(androidName: 'CurrentActiveFlight');
+            return;
+          }
+        } catch (e) {
+          print('Error parsing arrival time: $e');
+        }
+      }
+
+      // Fetch updated flight status with forceUpdate=true
+      final updatedFlight = await _flightService.getFlightInfoWithNumber(
+        flightIata,
+        flightIcao,
+        date: flightDate,
+        forceUpdate: true,
+        faFlightId: flightId,
+      );
+
+      if (updatedFlight == null) {
+        print('Failed to fetch updated flight info');
+        return;
+      }
 
       // Extract flight information and update widget
-      await _updateWidgetWithFlightData(flight);
+      await _updateWidgetWithFlightData(updatedFlight);
 
       // Trigger widget update
       await HomeWidget.updateWidget(
@@ -33,11 +75,7 @@ class WidgetUpdateService {
       );
     } catch (e) {
       print('Error updating widget: $e');
-      // On error, still try to update the widget to show empty state
-      await _clearWidgetData();
-      await HomeWidget.updateWidget(
-        androidName: 'CurrentActiveFlight',
-      );
+      // Don't clear on error, keep existing data
     }
   }
 
@@ -92,6 +130,18 @@ class WidgetUpdateService {
       await HomeWidget.saveWidgetData('is_delay_in_arrival', isDelayInArrival);
       await HomeWidget.saveWidgetData('is_expedite_in_departure', isExpediteInDeparture);
       await HomeWidget.saveWidgetData('is_expedite_in_arrival', isExpediteInArrival);
+
+      // Store flight metadata for polling updates
+      await HomeWidget.saveWidgetData('flight_id', flight.faFlightId ?? '');
+      await HomeWidget.saveWidgetData('flight_iata', flightNumberIata);
+      await HomeWidget.saveWidgetData('flight_icao', flightNumberIcao);
+      await HomeWidget.saveWidgetData('flight_date', flight.date.toIso8601String());
+
+      // Store scheduled arrival time for checking if flight has concluded
+      final arrivalScheduled = arrival.scheduledTime?.local ?? arrival.estimatedTime?.local;
+      if (arrivalScheduled != null) {
+        await HomeWidget.saveWidgetData('arrival_time_scheduled', arrivalScheduled);
+      }
     } catch (e) {
       print('Error updating widget with flight data: $e');
       throw e;
@@ -112,6 +162,13 @@ class WidgetUpdateService {
     await HomeWidget.saveWidgetData('is_delay_in_arrival', false);
     await HomeWidget.saveWidgetData('is_expedite_in_departure', false);
     await HomeWidget.saveWidgetData('is_expedite_in_arrival', false);
+
+    // Clear flight metadata
+    await HomeWidget.saveWidgetData('flight_id', null);
+    await HomeWidget.saveWidgetData('flight_iata', null);
+    await HomeWidget.saveWidgetData('flight_icao', null);
+    await HomeWidget.saveWidgetData('flight_date', null);
+    await HomeWidget.saveWidgetData('arrival_time_scheduled', null);
   }
 
   /// Formats a time string to HH:mm format
@@ -163,6 +220,18 @@ class WidgetUpdateService {
       );
     } catch (e) {
       print('Error updating widget with flight: $e');
+    }
+  }
+
+  /// Clears widget data (public method for external use)
+  static Future<void> clearWidget() async {
+    try {
+      await _clearWidgetData();
+      await HomeWidget.updateWidget(
+        androidName: 'CurrentActiveFlight',
+      );
+    } catch (e) {
+      print('Error clearing widget: $e');
     }
   }
 }
