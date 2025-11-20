@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="current_flight_widget_description">Check your current flight without opening the app</string>
+    <string name="current_flight_widget_name">Current Active Flight</string>
+</resources>
