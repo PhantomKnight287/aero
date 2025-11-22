@@ -124,18 +124,21 @@ class MainActivity : FlutterActivity() {
 
                 "registerFlight" -> {
                     CoroutineScope(Dispatchers.Main).launch {
-                        val jsonString = JSONObject(call.arguments as Map<*, *>).toString()
-                        val dataToSend = jsonString.toByteArray(Charsets.UTF_8)
                         try {
+                            val payload = call.arguments as? Map<*, *>
+                                ?: throw IllegalArgumentException("Invalid flight payload")
+                            val jsonString = JSONObject(payload).toString()
+                            val dataToSend = jsonString.toByteArray(Charsets.UTF_8)
                             sendMessageToWatch(
                                 applicationContext,
                                 "/register-flight",
                                 dataToSend,
                             )
+                            Log.e("RegisterFlight", jsonString)
+                            result.success(null)
                         } catch (e: Exception) {
                             e.printStackTrace()
                             result.error("ERROR", e.message, null)
-
                         }
                     }
                 }

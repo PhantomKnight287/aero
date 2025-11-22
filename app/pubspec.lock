@@ -1364,14 +1364,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.5.1"
-  variable_app_icon:
-    dependency: "direct main"
-    description:
-      name: variable_app_icon
-      sha256: "27235ee5a2eed9f19b7018a65914d02758ef668c11feb56e267f5c66590e6c2c"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.0.3"
   vector_graphics:
     dependency: transitive
     description:

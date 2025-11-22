@@ -155,7 +155,9 @@ fun CurrentActiveFlightWidget(
         mutableStateOf<Bitmap?>(null)
     }
     LaunchedEffect(airlineLogo) {
-        image = context?.getImage(airlineLogo)
+        if (airlineLogo.isNotBlank() && airlineLogo.isNotEmpty()) {
+            image = context?.getImage(airlineLogo)
+        }
     }
 
     Box(

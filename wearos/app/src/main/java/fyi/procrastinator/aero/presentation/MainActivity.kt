@@ -1,0 +1,54 @@
+/* While this template provides a good starting point for using Wear Compose, you can always
+ * take a look at https://github.com/android/wear-os-samples/tree/main/ComposeStarter to find the
+ * most up to date changes to the libraries and their usages.
+ */
+
+package fyi.procrastinator.aero.presentation
+
+import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.ViewModelProvider
+import androidx.wear.compose.material.MaterialTheme
+import androidx.wear.compose.material.Text
+import androidx.wear.compose.material.TimeText
+import androidx.wear.tooling.preview.devices.WearDevices
+import fyi.procrastinator.aero.R
+import fyi.procrastinator.aero.database.AeroDatabase
+import fyi.procrastinator.aero.presentation.screens.home.HomeScreen
+import fyi.procrastinator.aero.presentation.screens.home.HomeViewModal
+import fyi.procrastinator.aero.presentation.screens.home.HomeViewModalFactory
+import fyi.procrastinator.aero.presentation.theme.AeroTheme
+
+class MainActivity : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        installSplashScreen()
+
+        super.onCreate(savedInstanceState)
+
+        setTheme(android.R.style.Theme_DeviceDefault)
+        val database = AeroDatabase.getDatabase(applicationContext)
+        val homeScreenViewModel = ViewModelProvider(
+            this,
+            HomeViewModalFactory(database)
+        )[HomeViewModal::class.java]
+        setContent {
+            AeroTheme {
+                HomeScreen(
+                    homeViewModal = homeScreenViewModel,
+                )
+            }
+        }
+    }
+}

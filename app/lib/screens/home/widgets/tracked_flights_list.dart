@@ -48,11 +48,13 @@ class TrackedFlightsList extends StatelessWidget {
           },
           itemBuilder: (context, index) {
             final flight = trackedFlights[index];
+            // Convert UTC date to device's local time
+            final localDate = flight.date.toLocal();
             return InkWell(
               onTap: () => onFlightTap(
                 flight.flightNo,
                 flight.flightNo,
-                flight.date,
+                localDate,
                 true,
               ),
               child: Padding(
@@ -119,7 +121,7 @@ class TrackedFlightsList extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          DateFormat('dd MMM yyyy').format(flight.date),
+                          DateFormat('dd MMM yyyy').format(localDate),
                           style: TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w600,
@@ -142,6 +144,7 @@ class TrackedFlightsList extends StatelessWidget {
               ),
             );
           },
+         
           shrinkWrap: true,
           padding: EdgeInsets.zero,
           itemCount: trackedFlights.length,

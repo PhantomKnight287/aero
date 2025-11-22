@@ -5,7 +5,6 @@ import 'package:aero/services/widget_update_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:toastification/toastification.dart';
-import 'package:variable_app_icon/variable_app_icon.dart';
 import 'package:workmanager/workmanager.dart';
 
 // Workmanager callback handler
@@ -43,20 +42,6 @@ void main() async {
     ),
   );
 
-  VariableAppIcon.androidAppIconIds = [
-    "appIcon.DEFAULT",
-    "appIcon.ZERO_TWO",
-    "appIcon.ZERO_THREE",
-    "appIcon.ZERO_FOUR",
-    "appIcon.ZERO_FIVE",
-    "appIcon.ZERO_SIX",
-    "appIcon.ONE_ONE",
-    "appIcon.ONE_TWO",
-    "appIcon.ONE_THREE",
-    "appIcon.ONE_FOUR",
-    "appIcon.ONE_FIVE",
-    "appIcon.ONE_SIX",
-  ];
   runApp(
     MultiProvider(
       providers: [

@@ -447,9 +447,9 @@ class _HomeScreenState extends State<HomeScreen>
 
   Widget _buildErrorBanner(String message) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+      padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4.0),
       child: Container(
-        padding: const EdgeInsets.all(12.0),
+        padding: const EdgeInsets.all(12.0).copyWith(bottom: 0, top: 0),
         decoration: BoxDecoration(
           color: Colors.red[50],
           borderRadius: BorderRadius.circular(8),

@@ -349,29 +349,87 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
                       } else if (value == "send_to_wearable") {
                         final channel = MethodChannel(METHOD_CHANNEL);
                         final flightNumber = widget.info.flightNo;
-                        final flightNumberWithoutIata = flightNumber
-                            .replaceFirst(widget.info.airline.iata ?? "", '');
-                        final flightNumberWithoutIcao = flightNumber
-                            .replaceFirst(widget.info.airline.icao ?? "", '');
+                        final airline = widget.info.airline;
+                        final flightAwareData = widget.info.flightAwareData;
+                        final departureAirport = departure.airport;
+                        final arrivalAirport = widget.info.arrival.airport;
+                        final departureDate = DateTime.parse(
+                          (departure.revisedTime ?? departure.scheduledTime).utc,
+                        );
 
-                        await channel.invokeMethod("registerFlight", {
-                          "id": widget.info.id,
-                          "date": DateTime.parse((departure.revisedTime ??
-                                      departure.scheduledTime)
-                                  .utc)
-                              .toIso8601String(),
-                          "flightIata": (flightNumberWithoutIcao ==
-                                  flightNumberWithoutIata)
-                              ? "${widget.info.airline.iata}$flightNumber"
-                              : flightNumber,
-                          "flightIcao": (flightNumberWithoutIcao ==
-                                  flightNumberWithoutIata)
-                              ? "${widget.info.airline.icao}$flightNumber"
-                              : flightNumber,
-                          "origin": departure.airport.municipalityName,
-                          "destination":
-                              widget.info.arrival.airport.municipalityName,
-                        });
+                        final airlineIata = airline.iata ?? "";
+                        final airlineIcao = airline.icao ?? "";
+                        final flightNumberWithoutIata =
+                            flightNumber.replaceFirst(airlineIata, '');
+                        final flightNumberWithoutIcao =
+                            flightNumber.replaceFirst(airlineIcao, '');
+
+                        String? _fallbackIdent(
+                          String? primary,
+                          String carrier,
+                          String strippedNumber,
+                        ) {
+                          if (primary != null && primary.isNotEmpty) {
+                            return primary;
+                          }
+                          if (carrier.isEmpty) return null;
+                          final number =
+                              strippedNumber.isNotEmpty ? strippedNumber : flightNumber;
+                          return "$carrier$number";
+                        }
+
+                        final identIata = _fallbackIdent(
+                          flightAwareData?.identIata,
+                          airlineIata,
+                          flightNumberWithoutIata,
+                        );
+
+                        final identIcao = _fallbackIdent(
+                          flightAwareData?.identIcao,
+                          airlineIcao,
+                          flightNumberWithoutIcao,
+                        );
+
+                        final departureAirportCode = departureAirport.iata.isNotEmpty
+                            ? departureAirport.iata
+                            : departureAirport.icao;
+                        final arrivalAirportCode = arrivalAirport.iata.isNotEmpty
+                            ? arrivalAirport.iata
+                            : arrivalAirport.icao;
+                        final departureCity = departureAirport.municipalityName.isNotEmpty
+                            ? departureAirport.municipalityName
+                            : departureAirport.name;
+                        final arrivalCity = arrivalAirport.municipalityName.isNotEmpty
+                            ? arrivalAirport.municipalityName
+                            : arrivalAirport.name;
+
+                        final payload = {
+                          "flight": {
+                            "id": widget.info.id,
+                            "flightNo": flightNumber,
+                            "identIata": identIata,
+                            "identIcao": identIcao,
+                            "date": departureDate.toIso8601String(),
+                            "departureAirportIata": departureAirportCode,
+                            "departureCity": departureCity,
+                            "arrivalAirportIata": arrivalAirportCode,
+                            "arrivalCity": arrivalCity,
+                          },
+                          "airline": {
+                            "name": airline.name,
+                            "iata": airline.iata,
+                            "icao": airline.icao,
+                            "image": airline.image,
+                          },
+                        };
+
+                        await channel.invokeMethod("registerFlight", payload);
+                        print(payload);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Flight sent to wearable'),
+                          ),
+                        );
                       }
                       if (value == "refresh_flight_data") {
                         widget.onRefreshFlightData?.call();
@@ -471,7 +529,6 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
               fontWeight: FontWeight.bold,
             ),
           ),
-          const Gap(8),
           Column(
             children: [
               _buildTimezonePill(
