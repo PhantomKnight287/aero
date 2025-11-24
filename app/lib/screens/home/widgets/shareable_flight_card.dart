@@ -217,7 +217,8 @@ class ShareableFlightCard extends StatelessWidget {
                               Text(
                                 departureTime.toTimezoneString(
                                   departure.airport.timeZone ?? 'UTC',
-                                  use24Hrs: false,
+                                  use24Hrs: MediaQuery.of(context)
+                                      .alwaysUse24HourFormat,
                                 ),
                                 style: TextStyle(
                                   fontFamily: "Geist",
@@ -302,7 +303,8 @@ class ShareableFlightCard extends StatelessWidget {
                               Text(
                                 arrivalTime.toTimezoneString(
                                   arrival.airport.timeZone ?? 'UTC',
-                                  use24Hrs: false,
+                                  use24Hrs: MediaQuery.of(context)
+                                      .alwaysUse24HourFormat,
                                 ),
                                 style: TextStyle(
                                   fontFamily: "Geist",
@@ -359,10 +361,7 @@ class ShareableFlightCard extends StatelessWidget {
                     _buildShareableDetailItem(
                       Icons.flight,
                       'Aircraft',
-                      info.aircraft?.model
-                              ?.split(' ')
-                              .take(2)
-                              .join(' ') ??
+                      info.aircraft?.model?.split(' ').take(2).join(' ') ??
                           info.aircraft?.registration ??
                           'N/A',
                     ),
@@ -535,4 +534,3 @@ class ShareableFlightCard extends StatelessWidget {
     );
   }
 }
-
