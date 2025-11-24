@@ -50,6 +50,7 @@ dependencies {
     implementation(libs.compose.foundation)
     implementation(libs.wear.tooling.preview)
     implementation(libs.activity.compose)
+    implementation(libs.lifecycle.viewmodel.compose)
     implementation(libs.core.splashscreen)
     implementation(libs.tiles)
     implementation(libs.tiles.material)
@@ -59,14 +60,18 @@ dependencies {
     implementation(libs.watchface.complications.data.source.ktx)
     implementation(libs.ui.text.google.fonts)
 
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.9")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.10.1")
+    implementation(libs.kotlinx.coroutines.android)
+    implementation(libs.kotlinx.coroutines.play.services)
 
-    implementation("io.coil-kt.coil3:coil-compose:3.1.0")
-    implementation("io.coil-kt.coil3:coil-network-okhttp:3.1.0")
+    implementation(libs.coil.compose)
+    implementation(libs.coil.network.okhttp)
 
-    implementation("androidx.room:room-runtime:2.8.4")
-    ksp("androidx.room:room-compiler:2.8.4")
+    implementation("androidx.wear.compose:compose-navigation:1.5.5")
+
+    implementation(libs.room.runtime)
+    ksp(libs.room.compiler)
+
+
 
     androidTestImplementation(platform(libs.compose.bom))
     androidTestImplementation(libs.ui.test.junit4)

@@ -1,13 +1,22 @@
 [versions]
 agp = "8.10.1"
+coilCompose = "3.1.0"
+coilNetworkOkhttp = "3.1.0"
+composeNavigation = "1.5.5"
 kotlin = "2.0.21"
+kotlinxCoroutinesPlayServices = "1.10.2"
+kotlinxCoroutinesAndroid = "1.10.2"
+navigationCompose = "2.9.6"
 playServicesWearable = "19.0.0"
 composeBom = "2024.09.00"
 composeMaterial = "1.2.1"
 composeFoundation = "1.2.1"
+roomRuntime = "2.8.4"
+roomCompiler = "2.8.4"
 uiTextGoogleFonts = "1.9.5"
 wearToolingPreview = "1.0.0"
 activityCompose = "1.8.0"
+lifecycleViewmodelCompose = "2.9.4"
 coreSplashscreen = "1.0.1"
 tiles = "1.4.0"
 tilesMaterial = "1.4.0"
@@ -18,8 +27,16 @@ horologistTiles = "0.6.17"
 watchfaceComplicationsDataSourceKtx = "1.2.1"
 
 [libraries]
+coil-network-okhttp = { module = "io.coil-kt.coil3:coil-network-okhttp", version.ref = "coilNetworkOkhttp" }
+coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coilCompose" }
+compose-navigation = { module = "androidx.wear.compose:compose-navigation", version.ref = "composeNavigation" }
+kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "kotlinxCoroutinesAndroid" }
+kotlinx-coroutines-play-services = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-play-services", version.ref = "kotlinxCoroutinesPlayServices" }
+navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
 play-services-wearable = { group = "com.google.android.gms", name = "play-services-wearable", version.ref = "playServicesWearable" }
 compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
+room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomCompiler" }
+room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomRuntime" }
 ui = { group = "androidx.compose.ui", name = "ui" }
 ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
 ui-text-google-fonts = { module = "androidx.compose.ui:ui-text-google-fonts", version.ref = "uiTextGoogleFonts" }
@@ -31,6 +48,7 @@ compose-material = { group = "androidx.wear.compose", name = "compose-material",
 compose-foundation = { group = "androidx.wear.compose", name = "compose-foundation", version.ref = "composeFoundation" }
 wear-tooling-preview = { group = "androidx.wear", name = "wear-tooling-preview", version.ref = "wearToolingPreview" }
 activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
+lifecycle-viewmodel-compose = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-compose", version.ref = "lifecycleViewmodelCompose" }
 core-splashscreen = { group = "androidx.core", name = "core-splashscreen", version.ref = "coreSplashscreen" }
 tiles = { group = "androidx.wear.tiles", name = "tiles", version.ref = "tiles" }
 tiles-material = { group = "androidx.wear.tiles", name = "tiles-material", version.ref = "tilesMaterial" }
