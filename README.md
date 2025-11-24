@@ -39,7 +39,7 @@ Aero is a full-stack flight tracking application that brings real-time flight in
 ![](./landing/public/features/plane_image.png.png)
 
 ## Shareable Cards
-![](./landing/public/features/shareable_card.png.png)
+![](./landing/public/features/shareable_card.png)
 
 ---
 
@@ -223,7 +223,6 @@ bun run index.ts
 ```bash
 cd api
 pnpm run start:dev    # Development with hot reload
-pnpm run test         # Run test suite
 pnpm run lint         # Lint code
 pnpm run build        # Production build
 ```
@@ -233,10 +232,7 @@ pnpm run build        # Production build
 ```bash
 cd app
 flutter run                    # Run on device/emulator
-flutter test                   # Run tests
-flutter build apk              # Build Android APK
-flutter build ios              # Build iOS app
-flutter build web              # Build web app
+flutter build apk              # Build Android APK, the native configuration isn't done for anything other than android
 ```
 
 ### OpenAPI Client Generation
@@ -244,36 +240,7 @@ flutter build web              # Build web app
 Regenerate the Dart API client from the OpenAPI schema:
 
 ```bash
-cd api
-pnpm run build                 # Build API to generate schema
 ./generate-openapi-client.sh   # Generate client
-```
-
----
-
-## ⚙️ Configuration
-
-### Environment Variables
-
-The API requires the following environment variables (create `.env` in `api/`):
-
-```env
-# Database
-DATABASE_URL="postgresql://user:password@localhost:5432/aero"
-
-# Redis
-REDIS_HOST=localhost
-REDIS_PORT=6379
-
-# Authentication
-JWT_SECRET=your-secret-key
-
-# API Keys
-OPENSKY_API_KEY=your-opensky-key
-
-# Server
-PORT=3000
-NODE_ENV=development
 ```
 
 ---
@@ -283,3 +250,13 @@ NODE_ENV=development
 **Built with ❤️ for aviation enthusiasts**
 
 </div>
+
+---
+
+Bonus for scrolling so far. Here is the image of my favourite livery.
+
+![ANA181](https://cdn.jetphotos.com/full/6/1035944_1762190738.jpg)
+
+Copyright: TommyNGB
+
+Link: https://www.jetphotos.com/photo/11888246
