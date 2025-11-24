@@ -245,14 +245,6 @@ Regenerate the Dart API client from the OpenAPI schema:
 
 ---
 
-<div align="center">
-
-**Built with ❤️ for aviation enthusiasts**
-
-</div>
-
----
-
 Bonus for scrolling so far. Here is the image of my favourite livery.
 
 ![ANA181](https://cdn.jetphotos.com/full/6/1035944_1762190738.jpg)
