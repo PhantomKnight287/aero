@@ -1,6 +1,8 @@
 <div align="center">
 
-# ✈️ Aero
+<img src="./landing/public/icons/0-4.png" width="80">
+
+# Aero
 
 **Real-time flight tracking across all your devices**
 
