@@ -34,14 +34,16 @@ Aero is a full-stack flight tracking application that brings real-time flight in
 
 ## Screenshots
 
-![](./landing/public/features/og.png)
-![](./landing/public/features/tracking.png)
-![](./landing/public/features/aircraft_details.png)
-![](./landing/public/features/live_on_map.png)
-![](./landing/public/features/plane_image.png.png)
+<img src="./landing/public/features/og.png">
+
+<br/>
+<img src="./landing/public/features/tracking.png" height="300">
+<img src="./landing/public/features/aircraft_details.png" height="300">
+<img src="./landing/public/features/live_on_map.png" height="300">
+<img src="./landing/public/features/plane_image.png" height="300">
 
 ## Shareable Cards
-![](./landing/public/features/shareable_card.png)
+<img src="./landing/public/features/shareable_card.png" height="300">
 
 ---
 
