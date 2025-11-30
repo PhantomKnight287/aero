@@ -76,7 +76,7 @@ class FlightSelectionList extends StatelessWidget {
   Widget _buildFallbackAirlineImage(FlightSummaryAirlineEntity airline) {
     if (airline.iata != null && airline.iata!.isNotEmpty) {
       return CachedNetworkImage(
-        imageUrl: "https://airlabs.co/img/airline/m/${airline.iata}.png",
+        imageUrl: "https://www.flightaware.com/images/airline_logos/180px/${airline.icao}.png",
         fit: BoxFit.contain,
         errorWidget: (context, url, error) {
           return Icon(

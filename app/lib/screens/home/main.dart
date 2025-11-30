@@ -182,10 +182,6 @@ class _HomeScreenState extends State<HomeScreen>
             controller.flightInfo != null;
     final isLoadingFlight =
         controller.panelState == FlightPanelState.loadingFlight;
-    final hasFlightFilters = (controller.arrivalAirport != null &&
-            controller.departureAirport != null) ||
-        (controller.selectedAirline != null &&
-            controller.selectedFlightNumber != null);
 
     return Scaffold(
       body: Stack(
@@ -244,7 +240,7 @@ class _HomeScreenState extends State<HomeScreen>
                           ? _buildFlightSelection(controller)
                           : isShowingFlight
                               ? _buildFlightInfoCard(controller, context)
-                              : isLoadingFlight && hasFlightFilters
+                              : isLoadingFlight
                                   ? _buildFlightInfoSkeleton()
                                   : _buildSearchContent(
                                       controller,
@@ -388,7 +384,7 @@ class _HomeScreenState extends State<HomeScreen>
                   )
                 : CachedNetworkImage(
                     imageUrl:
-                        "https://airlabs.co/img/airline/m/${selectedAirline.iata}.png",
+                        "https://www.flightaware.com/images/airline_logos/180px/${selectedAirline.icao}.png",
                     width: 24,
                     height: 18,
                     errorWidget: (context, url, error) => const SizedBox(),

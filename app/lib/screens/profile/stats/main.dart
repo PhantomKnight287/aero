@@ -1367,7 +1367,7 @@ class _FlightStatsScreenState extends State<FlightStatsScreen> {
                                 if (airline.airlineIata.isNotEmpty) {
                                   return CachedNetworkImage(
                                     imageUrl:
-                                        "https://airlabs.co/img/airline/m/${airline.airlineIata}.png",
+                                        "https://www.flightaware.com/images/airline_logos/180px/${airline.airlineIcao}.png",
                                     fit: BoxFit.contain,
                                     errorWidget: (context, url, error) => Icon(
                                         Icons.flight,
@@ -1383,7 +1383,7 @@ class _FlightStatsScreenState extends State<FlightStatsScreen> {
                       : (airline.airlineIata.isNotEmpty
                           ? CachedNetworkImage(
                               imageUrl:
-                                  "https://airlabs.co/img/airline/m/${airline.airlineIata}.png",
+                                  "https://www.flightaware.com/images/airline_logos/180px/${airline.airlineIcao}.png",
                               fit: BoxFit.contain,
                               errorWidget: (context, url, error) => Icon(
                                 Icons.flight,

@@ -97,7 +97,10 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
       final imageBytes = await _screenshotController.captureFromWidget(
         InheritedTheme.captureAll(
           context,
-          ShareableFlightCard(info: widget.info),
+          MediaQuery(
+            data: MediaQuery.of(context),
+            child: ShareableFlightCard(info: widget.info),
+          ),
         ),
         pixelRatio: 2.0,
         delay: const Duration(milliseconds: 100),
@@ -202,7 +205,7 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
             children: [
               CachedNetworkImage(
                 imageUrl:
-                    "https://airlabs.co/img/airline/m/${widget.info.airline.iata}.png",
+                    "https://www.flightaware.com/images/airline_logos/180px/${widget.info.airline.icao}.png",
                 width: 30,
                 height: 30,
                 errorWidget: (context, url, error) {
@@ -354,7 +357,8 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
                         final departureAirport = departure.airport;
                         final arrivalAirport = widget.info.arrival.airport;
                         final departureDate = DateTime.parse(
-                          (departure.revisedTime ?? departure.scheduledTime).utc,
+                          (departure.revisedTime ?? departure.scheduledTime)
+                              .utc,
                         );
 
                         final airlineIata = airline.iata ?? "";
@@ -373,8 +377,9 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
                             return primary;
                           }
                           if (carrier.isEmpty) return null;
-                          final number =
-                              strippedNumber.isNotEmpty ? strippedNumber : flightNumber;
+                          final number = strippedNumber.isNotEmpty
+                              ? strippedNumber
+                              : flightNumber;
                           return "$carrier$number";
                         }
 
@@ -390,18 +395,22 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
                           flightNumberWithoutIcao,
                         );
 
-                        final departureAirportCode = departureAirport.iata.isNotEmpty
-                            ? departureAirport.iata
-                            : departureAirport.icao;
-                        final arrivalAirportCode = arrivalAirport.iata.isNotEmpty
-                            ? arrivalAirport.iata
-                            : arrivalAirport.icao;
-                        final departureCity = departureAirport.municipalityName.isNotEmpty
-                            ? departureAirport.municipalityName
-                            : departureAirport.name;
-                        final arrivalCity = arrivalAirport.municipalityName.isNotEmpty
-                            ? arrivalAirport.municipalityName
-                            : arrivalAirport.name;
+                        final departureAirportCode =
+                            departureAirport.iata.isNotEmpty
+                                ? departureAirport.iata
+                                : departureAirport.icao;
+                        final arrivalAirportCode =
+                            arrivalAirport.iata.isNotEmpty
+                                ? arrivalAirport.iata
+                                : arrivalAirport.icao;
+                        final departureCity =
+                            departureAirport.municipalityName.isNotEmpty
+                                ? departureAirport.municipalityName
+                                : departureAirport.name;
+                        final arrivalCity =
+                            arrivalAirport.municipalityName.isNotEmpty
+                                ? arrivalAirport.municipalityName
+                                : arrivalAirport.name;
 
                         final payload = {
                           "flight": {
@@ -922,7 +931,35 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
                 ),
               ),
             ),
+          // Jet2 Holiday Meme
+          if (widget.info.airline.icao == 'EXS' && widget.info.airline.iata == 'LS') ...[
+            const Gap(16),
+            _buildJet2Meme(context),
+          ],
         ],
+      ),
+    );
+  }
+
+  Widget _buildJet2Meme(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
+    return Padding(
+      padding: const EdgeInsets.only(top: 4.0),
+      child: Center(
+        child: Text(
+          'Nothing beats a Jet2 holiday',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 10,
+            fontWeight: FontWeight.w400,
+            letterSpacing: 0.5,
+            color: isDark 
+              ? Colors.grey[700]
+              : Colors.grey[500],
+            fontFamily: 'sans-serif',
+          ),
+        ),
       ),
     );
   }

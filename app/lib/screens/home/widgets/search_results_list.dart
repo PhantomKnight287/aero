@@ -105,7 +105,7 @@ class SearchResultsList extends StatelessWidget {
               )
             : CachedNetworkImage(
                 imageUrl:
-                    "https://airlabs.co/img/airline/m/${selectedAirline!.iata}.png",
+                    "https://www.flightaware.com/images/airline_logos/180px/${selectedAirline!.icao}.png",
                 width: 24,
                 height: 18,
                 errorWidget: (context, url, error) {
@@ -159,7 +159,7 @@ class SearchResultsList extends StatelessWidget {
                   )
                 : CachedNetworkImage(
                     imageUrl:
-                        "https://airlabs.co/img/airline/m/${airline.iata}.png",
+                        "https://www.flightaware.com/images/airline_logos/180px/${airline.icao}.png",
                     width: 24,
                     height: 18,
                     errorWidget: (context, url, error) {

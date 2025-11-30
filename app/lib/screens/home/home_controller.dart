@@ -218,8 +218,9 @@ class HomeController extends ChangeNotifier {
     notifyListeners();
     try {
       trackedFlights = await _flightService.getTrackedFlights();
-    } catch (_) {
-      // ignore errors for now
+    } catch (error,stack) {
+      print(error);
+      print(stack);
     } finally {
       loadingTrackedFlights = false;
       notifyListeners();

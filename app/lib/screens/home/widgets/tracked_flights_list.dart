@@ -80,7 +80,7 @@ class TrackedFlightsList extends StatelessWidget {
                             )
                           : CachedNetworkImage(
                               imageUrl:
-                                  "https://airlabs.co/img/airline/m/${flight.airline.iata}.png",
+                                  "https://www.flightaware.com/images/airline_logos/180px/${flight.airline.icao}.png",
                               fit: BoxFit.contain,
                               errorWidget: (context, url, error) {
                                 return Icon(

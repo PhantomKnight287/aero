@@ -59,7 +59,7 @@ class FlightsList extends StatelessWidget {
                   padding: EdgeInsets.all(8),
                   child: CachedNetworkImage(
                     imageUrl:
-                        "https://airlabs.co/img/airline/m/${flight.airline.iataCode}.png",
+                        "https://www.flightaware.com/images/airline_logos/180px/${flight.airline.icaoCode}.png",
                     fit: BoxFit.contain,
                     errorWidget: (context, url, error) {
                       return Icon(

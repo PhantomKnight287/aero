@@ -164,7 +164,9 @@ class FlightDataService {
     try {
       final response = await _flightsApi.flightsControllerGetTrackedFlightsV1();
       return response.data!.flights;
-    } catch (e) {
+    } catch (e,stack) {
+      print(e);
+      print(stack);
       if (e is DioException) {
         throw ApiException(message: getErrorMessage(e.response?.data));
       }

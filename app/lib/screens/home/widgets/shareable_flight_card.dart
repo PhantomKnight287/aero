@@ -108,7 +108,7 @@ class ShareableFlightCard extends StatelessWidget {
                     else if (airline.iata != null && airline.iata!.isNotEmpty)
                       CachedNetworkImage(
                         imageUrl:
-                            "https://airlabs.co/img/airline/m/${airline.iata}.png",
+                            "https://www.flightaware.com/images/airline_logos/180px/${airline.icao}.png",
                         width: 32,
                         height: 32,
                         errorWidget: (context, url, error) =>
