@@ -136,17 +136,12 @@ class FlightRouteInfo extends StatelessWidget {
         ? flightAwareDataEntity?.gateOrigin
         : flightAwareDataEntity?.gateDestination;
     final String? faBaggage = flightAwareDataEntity?.baggageClaim;
-    final String? faRunway = isDeparture
-        ? flightAwareDataEntity?.actualRunwayOff
-        : flightAwareDataEntity?.actualRunwayOn;
 
     final String? effTerminal =
         (terminal != null && terminal.isNotEmpty) ? terminal : faTerminal;
     final String? effGate = (gate != null && gate.isNotEmpty) ? gate : faGate;
     final String? effBaggage =
         (baggage != null && baggage.isNotEmpty) ? baggage : faBaggage;
-    final String? effRunway =
-        (faRunway != null && faRunway.isNotEmpty) ? faRunway : null;
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -156,27 +151,14 @@ class FlightRouteInfo extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Airport code and name on same line with reduced opacity
               Text(
-                code,
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              Text(
-                name,
+                '$code • $name',
                 style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey.shade600,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black.withOpacity(0.6),
                 ),
-              ),
-              const SizedBox(height: 6),
-              _buildInfoPills(
-                terminal: effTerminal,
-                gate: effGate,
-                baggage: isDeparture ? null : effBaggage,
-                runway: effRunway,
-                isDeparture: isDeparture,
               ),
               if (subtitle.isNotEmpty) ...[
                 const SizedBox(height: 4),
@@ -188,70 +170,104 @@ class FlightRouteInfo extends StatelessWidget {
                   ),
                 ),
               ],
+              const SizedBox(height: 8),
+              // Time row with original time if delayed
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.baseline,
+                textBaseline: TextBaseline.alphabetic,
+                children: [
+                  Text(
+                    time.toTimezoneString(
+                      timezone,
+                      use24Hrs: use24Hrs,
+                    ),
+                    style: TextStyle(
+                      fontSize: 24,
+                      color: (flightAwareDataEntity?.cancelled == true)
+                          ? Colors.red
+                          : timeColor,
+                      fontWeight: FontWeight.bold,
+                      decoration: (flightAwareDataEntity?.cancelled == true)
+                          ? TextDecoration.lineThrough
+                          : null,
+                      decorationColor: (flightAwareDataEntity?.cancelled == true)
+                          ? Colors.red
+                          : null,
+                    ),
+                  ),
+                  if (originalTime != null)
+                    Padding(
+                      padding: const EdgeInsets.only(left: 8.0),
+                      child: Text(
+                        originalTime.toTimezoneString(
+                          timezone,
+                          use24Hrs: use24Hrs,
+                        ),
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.grey.shade500,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 2),
+              // Status text
+              if (flightAwareDataEntity?.cancelled == true)
+                Text(
+                  'Cancelled',
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: Colors.red,
+                    fontWeight: FontWeight.w700,
+                  ),
+                )
+              else if (hasDelay)
+                Text(
+                  isEarly
+                      ? "${_formatMinutesOnly(d.abs())} Early"
+                      : "${_formatMinutesOnly(d)} Late",
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: timeColor,
+                    fontWeight: FontWeight.w700,
+                  ),
+                )
+              else
+                Text(
+                  'On Time',
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: Colors.green,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
             ],
           ),
         ),
         const SizedBox(width: 16),
-        // Right: time block
         Column(
           crossAxisAlignment: CrossAxisAlignment.end,
+          mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (originalTime != null)
-                  Padding(
-                    padding: const EdgeInsets.only(right: 8.0),
-                    child: Text(
-                      originalTime.toTimezoneString(
-                        timezone,
-                        use24Hrs: use24Hrs,
-                      ),
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey.shade500,
-                        decoration: TextDecoration.lineThrough,
-                      ),
-                    ),
-                  ),
-                Text(
-                  time.toTimezoneString(
-                    timezone,
-                    use24Hrs: use24Hrs,
-                  ),
-                  style: TextStyle(
-                    fontSize: 20,
-                    color: timeColor,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
+            // Baggage belt (for arrivals) or Gate (for departures)
+            if (!isDeparture)
+              _buildInfoBadge(
+                icon: Icons.luggage,
+                label: effBaggage ?? '--',
+              )
+            else
+              _buildInfoBadge(
+                icon: Icons.door_front_door,
+                label: effGate ?? '--',
+              ),
+            const SizedBox(height: 4),
+            // Terminal
+            _buildInfoBadge(
+              icon: Icons.title_rounded,
+              label: effTerminal ?? '--',
             ),
-            if (hasDelay)
-              Padding(
-                padding: const EdgeInsets.only(top: 2.0),
-                child: Text(
-                  isEarly
-                      ? "${_formatMinutesOnly(d.abs())} early"
-                      : "${_formatMinutesOnly(d)} late",
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: timeColor,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-            if (hasDelay)
-              Padding(
-                padding: const EdgeInsets.only(top: 2.0),
-                child: Text(
-                  _timeAgo(time),
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey.shade600,
-                  ),
-                ),
-              ),
           ],
         ),
       ],
@@ -291,70 +307,24 @@ class FlightRouteInfo extends StatelessWidget {
     );
   }
 
-  Widget _buildInfoPills(
-      {String? terminal,
-      String? gate,
-      String? baggage,
-      String? runway,
-      required bool isDeparture}) {
-    final List<Widget> children = [];
-    if (terminal != null && terminal.isNotEmpty) {
-      children.add(_pill(
-        icon: Icons.title_rounded,
-        label: terminal,
-      ));
-    }
-    if (gate != null && gate.isNotEmpty) {
-      children.add(_pill(
-        icon: Icons.door_front_door,
-        label: gate,
-      ));
-    }
-    if (baggage != null && baggage.isNotEmpty) {
-      children.add(_pill(
-        icon: Icons.luggage,
-        label: baggage,
-      ));
-    }
-    if (runway != null && runway.isNotEmpty) {
-      children.add(_pill(
-        icon: isDeparture ? Icons.flight_takeoff : Icons.flight_land,
-        label: runway,
-      ));
-    }
-
-    if (children.isEmpty) return const SizedBox.shrink();
-
-    return Wrap(
-      spacing: 8,
-      runSpacing: 6,
-      children: children,
-    );
-  }
-
-  Widget _pill({required IconData icon, required String label}) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: Colors.grey.shade100,
-        borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: Colors.grey.shade300),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 14, color: Colors.grey.shade700),
-          const SizedBox(width: 6),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 12,
-              color: Colors.grey.shade800,
-              fontWeight: FontWeight.w600,
-            ),
+  Widget _buildInfoBadge({
+    required IconData icon,
+    required String label,
+  }) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: 16, color: Colors.grey.shade700),
+        const SizedBox(width: 6),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 13,
+            color: Colors.grey.shade700,
+            fontWeight: FontWeight.w600,
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -373,40 +343,4 @@ class FlightRouteInfo extends StatelessWidget {
     }
   }
 
-  String _timeAgo(DateTime time) {
-    final Duration diff = DateTime.now().difference(time);
-    if (diff.inMinutes.abs() < 1) {
-      return "just now";
-    }
-    
-    final Duration absDiff = diff.abs();
-    final int days = absDiff.inDays;
-    final int hours = absDiff.inHours % 24;
-    final int minutes = absDiff.inMinutes % 60;
-    
-    String base;
-    if (days > 0) {
-      // Show days when more than 24 hours
-      final List<String> parts = [];
-      parts.add("$days ${days == 1 ? 'day' : 'days'}");
-      
-      if (hours > 0) {
-        parts.add("$hours ${hours == 1 ? 'hr' : 'hrs'}");
-      }
-      
-      if (minutes > 0) {
-        parts.add("$minutes mins");
-      }
-      
-      base = parts.join(' ');
-    } else {
-      // Less than 24 hours, use the existing format
-      base = _formatMinutesOnly(diff);
-    }
-    
-    if (diff.isNegative) {
-      return "in $base";
-    }
-    return "$base ago";
-  }
 }

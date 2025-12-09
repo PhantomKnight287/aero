@@ -136,27 +136,55 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
   Widget _buildBanner(
       BuildContext context, Color color, IconData icon, String title,
       [String? subtitle]) {
+    final theme = Theme.of(context);
     return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.08),
+        borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: color.withOpacity(0.3),
+          color: theme.dividerColor.withOpacity(0.4),
         ),
-        borderRadius: BorderRadius.circular(5),
       ),
-      child: ListTile(
-        contentPadding: EdgeInsets.zero,
-        leading: Icon(
-          icon,
-          color: color,
-        ),
-        title: Text(
-          title,
-          style: const TextStyle(
-            fontWeight: FontWeight.w700,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 32,
+            height: 32,
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.15),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(
+              icon,
+              size: 18,
+              color: color,
+            ),
           ),
-        ),
-        subtitle: subtitle != null ? Text(subtitle) : null,
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: subtitle != null ? 4 : 0,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                if (subtitle != null)
+                  Text(
+                    subtitle,
+                    style: TextStyle(
+                      color: theme.textTheme.bodySmall?.color?.withOpacity(
+                          theme.brightness == Brightness.dark ? 0.8 : 0.7),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -164,11 +192,34 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
   Widget _buildFlightStatusBanner(BuildContext context) {
     final fa = widget.info.flightAwareData;
     if (fa?.cancelled == true) {
-      return _buildBanner(
-        context,
-        Colors.red,
-        Icons.cancel,
-        'This flight has been cancelled',
+      return Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        decoration: BoxDecoration(
+          color: Colors.red,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Flight Cancelled',
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Contact your airline',
+              style: TextStyle(
+                color: Colors.white.withOpacity(0.9),
+                fontSize: 13,
+              ),
+            ),
+          ],
+        ),
       );
     }
     if (fa?.diverted == true) {
@@ -469,31 +520,32 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
             _buildFlightStatusBanner(context),
             Gap(8),
           ],
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                getTimeMessage(
-                  DateTime.parse(
-                    (departure.revisedTime ??
-                            departure.predictedTime ??
-                            departure.scheduledTime)
-                        .utc,
+          if (widget.info.flightAwareData?.cancelled != true)
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  getTimeMessage(
+                    DateTime.parse(
+                      (departure.revisedTime ??
+                              departure.predictedTime ??
+                              departure.scheduledTime)
+                          .utc,
+                    ),
+                    DateTime.parse(
+                      (arrival.revisedTime ??
+                              arrival.predictedTime ??
+                              arrival.scheduledTime)
+                          .utc,
+                    ),
                   ),
-                  DateTime.parse(
-                    (arrival.revisedTime ??
-                            arrival.predictedTime ??
-                            arrival.scheduledTime)
-                        .utc,
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
+              ],
+            ),
           FlightRouteInfo(
             arrivalCode: arrival.airport.iata,
             arrivalDelay: _calculateDelay(arrival.revisedTime,
@@ -957,7 +1009,6 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
             color: isDark 
               ? Colors.grey[700]
               : Colors.grey[500],
-            fontFamily: 'sans-serif',
           ),
         ),
       ),

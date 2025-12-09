@@ -30,7 +30,7 @@ class DateSelectionList extends StatelessWidget {
             subtitle: Text(formatDayAndMonth(tmrh)),
             onTap: () => onDateSelected(tmrh),
           );
-        } else {
+        } else if (index == 2) {
           final yesterday = DateTime(date.year, date.month, date.day - 1);
           return ListTile(
             title: Text("Yesterday"),
@@ -38,11 +38,27 @@ class DateSelectionList extends StatelessWidget {
             subtitle: Text(formatDayAndMonth(yesterday)),
             onTap: () => onDateSelected(yesterday),
           );
+        } else {
+          return ListTile(
+            title: Text("Select from calendar"),
+            leading: Icon(MdiIcons.calendar),
+            onTap: () async {
+              final selectedDate = await showDatePicker(
+                context: context,
+                initialDate: date,
+                firstDate: date.subtract(Duration(days: 10)),
+                lastDate: date.add(Duration(days: 3)),
+              );
+              if (selectedDate != null) {
+                onDateSelected(selectedDate);
+              }
+            },
+          );
         }
       },
       shrinkWrap: true,
       padding: EdgeInsets.zero,
-      itemCount: 3,
+      itemCount: 4,
     );
   }
 }

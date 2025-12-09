@@ -75,6 +75,34 @@ class ShareableFlightCard extends StatelessWidget {
               ),
             ),
           ),
+          // Status badge for cancelled or diverted flights
+          if (info.flightAwareData?.cancelled == true ||
+              info.flightAwareData?.diverted == true)
+            Positioned(
+              top: 16,
+              right: 16,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                decoration: BoxDecoration(
+                  color: info.flightAwareData?.cancelled == true
+                      ? Colors.red
+                      : Colors.amber.shade700,
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Text(
+                  info.flightAwareData?.cancelled == true
+                      ? 'CANCELLED'
+                      : 'DIVERTED',
+                  style: TextStyle(
+                    fontFamily: "Geist",
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+              ),
+            ),
           Positioned.fill(
             child: Container(
               decoration: BoxDecoration(
@@ -141,28 +169,36 @@ class ShareableFlightCard extends StatelessWidget {
                       ),
                     ),
                     if (info.greatCircleDistance.km != null)
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Text(
-                            '${double.parse(info.greatCircleDistance.km!).toStringAsFixed(0)} km',
-                            style: TextStyle(
-                              fontFamily: "Geist",
-                              fontSize: 15,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white.withOpacity(0.9),
+                      Padding(
+                        padding: EdgeInsets.only(
+                          top: (info.flightAwareData?.cancelled == true ||
+                                  info.flightAwareData?.diverted == true)
+                              ? 28.0
+                              : 0.0,
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Text(
+                              '${double.parse(info.greatCircleDistance.km!).toStringAsFixed(0)} km',
+                              style: TextStyle(
+                                fontFamily: "Geist",
+                                fontSize: 15,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white.withOpacity(0.9),
+                              ),
                             ),
-                          ),
-                          const Gap(2),
-                          Text(
-                            '${(double.parse(info.greatCircleDistance.km!) * 0.621371).toStringAsFixed(0)} mi',
-                            style: TextStyle(
-                              fontFamily: "Geist",
-                              fontSize: 12,
-                              color: Colors.grey[400],
+                            const Gap(2),
+                            Text(
+                              '${(double.parse(info.greatCircleDistance.km!) * 0.621371).toStringAsFixed(0)} mi',
+                              style: TextStyle(
+                                fontFamily: "Geist",
+                                fontSize: 12,
+                                color: Colors.grey[400],
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                   ],
                 ),
