@@ -26,7 +26,7 @@ import org.json.JSONObject
 const val NOTIFICATION_CHANNEL_ID="Aero";
 
 class MainActivity : FlutterActivity() {
-    private val CHANNEL = "fyi.procrastinator.aero/planepal"
+    private val CHANNEL = "fyi.procrastinator.aero/aero"
     private lateinit var wearOsDeviceManager: WearOsDeviceManager
 
     override fun onCreate(savedInstanceState: Bundle?, persistentState: PersistableBundle?) {

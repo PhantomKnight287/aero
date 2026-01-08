@@ -12,7 +12,7 @@ const API_URL = kDebugMode
 const AUTH_TOKEN_KEY = "token";
 const MAPBOX_API_KEY = String.fromEnvironment("MAPBOX_API_KEY");
 
-const METHOD_CHANNEL = "fyi.procrastinator.aero/planepal";
+const METHOD_CHANNEL = "fyi.procrastinator.aero/aero";
 
 final openapi = Openapi(
   dio: Dio(
