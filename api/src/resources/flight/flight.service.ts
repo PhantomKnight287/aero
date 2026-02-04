@@ -2,6 +2,7 @@ import { DateTime, IANAZone } from 'luxon';
 import { prisma } from 'src/db';
 import { FlightAwareService } from 'src/services/flightaware/flightaware.service';
 import { RedisService } from 'src/services/redis/redis.service';
+
 import {
   BadRequestException,
   HttpException,
@@ -250,20 +251,38 @@ export class FlightService {
 
       // If faFlightId is provided, try to get from Redis cache first to avoid API call
       if (faFlightId) {
+        const record = await prisma.flight.findFirst({
+          where: {
+            OR: [
+              {
+                flightAwareData: {
+                  faFlightId,
+                },
+              },
+              {
+                id: faFlightId, // we do this because flight_id in widget could also point to a flight and not fa_flight 
+              },
+            ],
+          },
+          include: {
+            flightAwareData: true,
+          },
+        });
+        
         console.log(
-          `Fetching specific flight using fa_flight_id ${faFlightId}`,
+          `Fetching specific flight using fa_flight_id ${record?.flightAwareData?.faFlightId ?? faFlightId}`,
         );
 
         // Try to get from Redis cache first (cached from searchFlights)
         let cachedFlight: any = null;
         if (this.redis) {
           try {
-            const flightCacheKey = `flightaware:flight:by_id:${faFlightId}`;
+            const flightCacheKey = `flightaware:flight:by_id:${record?.flightAwareData?.faFlightId ?? faFlightId}`;
             const cached = await this.redis.get(flightCacheKey);
             if (cached) {
               cachedFlight = JSON.parse(cached);
               console.log(
-                `Retrieved flight ${faFlightId} from Redis cache (saving API call)`,
+                `Retrieved flight ${record?.flightAwareData?.faFlightId ?? faFlightId} from Redis cache (saving API call)`,
               );
             }
           } catch (error) {
@@ -283,10 +302,10 @@ export class FlightService {
         } else {
           // Cache miss - fetch from FlightAware API
           console.log(
-            `Cache miss for ${faFlightId}, fetching from FlightAware API`,
+            `Cache miss for ${record?.flightAwareData?.faFlightId ?? faFlightId}, fetching from FlightAware API`,
           );
           flightAwareResponse =
-            await this.flightAwareService.searchFlightsByIdent(faFlightId);
+            await this.flightAwareService.searchFlightsByIdent(record?.flightAwareData?.faFlightId ?? faFlightId);
 
           if (!flightAwareResponse || !flightAwareResponse.flights?.length) {
             throw new BadRequestException(
@@ -300,14 +319,14 @@ export class FlightService {
           // Cache it for future use (cache miss scenario)
           if (this.redis) {
             try {
-              const flightCacheKey = `flightaware:flight:by_id:${faFlightId}`;
+              const flightCacheKey = `flightaware:flight:by_id:${record?.flightAwareData?.faFlightId ?? faFlightId}`;
               await this.redis.setex(
                 flightCacheKey,
                 3600,
                 JSON.stringify(faFlight),
               );
               console.log(
-                `Cached flight ${faFlightId} in Redis for future use`,
+                `Cached flight ${record?.flightAwareData?.faFlightId ?? faFlightId} in Redis for future use`,
               );
             } catch (error) {
               console.warn('Failed to cache flight in Redis:', error);
@@ -491,7 +510,9 @@ export class FlightService {
           gate: faFlight.gate_destination,
         },
         cargo: false,
-        date: faFlight.scheduled_out ? new Date(faFlight.scheduled_out) : searchDate,
+        date: faFlight.scheduled_out
+          ? new Date(faFlight.scheduled_out)
+          : searchDate,
         departure: {
           airport: {
             shortName: faFlight?.origin?.name ?? 'Unknown',
