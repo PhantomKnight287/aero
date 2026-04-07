@@ -1140,8 +1140,79 @@ export class FlightService {
       if (error instanceof BadRequestException) {
         throw error;
       }
-      console.error('Error searching flights:', error);
-      throw new InternalServerErrorException('Failed to search flights');
+      console.error('Error searching flights from FlightAware, falling back to database:', error);
+
+      // Fallback: try to return matching flights from the database
+      const flightAwareIdent = icao || iata;
+      const dbWhere: any = {
+        OR: [
+          { callSign: { equals: iata, mode: 'insensitive' } },
+          { flightNo: { equals: iata, mode: 'insensitive' } },
+          ...(icao
+            ? [
+                { callSign: { equals: icao, mode: 'insensitive' } },
+                { flightNo: { equals: icao, mode: 'insensitive' } },
+              ]
+            : []),
+        ],
+        userId,
+      };
+
+      if (searchDate && nextDate) {
+        dbWhere.date = { gte: searchDate, lte: nextDate };
+      }
+
+      const dbFlights = await prisma.flight.findMany({
+        where: dbWhere,
+        include: { flightAwareData: true },
+        orderBy: { date: 'desc' },
+      });
+
+      if (dbFlights.length === 0) {
+        throw new InternalServerErrorException('Failed to search flights');
+      }
+
+      const flightCandidates: FlightCandidateEntity[] = dbFlights.map(
+        (flight) => {
+          const dep = flight.departure as any;
+          const arr = flight.arrival as any;
+          const airlineData = flight.airline as any;
+          const fa = flight.flightAwareData;
+
+          return {
+            faFlightId: fa?.faFlightId ?? flight.id,
+            ident: fa?.ident ?? flight.callSign ?? flight.flightNo,
+            origin: {
+              code: dep?.airport?.icao ?? dep?.airport?.iata ?? 'Unknown',
+              codeIata: dep?.airport?.iata,
+              codeIcao: dep?.airport?.icao,
+              name: dep?.airport?.shortName ?? dep?.airport?.name,
+              city: dep?.airport?.municipality,
+            },
+            destination: {
+              code: arr?.airport?.icao ?? arr?.airport?.iata ?? 'Unknown',
+              codeIata: arr?.airport?.iata,
+              codeIcao: arr?.airport?.icao,
+              name: arr?.airport?.shortName ?? arr?.airport?.name,
+              city: arr?.airport?.municipality,
+            },
+            scheduledOut: fa?.scheduledOut ?? undefined,
+            scheduledOff: fa?.scheduledOff ?? undefined,
+            status: fa?.status ?? 'Unknown',
+            airline: {
+              name: airlineData?.name ?? 'Unknown',
+              iata: airlineData?.iata,
+              icao: airlineData?.icao,
+              image: airlineData?.image ?? undefined,
+            },
+          };
+        },
+      );
+
+      return {
+        flights: flightCandidates,
+        count: flightCandidates.length,
+      };
     }
   }
 

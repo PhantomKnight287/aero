@@ -250,6 +250,14 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
         crossAxisAlignment: CrossAxisAlignment.start,
         spacing: 4,
         children: [
+          if (DateTime.now().difference(widget.info.date).inDays > 7)
+            _buildBanner(
+              context,
+              Colors.orange,
+              Icons.history,
+              'Flight data may be inaccurate',
+              'This flight is more than 7 days old. Times and status may no longer be updated.',
+            ),
           Row(
             spacing: 8,
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -603,6 +611,9 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
               ],
             ],
           ),
+          // Flight Timetable Section
+          if (widget.info.flightAwareData != null)
+            _buildFlightTimetable(context),
           // Booking Details Section
           if (widget.info.bookings != null &&
               widget.info.bookings!.isNotEmpty) ...[
@@ -1012,6 +1023,245 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildFlightTimetable(BuildContext context) {
+    final fa = widget.info.flightAwareData!;
+    final departure = widget.info.departure;
+    final arrival = widget.info.arrival;
+    final theme = Theme.of(context);
+    final use24Hrs = MediaQuery.of(context).alwaysUse24HourFormat;
+
+    final depTz = _sanitizeTimezone(departure.airport.timeZone);
+    final arrTz = _sanitizeTimezone(arrival.airport.timeZone);
+
+    // Check if any timetable data exists
+    final hasAnyData = fa.scheduledOut != null ||
+        fa.estimatedOut != null ||
+        fa.actualOut != null ||
+        fa.scheduledOff != null ||
+        fa.estimatedOff != null ||
+        fa.actualOff != null ||
+        fa.scheduledOn != null ||
+        fa.estimatedOn != null ||
+        fa.actualOn != null ||
+        fa.scheduledIn != null ||
+        fa.estimatedIn != null ||
+        fa.actualIn != null;
+
+    if (!hasAnyData) return const SizedBox.shrink();
+
+    try {
+      tz.initializeTimeZones();
+    } catch (_) {}
+
+    String formatTimeInTz(DateTime dt, String timezone) {
+      final location = tz.getLocation(timezone);
+      final tzDt = tz.TZDateTime.from(dt.toUtc(), location);
+      if (use24Hrs) {
+        return '${tzDt.hour.toString().padLeft(2, '0')}:${tzDt.minute.toString().padLeft(2, '0')}';
+      }
+      final hour = tzDt.hour % 12 == 0 ? 12 : tzDt.hour % 12;
+      final amPm = tzDt.hour >= 12 ? 'PM' : 'AM';
+      return '$hour:${tzDt.minute.toString().padLeft(2, '0')} $amPm';
+    }
+
+    String formatDateTimeInTz(DateTime dt, String timezone) {
+      final location = tz.getLocation(timezone);
+      final tzDt = tz.TZDateTime.from(dt.toUtc(), location);
+      return '${MONTHS[tzDt.month - 1]} ${tzDt.day}, ${formatTimeInTz(dt, timezone)}';
+    }
+
+    /// Returns (label, color) for the status indicator comparing scheduled vs actual/estimated
+    (String, Color) getTimeDelta(DateTime scheduled, DateTime? actual) {
+      if (actual == null) return ('', Colors.grey);
+      final diff = actual.difference(scheduled);
+      final mins = diff.inMinutes;
+      if (mins.abs() < 2) return ('On time', Colors.green);
+      if (mins < 0) return ('${-mins}m early', Colors.green);
+      if (mins <= 15) return ('${mins}m late', Colors.orange);
+      return ('${mins}m late', Colors.red);
+    }
+
+    Widget buildPhaseRow({
+      required String phase,
+      required IconData icon,
+      required String timezone,
+      required DateTime? scheduled,
+      required DateTime? estimated,
+      required DateTime? actual,
+    }) {
+      if (scheduled == null && estimated == null && actual == null) {
+        return const SizedBox.shrink();
+      }
+
+      // Determine the best "resolved" time and its status
+      final resolvedTime = actual ?? estimated;
+      final (deltaLabel, deltaColor) = scheduled != null && resolvedTime != null
+          ? getTimeDelta(scheduled, resolvedTime)
+          : ('', Colors.grey);
+
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 6),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(icon, size: 16, color: theme.colorScheme.primary),
+                const SizedBox(width: 8),
+                Text(
+                  phase,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w700,
+                    fontSize: 13,
+                  ),
+                ),
+                if (deltaLabel.isNotEmpty) ...[
+                  const Spacer(),
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: deltaColor.withOpacity(0.12),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Text(
+                      deltaLabel,
+                      style: TextStyle(
+                        color: deltaColor,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+            const SizedBox(height: 4),
+            Padding(
+              padding: const EdgeInsets.only(left: 24),
+              child: Table(
+                columnWidths: const {
+                  0: FlexColumnWidth(1),
+                  1: FlexColumnWidth(2),
+                },
+                children: [
+                  if (scheduled != null)
+                    _buildTimeRow('Scheduled',
+                        formatDateTimeInTz(scheduled, timezone),
+                        Colors.grey.shade600, theme),
+                  if (estimated != null)
+                    _buildTimeRow(
+                      'Estimated',
+                      formatDateTimeInTz(estimated, timezone),
+                      actual == null ? deltaColor : Colors.grey.shade600,
+                      theme,
+                    ),
+                  if (actual != null)
+                    _buildTimeRow(
+                      'Actual',
+                      formatDateTimeInTz(actual, timezone),
+                      deltaColor,
+                      theme,
+                      bold: true,
+                    ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Gap(8),
+        Text(
+          'Flight Timetable',
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: theme.dividerColor.withOpacity(0.4),
+            ),
+          ),
+          child: Column(
+            children: [
+              buildPhaseRow(
+                phase: 'Gate Departure',
+                icon: Icons.door_sliding_outlined,
+                timezone: depTz,
+                scheduled: fa.scheduledOut,
+                estimated: fa.estimatedOut,
+                actual: fa.actualOut,
+              ),
+              buildPhaseRow(
+                phase: 'Takeoff',
+                icon: Icons.flight_takeoff,
+                timezone: depTz,
+                scheduled: fa.scheduledOff,
+                estimated: fa.estimatedOff,
+                actual: fa.actualOff,
+              ),
+              buildPhaseRow(
+                phase: 'Landing',
+                icon: Icons.flight_land,
+                timezone: arrTz,
+                scheduled: fa.scheduledOn,
+                estimated: fa.estimatedOn,
+                actual: fa.actualOn,
+              ),
+              buildPhaseRow(
+                phase: 'Gate Arrival',
+                icon: Icons.door_front_door_outlined,
+                timezone: arrTz,
+                scheduled: fa.scheduledIn,
+                estimated: fa.estimatedIn,
+                actual: fa.actualIn,
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  TableRow _buildTimeRow(
+      String label, String time, Color color, ThemeData theme,
+      {bool bold = false}) {
+    return TableRow(
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 2),
+          child: Text(
+            label,
+            style: TextStyle(
+              fontSize: 12,
+              color: theme.textTheme.bodySmall?.color?.withOpacity(0.7),
+            ),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 2),
+          child: Text(
+            time,
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: bold ? FontWeight.w700 : FontWeight.w500,
+              color: color,
+            ),
+          ),
+        ),
+      ],
     );
   }
 
