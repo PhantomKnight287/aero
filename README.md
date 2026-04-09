@@ -244,6 +244,9 @@ flutter run                    # Run on device/emulator
 flutter build apk              # Build Android APK, the native configuration isn't done for anything other than android
 ```
 
+> [!IMPORTANT]
+> This application uses `<activity-alias>` and hence running the build on android without a build cache would fail, even in debug mode. The fix of this is to open the `android` folder in Android Studio and run a build. Once its done, the flutter commands can run just fine
+
 ### OpenAPI Client Generation
 
 Regenerate the Dart API client from the OpenAPI schema:
@@ -254,10 +257,16 @@ Regenerate the Dart API client from the OpenAPI schema:
 
 ---
 
-Bonus for scrolling so far. Here is the image of my favourite livery.
+Bonus for scrolling so far. Here is the image of my favourite liveries.
 
 ![ANA181](https://cdn.jetphotos.com/full/6/1035944_1762190738.jpg)
 
 Copyright: TommyNGB
 
 Link: https://www.jetphotos.com/photo/11888246
+
+![D-ABYN](https://cdn.jetphotos.com/full/5/2186584_1773921865.jpg)
+
+Copyright: Sebastian Sowa
+
+Link: https://www.jetphotos.com/photo/12049542
