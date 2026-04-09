@@ -67,9 +67,6 @@ flutter:
     - assets/background/
     - assets/logos/
   fonts:
-    - family: Geist
-      fonts:
-        - asset: assets/fonts/geist.ttf
     - family: CalSans
       fonts:
         - asset: assets/fonts/calsans.ttf

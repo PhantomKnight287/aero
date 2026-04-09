@@ -3,6 +3,7 @@ import 'package:aero/notifiers/user.dart';
 import 'package:aero/routes/main.dart';
 import 'package:aero/services/widget_update_service.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:toastification/toastification.dart';
 import 'package:workmanager/workmanager.dart';
@@ -68,7 +69,7 @@ class MainApp extends StatelessWidget {
         theme: ThemeData(
           useMaterial3: true,
           scaffoldBackgroundColor: Colors.white,
-          fontFamily: "Geist",
+          fontFamily: GoogleFonts.dmSans().fontFamily,
           brightness: Brightness.light,
           primaryColor: Colors.black,
           navigationBarTheme: NavigationBarThemeData(

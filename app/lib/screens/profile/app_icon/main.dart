@@ -130,7 +130,7 @@ class _AppIconScreenState extends State<AppIconScreen> {
                       style: TextStyle(
                         fontSize: 14,
                         color: Colors.grey.shade600,
-                        fontFamily: "Geist",
+                        fontFamily: "DM Sans",
                       ),
                     ),
                     const SizedBox(height: 24),

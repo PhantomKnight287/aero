@@ -180,7 +180,7 @@ class _ProfileMenuItem extends StatelessWidget {
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
-                  fontFamily: "Geist",
+                  fontFamily: "DM Sans",
                   color: Colors.black,
                 ),
               ),

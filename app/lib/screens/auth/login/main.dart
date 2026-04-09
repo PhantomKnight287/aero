@@ -109,7 +109,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     style: TextStyle(
                       fontSize: 15,
                       color: Colors.grey.shade700,
-                      fontFamily: "Geist",
+                      fontFamily: "DM Sans",
                       height: 1.4,
                     ),
                     textAlign: TextAlign.center,
@@ -245,7 +245,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         style: TextStyle(
                           color: Colors.grey.shade600,
                           fontSize: 14,
-                          fontFamily: "Geist",
+                          fontFamily: "DM Sans",
                         ),
                       ),
                       TextButton(

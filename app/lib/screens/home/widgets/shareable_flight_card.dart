@@ -94,7 +94,7 @@ class ShareableFlightCard extends StatelessWidget {
                       ? 'CANCELLED'
                       : 'DIVERTED',
                   style: TextStyle(
-                    fontFamily: "Geist",
+                    fontFamily: "DM Sans",
                     fontSize: 10,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
@@ -150,7 +150,7 @@ class ShareableFlightCard extends StatelessWidget {
                           Text(
                             airline.name ?? 'Airline',
                             style: TextStyle(
-                              fontFamily: "Geist",
+                              fontFamily: "DM Sans",
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
                               color: Colors.white.withOpacity(0.9),
@@ -159,7 +159,7 @@ class ShareableFlightCard extends StatelessWidget {
                           Text(
                             "${info.flightNo} ${info.flightAwareData?.identIata != null ? "• ${info.flightAwareData?.identIata}" : ''}",
                             style: TextStyle(
-                              fontFamily: "Geist",
+                              fontFamily: "DM Sans",
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
                               color: Colors.white70,
@@ -182,7 +182,7 @@ class ShareableFlightCard extends StatelessWidget {
                             Text(
                               '${double.parse(info.greatCircleDistance.km!).toStringAsFixed(0)} km',
                               style: TextStyle(
-                                fontFamily: "Geist",
+                                fontFamily: "DM Sans",
                                 fontSize: 15,
                                 fontWeight: FontWeight.bold,
                                 color: Colors.white.withOpacity(0.9),
@@ -192,7 +192,7 @@ class ShareableFlightCard extends StatelessWidget {
                             Text(
                               '${(double.parse(info.greatCircleDistance.km!) * 0.621371).toStringAsFixed(0)} mi',
                               style: TextStyle(
-                                fontFamily: "Geist",
+                                fontFamily: "DM Sans",
                                 fontSize: 12,
                                 color: Colors.grey[400],
                               ),
@@ -214,7 +214,7 @@ class ShareableFlightCard extends StatelessWidget {
                           Text(
                             'Departure',
                             style: TextStyle(
-                              fontFamily: "Geist",
+                              fontFamily: "DM Sans",
                               fontSize: 12,
                               color: Colors.grey[300],
                             ),
@@ -224,7 +224,7 @@ class ShareableFlightCard extends StatelessWidget {
                               Text(
                                 departure.airport.iata ?? 'N/A',
                                 style: TextStyle(
-                                  fontFamily: "Geist",
+                                  fontFamily: "DM Sans",
                                   fontSize: 32,
                                   fontWeight: FontWeight.bold,
                                   color: Colors.white.withOpacity(0.9),
@@ -241,7 +241,7 @@ class ShareableFlightCard extends StatelessWidget {
                           Text(
                             departure.airport.municipalityName ?? 'Unknown',
                             style: TextStyle(
-                              fontFamily: "Geist",
+                              fontFamily: "DM Sans",
                               fontSize: 14,
                               color: Colors.grey[300],
                             ),
@@ -257,7 +257,7 @@ class ShareableFlightCard extends StatelessWidget {
                                       .alwaysUse24HourFormat,
                                 ),
                                 style: TextStyle(
-                                  fontFamily: "Geist",
+                                  fontFamily: "DM Sans",
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600,
                                   color: Colors.white.withOpacity(0.9),
@@ -270,7 +270,7 @@ class ShareableFlightCard extends StatelessWidget {
                                       ? '${departureDelay.abs().toHumanReadable()} early'
                                       : '${departureDelay.toHumanReadable()} late',
                                   style: TextStyle(
-                                    fontFamily: "Geist",
+                                    fontFamily: "DM Sans",
                                     fontSize: 11,
                                     color: departureDelay.isNegative
                                         ? Colors.green[300]
@@ -298,7 +298,7 @@ class ShareableFlightCard extends StatelessWidget {
                           Text(
                             'Arrival',
                             style: TextStyle(
-                              fontFamily: "Geist",
+                              fontFamily: "DM Sans",
                               fontSize: 12,
                               color: Colors.grey[300],
                             ),
@@ -315,7 +315,7 @@ class ShareableFlightCard extends StatelessWidget {
                               Text(
                                 arrival.airport.iata ?? 'N/A',
                                 style: TextStyle(
-                                  fontFamily: "Geist",
+                                  fontFamily: "DM Sans",
                                   fontSize: 32,
                                   fontWeight: FontWeight.bold,
                                   color: Colors.white.withOpacity(0.9),
@@ -326,7 +326,7 @@ class ShareableFlightCard extends StatelessWidget {
                           Text(
                             arrival.airport.municipalityName ?? 'Unknown',
                             style: TextStyle(
-                              fontFamily: "Geist",
+                              fontFamily: "DM Sans",
                               fontSize: 14,
                               color: Colors.grey[300],
                             ),
@@ -343,7 +343,7 @@ class ShareableFlightCard extends StatelessWidget {
                                       .alwaysUse24HourFormat,
                                 ),
                                 style: TextStyle(
-                                  fontFamily: "Geist",
+                                  fontFamily: "DM Sans",
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600,
                                   color: Colors.white.withOpacity(0.9),
@@ -356,7 +356,7 @@ class ShareableFlightCard extends StatelessWidget {
                                       ? '${arrivalDelay.abs().toHumanReadable()} early'
                                       : '${arrivalDelay.toHumanReadable()} late',
                                   style: TextStyle(
-                                    fontFamily: "Geist",
+                                    fontFamily: "DM Sans",
                                     fontSize: 11,
                                     color: arrivalDelay.isNegative
                                         ? Colors.green[300]
@@ -415,7 +415,7 @@ class ShareableFlightCard extends StatelessWidget {
                     Text(
                       'Powered by Aero',
                       style: TextStyle(
-                        fontFamily: "Geist",
+                        fontFamily: "DM Sans",
                         fontSize: 11,
                         color: Colors.grey[500],
                         fontStyle: FontStyle.italic,
@@ -454,7 +454,7 @@ class ShareableFlightCard extends StatelessWidget {
           Text(
             label,
             style: TextStyle(
-              fontFamily: "Geist",
+              fontFamily: "DM Sans",
               fontSize: 11,
               color: Colors.grey[500],
               fontWeight: FontWeight.w500,
@@ -464,7 +464,7 @@ class ShareableFlightCard extends StatelessWidget {
           Text(
             value,
             style: TextStyle(
-              fontFamily: "Geist",
+              fontFamily: "DM Sans",
               fontSize: 13,
               fontWeight: FontWeight.w600,
               color: Colors.white.withOpacity(0.9),
@@ -550,7 +550,7 @@ class ShareableFlightCard extends StatelessWidget {
           Text(
             '$label: ',
             style: TextStyle(
-              fontFamily: "Geist",
+              fontFamily: "DM Sans",
               fontSize: 10,
               color: Colors.white.withOpacity(0.9),
               fontWeight: FontWeight.w600,
@@ -559,7 +559,7 @@ class ShareableFlightCard extends StatelessWidget {
           Text(
             value,
             style: TextStyle(
-              fontFamily: "Geist",
+              fontFamily: "DM Sans",
               fontSize: 10,
               color: Colors.white70,
               fontWeight: FontWeight.w600,
