@@ -17,6 +17,9 @@ _A comprehensive flight tracking platform with mobile apps and Wear OS companion
 
 ---
 
+> [!NOTE]
+> I have added any and every feature I had planned for this app. There will be no more new features in this app, yet.
+
 ## 🎯 What is Aero?
 
 Aero is a full-stack flight tracking application that brings real-time flight information to your fingertips. Whether you're tracking your own flights, monitoring departures, or exploring aviation data, Aero provides a seamless experience across mobile, web, and wearable devices.
