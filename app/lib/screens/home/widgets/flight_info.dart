@@ -994,8 +994,14 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
                 ),
               ),
             ),
+          if (widget.info.aircraft?.registrations != null &&
+              widget.info.aircraft!.registrations!.isNotEmpty) ...[
+            Gap(8),
+            _buildRegistrationHistoryCard(context),
+          ],
           // Jet2 Holiday Meme
-          if (widget.info.airline.icao == 'EXS' && widget.info.airline.iata == 'LS') ...[
+          if (widget.info.airline.icao == 'EXS' &&
+              widget.info.airline.iata == 'LS') ...[
             const Gap(16),
             _buildJet2Meme(context),
           ],
@@ -1004,9 +1010,157 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
     );
   }
 
+  Widget _buildRegistrationHistoryCard(BuildContext context) {
+    final theme = Theme.of(context);
+    final registrations = widget.info.aircraft!.registrations!.toList();
+    registrations.sort((a, b) {
+      final ad = a.registrationDate;
+      final bd = b.registrationDate;
+      if (ad == null && bd == null) return 0;
+      if (ad == null) return 1;
+      if (bd == null) return -1;
+      return DateTime.parse(bd).compareTo(DateTime.parse(ad));
+    });
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          "Registration History",
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const Gap(6),
+        Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: theme.dividerColor.withOpacity(0.4),
+            ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              for (int i = 0; i < registrations.length; i++) ...[
+                if (i > 0)
+                  Divider(
+                    height: 16,
+                    color: theme.dividerColor.withOpacity(0.4),
+                  ),
+                _buildRegistrationRow(context, registrations[i]),
+              ],
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildRegistrationRow(
+      BuildContext context, AircraftRegistrationEntity reg) {
+    final theme = Theme.of(context);
+    final statusColor = reg.active ? Colors.green : Colors.grey;
+    final statusLabel = reg.active ? 'Active' : 'Inactive';
+    String? dateLabel;
+    if (reg.registrationDate != null) {
+      try {
+        dateLabel = formatDate(DateTime.parse(reg.registrationDate!));
+      } catch (_) {}
+    }
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          margin: const EdgeInsets.only(top: 4),
+          width: 8,
+          height: 8,
+          decoration: BoxDecoration(
+            color: statusColor,
+            shape: BoxShape.circle,
+          ),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Text(
+                    reg.reg,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 14,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 6, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: statusColor.withOpacity(0.12),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Text(
+                      statusLabel,
+                      style: TextStyle(
+                        color: statusColor,
+                        fontSize: 10,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              if (reg.airlineName != null && reg.airlineName!.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(top: 2),
+                  child: Text(
+                    reg.airlineName!,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: theme.textTheme.bodySmall?.color,
+                    ),
+                  ),
+                ),
+              if (dateLabel != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 2),
+                  child: Text(
+                    'Registered on: $dateLabel',
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: theme.textTheme.bodySmall?.color
+                          ?.withOpacity(0.7),
+                    ),
+                  ),
+                ),
+              if (reg.hexIcao != null && reg.hexIcao!.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(top: 2),
+                  child: Text(
+                    'ICAO Hex: ${reg.hexIcao!}',
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontFamily: 'monospace',
+                      color: theme.textTheme.bodySmall?.color
+                          ?.withOpacity(0.7),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _buildJet2Meme(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    
+
     return Padding(
       padding: const EdgeInsets.only(top: 4.0),
       child: Center(
@@ -1017,9 +1171,7 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
             fontSize: 10,
             fontWeight: FontWeight.w400,
             letterSpacing: 0.5,
-            color: isDark 
-              ? Colors.grey[700]
-              : Colors.grey[500],
+            color: isDark ? Colors.grey[700] : Colors.grey[500],
           ),
         ),
       ),
@@ -1073,15 +1225,24 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
       return '${MONTHS[tzDt.month - 1]} ${tzDt.day}, ${formatTimeInTz(dt, timezone)}';
     }
 
+    String formatDuration(int mins) {
+      final absMins = mins.abs();
+      if (absMins < 60) return '${absMins}m';
+      final hours = absMins ~/ 60;
+      final remainder = absMins % 60;
+      if (remainder == 0) return '${hours}h';
+      return '${hours}h ${remainder}m';
+    }
+
     /// Returns (label, color) for the status indicator comparing scheduled vs actual/estimated
     (String, Color) getTimeDelta(DateTime scheduled, DateTime? actual) {
       if (actual == null) return ('', Colors.grey);
       final diff = actual.difference(scheduled);
       final mins = diff.inMinutes;
       if (mins.abs() < 2) return ('On time', Colors.green);
-      if (mins < 0) return ('${-mins}m early', Colors.green);
-      if (mins <= 15) return ('${mins}m late', Colors.orange);
-      return ('${mins}m late', Colors.red);
+      if (mins < 0) return ('${formatDuration(mins)} early', Colors.green);
+      if (mins <= 15) return ('${formatDuration(mins)} late', Colors.orange);
+      return ('${formatDuration(mins)} late', Colors.red);
     }
 
     Widget buildPhaseRow({
@@ -1149,9 +1310,11 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
                 },
                 children: [
                   if (scheduled != null)
-                    _buildTimeRow('Scheduled',
+                    _buildTimeRow(
+                        'Scheduled',
                         formatDateTimeInTz(scheduled, timezone),
-                        Colors.grey.shade600, theme),
+                        Colors.grey.shade600,
+                        theme),
                   if (estimated != null)
                     _buildTimeRow(
                       'Estimated',
@@ -1186,6 +1349,7 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
             fontWeight: FontWeight.bold,
           ),
         ),
+        Gap(4),
         Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(

@@ -16,6 +16,7 @@ import 'package:openapi/src/model/date.dart';
 
 import 'package:openapi/src/model/aircraft_entity.dart';
 import 'package:openapi/src/model/aircraft_flight_entity.dart';
+import 'package:openapi/src/model/aircraft_registration_entity.dart';
 import 'package:openapi/src/model/aircraft_stats_entity.dart';
 import 'package:openapi/src/model/aircraft_with_age.dart';
 import 'package:openapi/src/model/airline_entity.dart';
@@ -74,6 +75,7 @@ part 'serializers.g.dart';
 @SerializersFor([
   AircraftEntity,
   AircraftFlightEntity,
+  AircraftRegistrationEntity,
   AircraftStatsEntity,
   AircraftWithAge,
   AirlineEntity,

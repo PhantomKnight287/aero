@@ -69,7 +69,7 @@ class MainApp extends StatelessWidget {
         theme: ThemeData(
           useMaterial3: true,
           scaffoldBackgroundColor: Colors.white,
-          fontFamily: GoogleFonts.dmSans().fontFamily,
+          fontFamily: GoogleFonts.inter().fontFamily,
           brightness: Brightness.light,
           primaryColor: Colors.black,
           navigationBarTheme: NavigationBarThemeData(

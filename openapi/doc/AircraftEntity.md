@@ -19,6 +19,7 @@ Name | Type | Description | Notes
 **isFreighter** | **bool** |  | [optional] 
 **attribution** | **String** |  | [optional] 
 **payload** | [**JsonObject**](.md) |  | [optional] 
+**registrations** | [**BuiltList&lt;AircraftRegistrationEntity&gt;**](AircraftRegistrationEntity.md) |  | [optional] 
 
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
 

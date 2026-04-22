@@ -57,8 +57,7 @@ abstract class CreateFlightBookingDTO implements Built<CreateFlightBookingDTO, C
   factory CreateFlightBookingDTO([void updates(CreateFlightBookingDTOBuilder b)]) = _$CreateFlightBookingDTO;
 
   @BuiltValueHook(initializeBuilder: true)
-  static void _defaults(CreateFlightBookingDTOBuilder b) => b
-      ..reason = CreateFlightBookingDTOReasonEnum.personal;
+  static void _defaults(CreateFlightBookingDTOBuilder b) => b;
 
   @BuiltValueSerializer(custom: true)
   static Serializer<CreateFlightBookingDTO> get serializer => _$CreateFlightBookingDTOSerializer();

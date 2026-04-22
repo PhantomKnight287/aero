@@ -3,6 +3,7 @@ README.md
 analysis_options.yaml
 doc/AircraftEntity.md
 doc/AircraftFlightEntity.md
+doc/AircraftRegistrationEntity.md
 doc/AircraftStatsEntity.md
 doc/AircraftWithAge.md
 doc/AirlineEntity.md
@@ -80,6 +81,7 @@ lib/src/auth/oauth.dart
 lib/src/date_serializer.dart
 lib/src/model/aircraft_entity.dart
 lib/src/model/aircraft_flight_entity.dart
+lib/src/model/aircraft_registration_entity.dart
 lib/src/model/aircraft_stats_entity.dart
 lib/src/model/aircraft_with_age.dart
 lib/src/model/airline_entity.dart

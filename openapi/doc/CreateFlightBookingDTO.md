@@ -13,7 +13,7 @@ Name | Type | Description | Notes
 **seatNumber** | **String** | Seat number (e.g., \"12A\", \"1F\") | [optional] 
 **seatType** | **String** | Type of seat position | [optional] 
 **seatingClass** | **String** | Class of service | [optional] 
-**reason** | **String** | Reason for the flight | [optional] [default to 'personal']
+**reason** | **String** | Reason for the flight | [optional] 
 **notes** | **String** | Additional notes about the booking | [optional] 
 
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)

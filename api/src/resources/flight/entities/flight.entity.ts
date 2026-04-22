@@ -207,6 +207,26 @@ export class FlightAwareDataEntity {
   @ApiProperty()
   updatedAt: Date;
 }
+export class AircraftRegistrationEntity {
+  @ApiProperty()
+  id: string;
+
+  @ApiProperty()
+  reg: string;
+
+  @ApiProperty()
+  active: boolean;
+
+  @ApiPropertyOptional()
+  hexIcao?: string;
+
+  @ApiPropertyOptional()
+  airlineName?: string;
+
+  @ApiPropertyOptional()
+  registrationDate?: string;
+}
+
 export class AircraftEntity {
   @ApiPropertyOptional()
   modeS: string;
@@ -240,6 +260,9 @@ export class AircraftEntity {
 
   @ApiPropertyOptional({ type: Object })
   payload?: object;
+
+  @ApiPropertyOptional({ type: [AircraftRegistrationEntity] })
+  registrations?: AircraftRegistrationEntity[];
 }
 
 class PartialAirlineEntity {

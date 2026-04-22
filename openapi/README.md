@@ -90,6 +90,7 @@ Class | Method | HTTP request | Description
 
  - [AircraftEntity](doc/AircraftEntity.md)
  - [AircraftFlightEntity](doc/AircraftFlightEntity.md)
+ - [AircraftRegistrationEntity](doc/AircraftRegistrationEntity.md)
  - [AircraftStatsEntity](doc/AircraftStatsEntity.md)
  - [AircraftWithAge](doc/AircraftWithAge.md)
  - [AirlineEntity](doc/AirlineEntity.md)

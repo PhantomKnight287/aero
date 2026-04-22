@@ -63,8 +63,6 @@ export class CreateFlightBookingDTO {
   @ApiPropertyOptional({
     description: 'Reason for the flight',
     enum: BookingReason,
-    example: BookingReason.personal,
-    default: BookingReason.personal,
   })
   @IsEnum(BookingReason)
   @IsOptional()

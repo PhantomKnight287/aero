@@ -29,6 +29,8 @@ class _$AircraftEntity extends AircraftEntity {
   final String? attribution;
   @override
   final JsonObject? payload;
+  @override
+  final BuiltList<AircraftRegistrationEntity>? registrations;
 
   factory _$AircraftEntity([void Function(AircraftEntityBuilder)? updates]) =>
       (AircraftEntityBuilder()..update(updates))._build();
@@ -44,7 +46,8 @@ class _$AircraftEntity extends AircraftEntity {
       this.deliveryDate,
       this.isFreighter,
       this.attribution,
-      this.payload})
+      this.payload,
+      this.registrations})
       : super._();
   @override
   AircraftEntity rebuild(void Function(AircraftEntityBuilder) updates) =>
@@ -67,7 +70,8 @@ class _$AircraftEntity extends AircraftEntity {
         deliveryDate == other.deliveryDate &&
         isFreighter == other.isFreighter &&
         attribution == other.attribution &&
-        payload == other.payload;
+        payload == other.payload &&
+        registrations == other.registrations;
   }
 
   @override
@@ -84,6 +88,7 @@ class _$AircraftEntity extends AircraftEntity {
     _$hash = $jc(_$hash, isFreighter.hashCode);
     _$hash = $jc(_$hash, attribution.hashCode);
     _$hash = $jc(_$hash, payload.hashCode);
+    _$hash = $jc(_$hash, registrations.hashCode);
     _$hash = $jf(_$hash);
     return _$hash;
   }
@@ -101,7 +106,8 @@ class _$AircraftEntity extends AircraftEntity {
           ..add('deliveryDate', deliveryDate)
           ..add('isFreighter', isFreighter)
           ..add('attribution', attribution)
-          ..add('payload', payload))
+          ..add('payload', payload)
+          ..add('registrations', registrations))
         .toString();
   }
 }
@@ -155,6 +161,12 @@ class AircraftEntityBuilder
   JsonObject? get payload => _$this._payload;
   set payload(JsonObject? payload) => _$this._payload = payload;
 
+  ListBuilder<AircraftRegistrationEntity>? _registrations;
+  ListBuilder<AircraftRegistrationEntity> get registrations =>
+      _$this._registrations ??= ListBuilder<AircraftRegistrationEntity>();
+  set registrations(ListBuilder<AircraftRegistrationEntity>? registrations) =>
+      _$this._registrations = registrations;
+
   AircraftEntityBuilder() {
     AircraftEntity._defaults(this);
   }
@@ -173,6 +185,7 @@ class AircraftEntityBuilder
       _isFreighter = $v.isFreighter;
       _attribution = $v.attribution;
       _payload = $v.payload;
+      _registrations = $v.registrations?.toBuilder();
       _$v = null;
     }
     return this;
@@ -192,20 +205,34 @@ class AircraftEntityBuilder
   AircraftEntity build() => _build();
 
   _$AircraftEntity _build() {
-    final _$result = _$v ??
-        _$AircraftEntity._(
-          modeS: modeS,
-          registration: registration,
-          model: model,
-          image: image,
-          aircraftId: aircraftId,
-          age: age,
-          firstFlightDate: firstFlightDate,
-          deliveryDate: deliveryDate,
-          isFreighter: isFreighter,
-          attribution: attribution,
-          payload: payload,
-        );
+    _$AircraftEntity _$result;
+    try {
+      _$result = _$v ??
+          _$AircraftEntity._(
+            modeS: modeS,
+            registration: registration,
+            model: model,
+            image: image,
+            aircraftId: aircraftId,
+            age: age,
+            firstFlightDate: firstFlightDate,
+            deliveryDate: deliveryDate,
+            isFreighter: isFreighter,
+            attribution: attribution,
+            payload: payload,
+            registrations: _registrations?.build(),
+          );
+    } catch (_) {
+      late String _$failedField;
+      try {
+        _$failedField = 'registrations';
+        _registrations?.build();
+      } catch (e) {
+        throw BuiltValueNestedFieldError(
+            r'AircraftEntity', _$failedField, e.toString());
+      }
+      rethrow;
+    }
     replace(_$result);
     return _$result;
   }

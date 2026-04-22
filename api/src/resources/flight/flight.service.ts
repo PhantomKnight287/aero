@@ -14,8 +14,6 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { createId } from '@paralleldrive/cuid2';
-import { Aircraft } from '@prisma/client';
-
 import { CreateFlightBookingDTO } from './dto/create-flight-booking.dto';
 import { GetFlightSearchDTO } from './dto/get-flight-search.dto';
 import { GetFlightTrackDTO } from './dto/get-flight-track.dto';
@@ -153,7 +151,7 @@ export class FlightService {
 
     // If forceUpdate is not specified and flight exists, return it
     if (!forceUpdate && existingFlight) {
-      let aircraft: Aircraft | null = null;
+      let aircraft: any = null;
       if (existingFlight?.aircraft) {
         const stored = existingFlight.aircraft as any;
         const hexCandidate: string | undefined =
@@ -163,11 +161,13 @@ export class FlightService {
         if (hexCandidate) {
           aircraft = await prisma.aircraft.findFirst({
             where: { hexIcao: hexCandidate },
+            include: { registrations: true },
           });
         }
         if (!aircraft && regCandidate) {
           aircraft = await prisma.aircraft.findFirst({
             where: { reg: regCandidate },
+            include: { registrations: true },
           });
         }
       }
@@ -238,6 +238,14 @@ export class FlightService {
               deliveryDate: aircraft.deliveryDate?.toISOString(),
               firstFlightDate: aircraft.firstFlightDate?.toISOString(),
               payload: aircraft.payload as any,
+              registrations: (aircraft.registrations ?? []).map((r: any) => ({
+                id: r.id,
+                reg: r.reg,
+                active: r.active,
+                hexIcao: r.hexIcao ?? undefined,
+                airlineName: r.airlineName ?? undefined,
+                registrationDate: r.registrationDate?.toISOString(),
+              })),
             } satisfies AircraftEntity)
           : normalizedFromStored,
         bookings: existingFlight.bookings || [],
@@ -707,10 +715,11 @@ export class FlightService {
 
       if (registration) {
         // Check if aircraft already exists in database
-        let aircraft = await prisma.aircraft.findFirst({
+        let aircraft: any = await prisma.aircraft.findFirst({
           where: {
             reg: registration,
           },
+          include: { registrations: true },
         });
 
         if (aircraft) {
@@ -726,6 +735,14 @@ export class FlightService {
             deliveryDate: aircraft.deliveryDate?.toISOString(),
             firstFlightDate: aircraft.firstFlightDate?.toISOString(),
             payload: aircraft.payload as any,
+            registrations: (aircraft.registrations ?? []).map((r: any) => ({
+              id: r.id,
+              reg: r.reg,
+              active: r.active,
+              hexIcao: r.hexIcao ?? undefined,
+              airlineName: r.airlineName ?? undefined,
+              registrationDate: r.registrationDate?.toISOString(),
+            })),
           } satisfies AircraftEntity;
         } else if (apiKey) {
           // Fetch aircraft details from AeroDataBox
@@ -782,6 +799,7 @@ export class FlightService {
                       }
                     : undefined,
                 },
+                include: { registrations: true },
               });
 
               normalizedAircraft = {
@@ -796,6 +814,14 @@ export class FlightService {
                 deliveryDate: aircraft.deliveryDate?.toISOString(),
                 firstFlightDate: aircraft.firstFlightDate?.toISOString(),
                 payload: aircraft.payload as any,
+                registrations: (aircraft.registrations ?? []).map((r: any) => ({
+                  id: r.id,
+                  reg: r.reg,
+                  active: r.active,
+                  hexIcao: r.hexIcao ?? undefined,
+                  airlineName: r.airlineName ?? undefined,
+                  registrationDate: r.registrationDate?.toISOString(),
+                })),
               } satisfies AircraftEntity;
 
               console.log(
