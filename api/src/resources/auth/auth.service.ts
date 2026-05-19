@@ -1,11 +1,13 @@
-import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
-import { LoginDTO } from './dto/login.dto';
 import { hash, verify } from 'argon2';
 import { JwtPayload, sign, verify as verifyJWT } from 'jsonwebtoken';
-import { ConfigService } from '@nestjs/config';
-import { RegisterDTO } from './dto/register.dto';
-import { createId } from '@paralleldrive/cuid2';
 import { prisma } from 'src/db';
+
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { createId } from '@paralleldrive/cuid2';
+
+import { LoginDTO } from './dto/login.dto';
+import { RegisterDTO } from './dto/register.dto';
 import { UserEntity } from './entity/user.entity';
 
 @Injectable()
@@ -38,6 +40,11 @@ export class AuthService {
   }
 
   async register(body: RegisterDTO) {
+    if (process.env.DISABLE_REGISTRATIONS === 'true')
+      throw new HttpException(
+        'We do not allow new accounts',
+        HttpStatus.BAD_REQUEST,
+      );
     const { email, password, name } = body;
     const existingUser = await prisma.user.findFirst({
       where: { email: { equals: email, mode: 'insensitive' } },
@@ -93,6 +100,6 @@ export class AuthService {
       },
     });
     if (!user) throw new HttpException('No user found', HttpStatus.NOT_FOUND);
-    return {name:user.name,id:user.id} satisfies UserEntity
+    return { name: user.name, id: user.id } satisfies UserEntity;
   }
 }
