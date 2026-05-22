@@ -4,9 +4,12 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:gap/gap.dart';
-import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:material_symbols_icons/symbols.dart';
+import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:openapi/openapi.dart';
 import 'package:aero/constants/main.dart';
+import 'package:aero/services/alerts_service.dart';
+import 'package:aero/utils/error.dart';
 import 'package:aero/extensions/datetime.dart';
 import 'package:aero/formatters/time.dart';
 import 'package:aero/screens/home/widgets/flight_route_info.dart';
@@ -91,6 +94,31 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
     return "$value";
   }
 
+  /// Opt this device into push alerts for the flight: request notification
+  /// permission, then register the OneSignal subscription ID with the backend.
+  Future<void> _setupFlightAlerts() async {
+    try {
+      final accepted = await OneSignal.Notifications.requestPermission(true);
+      if (!accepted) {
+        showErrorToast('Enable notifications to get flight alerts.');
+        return;
+      }
+
+      final playerId = OneSignal.User.pushSubscription.id;
+      if (playerId == null || playerId.isEmpty) {
+        showErrorToast('Could not register this device. Please try again.');
+        return;
+      }
+
+      await alertsService.subscribe(widget.info.id, playerId);
+      showSuccessToast(
+        description: "You'll be notified of changes to this flight.",
+      );
+    } catch (e) {
+      showErrorToast(e);
+    }
+  }
+
   Future<void> _shareFlightCard() async {
     try {
       // Capture screenshot
@@ -142,7 +170,7 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: theme.dividerColor.withOpacity(0.4),
+          color: theme.dividerColor.withValues(alpha: 0.4),
         ),
       ),
       child: Row(
@@ -152,7 +180,7 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
             width: 32,
             height: 32,
             decoration: BoxDecoration(
-              color: color.withOpacity(0.15),
+              color: color.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(
@@ -177,8 +205,9 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
                   Text(
                     subtitle,
                     style: TextStyle(
-                      color: theme.textTheme.bodySmall?.color?.withOpacity(
-                          theme.brightness == Brightness.dark ? 0.8 : 0.7),
+                      color: theme.textTheme.bodySmall?.color?.withValues(
+                          alpha:
+                              theme.brightness == Brightness.dark ? 0.8 : 0.7),
                     ),
                   ),
               ],
@@ -214,7 +243,7 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
             Text(
               'Contact your airline',
               style: TextStyle(
-                color: Colors.white.withOpacity(0.9),
+                color: Colors.white.withValues(alpha: 0.9),
                 fontSize: 13,
               ),
             ),
@@ -385,6 +414,16 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
                         ),
                       ),
                       PopupMenuItem(
+                        value: 'get_alerts',
+                        child: Row(
+                          children: [
+                            Icon(Icons.notifications_active),
+                            SizedBox(width: 8),
+                            Text('Get alerts'),
+                          ],
+                        ),
+                      ),
+                      PopupMenuItem(
                         value: 'booking_details',
                         child: Row(
                           children: [
@@ -508,6 +547,9 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
                       if (value == "booking_details") {
                         widget.onBookingDetails?.call();
                       }
+                      if (value == "get_alerts") {
+                        await _setupFlightAlerts();
+                      }
                     },
                   ),
                   SizedBox(
@@ -614,6 +656,8 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
           // Flight Timetable Section
           if (widget.info.flightAwareData != null)
             _buildFlightTimetable(context),
+          // Airport Conditions Section
+          _buildAirportConditionsSection(context),
           // Booking Details Section
           if (widget.info.bookings != null &&
               widget.info.bookings!.isNotEmpty) ...[
@@ -1038,7 +1082,7 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: theme.dividerColor.withOpacity(0.4),
+              color: theme.dividerColor.withValues(alpha: 0.4),
             ),
           ),
           child: Column(
@@ -1048,7 +1092,7 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
                 if (i > 0)
                   Divider(
                     height: 16,
-                    color: theme.dividerColor.withOpacity(0.4),
+                    color: theme.dividerColor.withValues(alpha: 0.4),
                   ),
                 _buildRegistrationRow(context, registrations[i]),
               ],
@@ -1098,10 +1142,10 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
                   ),
                   const SizedBox(width: 8),
                   Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 6, vertical: 2),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                     decoration: BoxDecoration(
-                      color: statusColor.withOpacity(0.12),
+                      color: statusColor.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: Text(
@@ -1134,7 +1178,7 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
                     style: TextStyle(
                       fontSize: 11,
                       color: theme.textTheme.bodySmall?.color
-                          ?.withOpacity(0.7),
+                          ?.withValues(alpha: 0.7),
                     ),
                   ),
                 ),
@@ -1147,7 +1191,7 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
                       fontSize: 11,
                       fontFamily: 'monospace',
                       color: theme.textTheme.bodySmall?.color
-                          ?.withOpacity(0.7),
+                          ?.withValues(alpha: 0.7),
                     ),
                   ),
                 ),
@@ -1285,7 +1329,7 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
                     padding:
                         const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                     decoration: BoxDecoration(
-                      color: deltaColor.withOpacity(0.12),
+                      color: deltaColor.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: Text(
@@ -1355,7 +1399,7 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: theme.dividerColor.withOpacity(0.4),
+              color: theme.dividerColor.withValues(alpha: 0.4),
             ),
           ),
           child: Column(
@@ -1399,6 +1443,316 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
     );
   }
 
+  Widget _buildAirportConditionsSection(BuildContext context) {
+    final departure = widget.info.departure;
+    final arrival = widget.info.arrival;
+    final depConditions = departure.airport.conditions;
+    final arrConditions = arrival.airport.conditions;
+
+    final depHas = _hasConditions(depConditions);
+    final arrHas = _hasConditions(arrConditions);
+    if (!depHas && !arrHas) return const SizedBox.shrink();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Gap(8),
+        const Text(
+          'Airport Conditions',
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        ),
+        const Gap(4),
+        if (depHas)
+          _buildAirportConditionsCard(
+            context,
+            label: 'Departure — ${_airportCode(departure.airport)}',
+            conditions: depConditions!,
+          ),
+        if (depHas && arrHas) const Gap(8),
+        if (arrHas)
+          _buildAirportConditionsCard(
+            context,
+            label: 'Arrival — ${_airportCode(arrival.airport)}',
+            conditions: arrConditions!,
+          ),
+      ],
+    );
+  }
+
+  bool _hasConditions(dynamic conditions) {
+    if (conditions == null) return false;
+    return conditions.delays != null ||
+        conditions.forecast != null ||
+        conditions.observation != null;
+  }
+
+  Widget _buildAirportConditionsCard(
+    BuildContext context, {
+    required String label,
+    required AirportConditionsEntity conditions,
+  }) {
+    final theme = Theme.of(context);
+    final delays = conditions.delays;
+    final observation = conditions.observation;
+    final forecast = conditions.forecast;
+
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: theme.dividerColor.withValues(alpha: 0.4)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
+          ),
+          if (delays != null) ...[
+            const Gap(8),
+            _buildDelayRow(context, delays),
+          ],
+          if (observation != null) ...[
+            const Gap(8),
+            _buildObservationRow(context, observation),
+          ],
+          if (forecast != null) ...[
+            const Gap(8),
+            _buildForecastRow(context, forecast),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Color _delayColor(String? wireColor) {
+    switch (wireColor) {
+      case 'red':
+        return Colors.red;
+      case 'yellow':
+        return Colors.orange;
+      case 'green':
+        return Colors.green;
+      default:
+        return Colors.grey;
+    }
+  }
+
+  String _formatSecondsAsDuration(int seconds) {
+    final mins = (seconds / 60).round();
+    if (mins < 60) return '${mins}m';
+    final hours = mins ~/ 60;
+    final remainder = mins % 60;
+    if (remainder == 0) return '${hours}h';
+    return '${hours}h ${remainder}m';
+  }
+
+  Widget _buildDelayRow(BuildContext context, dynamic delays) {
+    final theme = Theme.of(context);
+    final color = _delayColor(delays.color?.name ?? delays.color?.toString());
+    final delaySecs = (int.tryParse(delays.delaySecs.toString())) ?? 0;
+    final duration = _formatSecondsAsDuration(delaySecs);
+    final category = (delays.category as String?) ?? 'unknown';
+    final reasons = (delays.reasons as Iterable?)
+            ?.map((r) => r.reason?.toString() ?? '')
+            .where((s) => s.isNotEmpty)
+            .toList() ??
+        const <String>[];
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: 32,
+          height: 32,
+          decoration: BoxDecoration(
+            color: color.withValues(alpha: 0.15),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Icon(Icons.timer_outlined, size: 18, color: color),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  const Text(
+                    'Delay',
+                    style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
+                  ),
+                  const Spacer(),
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: color.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Text(
+                      duration,
+                      style: TextStyle(
+                        color: color,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 2),
+              Text(
+                'Cause: ${_formatEnumName(category)}',
+                style: TextStyle(
+                  fontSize: 12,
+                  color:
+                      theme.textTheme.bodySmall?.color?.withValues(alpha: 0.8),
+                ),
+              ),
+              if (reasons.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(top: 2),
+                  child: Text(
+                    reasons.join(' • '),
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: theme.textTheme.bodySmall?.color
+                          ?.withValues(alpha: 0.7),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildObservationRow(BuildContext context, AirportWeatherObservationEntity observation) {
+    final theme = Theme.of(context);
+    final tempAir = int.tryParse(observation.tempAir.toString());
+    final tempPerceived = int.tryParse(observation.tempPerceived.toString());
+    final windFriendly = observation.windFriendly as String?;
+    final cloudFriendly = observation.cloudFriendly?.toString() ?? '';
+    final conditions = observation.conditions?.toString() ?? '';
+    final visibility = int.tryParse(observation.visibility.toString());
+    final visibilityUnits = observation.visibilityUnits?.toString() ?? '';
+
+    final parts = <String>[];
+    if (tempAir != null) {
+      parts.add(tempPerceived != null && tempPerceived != tempAir
+          ? '$tempAir°C (feels $tempPerceived°C)'
+          : '$tempAir°C');
+    }
+    if (windFriendly != null && windFriendly.isNotEmpty)
+      parts.add(windFriendly);
+    if (cloudFriendly != null && cloudFriendly.isNotEmpty)
+      parts.add(cloudFriendly);
+    if (conditions != null && conditions.isNotEmpty) parts.add(conditions);
+    if (visibility != null) {
+      final unit = (visibilityUnits == null || visibilityUnits.isEmpty)
+          ? ''
+          : ' $visibilityUnits';
+      parts.add('Visibility $visibility$unit');
+    }
+
+    if (parts.isEmpty) return const SizedBox.shrink();
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: 32,
+          height: 32,
+          decoration: BoxDecoration(
+            color: theme.colorScheme.primary.withValues(alpha: 0.15),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Icon(
+            Symbols.partly_cloudy_day,
+            size: 18,
+            color: theme.colorScheme.primary,
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Current weather',
+                style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                parts.join(' • '),
+                style: TextStyle(
+                  fontSize: 12,
+                  color:
+                      theme.textTheme.bodySmall?.color?.withValues(alpha: 0.8),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildForecastRow(BuildContext context, dynamic forecast) {
+    final theme = Theme.of(context);
+    final raw = (forecast.rawForecast as Iterable?)
+        ?.map((e) => e.toString())
+        .where((s) => s.isNotEmpty)
+        .toList();
+    final headline = (raw != null && raw.isNotEmpty) ? raw.first : null;
+
+    if (headline == null) return const SizedBox.shrink();
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: 32,
+          height: 32,
+          decoration: BoxDecoration(
+            color: theme.colorScheme.secondary.withValues(alpha: 0.18),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Icon(
+            Symbols.wb_twilight,
+            size: 18,
+            color: theme.colorScheme.secondary,
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Forecast (TAF)',
+                style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                headline,
+                style: TextStyle(
+                  fontSize: 11,
+                  fontFamily: 'monospace',
+                  color:
+                      theme.textTheme.bodySmall?.color?.withValues(alpha: 0.8),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
   TableRow _buildTimeRow(
       String label, String time, Color color, ThemeData theme,
       {bool bold = false}) {
@@ -1410,7 +1764,7 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
             label,
             style: TextStyle(
               fontSize: 12,
-              color: theme.textTheme.bodySmall?.color?.withOpacity(0.7),
+              color: theme.textTheme.bodySmall?.color?.withValues(alpha: 0.7),
             ),
           ),
         ),
@@ -1463,7 +1817,7 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: theme.dividerColor.withOpacity(0.4),
+          color: theme.dividerColor.withValues(alpha: 0.4),
         ),
       ),
       child: Row(
@@ -1473,11 +1827,11 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
             width: 32,
             height: 32,
             decoration: BoxDecoration(
-              color: theme.colorScheme.primary.withOpacity(0.15),
+              color: theme.colorScheme.primary.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(
-              MdiIcons.clockOutline,
+              Symbols.schedule,
               size: 18,
             ),
           ),
@@ -1496,8 +1850,8 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
                 Text(
                   subtitle,
                   style: TextStyle(
-                    color: theme.textTheme.bodySmall?.color?.withOpacity(
-                        theme.brightness == Brightness.dark ? 0.8 : 0.7),
+                    color: theme.textTheme.bodySmall?.color?.withValues(
+                        alpha: theme.brightness == Brightness.dark ? 0.8 : 0.7),
                   ),
                 ),
               ],
@@ -1519,7 +1873,7 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: theme.dividerColor.withOpacity(0.4),
+          color: theme.dividerColor.withValues(alpha: 0.4),
         ),
       ),
       child: Row(
@@ -1529,7 +1883,7 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
             width: 32,
             height: 32,
             decoration: BoxDecoration(
-              color: theme.colorScheme.secondary.withOpacity(0.18),
+              color: theme.colorScheme.secondary.withValues(alpha: 0.18),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(
@@ -1551,16 +1905,16 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
                 Text(
                   "Also sold as ${codeshares.join(", ")}",
                   style: TextStyle(
-                    color: theme.textTheme.bodySmall?.color?.withOpacity(
-                        theme.brightness == Brightness.dark ? 0.8 : 0.7),
+                    color: theme.textTheme.bodySmall?.color?.withValues(
+                        alpha: theme.brightness == Brightness.dark ? 0.8 : 0.7),
                   ),
                 ),
                 Text(
                   "Same aircraft, different partner airline numbers.",
                   style: TextStyle(
                     fontSize: 12,
-                    color: theme.textTheme.bodySmall?.color?.withOpacity(
-                        theme.brightness == Brightness.dark ? 0.7 : 0.6),
+                    color: theme.textTheme.bodySmall?.color?.withValues(
+                        alpha: theme.brightness == Brightness.dark ? 0.7 : 0.6),
                   ),
                 ),
               ],

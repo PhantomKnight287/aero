@@ -25,7 +25,7 @@ final api = Openapi().getAppApi();
 
 try {
     api.appControllerGetHelloV1();
-} catch on DioException (e) {
+} on DioException catch (e) {
     print('Exception when calling AppApi->appControllerGetHelloV1: $e\n');
 }
 ```

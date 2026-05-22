@@ -30,7 +30,7 @@ final api = Openapi().getAuthenticationApi();
 try {
     final response = api.authControllerGetCurrentUserV1();
     print(response);
-} catch on DioException (e) {
+} on DioException catch (e) {
     print('Exception when calling AuthenticationApi->authControllerGetCurrentUserV1: $e\n');
 }
 ```
@@ -70,7 +70,7 @@ final LoginDTO loginDTO = ; // LoginDTO |
 try {
     final response = api.authControllerLoginV1(loginDTO);
     print(response);
-} catch on DioException (e) {
+} on DioException catch (e) {
     print('Exception when calling AuthenticationApi->authControllerLoginV1: $e\n');
 }
 ```
@@ -113,7 +113,7 @@ final RegisterDTO registerDTO = ; // RegisterDTO |
 try {
     final response = api.authControllerRegisterV1(registerDTO);
     print(response);
-} catch on DioException (e) {
+} on DioException catch (e) {
     print('Exception when calling AuthenticationApi->authControllerRegisterV1: $e\n');
 }
 ```

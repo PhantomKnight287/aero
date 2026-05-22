@@ -1,7 +1,7 @@
 import 'package:built_collection/built_collection.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:openapi/openapi.dart';
 import 'package:aero/formatters/time.dart';
 
@@ -63,7 +63,7 @@ class FlightsList extends StatelessWidget {
                     fit: BoxFit.contain,
                     errorWidget: (context, url, error) {
                       return Icon(
-                        MdiIcons.airplane,
+                        Symbols.flight,
                         size: 24,
                         color: Colors.grey,
                       );

@@ -36,7 +36,7 @@ final CreateFlightBookingDTO createFlightBookingDTO = ; // CreateFlightBookingDT
 try {
     final response = api.flightControllerCreateFlightBookingV1(createFlightBookingDTO);
     print(response);
-} catch on DioException (e) {
+} on DioException catch (e) {
     print('Exception when calling FlightApi->flightControllerCreateFlightBookingV1: $e\n');
 }
 ```
@@ -79,7 +79,7 @@ final String bookingId = booking_abc123; // String | ID of the booking to delete
 try {
     final response = api.flightControllerDeleteFlightBookingV1(bookingId);
     print(response);
-} catch on DioException (e) {
+} on DioException catch (e) {
     print('Exception when calling FlightApi->flightControllerDeleteFlightBookingV1: $e\n');
 }
 ```
@@ -122,7 +122,7 @@ final String bookingId = booking_abc123; // String | ID of the booking to retrie
 try {
     final response = api.flightControllerGetFlightBookingV1(bookingId);
     print(response);
-} catch on DioException (e) {
+} on DioException catch (e) {
     print('Exception when calling FlightApi->flightControllerGetFlightBookingV1: $e\n');
 }
 ```
@@ -165,7 +165,7 @@ final String flightId = flight_abc123; // String | ID of the flight
 try {
     final response = api.flightControllerGetFlightBookingsByFlightIdV1(flightId);
     print(response);
-} catch on DioException (e) {
+} on DioException catch (e) {
     print('Exception when calling FlightApi->flightControllerGetFlightBookingsByFlightIdV1: $e\n');
 }
 ```
@@ -211,7 +211,7 @@ final String date = 2024-03-20; // String | Flight date (ISO format). Defaults t
 try {
     final response = api.flightControllerGetFlightTrackV1(iata, icao, timezone, date);
     print(response);
-} catch on DioException (e) {
+} on DioException catch (e) {
     print('Exception when calling FlightApi->flightControllerGetFlightTrackV1: $e\n');
 }
 ```
@@ -262,7 +262,7 @@ final String faFlightId = faFlightId_example; // String | FlightAware flight ID 
 try {
     final response = api.flightControllerGetFlightV1(iata, icao, timezone, date, forceUpdate, faFlightId);
     print(response);
-} catch on DioException (e) {
+} on DioException catch (e) {
     print('Exception when calling FlightApi->flightControllerGetFlightV1: $e\n');
 }
 ```
@@ -313,7 +313,7 @@ final String date = 2024-03-20; // String | Flight date (ISO format). Filters fl
 try {
     final response = api.flightControllerSearchFlightsV1(iata, icao, timezone, date);
     print(response);
-} catch on DioException (e) {
+} on DioException catch (e) {
     print('Exception when calling FlightApi->flightControllerSearchFlightsV1: $e\n');
 }
 ```
@@ -360,7 +360,7 @@ final UpdateFlightBookingDTO updateFlightBookingDTO = ; // UpdateFlightBookingDT
 try {
     final response = api.flightControllerUpdateFlightBookingV1(bookingId, updateFlightBookingDTO);
     print(response);
-} catch on DioException (e) {
+} on DioException catch (e) {
     print('Exception when calling FlightApi->flightControllerUpdateFlightBookingV1: $e\n');
 }
 ```

@@ -286,6 +286,122 @@ class LocationEntity {
   lon: number;
 }
 
+class AirportDelayReasonEntity {
+  @ApiProperty() category: string;
+  @ApiProperty({ enum: ['red', 'yellow', 'green'] }) color: 'red' | 'yellow' | 'green';
+  @ApiProperty() delay_secs: number;
+  @ApiProperty() reason: string;
+}
+
+export class AirportDelaysEntity {
+  @ApiProperty() airport: string;
+  @ApiProperty() category: string;
+  @ApiProperty({ enum: ['red', 'yellow', 'green'] }) color: 'red' | 'yellow' | 'green';
+  @ApiProperty() delay_secs: number;
+  @ApiProperty({ type: [AirportDelayReasonEntity] }) reasons: AirportDelayReasonEntity[];
+}
+
+class WeatherForecastWindsEntity {
+  @ApiProperty() symbol: string;
+  @ApiProperty() direction: string;
+  @ApiProperty() speed: number;
+  @ApiPropertyOptional({ nullable: true }) units?: string | null;
+  @ApiPropertyOptional({ nullable: true }) peak_gusts?: number | null;
+}
+
+class WeatherForecastWindshearEntity {
+  @ApiProperty() symbol: string;
+  @ApiProperty() height: string;
+  @ApiProperty() direction: string;
+  @ApiProperty() speed: string;
+  @ApiPropertyOptional({ nullable: true }) units?: string | null;
+}
+
+class WeatherForecastVisibilityEntity {
+  @ApiProperty() symbol: string;
+  @ApiProperty() visibility: string;
+  @ApiPropertyOptional({ nullable: true }) units?: string | null;
+}
+
+class WeatherForecastCloudEntity {
+  @ApiProperty() symbol: string;
+  @ApiPropertyOptional({
+    enum: ['', 'sky_clear', 'few', 'scattered', 'broken', 'overcast'],
+    nullable: true,
+  })
+  coverage?: '' | 'sky_clear' | 'few' | 'scattered' | 'broken' | 'overcast' | null;
+  @ApiPropertyOptional({ nullable: true }) altitude?: string | null;
+  @ApiPropertyOptional({ nullable: true }) special?: string | null;
+}
+
+class WeatherForecastLineEntity {
+  @ApiProperty() type: string;
+  @ApiProperty() start: string;
+  @ApiPropertyOptional({ nullable: true }) end?: string | null;
+  @ApiPropertyOptional({ nullable: true }) turbulence_layers?: string | null;
+  @ApiPropertyOptional({ nullable: true }) icing_layers?: string | null;
+  @ApiPropertyOptional({ nullable: true }) barometric_pressure?: number | null;
+  @ApiPropertyOptional({ nullable: true }) significant_weather?: string | null;
+  @ApiPropertyOptional({ type: WeatherForecastWindsEntity }) winds: WeatherForecastWindsEntity;
+  @ApiPropertyOptional({ type: WeatherForecastWindshearEntity }) windshear: WeatherForecastWindshearEntity;
+  @ApiPropertyOptional({ type: WeatherForecastVisibilityEntity }) visibility: WeatherForecastVisibilityEntity;
+  @ApiPropertyOptional({ type: [WeatherForecastCloudEntity] }) clouds: WeatherForecastCloudEntity[];
+}
+
+class WeatherForecastDecodedEntity {
+  @ApiProperty() start: string;
+  @ApiProperty() end: string;
+  @ApiPropertyOptional({ type: [WeatherForecastLineEntity] }) lines: WeatherForecastLineEntity[];
+}
+
+export class AirportWeatherForecastEntity {
+  @ApiProperty() airport_code: string;
+  @ApiProperty({ type: [String] }) raw_forecast: string[];
+  @ApiProperty() time: string;
+  @ApiPropertyOptional({ type: WeatherForecastDecodedEntity }) decoded_forecast: WeatherForecastDecodedEntity;
+}
+
+class WeatherObservationCloudEntity {
+  @ApiPropertyOptional({ nullable: true }) altitude?: number | null;
+  @ApiProperty() symbol: string;
+  @ApiProperty() type: string;
+}
+
+export class AirportWeatherObservationEntity {
+  @ApiProperty() airport_code: string;
+  @ApiPropertyOptional({ nullable: true }) cloud_friendly?: string | null;
+  @ApiPropertyOptional({ type: [WeatherObservationCloudEntity] }) clouds: WeatherObservationCloudEntity[];
+  @ApiPropertyOptional({ nullable: true }) conditions?: string | null;
+  @ApiPropertyOptional({ nullable: true }) pressure?: number | null;
+  @ApiPropertyOptional({ enum: ['', 'mb', 'in Hg'], nullable: true })
+  pressure_units?: '' | 'mb' | 'in Hg' | null;
+  @ApiProperty() raw_data: string;
+  @ApiPropertyOptional({ nullable: true }) temp_air?: number | null;
+  @ApiPropertyOptional({ nullable: true }) temp_dewpoint?: number | null;
+  @ApiPropertyOptional({ nullable: true }) temp_perceived?: number | null;
+  @ApiPropertyOptional({ nullable: true }) relative_humidity?: number | null;
+  @ApiProperty() time: string;
+  @ApiPropertyOptional({ nullable: true }) visibility?: number | null;
+  @ApiPropertyOptional({ enum: ['', 'meters', 'SM'], nullable: true })
+  visibility_units?: '' | 'meters' | 'SM' | null;
+  @ApiProperty() wind_direction: number;
+  @ApiProperty() wind_friendly: string;
+  @ApiProperty() wind_speed: number;
+  @ApiProperty() wind_speed_gust: number;
+  @ApiProperty({ enum: ['MPS', 'KT'] }) wind_units: 'MPS' | 'KT';
+}
+
+export class AirportConditionsEntity {
+  @ApiPropertyOptional({ type: AirportDelaysEntity, nullable: true })
+  delays?: AirportDelaysEntity | null;
+
+  @ApiPropertyOptional({ type: AirportWeatherForecastEntity, nullable: true })
+  forecast?: AirportWeatherForecastEntity | null;
+
+  @ApiPropertyOptional({ type: AirportWeatherObservationEntity, nullable: true })
+  observation?: AirportWeatherObservationEntity | null;
+}
+
 class RouteAirportEntity {
   @ApiProperty()
   iata: string;
@@ -310,6 +426,9 @@ class RouteAirportEntity {
 
   @ApiProperty()
   location: LocationEntity;
+
+  @ApiPropertyOptional({ type: AirportConditionsEntity })
+  conditions?: AirportConditionsEntity;
 }
 
 class TimeEntity {

@@ -11,6 +11,7 @@ const API_URL = kDebugMode
     : String.fromEnvironment("API_URL_PRODUCTION");
 const AUTH_TOKEN_KEY = "token";
 const MAPBOX_API_KEY = String.fromEnvironment("MAPBOX_API_KEY");
+const ONESIGNAL_APP_ID = String.fromEnvironment("ONESIGNAL_APP_ID");
 
 const METHOD_CHANNEL = "fyi.procrastinator.aero/aero";
 

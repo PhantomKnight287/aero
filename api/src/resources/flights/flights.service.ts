@@ -5,6 +5,7 @@ import { FlightAwareService } from 'src/services/flightaware/flightaware.service
 
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { Prisma } from '@prisma/client';
 
 import { GetAirlineDTO } from './dto/get-airline.dto';
 import { GetFlightsBoundsDTO } from './dto/get-flights-bounds.dto';
@@ -363,10 +364,26 @@ export class FlightsService {
 
   async getTrackedFlights(userId: string) {
     try {
-      // Fetch all flights from the database, ordered by most recently created
+      // Fetch all flights from the database, ordered by most recently created.
+      // Only include flights that have at least one identifier (iata or icao)
+      // defined for BOTH the departure and arrival airports.
       const flights = await prisma.flight.findMany({
         where: {
           userId,
+          AND: [
+            {
+              OR: [
+                { departure: { path: ['airport', 'iata'], not: Prisma.AnyNull } },
+                { departure: { path: ['airport', 'icao'], not: Prisma.AnyNull } },
+              ],
+            },
+            {
+              OR: [
+                { arrival: { path: ['airport', 'iata'], not: Prisma.AnyNull } },
+                { arrival: { path: ['airport', 'icao'], not: Prisma.AnyNull } },
+              ],
+            },
+          ],
         },
         orderBy: {
           createdAt: 'desc',

@@ -15,15 +15,26 @@ Serializers _$serializers = (Serializers().toBuilder()
       ..add(AirlineEntity.serializer)
       ..add(AirlineInfo.serializer)
       ..add(AirlineStatsEntity.serializer)
+      ..add(AirportConditionsEntity.serializer)
+      ..add(AirportDelayReasonEntity.serializer)
+      ..add(AirportDelayReasonEntityColorEnum.serializer)
+      ..add(AirportDelaysEntity.serializer)
+      ..add(AirportDelaysEntityColorEnum.serializer)
       ..add(AirportEntity.serializer)
       ..add(AirportInfo.serializer)
       ..add(AirportStatsEntity.serializer)
       ..add(AirportType.serializer)
+      ..add(AirportWeatherForecastEntity.serializer)
+      ..add(AirportWeatherObservationEntity.serializer)
+      ..add(AirportWeatherObservationEntityPressureUnitsEnum.serializer)
+      ..add(AirportWeatherObservationEntityVisibilityUnitsEnum.serializer)
+      ..add(AirportWeatherObservationEntityWindUnitsEnum.serializer)
       ..add(CreateFlightBookingDTO.serializer)
       ..add(CreateFlightBookingDTOReasonEnum.serializer)
       ..add(CreateFlightBookingDTOSeatTypeEnum.serializer)
       ..add(CreateFlightBookingDTOSeatingClassEnum.serializer)
       ..add(FlighType.serializer)
+      ..add(FlightAlertDTO.serializer)
       ..add(FlightAwareDataEntity.serializer)
       ..add(FlightBookingEntity.serializer)
       ..add(FlightBookingEntityReasonEnum.serializer)
@@ -75,6 +86,14 @@ Serializers _$serializers = (Serializers().toBuilder()
       ..add(UpdateFlightBookingDTOSeatTypeEnum.serializer)
       ..add(UpdateFlightBookingDTOSeatingClassEnum.serializer)
       ..add(UserEntity.serializer)
+      ..add(WeatherForecastCloudEntity.serializer)
+      ..add(WeatherForecastCloudEntityCoverageEnum.serializer)
+      ..add(WeatherForecastDecodedEntity.serializer)
+      ..add(WeatherForecastLineEntity.serializer)
+      ..add(WeatherForecastVisibilityEntity.serializer)
+      ..add(WeatherForecastWindsEntity.serializer)
+      ..add(WeatherForecastWindshearEntity.serializer)
+      ..add(WeatherObservationCloudEntity.serializer)
       ..addBuilderFactory(
           const FullType(
               BuiltList, const [const FullType(AircraftRegistrationEntity)]),
@@ -88,6 +107,10 @@ Serializers _$serializers = (Serializers().toBuilder()
       ..addBuilderFactory(
           const FullType(BuiltList, const [const FullType(TopRouteEntity)]),
           () => ListBuilder<TopRouteEntity>())
+      ..addBuilderFactory(
+          const FullType(
+              BuiltList, const [const FullType(AirportDelayReasonEntity)]),
+          () => ListBuilder<AirportDelayReasonEntity>())
       ..addBuilderFactory(
           const FullType(
               BuiltList, const [const FullType(FlightBookingEntity)]),
@@ -123,7 +146,22 @@ Serializers _$serializers = (Serializers().toBuilder()
           () => ListBuilder<String>())
       ..addBuilderFactory(
           const FullType(BuiltList, const [const FullType(String)]),
-          () => ListBuilder<String>()))
+          () => ListBuilder<String>())
+      ..addBuilderFactory(
+          const FullType(BuiltList, const [const FullType(String)]),
+          () => ListBuilder<String>())
+      ..addBuilderFactory(
+          const FullType(
+              BuiltList, const [const FullType(WeatherForecastCloudEntity)]),
+          () => ListBuilder<WeatherForecastCloudEntity>())
+      ..addBuilderFactory(
+          const FullType(
+              BuiltList, const [const FullType(WeatherForecastLineEntity)]),
+          () => ListBuilder<WeatherForecastLineEntity>())
+      ..addBuilderFactory(
+          const FullType(
+              BuiltList, const [const FullType(WeatherObservationCloudEntity)]),
+          () => ListBuilder<WeatherObservationCloudEntity>()))
     .build();
 
 // ignore_for_file: deprecated_member_use_from_same_package,type=lint

@@ -17,7 +17,9 @@ getErrorMessage(dynamic error, [String? message]) {
 }
 
 ToastificationItem showErrorToast(dynamic error) {
-  final message = error is DioException ? getErrorMessage(error.response?.data) : 'An unexpected error occurred';
+  final message = error is DioException
+      ? getErrorMessage(error.response?.data)
+      : getErrorMessage(error, 'An unexpected error occurred');
   return toastification.show(
     title: const Text(
       "An error occurred",

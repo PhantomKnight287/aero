@@ -20,7 +20,6 @@ dependencies:
   json_annotation: ^4.9.0
   json_serializable: ^6.8.0
   flutter_map_animations: ^0.9.0
-  material_design_icons_flutter: ^7.0.7296
   flutter_svg: ^2.0.16
   sqflite: ^2.4.1
   path_provider: ^2.1.5
@@ -49,6 +48,8 @@ dependencies:
   cupertino_icons: ^1.0.8
   home_widget: ^0.8.1
   workmanager: ^0.9.0+3
+  material_symbols_icons: ^4.2928.1
+  onesignal_flutter: ^5.5.4
 
 dev_dependencies:
   flutter_test:

@@ -9,7 +9,6 @@ import { AppService } from './app.service';
 import { AuthMiddleware } from './middlewares/auth/auth.middleware';
 import { AirlinesModule } from './resources/airlines/airlines.module';
 import { AirportsModule } from './resources/airports/airports.module';
-import { AlertsModule } from './resources/alerts/alerts.module';
 import { AuthModule } from './resources/auth/auth.module';
 import { FlightModule } from './resources/flight/flight.module';
 import { FlightsModule } from './resources/flights/flights.module';
@@ -24,7 +23,6 @@ import { RedisService } from './services/redis/redis.service';
     AirlinesModule,
     FlightsModule,
     FlightModule,
-    AlertsModule,
     ProfileModule,
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'web'),

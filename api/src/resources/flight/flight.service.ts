@@ -18,12 +18,355 @@ import { CreateFlightBookingDTO } from './dto/create-flight-booking.dto';
 import { GetFlightSearchDTO } from './dto/get-flight-search.dto';
 import { GetFlightTrackDTO } from './dto/get-flight-track.dto';
 import { GetFlightDTO } from './dto/get-flight.dto';
-import { UpdateFlightBookingDTO } from './dto/update-flight-booking.dto';
+import type { UpdateFlightBookingDTO } from './dto/update-flight-booking.dto';
 import {
   AircraftEntity,
   FlightCandidateEntity,
   FlightSearchResponseEntity,
 } from './entities/flight.entity';
+
+const TIMEZONE_ABBREV_TO_IANA: Record<string, string> = {
+  UTC: 'UTC',
+  GMT: 'Etc/UTC',
+  BST: 'Europe/London',
+  CET: 'Europe/Berlin',
+  CEST: 'Europe/Berlin',
+  EET: 'Europe/Athens',
+  EEST: 'Europe/Athens',
+  IST: 'Asia/Kolkata',
+  PKT: 'Asia/Karachi',
+  MSK: 'Europe/Moscow',
+  AST: 'America/Halifax',
+  ADT: 'America/Halifax',
+  EST: 'America/New_York',
+  EDT: 'America/New_York',
+  CST: 'America/Chicago',
+  CDT: 'America/Chicago',
+  MST: 'America/Denver',
+  MDT: 'America/Denver',
+  PST: 'America/Los_Angeles',
+  PDT: 'America/Los_Angeles',
+  AKST: 'America/Anchorage',
+  AKDT: 'America/Anchorage',
+  HST: 'Pacific/Honolulu',
+  JST: 'Asia/Tokyo',
+  KST: 'Asia/Seoul',
+  AEST: 'Australia/Sydney',
+  AEDT: 'Australia/Sydney',
+  ACST: 'Australia/Adelaide',
+  ACDT: 'Australia/Adelaide',
+  AWST: 'Australia/Perth',
+};
+
+const ALT_CHANGE_FROM_CODE: Record<string, 'Climb' | 'Descend' | 'None'> = {
+  C: 'Climb',
+  D: 'Descend',
+  '-': 'None',
+};
+const ALT_CHANGE_TO_CODE: Record<string, 'C' | 'D' | '-'> = {
+  Climb: 'C',
+  Descend: 'D',
+  None: '-',
+};
+
+type UpdateType =
+  | 'Projected'
+  | 'Oceanic'
+  | 'Radar'
+  | 'ADSB'
+  | 'Multilateration'
+  | 'Datalink'
+  | 'Surface_And_Near_Surface'
+  | 'Spaced_Based'
+  | 'Virtual_Event';
+
+const UPDATE_TYPE_FROM_CODE: Record<string, UpdateType> = {
+  P: 'Projected',
+  O: 'Oceanic',
+  Z: 'Radar',
+  A: 'ADSB',
+  M: 'Multilateration',
+  D: 'Datalink',
+  X: 'Surface_And_Near_Surface',
+  S: 'Spaced_Based',
+  V: 'Virtual_Event',
+};
+type AirportConditions = {
+  delays: any | null;
+  forecast: any | null;
+  observation: any | null;
+};
+
+const EMPTY_CONDITIONS: AirportConditions = {
+  delays: null,
+  forecast: null,
+  observation: null,
+};
+
+const UPDATE_TYPE_TO_CODE: Record<UpdateType, string> = {
+  Projected: 'P',
+  Oceanic: 'O',
+  Radar: 'Z',
+  ADSB: 'A',
+  Multilateration: 'M',
+  Datalink: 'D',
+  Surface_And_Near_Surface: 'X',
+  Spaced_Based: 'S',
+  Virtual_Event: 'V',
+};
+
+function resolveIanaZone(tz: string): string {
+  if (tz && tz.includes('/') && IANAZone.isValidZone(tz)) return tz;
+  const mapped = tz ? TIMEZONE_ABBREV_TO_IANA[tz.toUpperCase()] : null;
+  if (mapped && IANAZone.isValidZone(mapped)) return mapped;
+  return 'UTC';
+}
+
+function parseDateInTimezone(
+  dateString: string,
+  timezone: string,
+): { startOfDayUtc: Date; endOfDayUtc: Date } {
+  if (dateString.split('-').length !== 3) {
+    throw new BadRequestException('Invalid date format. Expected YYYY-MM-DD');
+  }
+  const zone = resolveIanaZone(timezone);
+  const start = DateTime.fromISO(dateString, { zone }).startOf('day').toUTC();
+  const end = start.plus({ days: 1 });
+  return { startOfDayUtc: start.toJSDate(), endOfDayUtc: end.toJSDate() };
+}
+
+function normalizeAircraftFromDb(aircraft: any): AircraftEntity {
+  return {
+    modeS: aircraft.hexIcao,
+    age: aircraft.age?.toString(),
+    image: aircraft.image,
+    attribution: aircraft.attribution,
+    isFreighter: aircraft.isFreighter,
+    model: aircraft.typeName,
+    registration: aircraft.reg,
+    aircraft_id: aircraft.aircraft_id,
+    deliveryDate: aircraft.deliveryDate?.toISOString(),
+    firstFlightDate: aircraft.firstFlightDate?.toISOString(),
+    payload: aircraft.payload as any,
+    registrations: (aircraft.registrations ?? []).map((r: any) => ({
+      id: r.id,
+      reg: r.reg,
+      active: r.active,
+      hexIcao: r.hexIcao ?? undefined,
+      airlineName: r.airlineName ?? undefined,
+      registrationDate: r.registrationDate?.toISOString(),
+    })),
+  } satisfies AircraftEntity;
+}
+
+function normalizeAircraftFromStored(
+  stored: any | undefined,
+): AircraftEntity | undefined {
+  if (!stored) return undefined;
+  return {
+    modeS: stored.modeS ?? stored.hexIcao,
+    age: (stored.ageYears ?? stored.age)?.toString(),
+    image: stored.image?.url ?? stored.image,
+    attribution:
+      stored.attribution ?? stored.image?.htmlAttributions?.join(' '),
+    isFreighter: stored.isFreighter ?? false,
+    model: stored.typeName ?? stored.modelCode ?? stored.model,
+    registration: stored.reg ?? stored.registration ?? stored.registrataion,
+    aircraft_id: stored.aircraft_id ?? stored.id?.toString(),
+    payload: stored.payload,
+    deliveryDate: stored.deliveryDate,
+    firstFlightDate: stored.firstFlightDate,
+  } as AircraftEntity;
+}
+
+async function lookupAirline(iata?: string, icao?: string) {
+  if (!iata && !icao) return null;
+  return prisma.airline.findFirst({
+    where: {
+      OR: [
+        iata ? { iata } : undefined,
+        icao ? { icao } : undefined,
+      ].filter(Boolean) as any,
+    },
+  });
+}
+
+function mergeAirline(stored: any, db: any) {
+  if (!db) return stored;
+  return { name: db.name, iata: db.iata, icao: db.icao, image: db.image };
+}
+
+async function lookupAirport(iata?: string, icao?: string) {
+  if (!iata && !icao) return null;
+  return prisma.airport.findFirst({
+    where: {
+      OR: [
+        iata ? { iataCode: iata } : undefined,
+        icao ? { OR: [{ gpsCode: icao }, { ident: icao }] } : undefined,
+      ].filter(Boolean) as any,
+    },
+  });
+}
+
+function buildFlightAwareDataPayload(faFlight: any, flightId: string) {
+  const d = (v: any) => (v ? new Date(v) : null);
+  return {
+    ident: faFlight.ident,
+    identIcao: faFlight.ident_icao ?? null,
+    identIata: faFlight.ident_iata ?? null,
+    actualRunwayOff: faFlight.actual_runway_off ?? null,
+    actualRunwayOn: faFlight.actual_runway_on ?? null,
+    operator: faFlight.operator ?? null,
+    operatorIcao: faFlight.operator_icao ?? null,
+    operatorIata: faFlight.operator_iata ?? null,
+    flightNumber: faFlight.flight_number ?? null,
+    registration: faFlight.registration ?? null,
+    atcIdent: faFlight.atc_ident ?? null,
+    inboundFaFlightId: faFlight.inbound_fa_flight_id ?? null,
+    codesharesIata: faFlight.codeshares_iata ?? [],
+    codesharesIcao: faFlight.codeshares ?? [],
+    departureDelay: faFlight.departure_delay ?? null,
+    arrivalDelay: faFlight.arrival_delay ?? null,
+    filedEte: faFlight.filed_ete ?? null,
+    progressPercent: faFlight.progress_percent ?? null,
+    status: faFlight.status,
+    aircraftType: faFlight.aircraft_type ?? null,
+    routeDistance: faFlight.route_distance ?? null,
+    filedAirspeed: faFlight.filed_airspeed ?? null,
+    filedAltitude: faFlight.filed_altitude ?? null,
+    route: faFlight.route ?? null,
+    baggageClaim: faFlight.baggage_claim ?? null,
+    seatsCabinBusiness: faFlight.seats_cabin_business ?? null,
+    seatsCabinCoach: faFlight.seats_cabin_coach ?? null,
+    seatsCabinFirst: faFlight.seats_cabin_first ?? null,
+    gateOrigin: faFlight.gate_origin ?? null,
+    gateDestination: faFlight.gate_destination ?? null,
+    terminalOrigin: faFlight.terminal_origin ?? null,
+    terminalDestination: faFlight.terminal_destination ?? null,
+    scheduledOut: d(faFlight.scheduled_out),
+    estimatedOut: d(faFlight.estimated_out),
+    actualOut: d(faFlight.actual_out),
+    scheduledOff: d(faFlight.scheduled_off),
+    estimatedOff: d(faFlight.estimated_off),
+    actualOff: d(faFlight.actual_off),
+    scheduledOn: d(faFlight.scheduled_on),
+    estimatedOn: d(faFlight.estimated_on),
+    actualOn: d(faFlight.actual_on),
+    scheduledIn: d(faFlight.scheduled_in),
+    estimatedIn: d(faFlight.estimated_in),
+    actualIn: d(faFlight.actual_in),
+    foresightPredictionsAvailable:
+      faFlight.foresight_predictions_available ?? false,
+    blocked: faFlight.blocked ?? false,
+    diverted: faFlight.diverted ?? false,
+    cancelled: faFlight.cancelled ?? false,
+    positionOnly: faFlight.position_only ?? false,
+    originCode: faFlight?.origin?.code ?? 'Unknown',
+    originCodeIcao: faFlight?.origin?.code_icao ?? null,
+    originCodeIata: faFlight?.origin?.code_iata ?? null,
+    originCodeLid: faFlight?.origin?.code_lid ?? null,
+    originTimezone: faFlight?.origin?.timezone ?? null,
+    originName: faFlight?.origin?.name ?? null,
+    originCity: faFlight?.origin?.city ?? null,
+    destinationCode: faFlight?.destination?.code ?? 'Unknown',
+    destinationCodeIcao: faFlight?.destination?.code_icao ?? null,
+    destinationCodeIata: faFlight?.destination?.code_iata ?? null,
+    destinationCodeLid: faFlight?.destination?.code_lid ?? null,
+    destinationTimezone: faFlight?.destination?.timezone ?? null,
+    destinationName: faFlight?.destination?.name ?? null,
+    destinationCity: faFlight?.destination?.city ?? null,
+    flightId,
+  };
+}
+
+function buildFlightData(
+  faFlight: any,
+  userId: string,
+  searchDate: Date,
+  dbAirline: any,
+  depAirport: any,
+  arrAirport: any,
+  departureConditions: AirportConditions,
+  arrivalConditions: AirportConditions,
+) {
+  return {
+    userId,
+    flightNo: faFlight.ident.replace(/ /g, ''),
+    callSign: faFlight.ident,
+    aircraft: {
+      registration: faFlight.registration,
+      type: faFlight.aircraft_type,
+    },
+    airline: {
+      name:
+        dbAirline?.name ??
+        faFlight.operator ??
+        faFlight.operator_iata ??
+        'Unknown',
+      iata: dbAirline?.iata ?? faFlight.operator_iata,
+      icao: dbAirline?.icao ?? faFlight.operator_icao,
+      image: dbAirline?.image ?? null,
+    },
+    arrival: {
+      airport: {
+        icao: faFlight.destination?.code_icao ?? faFlight.destination?.code,
+        iata: faFlight.destination?.code_iata,
+        name: faFlight.destination?.name ?? 'Unknown',
+        municipalityName: faFlight.destination?.city ?? 'Unknown',
+        location: {
+          lat: arrAirport ? Number(arrAirport.lat) : 0,
+          lon: arrAirport ? Number(arrAirport.long) : 0,
+        },
+        countryCode: faFlight.destination?.code_icao?.substring(0, 2) ?? 'XX',
+        timeZone: faFlight.destination?.timezone ?? 'UTC',
+        shortName: faFlight?.destination?.name ?? 'Unknown',
+        conditions: arrivalConditions,
+      },
+      scheduledTime: {
+        utc: faFlight.scheduled_on ?? faFlight.scheduled_in,
+        local: faFlight.scheduled_on ?? faFlight.scheduled_in,
+      },
+      revisedTime: faFlight.estimated_on
+        ? { utc: faFlight.estimated_on, local: faFlight.estimated_on }
+        : null,
+      actualTime: faFlight.actual_on
+        ? { utc: faFlight.actual_on, local: faFlight.actual_on }
+        : null,
+      terminal: faFlight.terminal_destination,
+      gate: faFlight.gate_destination,
+    },
+    cargo: false,
+    date: faFlight.scheduled_out ? new Date(faFlight.scheduled_out) : searchDate,
+    departure: {
+      airport: {
+        shortName: faFlight?.origin?.name ?? 'Unknown',
+        icao: faFlight.origin?.code_icao ?? faFlight.origin?.code,
+        iata: faFlight.origin?.code_iata,
+        name: faFlight.origin?.name ?? 'Unknown',
+        municipalityName: faFlight.origin?.city ?? 'Unknown',
+        location: {
+          lat: depAirport ? Number(depAirport.lat) : 0,
+          lon: depAirport ? Number(depAirport.long) : 0,
+        },
+        countryCode: faFlight.origin?.code_icao?.substring(0, 2) ?? 'XX',
+        timeZone: faFlight.origin?.timezone ?? 'UTC',
+        conditions: departureConditions,
+      },
+      scheduledTime: {
+        utc: faFlight.scheduled_out ?? faFlight.scheduled_off,
+        local: faFlight.scheduled_out ?? faFlight.scheduled_off,
+      },
+      revisedTime: faFlight.estimated_out
+        ? { utc: faFlight.estimated_out, local: faFlight.estimated_out }
+        : null,
+      actualTime: faFlight.actual_out
+        ? { utc: faFlight.actual_out, local: faFlight.actual_out }
+        : null,
+      terminal: faFlight.terminal_origin,
+      gate: faFlight.gate_origin,
+    },
+  };
+}
 
 @Injectable()
 export class FlightService {
@@ -37,87 +380,277 @@ export class FlightService {
     this.redis = this.redisService.getOrNil();
   }
 
-  /**
-   * Converts a date string (e.g., "2025-11-04") interpreted as midnight in the user's timezone
-   * to UTC Date objects for database queries
-   */
-  private parseDateInTimezone(
-    dateString: string,
-    timezone: string,
-  ): {
-    startOfDayUtc: Date;
-    endOfDayUtc: Date;
-  } {
-    // Validate date format (YYYY-MM-DD)
-    const dateParts = dateString.split('-');
-    if (dateParts.length !== 3) {
-      throw new BadRequestException('Invalid date format. Expected YYYY-MM-DD');
+  /** Get a faFlight via Redis cache (by fa_flight_id) or FlightAware API. */
+  private async getFaFlightById(faFlightId: string): Promise<any> {
+    const cacheKey = `flightaware:flight:by_id:${faFlightId}`;
+    if (this.redis) {
+      try {
+        const cached = await this.redis.get(cacheKey);
+        if (cached) {
+          console.log(`Retrieved flight ${faFlightId} from Redis cache (saving API call)`);
+          return JSON.parse(cached);
+        }
+      } catch (error) {
+        console.warn('Failed to read flight from Redis cache:', error);
+      }
     }
 
-    // Map common abbreviations to representative IANA zones (handles DST correctly)
-    const mapAbbrevToIana = (abbr: string): string | null => {
-      const A = abbr.toUpperCase();
-      const table: Record<string, string> = {
-        UTC: 'UTC',
-        GMT: 'Etc/UTC',
-        BST: 'Europe/London',
-        CET: 'Europe/Berlin',
-        CEST: 'Europe/Berlin',
-        EET: 'Europe/Athens',
-        EEST: 'Europe/Athens',
-        IST: 'Asia/Kolkata', // India Standard Time
-        PKT: 'Asia/Karachi',
-        MSK: 'Europe/Moscow',
-        AST: 'America/Halifax',
-        ADT: 'America/Halifax',
-        EST: 'America/New_York',
-        EDT: 'America/New_York',
-        CST: 'America/Chicago',
-        CDT: 'America/Chicago',
-        MST: 'America/Denver',
-        MDT: 'America/Denver',
-        PST: 'America/Los_Angeles',
-        PDT: 'America/Los_Angeles',
-        AKST: 'America/Anchorage',
-        AKDT: 'America/Anchorage',
-        HST: 'Pacific/Honolulu',
-        JST: 'Asia/Tokyo',
-        KST: 'Asia/Seoul',
-        AEST: 'Australia/Sydney',
-        AEDT: 'Australia/Sydney',
-        ACST: 'Australia/Adelaide',
-        ACDT: 'Australia/Adelaide',
-        AWST: 'Australia/Perth',
-      };
-      return table[A] ?? null;
-    };
+    console.log(`Cache miss for ${faFlightId}, fetching from FlightAware API`);
+    const response = await this.flightAwareService.searchFlightsByIdent(faFlightId);
+    if (!response || !response.flights?.length) return null;
+    const faFlight = response.flights[0];
 
-    // Resolve a Luxon zone: prefer valid IANA; otherwise use mapping for abbreviations; fallback UTC
-    const resolveZone = (tz: string): string => {
-      if (tz && tz.includes('/') && IANAZone.isValidZone(tz)) return tz;
-      const mapped = tz ? mapAbbrevToIana(tz) : null;
-      if (mapped && IANAZone.isValidZone(mapped)) return mapped;
-      return 'UTC';
-    };
+    if (this.redis) {
+      try {
+        await this.redis.setex(cacheKey, 3600, JSON.stringify(faFlight));
+        console.log(`Cached flight ${faFlightId} in Redis for future use`);
+      } catch (error) {
+        console.warn('Failed to cache flight in Redis:', error);
+      }
+    }
+    return faFlight;
+  }
 
-    const zone = resolveZone(timezone);
-    const start = DateTime.fromISO(dateString, { zone }).startOf('day').toUTC();
-    const end = start.plus({ days: 1 });
+  /** Resolve the FlightAware flight to operate on, given the request shape. */
+  private async resolveFaFlight(args: {
+    faFlightId?: string;
+    forceUpdate?: boolean;
+    existingFlight: any;
+    iata?: string;
+    icao?: string;
+    searchDate: Date;
+    nextDate: Date;
+  }): Promise<any> {
+    const { faFlightId, forceUpdate, existingFlight, iata, icao, searchDate, nextDate } = args;
 
+    if (faFlightId) {
+      const record = await prisma.flight.findFirst({
+        where: {
+          OR: [
+            { flightAwareData: { faFlightId } },
+            { id: faFlightId }, // widget flight_id may point to a flight, not fa_flight
+            {
+              flightAwareData:{
+                id:faFlightId,
+              }
+            }
+          ],
+        },
+        include: { flightAwareData: true },
+      });
+      const resolvedId = record?.flightAwareData?.faFlightId ?? faFlightId;
+      console.log(`Fetching specific flight using fa_flight_id ${resolvedId}`);
+      const faFlight = await this.getFaFlightById(resolvedId);
+      if (!faFlight) {
+        throw new BadRequestException(
+          'Unable to fetch flight information with the provided flight ID.',
+        );
+      }
+      return faFlight;
+    }
+
+    if (forceUpdate && existingFlight?.flightAwareData?.faFlightId) {
+      const id = existingFlight.flightAwareData.faFlightId;
+      console.log(`Force update: Using existing fa_flight_id ${id} to fetch from FlightAware`);
+      const response = await this.flightAwareService.searchFlightsByIdent(id);
+      if (!response || !response.flights?.length) {
+        throw new BadRequestException(
+          'Unable to fetch flight information. Please make sure the flight number is correct.',
+        );
+      }
+      return response.flights[0];
+    }
+
+    const ident = icao || iata;
+    if (!ident) throw new BadRequestException('Flight identifier required');
+    const response = await this.flightAwareService.searchFlightsByIdent(ident);
+    if (!response || !response.flights?.length) {
+      throw new BadRequestException(
+        'Unable to fetch flight information. Please make sure the flight number is correct.',
+      );
+    }
+    let faFlight = response.flights[0];
+    if (response.flights.length > 1) {
+      const matched = response.flights.find((f) => {
+        const d = f.scheduled_out
+          ? new Date(f.scheduled_out)
+          : f.scheduled_off
+            ? new Date(f.scheduled_off)
+            : null;
+        return d ? d >= searchDate && d < nextDate : false;
+      });
+      if (matched) {
+        faFlight = matched;
+        console.log(`Matched FlightAware flight by date: ${faFlight.fa_flight_id}`);
+      } else {
+        console.log(`No date match found, using first flight: ${faFlight.fa_flight_id}`);
+      }
+    }
+    return faFlight;
+  }
+
+  /** Extract a usable AeroAPI airport identifier (prefer ICAO, then IATA, then raw code). */
+  private extractAirportId(airport: any): string | undefined {
+    return airport?.code_icao ?? airport?.code_iata ?? airport?.code ?? undefined;
+  }
+
+  /** Fetch delays, forecast, and latest observation for an airport, in parallel. */
+  private async getAirportConditions(airportId: string) {
+    const [delays, forecast, observation] = await Promise.allSettled([
+      this.flightAwareService.getAirportDelays(airportId),
+      this.flightAwareService.getAirportWeatherForecast(airportId),
+      this.flightAwareService.getAirportLatestObservation(airportId),
+    ]);
+    const val = <T>(r: PromiseSettledResult<T>): T | null =>
+      r.status === 'fulfilled' ? r.value : null;
     return {
-      startOfDayUtc: start.toJSDate(),
-      endOfDayUtc: end.toJSDate(),
+      delays: val(delays),
+      forecast: val(forecast),
+      observation: val(observation),
     };
+  }
+
+  /** Resolve (find or create) the aircraft record for a flight. */
+  private async resolveAircraft(
+    registration: string | undefined,
+    faFlight: any,
+    newFlight: any,
+  ): Promise<AircraftEntity | undefined> {
+    if (!registration) {
+      return {
+        ...(newFlight.aircraft as any),
+        registration: faFlight.registration ?? 'Unknown',
+        model: faFlight.aircraft_type ?? 'Unknown',
+      };
+    }
+
+    const existing = await prisma.aircraft.findFirst({
+      where: { reg: registration },
+      include: { registrations: true },
+    });
+    if (existing) return normalizeAircraftFromDb(existing);
+
+    const apiKey = this.configService.get<string>('RAPID_API_KEY');
+    if (!apiKey) {
+      return {
+        ...(newFlight.aircraft as any),
+        registration,
+        model: faFlight.aircraft_type ?? 'Unknown',
+      };
+    }
+
+    try {
+      const res = await fetch(
+        `https://aerodatabox.p.rapidapi.com/aircrafts/reg/${registration}?withImage=true&withRegistrations=true`,
+        {
+          headers: {
+            'X-RapidAPI-Key': apiKey,
+            'X-RapidAPI-Host': 'aerodatabox.p.rapidapi.com',
+          },
+        },
+      );
+      if (!res.ok) throw new Error('AeroDataBox request failed');
+      const json = await res.json();
+
+      const aircraft = await prisma.aircraft.create({
+        data: {
+          aircraft_id: String(json.id),
+          payload: json,
+          reg: json.reg,
+          hexIcao: json.hexIcao,
+          modelCode: json.modelCode,
+          firstFlightDate: json.firstFlightDate
+            ? new Date(json.firstFlightDate as string)
+            : null,
+          deliveryDate: json.deliveryDate
+            ? new Date(json.deliveryDate as string)
+            : null,
+          typeName: json.typeName,
+          isFreighter: json.isFreighter ?? false,
+          age: json.ageYears,
+          image: json?.image?.url,
+          attribution: json?.image?.htmlAttributions
+            ? `${json.image.htmlAttributions[0]} ${json.image.htmlAttributions[1] ?? ''}`
+            : null,
+          registrations: json.registrations
+            ? {
+                createMany: {
+                  data: json.registrations.map((data: any) => ({
+                    id: `registration_${createId()}`,
+                    active: data.active ?? true,
+                    reg: data.reg,
+                    airlineName: data.airlineName,
+                    registrationDate: data.registrationDate
+                      ? new Date(data.registrationDate)
+                      : null,
+                    hexIcao: data.hexIcao,
+                  })),
+                  skipDuplicates: true,
+                },
+              }
+            : undefined,
+        },
+        include: { registrations: true },
+      });
+      console.log(`Fetched aircraft data from AeroDataBox for ${registration}`);
+      return normalizeAircraftFromDb(aircraft);
+    } catch (error) {
+      console.error('Error fetching from AeroDataBox:', error);
+
+      let planespotterImage: string | null = null;
+      let planespotterAttribution: string | null = null;
+      try {
+        const psRes = await fetch(
+          `https://api.planespotters.net/pub/photos/reg/${registration}`,
+        );
+        if (psRes.ok) {
+          const data = await psRes.json();
+          if (data.photos?.length > 0) {
+            planespotterImage = data.photos[0].thumbnail_large.src;
+            planespotterAttribution = `Photo by ${data.photos[0].photographer}`;
+          }
+        }
+      } catch (e) {
+        console.error('Error fetching from Planespotters:', e);
+      }
+
+      const aircraft = await prisma.aircraft.create({
+        data: {
+          aircraft_id: `aircraft_${createId()}`,
+          reg: registration,
+          hexIcao: '',
+          typeName: faFlight.aircraft_type ?? 'Unknown',
+          modelCode: faFlight.aircraft_type ?? 'Unknown',
+          isFreighter: false,
+          age: 0,
+          image: planespotterImage,
+          attribution: planespotterAttribution,
+          payload: {},
+        },
+      });
+      return {
+        modeS: aircraft.hexIcao,
+        age: aircraft.age?.toString(),
+        image: aircraft.image,
+        attribution: aircraft.attribution,
+        isFreighter: aircraft.isFreighter,
+        model: aircraft.typeName,
+        registration: aircraft.reg,
+        aircraft_id: aircraft.aircraft_id,
+        deliveryDate: aircraft.deliveryDate?.toISOString(),
+        firstFlightDate: aircraft.firstFlightDate?.toISOString(),
+        payload: aircraft.payload as any,
+      } satisfies AircraftEntity;
+    }
   }
 
   async getFlight(
     { iata, icao, date, timezone, forceUpdate, faFlightId }: GetFlightDTO,
     userId: string,
   ) {
-    // Parse date with timezone consideration
     const dateToUse = date ?? new Date().toISOString().split('T')[0];
     const { startOfDayUtc: searchDate, endOfDayUtc: nextDate } =
-      this.parseDateInTimezone(dateToUse, timezone);
+      parseDateInTimezone(dateToUse, timezone);
 
     const existingFlight = await prisma.flight.findFirst({
       where: {
@@ -127,288 +660,46 @@ export class FlightService {
           { callSign: icao },
           { flightNo: icao },
         ],
-        date: {
-          gte: searchDate,
-          lt: nextDate,
-        },
+        date: { gte: searchDate, lt: nextDate },
       },
-      orderBy: {
-        createdAt: 'desc',
-      },
+      orderBy: { createdAt: 'desc' },
       include: {
         greatCircleDistance: true,
         flightAwareData: true,
-        bookings: {
-          where: {
-            userId,
-          },
-          orderBy: {
-            createdAt: 'desc',
-          },
-        },
+        bookings: { where: { userId }, orderBy: { createdAt: 'desc' } },
       },
     });
 
-    // If forceUpdate is not specified and flight exists, return it
+    // Cached path: return existing flight without hitting FlightAware
     if (!forceUpdate && existingFlight) {
-      let aircraft: any = null;
-      if (existingFlight?.aircraft) {
-        const stored = existingFlight.aircraft as any;
-        const hexCandidate: string | undefined =
-          stored?.modeS ?? stored?.hexIcao;
-        const regCandidate: string | undefined =
-          stored?.reg ?? stored?.registration ?? stored?.registrataion;
-        if (hexCandidate) {
-          aircraft = await prisma.aircraft.findFirst({
-            where: { hexIcao: hexCandidate },
-            include: { registrations: true },
-          });
-        }
-        if (!aircraft && regCandidate) {
-          aircraft = await prisma.aircraft.findFirst({
-            where: { reg: regCandidate },
-            include: { registrations: true },
-          });
-        }
-      }
-      const stored = existingFlight.aircraft as any | undefined;
-      const normalizedFromStored: AircraftEntity | undefined = stored
-        ? ({
-            modeS: stored.modeS ?? stored.hexIcao,
-            age: (stored.ageYears ?? stored.age)?.toString(),
-            image: stored.image?.url ?? stored.image,
-            attribution:
-              stored.attribution ?? stored.image?.htmlAttributions?.join(' '),
-            isFreighter: stored.isFreighter ?? false,
-            model: stored.typeName ?? stored.modelCode ?? stored.model,
-            registration:
-              stored.reg ?? stored.registration ?? stored.registrataion,
-            aircraft_id: stored.aircraft_id ?? stored.id?.toString(),
-            payload: stored.payload,
-            deliveryDate:
-              stored.deliveryDate ??
-              (stored.deliveryDate
-                ? new Date(stored.deliveryDate).toISOString()
-                : undefined),
-            firstFlightDate:
-              stored.firstFlightDate ??
-              (stored.firstFlightDate
-                ? new Date(stored.firstFlightDate).toISOString()
-                : undefined),
-          } as AircraftEntity)
-        : undefined;
-
-      // Query airline from DB to get correct name and image
-      const storedAirline = existingFlight.airline as any;
-      const airlineIata = storedAirline?.iata;
-      const airlineIcao = storedAirline?.icao;
-
-      const dbAirline = await prisma.airline.findFirst({
-        where: {
-          OR: [
-            airlineIata ? { iata: airlineIata } : undefined,
-            airlineIcao ? { icao: airlineIcao } : undefined,
-          ].filter(Boolean),
-        },
-      });
-
-      // Merge airline data: prefer DB, fallback to stored
-      const mergedAirline = dbAirline
-        ? {
-            name: dbAirline.name,
-            iata: dbAirline.iata,
-            icao: dbAirline.icao,
-            image: dbAirline.image,
-          }
-        : storedAirline;
-
-      return {
-        ...existingFlight,
-        airline: mergedAirline,
-        aircraft: aircraft
-          ? ({
-              modeS: aircraft.hexIcao,
-              age: aircraft.age?.toString(),
-              image: aircraft.image,
-              attribution: aircraft.attribution,
-              isFreighter: aircraft.isFreighter,
-              model: aircraft.typeName,
-              registration: aircraft.reg,
-              aircraft_id: aircraft.aircraft_id,
-              deliveryDate: aircraft.deliveryDate?.toISOString(),
-              firstFlightDate: aircraft.firstFlightDate?.toISOString(),
-              payload: aircraft.payload as any,
-              registrations: (aircraft.registrations ?? []).map((r: any) => ({
-                id: r.id,
-                reg: r.reg,
-                active: r.active,
-                hexIcao: r.hexIcao ?? undefined,
-                airlineName: r.airlineName ?? undefined,
-                registrationDate: r.registrationDate?.toISOString(),
-              })),
-            } satisfies AircraftEntity)
-          : normalizedFromStored,
-        bookings: existingFlight.bookings || [],
-      };
+      return this.buildExistingFlightResponse(existingFlight);
     }
 
-    // Fetch flight data from FlightAware API only
     try {
-      let flightAwareResponse: any;
-      let faFlight: any;
+      const faFlight = await this.resolveFaFlight({
+        faFlightId,
+        forceUpdate,
+        existingFlight,
+        iata,
+        icao,
+        searchDate,
+        nextDate,
+      });
 
-      // If faFlightId is provided, try to get from Redis cache first to avoid API call
-      if (faFlightId) {
-        const record = await prisma.flight.findFirst({
-          where: {
-            OR: [
-              {
-                flightAwareData: {
-                  faFlightId,
-                },
-              },
-              {
-                id: faFlightId, // we do this because flight_id in widget could also point to a flight and not fa_flight 
-              },
-            ],
-          },
-          include: {
-            flightAwareData: true,
-          },
-        });
-        
-        console.log(
-          `Fetching specific flight using fa_flight_id ${record?.flightAwareData?.faFlightId ?? faFlightId}`,
-        );
-
-        // Try to get from Redis cache first (cached from searchFlights)
-        let cachedFlight: any = null;
-        if (this.redis) {
-          try {
-            const flightCacheKey = `flightaware:flight:by_id:${record?.flightAwareData?.faFlightId ?? faFlightId}`;
-            const cached = await this.redis.get(flightCacheKey);
-            if (cached) {
-              cachedFlight = JSON.parse(cached);
-              console.log(
-                `Retrieved flight ${record?.flightAwareData?.faFlightId ?? faFlightId} from Redis cache (saving API call)`,
-              );
-            }
-          } catch (error) {
-            console.warn('Failed to read flight from Redis cache:', error);
-          }
-        }
-
-        if (cachedFlight) {
-          // Use cached flight data
-          faFlight = cachedFlight;
-          // Create a FlightAwareResponse-like structure for compatibility
-          flightAwareResponse = {
-            flights: [cachedFlight],
-            links: {},
-            num_pages: 1,
-          };
-        } else {
-          // Cache miss - fetch from FlightAware API
-          console.log(
-            `Cache miss for ${record?.flightAwareData?.faFlightId ?? faFlightId}, fetching from FlightAware API`,
-          );
-          flightAwareResponse =
-            await this.flightAwareService.searchFlightsByIdent(record?.flightAwareData?.faFlightId ?? faFlightId);
-
-          if (!flightAwareResponse || !flightAwareResponse.flights?.length) {
-            throw new BadRequestException(
-              'Unable to fetch flight information with the provided flight ID.',
-            );
-          }
-
-          // When using fa_flight_id, we get exactly 1 flight in the array
-          faFlight = flightAwareResponse.flights[0];
-
-          // Cache it for future use (cache miss scenario)
-          if (this.redis) {
-            try {
-              const flightCacheKey = `flightaware:flight:by_id:${record?.flightAwareData?.faFlightId ?? faFlightId}`;
-              await this.redis.setex(
-                flightCacheKey,
-                3600,
-                JSON.stringify(faFlight),
-              );
-              console.log(
-                `Cached flight ${record?.flightAwareData?.faFlightId ?? faFlightId} in Redis for future use`,
-              );
-            } catch (error) {
-              console.warn('Failed to cache flight in Redis:', error);
-            }
-          }
-        }
-      } else if (forceUpdate && existingFlight?.flightAwareData?.faFlightId) {
-        // If forceUpdate is true and we have an existing flight with fa_flight_id, use that
-        const existingFaFlightId = existingFlight.flightAwareData.faFlightId;
-        console.log(
-          `Force update: Using existing fa_flight_id ${existingFaFlightId} to fetch from FlightAware`,
-        );
-        flightAwareResponse =
-          await this.flightAwareService.searchFlightsByIdent(
-            existingFaFlightId,
-          );
-
-        if (!flightAwareResponse || !flightAwareResponse.flights?.length) {
-          throw new BadRequestException(
-            'Unable to fetch flight information. Please make sure the flight number is correct.',
-          );
-        }
-
-        // When using fa_flight_id, we get exactly 1 flight in the array
-        faFlight = flightAwareResponse.flights[0];
-      } else {
-        // Normal flow: use iata/icao identifier
-        const flightAwareIdent = icao || iata;
-        if (!flightAwareIdent) {
-          throw new BadRequestException('Flight identifier required');
-        }
-
-        flightAwareResponse =
-          await this.flightAwareService.searchFlightsByIdent(flightAwareIdent);
-
-        if (!flightAwareResponse || !flightAwareResponse.flights?.length) {
-          throw new BadRequestException(
-            'Unable to fetch flight information. Please make sure the flight number is correct.',
-          );
-        }
-
-        // Use the first flight or try to match by date
-        faFlight = flightAwareResponse.flights[0];
-
-        // Try to find a flight matching the search date
-        if (flightAwareResponse.flights.length > 1) {
-          const matchedFlight = flightAwareResponse.flights.find((flight) => {
-            const flightDate = flight.scheduled_out
-              ? new Date(flight.scheduled_out)
-              : flight.scheduled_off
-                ? new Date(flight.scheduled_off)
-                : null;
-
-            if (flightDate) {
-              // Check if flight date falls within the UTC date range for the user's timezone date
-              return flightDate >= searchDate && flightDate < nextDate;
-            }
-            return false;
-          });
-
-          if (matchedFlight) {
-            faFlight = matchedFlight;
-            console.log(
-              `Matched FlightAware flight by date: ${faFlight.fa_flight_id}`,
-            );
-          } else {
-            console.log(
-              `No date match found, using first flight: ${faFlight.fa_flight_id}`,
-            );
-          }
-        }
+      const arrivalAirportId = this.extractAirportId(faFlight.destination);
+      const departureAirportId = this.extractAirportId(faFlight.origin);
+      if (!arrivalAirportId) {
+        throw new BadRequestException('No flight found');
       }
 
-      // Calculate great circle distance (approximate)
+      // Kick off airport-conditions fetches in parallel with DB lookups below.
+      const conditionsPromise = Promise.all([
+        departureAirportId
+          ? this.getAirportConditions(departureAirportId).catch(() => EMPTY_CONDITIONS)
+          : Promise.resolve(EMPTY_CONDITIONS),
+        this.getAirportConditions(arrivalAirportId).catch(() => EMPTY_CONDITIONS),
+      ]);
+
       const greatCircleDistance = faFlight.route_distance
         ? {
             meter: Math.round(faFlight.route_distance * 1852).toString(),
@@ -419,557 +710,118 @@ export class FlightService {
           }
         : null;
 
-      // Resolve airline from DB using IATA/ICAO
-      const airlineIata = faFlight.operator_iata ?? undefined;
-      const airlineIcao = faFlight.operator_icao ?? undefined;
-
-      const dbAirline = await prisma.airline.findFirst({
-        where: {
-          OR: [
-            airlineIata ? { iata: airlineIata } : undefined,
-            airlineIcao ? { icao: airlineIcao } : undefined,
-          ].filter(Boolean),
-        },
-      });
-
-      // Resolve airport coordinates from DB using IATA/ICAO
-      const depIata = faFlight.origin?.code_iata ?? undefined;
-      const depIcao =
-        faFlight.origin?.code_icao ?? faFlight.origin?.code ?? undefined;
-      const arrIata = faFlight.destination?.code_iata ?? undefined;
-      const arrIcao =
-        faFlight.destination?.code_icao ??
-        faFlight.destination?.code ??
-        undefined;
-
+      const dbAirline = await lookupAirline(
+        faFlight.operator_iata ?? undefined,
+        faFlight.operator_icao ?? undefined,
+      );
       const [depAirport, arrAirport] = await Promise.all([
-        prisma.airport.findFirst({
-          where: {
-            OR: [
-              depIata ? { iataCode: depIata } : undefined,
-              depIcao
-                ? { OR: [{ gpsCode: depIcao }, { ident: depIcao }] }
-                : undefined,
-            ].filter(Boolean),
-          },
-        }),
-        prisma.airport.findFirst({
-          where: {
-            OR: [
-              arrIata ? { iataCode: arrIata } : undefined,
-              arrIcao
-                ? { OR: [{ gpsCode: arrIcao }, { ident: arrIcao }] }
-                : undefined,
-            ].filter(Boolean),
-          },
-        }),
+        lookupAirport(
+          faFlight.origin?.code_iata ?? undefined,
+          faFlight.origin?.code_icao ?? faFlight.origin?.code ?? undefined,
+        ),
+        lookupAirport(
+          faFlight.destination?.code_iata ?? undefined,
+          faFlight.destination?.code_icao ?? faFlight.destination?.code ?? undefined,
+        ),
       ]);
 
-      const flightData = {
-        userId,
-        flightNo: faFlight.ident.replace(/ /g, ''),
-        callSign: faFlight.ident,
-        aircraft: {
-          registration: faFlight.registration,
-          type: faFlight.aircraft_type,
-        },
-        airline: {
-          name:
-            dbAirline?.name ??
-            faFlight.operator ??
-            faFlight.operator_iata ??
-            'Unknown',
-          iata: dbAirline?.iata ?? faFlight.operator_iata,
-          icao: dbAirline?.icao ?? faFlight.operator_icao,
-          image: dbAirline?.image ?? null,
-        },
-        arrival: {
-          airport: {
-            icao: faFlight.destination?.code_icao ?? faFlight.destination?.code,
-            iata: faFlight.destination?.code_iata,
-            name: faFlight.destination?.name ?? 'Unknown',
-            municipalityName: faFlight.destination?.city ?? 'Unknown',
-            location: {
-              lat: arrAirport ? Number(arrAirport.lat) : 0, // fallback 0 if not found
-              lon: arrAirport ? Number(arrAirport.long) : 0,
-            },
-            countryCode:
-              faFlight.destination?.code_icao?.substring(0, 2) ?? 'XX',
-            timeZone: faFlight.destination?.timezone ?? 'UTC',
-            shortName: faFlight?.destination?.name ?? 'Unknown',
-          },
-          scheduledTime: {
-            utc: faFlight.scheduled_on ?? faFlight.scheduled_in,
-            local: faFlight.scheduled_on ?? faFlight.scheduled_in,
-          },
-          revisedTime: faFlight.estimated_on
-            ? {
-                utc: faFlight.estimated_on,
-                local: faFlight.estimated_on,
-              }
-            : null,
-          actualTime: faFlight.actual_on
-            ? {
-                utc: faFlight.actual_on,
-                local: faFlight.actual_on,
-              }
-            : null,
-          terminal: faFlight.terminal_destination,
-          gate: faFlight.gate_destination,
-        },
-        cargo: false,
-        date: faFlight.scheduled_out
-          ? new Date(faFlight.scheduled_out)
-          : searchDate,
-        departure: {
-          airport: {
-            shortName: faFlight?.origin?.name ?? 'Unknown',
-            icao: faFlight.origin?.code_icao ?? faFlight.origin?.code,
-            iata: faFlight.origin?.code_iata,
-            name: faFlight.origin?.name ?? 'Unknown',
-            municipalityName: faFlight.origin?.city ?? 'Unknown',
-            location: {
-              lat: depAirport ? Number(depAirport.lat) : 0,
-              lon: depAirport ? Number(depAirport.long) : 0,
-            },
-            countryCode: faFlight.origin?.code_icao?.substring(0, 2) ?? 'XX',
-            timeZone: faFlight.origin?.timezone ?? 'UTC',
-          },
-          scheduledTime: {
-            utc: faFlight.scheduled_out ?? faFlight.scheduled_off,
-            local: faFlight.scheduled_out ?? faFlight.scheduled_off,
-          },
-          revisedTime: faFlight.estimated_out
-            ? {
-                utc: faFlight.estimated_out,
-                local: faFlight.estimated_out,
-              }
-            : null,
-          actualTime: faFlight.actual_out
-            ? {
-                utc: faFlight.actual_out,
-                local: faFlight.actual_out,
-              }
-            : null,
-          terminal: faFlight.terminal_origin,
-          gate: faFlight.gate_origin,
-        },
-      };
+      const [departureConditions, arrivalConditions] = await conditionsPromise;
 
-      // Update existing flight if forceUpdate is true, otherwise create new
+      const flightData = buildFlightData(
+        faFlight,
+        userId,
+        searchDate,
+        dbAirline,
+        depAirport,
+        arrAirport,
+        departureConditions,
+        arrivalConditions,
+      );
+
       const newFlight =
         forceUpdate && existingFlight
           ? await prisma.flight.update({
               where: { id: existingFlight.id },
               data: flightData,
-              include: {
-                greatCircleDistance: true,
-              },
+              include: { greatCircleDistance: true },
             })
           : await prisma.flight.create({
-              data: {
-                ...flightData,
-                id: `flight_${createId()}`,
-              },
-              include: {
-                greatCircleDistance: true,
-              },
+              data: { ...flightData, id: `flight_${createId()}` },
+              include: { greatCircleDistance: true },
             });
 
-      // Handle greatCircleDistance separately (upsert)
       if (greatCircleDistance) {
         await prisma.greatCircleDistance.upsert({
           where: { flightId: newFlight.id },
           update: greatCircleDistance,
-          create: {
-            ...greatCircleDistance,
-            flightId: newFlight.id,
-          },
+          create: { ...greatCircleDistance, flightId: newFlight.id },
         });
       }
-
       console.log(
         forceUpdate && existingFlight
           ? `Updated flight from FlightAware: ${faFlight.fa_flight_id}`
           : `Created flight from FlightAware: ${faFlight.fa_flight_id}`,
       );
 
-      // Upsert FlightAwareData (update if exists, create if not)
-      const flightAwareDataPayload = {
-        ident: faFlight.ident,
-        identIcao: faFlight.ident_icao ?? null,
-        identIata: faFlight.ident_iata ?? null,
-        actualRunwayOff: faFlight.actual_runway_off ?? null,
-        actualRunwayOn: faFlight.actual_runway_on ?? null,
-        operator: faFlight.operator ?? null,
-        operatorIcao: faFlight.operator_icao ?? null,
-        operatorIata: faFlight.operator_iata ?? null,
-        flightNumber: faFlight.flight_number ?? null,
-        registration: faFlight.registration ?? null,
-        atcIdent: faFlight.atc_ident ?? null,
-        inboundFaFlightId: faFlight.inbound_fa_flight_id ?? null,
-        codesharesIata: faFlight.codeshares_iata ?? [],
-        codesharesIcao: faFlight.codeshares ?? [],
-        departureDelay: faFlight.departure_delay ?? null,
-        arrivalDelay: faFlight.arrival_delay ?? null,
-        filedEte: faFlight.filed_ete ?? null,
-        progressPercent: faFlight.progress_percent ?? null,
-        status: faFlight.status,
-        aircraftType: faFlight.aircraft_type ?? null,
-        routeDistance: faFlight.route_distance ?? null,
-        filedAirspeed: faFlight.filed_airspeed ?? null,
-        filedAltitude: faFlight.filed_altitude ?? null,
-        route: faFlight.route ?? null,
-        baggageClaim: faFlight.baggage_claim ?? null,
-        seatsCabinBusiness: faFlight.seats_cabin_business ?? null,
-        seatsCabinCoach: faFlight.seats_cabin_coach ?? null,
-        seatsCabinFirst: faFlight.seats_cabin_first ?? null,
-        gateOrigin: faFlight.gate_origin ?? null,
-        gateDestination: faFlight.gate_destination ?? null,
-        terminalOrigin: faFlight.terminal_origin ?? null,
-        terminalDestination: faFlight.terminal_destination ?? null,
-        scheduledOut: faFlight.scheduled_out
-          ? new Date(faFlight.scheduled_out)
-          : null,
-        estimatedOut: faFlight.estimated_out
-          ? new Date(faFlight.estimated_out)
-          : null,
-        actualOut: faFlight.actual_out ? new Date(faFlight.actual_out) : null,
-        scheduledOff: faFlight.scheduled_off
-          ? new Date(faFlight.scheduled_off)
-          : null,
-        estimatedOff: faFlight.estimated_off
-          ? new Date(faFlight.estimated_off)
-          : null,
-        actualOff: faFlight.actual_off ? new Date(faFlight.actual_off) : null,
-        scheduledOn: faFlight.scheduled_on
-          ? new Date(faFlight.scheduled_on)
-          : null,
-        estimatedOn: faFlight.estimated_on
-          ? new Date(faFlight.estimated_on)
-          : null,
-        actualOn: faFlight.actual_on ? new Date(faFlight.actual_on) : null,
-        scheduledIn: faFlight.scheduled_in
-          ? new Date(faFlight.scheduled_in)
-          : null,
-        estimatedIn: faFlight.estimated_in
-          ? new Date(faFlight.estimated_in)
-          : null,
-        actualIn: faFlight.actual_in ? new Date(faFlight.actual_in) : null,
-        foresightPredictionsAvailable:
-          faFlight.foresight_predictions_available ?? false,
-        blocked: faFlight.blocked ?? false,
-        diverted: faFlight.diverted ?? false,
-        cancelled: faFlight.cancelled ?? false,
-        positionOnly: faFlight.position_only ?? false,
-        originCode: faFlight?.origin?.code ?? 'Unknown',
-        originCodeIcao: faFlight?.origin?.code_icao ?? null,
-        originCodeIata: faFlight?.origin?.code_iata ?? null,
-        originCodeLid: faFlight?.origin?.code_lid ?? null,
-        originTimezone: faFlight?.origin?.timezone ?? null,
-        originName: faFlight?.origin?.name ?? null,
-        originCity: faFlight?.origin?.city ?? null,
-        destinationCode: faFlight?.destination?.code ?? 'Unknown',
-        destinationCodeIcao: faFlight?.destination?.code_icao ?? null,
-        destinationCodeIata: faFlight?.destination?.code_iata ?? null,
-        destinationCodeLid: faFlight?.destination?.code_lid ?? null,
-        destinationTimezone: faFlight?.destination?.timezone ?? null,
-        destinationName: faFlight?.destination?.name ?? null,
-        destinationCity: faFlight?.destination?.city ?? null,
-        flightId: newFlight.id,
-      };
-
-      // Update or create FlightAwareData
-      // If forceUpdate is true and we have an existing flight, we know FlightAwareData exists
+      const faPayload = buildFlightAwareDataPayload(faFlight, newFlight.id);
       if (forceUpdate && existingFlight?.flightAwareData) {
-        // Update existing FlightAwareData to avoid unique constraint failure
         await prisma.flightAwareData.update({
           where: { id: existingFlight.flightAwareData.id },
-          data: flightAwareDataPayload,
+          data: faPayload,
         });
       } else {
-        // Check if FlightAwareData exists, then update or create
-        const existingFlightAwareData = await prisma.flightAwareData.findFirst({
+        const found = await prisma.flightAwareData.findFirst({
           where: { faFlightId: faFlight.fa_flight_id },
         });
-
-        if (existingFlightAwareData) {
+        if (found) {
           await prisma.flightAwareData.update({
-            where: { id: existingFlightAwareData.id },
-            data: flightAwareDataPayload,
+            where: { id: found.id },
+            data: faPayload,
           });
         } else {
           await prisma.flightAwareData.create({
-            data: {
-              faFlightId: faFlight.fa_flight_id,
-              ...flightAwareDataPayload,
-            },
+            data: { faFlightId: faFlight.fa_flight_id, ...faPayload },
           });
         }
       }
 
-      // Handle aircraft information using AeroDataBox
-      let normalizedAircraft: AircraftEntity | undefined;
-      const registration = faFlight.registration;
-      const apiKey = this.configService.get<string>('RAPID_API_KEY');
+      const normalizedAircraft = await this.resolveAircraft(
+        faFlight.registration,
+        faFlight,
+        newFlight,
+      );
 
-      if (registration) {
-        // Check if aircraft already exists in database
-        let aircraft: any = await prisma.aircraft.findFirst({
-          where: {
-            reg: registration,
-          },
-          include: { registrations: true },
-        });
-
-        if (aircraft) {
-          normalizedAircraft = {
-            modeS: aircraft.hexIcao,
-            age: aircraft.age?.toString(),
-            image: aircraft.image,
-            attribution: aircraft.attribution,
-            isFreighter: aircraft.isFreighter,
-            model: aircraft.typeName,
-            registration: aircraft.reg,
-            aircraft_id: aircraft.aircraft_id,
-            deliveryDate: aircraft.deliveryDate?.toISOString(),
-            firstFlightDate: aircraft.firstFlightDate?.toISOString(),
-            payload: aircraft.payload as any,
-            registrations: (aircraft.registrations ?? []).map((r: any) => ({
-              id: r.id,
-              reg: r.reg,
-              active: r.active,
-              hexIcao: r.hexIcao ?? undefined,
-              airlineName: r.airlineName ?? undefined,
-              registrationDate: r.registrationDate?.toISOString(),
-            })),
-          } satisfies AircraftEntity;
-        } else if (apiKey) {
-          // Fetch aircraft details from AeroDataBox
-          try {
-            const aeroDataBoxRes = await fetch(
-              `https://aerodatabox.p.rapidapi.com/aircrafts/reg/${registration}?withImage=true&withRegistrations=true`,
-              {
-                headers: {
-                  'X-RapidAPI-Key': apiKey,
-                  'X-RapidAPI-Host': 'aerodatabox.p.rapidapi.com',
-                },
-              },
-            );
-
-            if (aeroDataBoxRes.ok) {
-              const json = await aeroDataBoxRes.json();
-
-              // Create aircraft record with AeroDataBox data
-              aircraft = await prisma.aircraft.create({
-                data: {
-                  aircraft_id: String(json.id),
-                  payload: json,
-                  reg: json.reg,
-                  hexIcao: json.hexIcao,
-                  modelCode: json.modelCode,
-                  firstFlightDate: json.firstFlightDate
-                    ? new Date(json.firstFlightDate as string)
-                    : null,
-                  deliveryDate: json.deliveryDate
-                    ? new Date(json.deliveryDate as string)
-                    : null,
-                  typeName: json.typeName,
-                  isFreighter: json.isFreighter ?? false,
-                  age: json.ageYears,
-                  image: json?.image?.url,
-                  attribution: json?.image?.htmlAttributions
-                    ? `${json.image.htmlAttributions[0]} ${json.image.htmlAttributions[1] ?? ''}`
-                    : null,
-                  registrations: json.registrations
-                    ? {
-                        createMany: {
-                          data: json.registrations.map((data: any) => ({
-                            id: `registration_${createId()}`,
-                            active: data.active ?? true,
-                            reg: data.reg,
-                            airlineName: data.airlineName,
-                            registrationDate: data.registrationDate
-                              ? new Date(data.registrationDate)
-                              : null,
-                            hexIcao: data.hexIcao,
-                          })),
-                          skipDuplicates: true,
-                        },
-                      }
-                    : undefined,
-                },
-                include: { registrations: true },
-              });
-
-              normalizedAircraft = {
-                modeS: aircraft.hexIcao,
-                age: aircraft.age?.toString(),
-                image: aircraft.image,
-                attribution: aircraft.attribution,
-                isFreighter: aircraft.isFreighter,
-                model: aircraft.typeName,
-                registration: aircraft.reg,
-                aircraft_id: aircraft.aircraft_id,
-                deliveryDate: aircraft.deliveryDate?.toISOString(),
-                firstFlightDate: aircraft.firstFlightDate?.toISOString(),
-                payload: aircraft.payload as any,
-                registrations: (aircraft.registrations ?? []).map((r: any) => ({
-                  id: r.id,
-                  reg: r.reg,
-                  active: r.active,
-                  hexIcao: r.hexIcao ?? undefined,
-                  airlineName: r.airlineName ?? undefined,
-                  registrationDate: r.registrationDate?.toISOString(),
-                })),
-              } satisfies AircraftEntity;
-
-              console.log(
-                `Fetched aircraft data from AeroDataBox for ${registration}`,
-              );
-            } else {
-              throw new Error('AeroDataBox request failed');
-            }
-          } catch (error) {
-            console.error('Error fetching from AeroDataBox:', error);
-
-            // Fallback to Planespotters for image only
-            let planespotterImage: string | null = null;
-            let planespotterAttribution: string | null = null;
-
-            try {
-              const planespotterRes = await fetch(
-                `https://api.planespotters.net/pub/photos/reg/${registration}`,
-              );
-              if (planespotterRes.ok) {
-                const planespotterData = await planespotterRes.json();
-                if (
-                  planespotterData.photos &&
-                  planespotterData.photos.length > 0
-                ) {
-                  planespotterImage =
-                    planespotterData.photos[0].thumbnail_large.src;
-                  planespotterAttribution = `Photo by ${planespotterData.photos[0].photographer}`;
-                }
-              }
-            } catch (e) {
-              console.error('Error fetching from Planespotters:', e);
-            }
-
-            // Create minimal aircraft record with Planespotters image
-            aircraft = await prisma.aircraft.create({
-              data: {
-                aircraft_id: `aircraft_${createId()}`,
-                reg: registration,
-                hexIcao: '',
-                typeName: faFlight.aircraft_type ?? 'Unknown',
-                modelCode: faFlight.aircraft_type ?? 'Unknown',
-                isFreighter: false,
-                age: 0,
-                image: planespotterImage,
-                attribution: planespotterAttribution,
-                payload: {},
-              },
-            });
-
-            normalizedAircraft = {
-              modeS: aircraft.hexIcao,
-              age: aircraft.age?.toString(),
-              image: aircraft.image,
-              attribution: aircraft.attribution,
-              isFreighter: aircraft.isFreighter,
-              model: aircraft.typeName,
-              registration: aircraft.reg,
-              aircraft_id: aircraft.aircraft_id,
-              deliveryDate: aircraft.deliveryDate?.toISOString(),
-              firstFlightDate: aircraft.firstFlightDate?.toISOString(),
-              payload: aircraft.payload as any,
-            } satisfies AircraftEntity;
-          }
-        } else {
-          // No API key, create minimal record
-          normalizedAircraft = {
-            //@ts-expect-error
-            ...newFlight.aircraft,
-            registration: registration,
-            model: faFlight.aircraft_type ?? 'Unknown',
-          };
-        }
-      } else {
-        // No registration available, use basic aircraft info from flight data
-        normalizedAircraft = {
-          //@ts-expect-error
-          ...newFlight.aircraft,
-          registration: faFlight.registration ?? 'Unknown',
-          model: faFlight.aircraft_type ?? 'Unknown',
-        };
-      }
-
-      // Reload flight with FlightAware data to include it in response
       const flightWithAwareData = await prisma.flight.findUnique({
         where: { id: newFlight.id },
         include: {
           greatCircleDistance: true,
-          flightAwareData: {
-            omit: {
-              faFlightId: true,
-            },
-          },
-          bookings: {
-            where: {
-              userId,
-            },
-            orderBy: {
-              createdAt: 'desc',
-            },
-          },
+          flightAwareData: { omit: { faFlightId: true } },
+          bookings: { where: { userId }, orderBy: { createdAt: 'desc' } },
         },
       });
 
-      // Query airline from DB to get correct name and image
-      const storedAirlineFinal = flightWithAwareData?.airline as any;
-      const airlineIataFinal = storedAirlineFinal?.iata;
-      const airlineIcaoFinal = storedAirlineFinal?.icao;
+      const storedAirline = flightWithAwareData?.airline as any;
+      const dbAirlineFinal = await lookupAirline(
+        storedAirline?.iata,
+        storedAirline?.icao,
+      );
+      const mergedAirline = mergeAirline(storedAirline, dbAirlineFinal);
 
-      const dbAirlineFinal = await prisma.airline.findFirst({
-        where: {
-          OR: [
-            airlineIataFinal ? { iata: airlineIataFinal } : undefined,
-            airlineIcaoFinal ? { icao: airlineIcaoFinal } : undefined,
-          ].filter(Boolean),
-        },
-      });
-
-      // Merge airline data: prefer DB, fallback to stored
-      const mergedAirlineFinal = dbAirlineFinal
-        ? {
-            name: dbAirlineFinal.name,
-            iata: dbAirlineFinal.iata,
-            icao: dbAirlineFinal.icao,
-            image: dbAirlineFinal.image,
-          }
-        : storedAirlineFinal;
-
-      // Preserve the normalized aircraft data in the response
       if (flightWithAwareData && normalizedAircraft) {
         return {
           ...flightWithAwareData,
-          airline: mergedAirlineFinal,
+          airline: mergedAirline,
           aircraft: normalizedAircraft,
           bookings: flightWithAwareData.bookings || [],
         };
       }
-
       return flightWithAwareData
         ? {
             ...flightWithAwareData,
-            airline: mergedAirlineFinal,
+            airline: mergedAirline,
             bookings: flightWithAwareData.bookings || [],
           }
-        : {
-            ...newFlight,
-            bookings: [],
-          };
+        : { ...newFlight, bookings: [] };
     } catch (error) {
       if (
         error instanceof UnauthorizedException ||
@@ -982,264 +834,233 @@ export class FlightService {
     }
   }
 
+  /** Build the response for the cached (existing-flight, no forceUpdate) path. */
+  private async buildExistingFlightResponse(existingFlight: any) {
+    const stored = existingFlight.aircraft as any;
+    let aircraft: any = null;
+    if (stored) {
+      const hex = stored.modeS ?? stored.hexIcao;
+      const reg = stored.reg ?? stored.registration ?? stored.registrataion;
+      if (hex) {
+        aircraft = await prisma.aircraft.findFirst({
+          where: { hexIcao: hex },
+          include: { registrations: true },
+        });
+      }
+      if (!aircraft && reg) {
+        aircraft = await prisma.aircraft.findFirst({
+          where: { reg },
+          include: { registrations: true },
+        });
+      }
+    }
+
+    const storedAirline = existingFlight.airline as any;
+    const dbAirline = await lookupAirline(
+      storedAirline?.iata,
+      storedAirline?.icao,
+    );
+
+    return {
+      ...existingFlight,
+      airline: mergeAirline(storedAirline, dbAirline),
+      aircraft: aircraft
+        ? normalizeAircraftFromDb(aircraft)
+        : normalizeAircraftFromStored(stored),
+      bookings: existingFlight.bookings || [],
+    };
+  }
+
   async searchFlights(
     { iata, icao, date, timezone }: GetFlightSearchDTO,
     userId: string,
   ): Promise<FlightSearchResponseEntity> {
-    // Parse date with timezone consideration if provided
     let searchDate: Date | null = null;
     let nextDate: Date | null = null;
-
     if (date) {
-      const { startOfDayUtc, endOfDayUtc } = this.parseDateInTimezone(
-        date,
-        timezone,
-      );
-      searchDate = startOfDayUtc;
-      nextDate = endOfDayUtc;
+      const parsed = parseDateInTimezone(date, timezone);
+      searchDate = parsed.startOfDayUtc;
+      nextDate = parsed.endOfDayUtc;
     }
 
-    // Fetch flights from FlightAware API
     try {
-      const flightAwareIdent = icao || iata;
-      if (!flightAwareIdent) {
-        throw new BadRequestException('Flight identifier required');
+      const ident = icao || iata;
+      if (!ident) throw new BadRequestException('Flight identifier required');
+
+      const response = await this.flightAwareService.searchFlightsByIdent(ident);
+      if (!response || !response.flights?.length) {
+        return { flights: [], count: 0 };
       }
 
-      const flightAwareResponse =
-        await this.flightAwareService.searchFlightsByIdent(flightAwareIdent);
-
-      if (!flightAwareResponse || !flightAwareResponse.flights?.length) {
-        return {
-          flights: [],
-          count: 0,
-        };
-      }
-
-      // Filter flights by date if provided
-      let filteredFlights = flightAwareResponse.flights;
+      let filtered = response.flights;
       if (searchDate && nextDate) {
-        filteredFlights = flightAwareResponse.flights.filter((flight: any) => {
-          const flightDate = flight.scheduled_out
-            ? new Date(flight.scheduled_out)
-            : flight.scheduled_off
-              ? new Date(flight.scheduled_off)
+        filtered = response.flights.filter((f: any) => {
+          const d = f.scheduled_out
+            ? new Date(f.scheduled_out)
+            : f.scheduled_off
+              ? new Date(f.scheduled_off)
               : null;
-
-          if (flightDate) {
-            return flightDate >= searchDate && flightDate < nextDate;
-          }
-          return false;
+          return d ? d >= searchDate! && d < nextDate! : false;
         });
       }
 
-      // Cache individual flights by faFlightId in Redis for later retrieval
-      // This avoids making a second API call when user selects a flight
-      // Use a distinct cache key prefix to avoid conflicts with FlightAware service cache
+      // Cache by fa_flight_id so getFlight can hit Redis instead of FA API
       if (this.redis) {
         try {
-          for (const faFlight of filteredFlights) {
-            const flightCacheKey = `flightaware:flight:by_id:${faFlight.fa_flight_id}`;
-            // Cache for 1 hour (3600 seconds) - FlightAware data is relatively stable
+          for (const f of filtered) {
             await this.redis.setex(
-              flightCacheKey,
+              `flightaware:flight:by_id:${f.fa_flight_id}`,
               3600,
-              JSON.stringify(faFlight),
+              JSON.stringify(f),
             );
           }
           console.log(
-            `Cached ${filteredFlights.length} flights in Redis for retrieval (key: flightaware:flight:by_id:*)`,
+            `Cached ${filtered.length} flights in Redis for retrieval (key: flightaware:flight:by_id:*)`,
           );
         } catch (error) {
           console.warn('Failed to cache flights in Redis:', error);
         }
       }
 
-      // Collect unique airline IATA/ICAO codes to query database in batch
-      const airlineCodes = new Set<string>();
-      filteredFlights.forEach((faFlight: any) => {
-        if (faFlight.operator_iata) {
-          airlineCodes.add(`iata:${faFlight.operator_iata}`);
-        }
-        if (faFlight.operator_icao) {
-          airlineCodes.add(`icao:${faFlight.operator_icao}`);
-        }
+      // Batch-resolve airlines from DB
+      const iatas = new Set<string>();
+      const icaos = new Set<string>();
+      filtered.forEach((f: any) => {
+        if (f.operator_iata) iatas.add(f.operator_iata);
+        if (f.operator_icao) icaos.add(f.operator_icao);
       });
-
-      // Query airlines from database in batch
-      const airlineMap = new Map<string, any>();
-      if (airlineCodes.size > 0) {
-        const airlineIatas = Array.from(airlineCodes)
-          .filter((code) => code.startsWith('iata:'))
-          .map((code) => code.replace('iata:', ''));
-        const airlineIcaos = Array.from(airlineCodes)
-          .filter((code) => code.startsWith('icao:'))
-          .map((code) => code.replace('icao:', ''));
-
+      const airlineByIata = new Map<string, any>();
+      const airlineByIcao = new Map<string, any>();
+      if (iatas.size || icaos.size) {
         const dbAirlines = await prisma.airline.findMany({
           where: {
             OR: [
-              airlineIatas.length > 0
-                ? { iata: { in: airlineIatas } }
-                : undefined,
-              airlineIcaos.length > 0
-                ? { icao: { in: airlineIcaos } }
-                : undefined,
-            ].filter(Boolean),
+              iatas.size ? { iata: { in: Array.from(iatas) } } : undefined,
+              icaos.size ? { icao: { in: Array.from(icaos) } } : undefined,
+            ].filter(Boolean) as any,
           },
         });
-
-        // Create a map for quick lookup: IATA/ICAO -> airline record
-        dbAirlines.forEach((airline) => {
-          if (airline.iata) {
-            airlineMap.set(`iata:${airline.iata}`, airline);
-          }
-          if (airline.icao) {
-            airlineMap.set(`icao:${airline.icao}`, airline);
-          }
-        });
+        for (const a of dbAirlines) {
+          if (a.iata) airlineByIata.set(a.iata, a);
+          if (a.icao) airlineByIcao.set(a.icao, a);
+        }
       }
 
-      // Map FlightAware flights to FlightCandidateEntity
-      const flightCandidates: FlightCandidateEntity[] = filteredFlights.map(
-        (faFlight: any) => {
-          // Resolve airline from database or fallback to FlightAware data
-          const airlineIata = faFlight.operator_iata;
-          const airlineIcao = faFlight.operator_icao;
-
-          // Try to get airline from database
-          const dbAirline =
-            airlineIata && airlineMap.has(`iata:${airlineIata}`)
-              ? airlineMap.get(`iata:${airlineIata}`)
-              : airlineIcao && airlineMap.has(`icao:${airlineIcao}`)
-                ? airlineMap.get(`icao:${airlineIcao}`)
-                : null;
-
-          // Use DB airline data if available, otherwise fallback to FlightAware data
-          const airlineName = dbAirline
-            ? dbAirline.name
-            : (faFlight.operator ??
-              faFlight.operator_iata ??
-              faFlight.operator_icao ??
-              'Unknown');
-
-          return {
-            faFlightId: faFlight.fa_flight_id,
-            ident: faFlight.ident,
-            origin: {
-              code: faFlight.origin?.code ?? 'Unknown',
-              codeIata: faFlight.origin?.code_iata,
-              codeIcao: faFlight.origin?.code_icao ?? faFlight.origin?.code,
-              name: faFlight.origin?.name,
-              city: faFlight.origin?.city,
-            },
-            destination: {
-              code: faFlight.destination?.code ?? 'Unknown',
-              codeIata: faFlight.destination?.code_iata,
-              codeIcao:
-                faFlight.destination?.code_icao ?? faFlight.destination?.code,
-              name: faFlight.destination?.name,
-              city: faFlight.destination?.city,
-            },
-            scheduledOut: faFlight.scheduled_out
-              ? new Date(faFlight.scheduled_out)
-              : undefined,
-            scheduledOff: faFlight.scheduled_off
-              ? new Date(faFlight.scheduled_off)
-              : undefined,
-            status: faFlight.status ?? 'Unknown',
-            airline: {
-              name: airlineName,
-              iata: dbAirline?.iata ?? faFlight.operator_iata,
-              icao: dbAirline?.icao ?? faFlight.operator_icao,
-              image: dbAirline?.image ?? undefined,
-            },
-          };
-        },
-      );
-
-      return {
-        flights: flightCandidates,
-        count: flightCandidates.length,
-      };
-    } catch (error) {
-      if (error instanceof BadRequestException) {
-        throw error;
-      }
-      console.error('Error searching flights from FlightAware, falling back to database:', error);
-
-      // Fallback: try to return matching flights from the database
-      const flightAwareIdent = icao || iata;
-      const dbWhere: any = {
-        OR: [
-          { callSign: { equals: iata, mode: 'insensitive' } },
-          { flightNo: { equals: iata, mode: 'insensitive' } },
-          ...(icao
-            ? [
-                { callSign: { equals: icao, mode: 'insensitive' } },
-                { flightNo: { equals: icao, mode: 'insensitive' } },
-              ]
-            : []),
-        ],
-        userId,
-      };
-
-      if (searchDate && nextDate) {
-        dbWhere.date = { gte: searchDate, lte: nextDate };
-      }
-
-      const dbFlights = await prisma.flight.findMany({
-        where: dbWhere,
-        include: { flightAwareData: true },
-        orderBy: { date: 'desc' },
+      const flights: FlightCandidateEntity[] = filtered.map((f: any) => {
+        const dbAirline =
+          (f.operator_iata && airlineByIata.get(f.operator_iata)) ||
+          (f.operator_icao && airlineByIcao.get(f.operator_icao)) ||
+          null;
+        return {
+          faFlightId: f.fa_flight_id,
+          ident: f.ident,
+          origin: {
+            code: f.origin?.code ?? 'Unknown',
+            codeIata: f.origin?.code_iata,
+            codeIcao: f.origin?.code_icao ?? f.origin?.code,
+            name: f.origin?.name,
+            city: f.origin?.city,
+          },
+          destination: {
+            code: f.destination?.code ?? 'Unknown',
+            codeIata: f.destination?.code_iata,
+            codeIcao: f.destination?.code_icao ?? f.destination?.code,
+            name: f.destination?.name,
+            city: f.destination?.city,
+          },
+          scheduledOut: f.scheduled_out ? new Date(f.scheduled_out) : undefined,
+          scheduledOff: f.scheduled_off ? new Date(f.scheduled_off) : undefined,
+          status: f.status ?? 'Unknown',
+          airline: {
+            name:
+              dbAirline?.name ??
+              f.operator ??
+              f.operator_iata ??
+              f.operator_icao ??
+              'Unknown',
+            iata: dbAirline?.iata ?? f.operator_iata,
+            icao: dbAirline?.icao ?? f.operator_icao,
+            image: dbAirline?.image ?? undefined,
+          },
+        };
       });
 
-      if (dbFlights.length === 0) {
-        throw new InternalServerErrorException('Failed to search flights');
-      }
-
-      const flightCandidates: FlightCandidateEntity[] = dbFlights.map(
-        (flight) => {
-          const dep = flight.departure as any;
-          const arr = flight.arrival as any;
-          const airlineData = flight.airline as any;
-          const fa = flight.flightAwareData;
-
-          return {
-            faFlightId: fa?.faFlightId ?? flight.id,
-            ident: fa?.ident ?? flight.callSign ?? flight.flightNo,
-            origin: {
-              code: dep?.airport?.icao ?? dep?.airport?.iata ?? 'Unknown',
-              codeIata: dep?.airport?.iata,
-              codeIcao: dep?.airport?.icao,
-              name: dep?.airport?.shortName ?? dep?.airport?.name,
-              city: dep?.airport?.municipality,
-            },
-            destination: {
-              code: arr?.airport?.icao ?? arr?.airport?.iata ?? 'Unknown',
-              codeIata: arr?.airport?.iata,
-              codeIcao: arr?.airport?.icao,
-              name: arr?.airport?.shortName ?? arr?.airport?.name,
-              city: arr?.airport?.municipality,
-            },
-            scheduledOut: fa?.scheduledOut ?? undefined,
-            scheduledOff: fa?.scheduledOff ?? undefined,
-            status: fa?.status ?? 'Unknown',
-            airline: {
-              name: airlineData?.name ?? 'Unknown',
-              iata: airlineData?.iata,
-              icao: airlineData?.icao,
-              image: airlineData?.image ?? undefined,
-            },
-          };
-        },
+      return { flights, count: flights.length };
+    } catch (error) {
+      if (error instanceof BadRequestException) throw error;
+      console.error(
+        'Error searching flights from FlightAware, falling back to database:',
+        error,
       );
-
-      return {
-        flights: flightCandidates,
-        count: flightCandidates.length,
-      };
+      return this.searchFlightsDbFallback(iata, icao, userId, searchDate, nextDate);
     }
+  }
+
+  private async searchFlightsDbFallback(
+    iata: string | undefined,
+    icao: string | undefined,
+    userId: string,
+    searchDate: Date | null,
+    nextDate: Date | null,
+  ): Promise<FlightSearchResponseEntity> {
+    const where: any = {
+      OR: [
+        { callSign: { equals: iata, mode: 'insensitive' } },
+        { flightNo: { equals: iata, mode: 'insensitive' } },
+        ...(icao
+          ? [
+              { callSign: { equals: icao, mode: 'insensitive' } },
+              { flightNo: { equals: icao, mode: 'insensitive' } },
+            ]
+          : []),
+      ],
+      userId,
+    };
+    if (searchDate && nextDate) where.date = { gte: searchDate, lte: nextDate };
+
+    const dbFlights = await prisma.flight.findMany({
+      where,
+      include: { flightAwareData: true },
+      orderBy: { date: 'desc' },
+    });
+    if (dbFlights.length === 0) {
+      throw new InternalServerErrorException('Failed to search flights');
+    }
+
+    const flights: FlightCandidateEntity[] = dbFlights.map((flight) => {
+      const dep = flight.departure as any;
+      const arr = flight.arrival as any;
+      const airline = flight.airline as any;
+      const fa = flight.flightAwareData;
+      return {
+        faFlightId: fa?.faFlightId ?? flight.id,
+        ident: fa?.ident ?? flight.callSign ?? flight.flightNo,
+        origin: {
+          code: dep?.airport?.icao ?? dep?.airport?.iata ?? 'Unknown',
+          codeIata: dep?.airport?.iata,
+          codeIcao: dep?.airport?.icao,
+          name: dep?.airport?.shortName ?? dep?.airport?.name,
+          city: dep?.airport?.municipality,
+        },
+        destination: {
+          code: arr?.airport?.icao ?? arr?.airport?.iata ?? 'Unknown',
+          codeIata: arr?.airport?.iata,
+          codeIcao: arr?.airport?.icao,
+          name: arr?.airport?.shortName ?? arr?.airport?.name,
+          city: arr?.airport?.municipality,
+        },
+        scheduledOut: fa?.scheduledOut ?? undefined,
+        scheduledOff: fa?.scheduledOff ?? undefined,
+        status: fa?.status ?? 'Unknown',
+        airline: {
+          name: airline?.name ?? 'Unknown',
+          iata: airline?.iata,
+          icao: airline?.icao,
+          image: airline?.image ?? undefined,
+        },
+      };
+    });
+    return { flights, count: flights.length };
   }
 
   async getFlightTrack(
@@ -1247,9 +1068,8 @@ export class FlightService {
     userId: string,
   ) {
     const dateToUse = date ?? new Date().toISOString().split('T')[0];
-    const tz = timezone ?? 'UTC';
     const { startOfDayUtc: searchDate, endOfDayUtc: nextDate } =
-      this.parseDateInTimezone(dateToUse, tz);
+      parseDateInTimezone(dateToUse, timezone ?? 'UTC');
 
     const existingFlight = await prisma.flight.findFirst({
       where: {
@@ -1260,25 +1080,14 @@ export class FlightService {
           { flightNo: { equals: icao, mode: 'insensitive' } },
         ],
         userId,
-        date: {
-          gte: searchDate,
-          lte: nextDate,
-        },
+        date: { gte: searchDate, lte: nextDate },
       },
-      orderBy: {
-        createdAt: 'desc',
-      },
-      include: {
-        flightAwareData: true,
-      },
+      orderBy: { createdAt: 'desc' },
+      include: { flightAwareData: true },
     });
     if (!existingFlight) {
-      throw new HttpException(
-        'Flight not found in database',
-        HttpStatus.NOT_FOUND,
-      );
+      throw new HttpException('Flight not found in database', HttpStatus.NOT_FOUND);
     }
-
     if (!existingFlight.flightAwareData?.faFlightId) {
       throw new HttpException(
         'FlightAware data not available for this flight',
@@ -1288,243 +1097,108 @@ export class FlightService {
 
     const faFlightId = existingFlight.flightAwareData.faFlightId;
     const cacheKey = `flight:track:${faFlightId}`;
-    const cacheTTL = 30; // 30 seconds
+    const cacheTTL = 30;
 
-    // Check if flight has concluded (landed more than 2 hours ago)
-    const flightAwareData = existingFlight.flightAwareData;
-    const hasLanded =
-      flightAwareData.actualOn ||
-      flightAwareData.actualIn ||
-      flightAwareData.estimatedOn;
+    const fa = existingFlight.flightAwareData;
+    const landingTime = fa.actualOn ?? fa.actualIn ?? fa.estimatedOn;
+    const isFlightConcluded = landingTime
+      ? (Date.now() - new Date(landingTime as Date).getTime()) / 3_600_000 > 2
+      : false;
 
-    let isFlightConcluded = false;
-    if (hasLanded) {
-      const landingTimeValue =
-        flightAwareData.actualOn ||
-        flightAwareData.actualIn ||
-        flightAwareData.estimatedOn;
-      const landingTime = new Date(landingTimeValue as Date);
-      const now = new Date();
-      const hoursSinceLanding =
-        (now.getTime() - landingTime.getTime()) / (1000 * 60 * 60);
-
-      // Consider flight concluded if it landed more than 2 hours ago
-      isFlightConcluded = hoursSinceLanding > 2;
-    }
-
-    // If flight is concluded and all positions are fetched, return database data
+    // Concluded + complete data already persisted: serve from DB
     if (isFlightConcluded && existingFlight.allFlightPositionsFetched) {
       console.log(
         `Flight ${faFlightId} has concluded and all positions are fetched. Returning database data.`,
       );
-
-      const existingPositions = await prisma.flightPositions.findMany({
-        where: {
-          flightId: existingFlight.id,
-        },
-        orderBy: {
-          timestamp: 'asc',
-        },
+      const positions = await prisma.flightPositions.findMany({
+        where: { flightId: existingFlight.id },
+        orderBy: { timestamp: 'asc' },
       });
-
-      if (existingPositions.length > 0) {
+      if (positions.length > 0) {
         console.log(
-          `FlightTrack: Returning ${existingPositions.length} positions from database for concluded flight ${faFlightId}`,
+          `FlightTrack: Returning ${positions.length} positions from database for concluded flight ${faFlightId}`,
         );
-
-        // Calculate actual distance if available
-        let actualDistance = null;
-        if (existingPositions.length >= 2) {
-          // Simple distance calculation (you could improve this)
-          const first = existingPositions[0];
-          const last = existingPositions[existingPositions.length - 1];
-          const R = 3440.065; // Earth radius in nautical miles
-          const firstLat = Number(first.latitude);
-          const firstLon = Number(first.longitude);
-          const lastLat = Number(last.latitude);
-          const lastLon = Number(last.longitude);
-          const dLat = ((lastLat - firstLat) * Math.PI) / 180;
-          const dLon = ((lastLon - firstLon) * Math.PI) / 180;
-          const a =
-            Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-            Math.cos((firstLat * Math.PI) / 180) *
-              Math.cos((lastLat * Math.PI) / 180) *
-              Math.sin(dLon / 2) *
-              Math.sin(dLon / 2);
-          const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-          actualDistance = R * c;
+        let actualDistance: number | null = null;
+        if (positions.length >= 2) {
+          const a = positions[0];
+          const b = positions[positions.length - 1];
+          const R = 3440.065;
+          const dLat = ((Number(b.latitude) - Number(a.latitude)) * Math.PI) / 180;
+          const dLon = ((Number(b.longitude) - Number(a.longitude)) * Math.PI) / 180;
+          const x =
+            Math.sin(dLat / 2) ** 2 +
+            Math.cos((Number(a.latitude) * Math.PI) / 180) *
+              Math.cos((Number(b.latitude) * Math.PI) / 180) *
+              Math.sin(dLon / 2) ** 2;
+          actualDistance = R * 2 * Math.atan2(Math.sqrt(x), Math.sqrt(1 - x));
         }
-
         return {
           actual_distance: actualDistance,
-          positions: existingPositions.map((pos) => ({
+          positions: positions.map((p) => ({
             fa_flight_id: faFlightId,
-            altitude: pos.altitude,
-            altitude_change:
-              pos.altitudeChange === 'Climb'
-                ? 'C'
-                : pos.altitudeChange === 'Descend'
-                  ? 'D'
-                  : '-',
-            groundspeed: pos.groundSpeed,
-            heading: pos.heading ?? null,
-            // Prisma Decimal values get stringified; ensure numbers in API response
-            latitude: Number(pos.latitude),
-            longitude: Number(pos.longitude),
-            timestamp: pos.timestamp.toISOString(),
-            update_type:
-              pos.updatedType === 'Projected'
-                ? 'P'
-                : pos.updatedType === 'Oceanic'
-                  ? 'O'
-                  : pos.updatedType === 'Radar'
-                    ? 'Z'
-                    : pos.updatedType === 'ADSB'
-                      ? 'A'
-                      : pos.updatedType === 'Multilateration'
-                        ? 'M'
-                        : pos.updatedType === 'Datalink'
-                          ? 'D'
-                          : pos.updatedType === 'Surface_And_Near_Surface'
-                            ? 'X'
-                            : pos.updatedType === 'Spaced_Based'
-                              ? 'S'
-                              : pos.updatedType === 'Virtual_Event'
-                                ? 'V'
-                                : null,
+            altitude: p.altitude,
+            altitude_change: ALT_CHANGE_TO_CODE[p.altitudeChange] ?? '-',
+            groundspeed: p.groundSpeed,
+            heading: p.heading ?? null,
+            latitude: Number(p.latitude),
+            longitude: Number(p.longitude),
+            timestamp: p.timestamp.toISOString(),
+            update_type: UPDATE_TYPE_TO_CODE[p.updatedType as UpdateType] ?? null,
           })),
         };
       }
     }
 
-    // If flight is concluded but positions aren't all fetched, fetch from API
     const shouldSkipCache =
       isFlightConcluded && !existingFlight.allFlightPositionsFetched;
-
     if (shouldSkipCache) {
       console.log(
         `Flight ${faFlightId} has concluded but positions not fully fetched. Fetching complete track data from FlightAware.`,
       );
     }
 
-    // Check Redis cache first for active flights (skip cache for concluded flights that need refetch)
-    if (!shouldSkipCache) {
+    if (!shouldSkipCache && this.redis) {
       try {
-        if (this.redis) {
-          const cached = await this.redis.get(cacheKey);
-          if (cached) {
-            console.log(
-              `FlightTrack: Returning cached data for ${faFlightId} from application cache`,
-            );
-            return JSON.parse(cached);
-          }
+        const cached = await this.redis.get(cacheKey);
+        if (cached) {
+          console.log(
+            `FlightTrack: Returning cached data for ${faFlightId} from application cache`,
+          );
+          return JSON.parse(cached);
         }
       } catch (error) {
         console.warn('Redis cache read error in flight service:', error);
       }
     }
 
-    // Fetch track data from FlightAware API
     console.log(
       `FlightTrack: Fetching ${isFlightConcluded ? 'complete' : 'live'} data from FlightAware for ${faFlightId}`,
     );
     const trackData = await this.flightAwareService.getFlightTrack(faFlightId);
-
     if (!trackData || !trackData.positions) {
-      throw new InternalServerErrorException(
-        'Failed to fetch flight track data',
-      );
+      throw new InternalServerErrorException('Failed to fetch flight track data');
     }
 
-    // Map altitude_change from API format to Prisma enum
-    const mapAltitudeChange = (
-      change: string,
-    ): 'Climb' | 'Descend' | 'None' => {
-      switch (change) {
-        case 'C':
-          return 'Climb';
-        case 'D':
-          return 'Descend';
-        case '-':
-        default:
-          return 'None';
-      }
-    };
-
-    // Map update_type from API format to Prisma enum
-    const mapUpdateType = (
-      type: string,
-    ):
-      | 'Projected'
-      | 'Oceanic'
-      | 'Radar'
-      | 'ADSB'
-      | 'Multilateration'
-      | 'Datalink'
-      | 'Surface_And_Near_Surface'
-      | 'Spaced_Based'
-      | 'Virtual_Event' => {
-      switch (type) {
-        case 'P':
-          return 'Projected';
-        case 'O':
-          return 'Oceanic';
-        case 'Z':
-          return 'Radar';
-        case 'A':
-          return 'ADSB';
-        case 'M':
-          return 'Multilateration';
-        case 'D':
-          return 'Datalink';
-        case 'X':
-          return 'Surface_And_Near_Surface';
-        case 'S':
-          return 'Spaced_Based';
-        case 'V':
-          return 'Virtual_Event';
-        default:
-          return 'ADSB'; // Default to ADSB if unknown
-      }
-    };
-
-    // UPSERT positions in the database
-    // Use a transaction to ensure atomicity
     await prisma.$transaction(
       async (tx) => {
         for (const pos of trackData.positions) {
-          const positionId = `${existingFlight.id}_${new Date(pos.timestamp).getTime()}_${pos.latitude}_${pos.longitude}`;
-
+          const id = `${existingFlight.id}_${new Date(pos.timestamp).getTime()}_${pos.latitude}_${pos.longitude}`;
+          const data = {
+            altitude: pos.altitude,
+            altitudeChange: ALT_CHANGE_FROM_CODE[pos.altitude_change || '-'] ?? 'None',
+            groundSpeed: pos.groundspeed,
+            heading: pos.heading ?? null,
+            latitude: pos.latitude,
+            longitude: pos.longitude,
+            timestamp: new Date(pos.timestamp),
+            updatedType: UPDATE_TYPE_FROM_CODE[pos.update_type || 'A'] ?? 'ADSB',
+          };
           await tx.flightPositions.upsert({
-            where: {
-              id: positionId,
-            },
-            update: {
-              altitude: pos.altitude,
-              altitudeChange: mapAltitudeChange(pos.altitude_change || '-'),
-              groundSpeed: pos.groundspeed,
-              heading: pos.heading ?? null,
-              latitude: pos.latitude,
-              longitude: pos.longitude,
-              timestamp: new Date(pos.timestamp),
-              updatedType: mapUpdateType(pos.update_type || 'A'),
-            },
-            create: {
-              id: positionId,
-              altitude: pos.altitude,
-              altitudeChange: mapAltitudeChange(pos.altitude_change || '-'),
-              groundSpeed: pos.groundspeed,
-              heading: pos.heading ?? null,
-              latitude: pos.latitude,
-              longitude: pos.longitude,
-              timestamp: new Date(pos.timestamp),
-              updatedType: mapUpdateType(pos.update_type || 'A'),
-              flightId: existingFlight.id,
-            },
+            where: { id },
+            update: data,
+            create: { id, ...data, flightId: existingFlight.id },
           });
         }
-
-        // If flight is concluded, mark all positions as fetched
         if (isFlightConcluded) {
           await tx.flight.update({
             where: { id: existingFlight.id },
@@ -1538,7 +1212,6 @@ export class FlightService {
       { timeout: 60000 },
     );
 
-    // Prepare response data
     const responseData = {
       actual_distance: trackData.actual_distance ?? null,
       positions: trackData.positions.map((pos: any) => ({
@@ -1554,20 +1227,12 @@ export class FlightService {
       })),
     };
 
-    // Cache the response in Redis for 30 seconds (skip caching for concluded flights)
-    // Concluded flights are already persisted in the database and don't need caching
-    if (!isFlightConcluded) {
+    if (!isFlightConcluded && this.redis) {
       try {
-        if (this.redis) {
-          await this.redis.setex(
-            cacheKey,
-            cacheTTL,
-            JSON.stringify(responseData),
-          );
-          console.log(
-            `FlightTrack: Cached track data for ${faFlightId} for ${cacheTTL} seconds`,
-          );
-        }
+        await this.redis.setex(cacheKey, cacheTTL, JSON.stringify(responseData));
+        console.log(
+          `FlightTrack: Cached track data for ${faFlightId} for ${cacheTTL} seconds`,
+        );
       } catch (error) {
         console.warn('Redis cache write error in flight service:', error);
       }
@@ -1576,180 +1241,99 @@ export class FlightService {
     return responseData;
   }
 
-  async createFlightBooking(
-    createBookingDto: CreateFlightBookingDTO,
-    userId: string,
-  ) {
-    // Verify that the flight exists and belongs to the user
+  async createFlightBooking(dto: CreateFlightBookingDTO, userId: string) {
     const flight = await prisma.flight.findFirst({
-      where: {
-        id: createBookingDto.flightId,
-        userId,
-      },
+      where: { id: dto.flightId, userId },
     });
-
     if (!flight) {
       throw new BadRequestException(
         'Flight not found or does not belong to the user',
       );
     }
-
-    // Check if booking already exists for this flight and user
-    const existingBooking = await prisma.flightBooking.findFirst({
-      where: {
-        flightId: createBookingDto.flightId,
-        userId,
-      },
+    const existing = await prisma.flightBooking.findFirst({
+      where: { flightId: dto.flightId, userId },
     });
-
-    if (existingBooking) {
+    if (existing) {
       throw new BadRequestException(
         'A booking already exists for this flight. Use update endpoint to modify it.',
       );
     }
-
-    // Create the booking
-    const booking = await prisma.flightBooking.create({
+    return prisma.flightBooking.create({
       data: {
-        flightId: createBookingDto.flightId,
+        flightId: dto.flightId,
         userId,
-        bookingCode: createBookingDto.bookingCode ?? null,
-        seatNumber: createBookingDto.seatNumber ?? null,
-        seatType: createBookingDto.seatType ?? null,
-        seatingClass: createBookingDto.seatingClass ?? null,
-        reason: createBookingDto.reason ?? 'personal',
-        notes: createBookingDto.notes ?? null,
+        bookingCode: dto.bookingCode ?? null,
+        seatNumber: dto.seatNumber ?? null,
+        seatType: dto.seatType ?? null,
+        seatingClass: dto.seatingClass ?? null,
+        reason: dto.reason ?? 'personal',
+        notes: dto.notes ?? null,
       },
     });
-
-    return booking;
   }
 
   async updateFlightBooking(
     bookingId: string,
-    updateBookingDto: UpdateFlightBookingDTO,
+    dto: UpdateFlightBookingDTO,
     userId: string,
   ) {
-    // Verify that the booking exists and belongs to the user
-    const existingBooking = await prisma.flightBooking.findFirst({
-      where: {
-        id: bookingId,
-        userId,
-      },
+    const existing = await prisma.flightBooking.findFirst({
+      where: { id: bookingId, userId },
     });
-
-    if (!existingBooking) {
+    if (!existing) {
       throw new NotFoundException(
         'Booking not found or does not belong to the user',
       );
     }
+    const data: any = {};
+    const nullIfEmpty = (v: string | null | undefined) => (v === '' ? null : v);
+    if (dto.bookingCode !== undefined) data.bookingCode = nullIfEmpty(dto.bookingCode);
+    if (dto.seatNumber !== undefined) data.seatNumber = nullIfEmpty(dto.seatNumber);
+    if (dto.seatType !== undefined) data.seatType = dto.seatType;
+    if (dto.seatingClass !== undefined) data.seatingClass = dto.seatingClass;
+    if (dto.reason !== undefined) data.reason = dto.reason;
+    if (dto.notes !== undefined) data.notes = nullIfEmpty(dto.notes);
 
-    // Build update data object, only including fields that are provided
-    // If a field is explicitly set to null, we'll set it to null in the database
-    // If undefined, the field won't be updated (partial update)
-    const updateData: any = {};
-    if (updateBookingDto.bookingCode !== undefined) {
-      // Convert empty strings to null for consistency
-      updateData.bookingCode =
-        updateBookingDto.bookingCode === ''
-          ? null
-          : updateBookingDto.bookingCode;
-    }
-    if (updateBookingDto.seatNumber !== undefined) {
-      updateData.seatNumber =
-        updateBookingDto.seatNumber === '' ? null : updateBookingDto.seatNumber;
-    }
-    if (updateBookingDto.seatType !== undefined) {
-      updateData.seatType = updateBookingDto.seatType;
-    }
-    if (updateBookingDto.seatingClass !== undefined) {
-      updateData.seatingClass = updateBookingDto.seatingClass;
-    }
-    if (updateBookingDto.reason !== undefined) {
-      updateData.reason = updateBookingDto.reason;
-    }
-    if (updateBookingDto.notes !== undefined) {
-      updateData.notes =
-        updateBookingDto.notes === '' ? null : updateBookingDto.notes;
-    }
-
-    // Update the booking
-    const updatedBooking = await prisma.flightBooking.update({
-      where: {
-        id: bookingId,
-      },
-      data: updateData,
-    });
-
-    return updatedBooking;
+    return prisma.flightBooking.update({ where: { id: bookingId }, data });
   }
 
   async getFlightBooking(bookingId: string, userId: string) {
     const booking = await prisma.flightBooking.findFirst({
-      where: {
-        id: bookingId,
-        userId,
-      },
+      where: { id: bookingId, userId },
     });
-
     if (!booking) {
       throw new NotFoundException(
         'Booking not found or does not belong to the user',
       );
     }
-
     return booking;
   }
 
   async getFlightBookingsByFlightId(flightId: string, userId: string) {
-    // Verify that the flight belongs to the user
     const flight = await prisma.flight.findFirst({
-      where: {
-        id: flightId,
-        userId,
-      },
+      where: { id: flightId, userId },
     });
-
     if (!flight) {
       throw new BadRequestException(
         'Flight not found or does not belong to the user',
       );
     }
-
-    const bookings = await prisma.flightBooking.findMany({
-      where: {
-        flightId,
-        userId,
-      },
-      orderBy: {
-        createdAt: 'desc',
-      },
+    return prisma.flightBooking.findMany({
+      where: { flightId, userId },
+      orderBy: { createdAt: 'desc' },
     });
-
-    return bookings;
   }
 
   async deleteFlightBooking(bookingId: string, userId: string) {
-    // Verify that the booking exists and belongs to the user
-    const existingBooking = await prisma.flightBooking.findFirst({
-      where: {
-        id: bookingId,
-        userId,
-      },
+    const existing = await prisma.flightBooking.findFirst({
+      where: { id: bookingId, userId },
     });
-
-    if (!existingBooking) {
+    if (!existing) {
       throw new NotFoundException(
         'Booking not found or does not belong to the user',
       );
     }
-
-    await prisma.flightBooking.delete({
-      where: {
-        id: bookingId,
-      },
-    });
-
+    await prisma.flightBooking.delete({ where: { id: bookingId } });
     return { message: 'Booking deleted successfully' };
   }
 }

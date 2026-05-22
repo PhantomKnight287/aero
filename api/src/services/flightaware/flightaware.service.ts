@@ -769,4 +769,74 @@ export class FlightAwareService {
       );
     }
   }
+
+  /** Generic AeroAPI GET with redis cache and rate-limit handling. */
+  private async aeroApiGet<T>(
+    path: string,
+    cacheKey: string,
+    cacheTTL: number,
+  ): Promise<T | null> {
+    if (this.redis) {
+      try {
+        const cached = await this.redis.get(cacheKey);
+        if (cached) return JSON.parse(cached) as T;
+      } catch (error) {
+        console.warn(`FlightAware: cache read error for ${cacheKey}:`, error);
+      }
+    }
+
+    const apiKey = this.configService.get<string>('FLIGHTAWARE_API_KEY');
+    if (!apiKey) {
+      throw new HttpException(
+        'FlightAware API key not configured',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+
+    await this.checkRateLimit();
+    const response = await fetch(`${this.baseUrl}${path}`, {
+      headers: { 'x-apikey': apiKey, Accept: 'application/json; charset=UTF-8' },
+    });
+    if (!response.ok) {
+      console.warn(`FlightAware: ${path} returned ${response.status}`);
+      return null;
+    }
+    const data = (await response.json()) as T;
+    if (this.redis) {
+      try {
+        await this.redis.setex(cacheKey, cacheTTL, JSON.stringify(data));
+      } catch (error) {
+        console.warn(`FlightAware: cache write error for ${cacheKey}:`, error);
+      }
+    }
+    return data;
+  }
+
+  /** Largest current delay for an airport. */
+  async getAirportDelays(airportId: string): Promise<any | null> {
+    return this.aeroApiGet(
+      `/airports/${encodeURIComponent(airportId)}/delays`,
+      `flightaware:airport:delays:${airportId}`,
+      600, // 10 min
+    );
+  }
+
+  /** TAF forecast for an airport. */
+  async getAirportWeatherForecast(airportId: string): Promise<any | null> {
+    return this.aeroApiGet(
+      `/airports/${encodeURIComponent(airportId)}/weather/forecast`,
+      `flightaware:airport:forecast:${airportId}`,
+      1800, // 30 min
+    );
+  }
+
+  /** Latest METAR observation for an airport. */
+  async getAirportLatestObservation(airportId: string): Promise<any | null> {
+    const data = await this.aeroApiGet<{ observations?: any[] }>(
+      `/airports/${encodeURIComponent(airportId)}/weather/observations`,
+      `flightaware:airport:observations:${airportId}`,
+      600, // 10 min
+    );
+    return data?.observations?.[0] ?? null;
+  }
 }

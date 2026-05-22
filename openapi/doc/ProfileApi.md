@@ -28,7 +28,7 @@ final api = Openapi().getProfileApi();
 try {
     final response = api.profileControllerGetProfileStatsV1();
     print(response);
-} catch on DioException (e) {
+} on DioException catch (e) {
     print('Exception when calling ProfileApi->profileControllerGetProfileStatsV1: $e\n');
 }
 ```

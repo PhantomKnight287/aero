@@ -3,6 +3,7 @@
 //
 
 // ignore_for_file: unused_element
+import 'package:openapi/src/model/airport_conditions_entity.dart';
 import 'package:openapi/src/model/location_entity.dart';
 import 'package:built_value/built_value.dart';
 import 'package:built_value/serializer.dart';
@@ -20,6 +21,7 @@ part 'route_airport_entity.g.dart';
 /// * [countryCode] 
 /// * [municipalityName] 
 /// * [location] 
+/// * [conditions] 
 @BuiltValue()
 abstract class RouteAirportEntity implements Built<RouteAirportEntity, RouteAirportEntityBuilder> {
   @BuiltValueField(wireName: r'iata')
@@ -45,6 +47,9 @@ abstract class RouteAirportEntity implements Built<RouteAirportEntity, RouteAirp
 
   @BuiltValueField(wireName: r'location')
   LocationEntity get location;
+
+  @BuiltValueField(wireName: r'conditions')
+  AirportConditionsEntity? get conditions;
 
   RouteAirportEntity._();
 
@@ -111,6 +116,13 @@ class _$RouteAirportEntitySerializer implements PrimitiveSerializer<RouteAirport
       object.location,
       specifiedType: const FullType(LocationEntity),
     );
+    if (object.conditions != null) {
+      yield r'conditions';
+      yield serializers.serialize(
+        object.conditions,
+        specifiedType: const FullType(AirportConditionsEntity),
+      );
+    }
   }
 
   @override
@@ -189,6 +201,13 @@ class _$RouteAirportEntitySerializer implements PrimitiveSerializer<RouteAirport
             specifiedType: const FullType(LocationEntity),
           ) as LocationEntity;
           result.location.replace(valueDes);
+          break;
+        case r'conditions':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType(AirportConditionsEntity),
+          ) as AirportConditionsEntity;
+          result.conditions.replace(valueDes);
           break;
         default:
           unhandled.add(key);

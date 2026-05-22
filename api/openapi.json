@@ -2019,6 +2019,34 @@
           "flights"
         ]
       },
+      "AircraftRegistrationEntity": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "reg": {
+            "type": "string"
+          },
+          "active": {
+            "type": "boolean"
+          },
+          "hexIcao": {
+            "type": "string"
+          },
+          "airlineName": {
+            "type": "string"
+          },
+          "registrationDate": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "reg",
+          "active"
+        ]
+      },
       "AircraftEntity": {
         "type": "object",
         "properties": {
@@ -2054,6 +2082,12 @@
           },
           "payload": {
             "type": "object"
+          },
+          "registrations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AircraftRegistrationEntity"
+            }
           }
         }
       },
@@ -2092,6 +2126,416 @@
           "lon"
         ]
       },
+      "AirportDelayReasonEntity": {
+        "type": "object",
+        "properties": {
+          "category": {
+            "type": "string"
+          },
+          "color": {
+            "type": "string",
+            "enum": [
+              "red",
+              "yellow",
+              "green"
+            ]
+          },
+          "delay_secs": {
+            "type": "number"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "category",
+          "color",
+          "delay_secs",
+          "reason"
+        ]
+      },
+      "AirportDelaysEntity": {
+        "type": "object",
+        "properties": {
+          "airport": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
+          "color": {
+            "type": "string",
+            "enum": [
+              "red",
+              "yellow",
+              "green"
+            ]
+          },
+          "delay_secs": {
+            "type": "number"
+          },
+          "reasons": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AirportDelayReasonEntity"
+            }
+          }
+        },
+        "required": [
+          "airport",
+          "category",
+          "color",
+          "delay_secs",
+          "reasons"
+        ]
+      },
+      "WeatherForecastWindsEntity": {
+        "type": "object",
+        "properties": {
+          "symbol": {
+            "type": "string"
+          },
+          "direction": {
+            "type": "string"
+          },
+          "speed": {
+            "type": "number"
+          },
+          "units": {
+            "type": "object",
+            "nullable": true
+          },
+          "peak_gusts": {
+            "type": "object",
+            "nullable": true
+          }
+        },
+        "required": [
+          "symbol",
+          "direction",
+          "speed"
+        ]
+      },
+      "WeatherForecastWindshearEntity": {
+        "type": "object",
+        "properties": {
+          "symbol": {
+            "type": "string"
+          },
+          "height": {
+            "type": "string"
+          },
+          "direction": {
+            "type": "string"
+          },
+          "speed": {
+            "type": "string"
+          },
+          "units": {
+            "type": "object",
+            "nullable": true
+          }
+        },
+        "required": [
+          "symbol",
+          "height",
+          "direction",
+          "speed"
+        ]
+      },
+      "WeatherForecastVisibilityEntity": {
+        "type": "object",
+        "properties": {
+          "symbol": {
+            "type": "string"
+          },
+          "visibility": {
+            "type": "string"
+          },
+          "units": {
+            "type": "object",
+            "nullable": true
+          }
+        },
+        "required": [
+          "symbol",
+          "visibility"
+        ]
+      },
+      "WeatherForecastCloudEntity": {
+        "type": "object",
+        "properties": {
+          "symbol": {
+            "type": "string"
+          },
+          "coverage": {
+            "type": "string",
+            "enum": [
+              "",
+              "sky_clear",
+              "few",
+              "scattered",
+              "broken",
+              "overcast"
+            ],
+            "nullable": true
+          },
+          "altitude": {
+            "type": "object",
+            "nullable": true
+          },
+          "special": {
+            "type": "object",
+            "nullable": true
+          }
+        },
+        "required": [
+          "symbol"
+        ]
+      },
+      "WeatherForecastLineEntity": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string"
+          },
+          "start": {
+            "type": "string"
+          },
+          "end": {
+            "type": "object",
+            "nullable": true
+          },
+          "turbulence_layers": {
+            "type": "object",
+            "nullable": true
+          },
+          "icing_layers": {
+            "type": "object",
+            "nullable": true
+          },
+          "barometric_pressure": {
+            "type": "object",
+            "nullable": true
+          },
+          "significant_weather": {
+            "type": "object",
+            "nullable": true
+          },
+          "winds": {
+            "$ref": "#/components/schemas/WeatherForecastWindsEntity"
+          },
+          "windshear": {
+            "$ref": "#/components/schemas/WeatherForecastWindshearEntity"
+          },
+          "visibility": {
+            "$ref": "#/components/schemas/WeatherForecastVisibilityEntity"
+          },
+          "clouds": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WeatherForecastCloudEntity"
+            }
+          }
+        },
+        "required": [
+          "type",
+          "start"
+        ]
+      },
+      "WeatherForecastDecodedEntity": {
+        "type": "object",
+        "properties": {
+          "start": {
+            "type": "string"
+          },
+          "end": {
+            "type": "string"
+          },
+          "lines": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WeatherForecastLineEntity"
+            }
+          }
+        },
+        "required": [
+          "start",
+          "end"
+        ]
+      },
+      "AirportWeatherForecastEntity": {
+        "type": "object",
+        "properties": {
+          "airport_code": {
+            "type": "string"
+          },
+          "raw_forecast": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "time": {
+            "type": "string"
+          },
+          "decoded_forecast": {
+            "$ref": "#/components/schemas/WeatherForecastDecodedEntity"
+          }
+        },
+        "required": [
+          "airport_code",
+          "raw_forecast",
+          "time"
+        ]
+      },
+      "WeatherObservationCloudEntity": {
+        "type": "object",
+        "properties": {
+          "altitude": {
+            "type": "object",
+            "nullable": true
+          },
+          "symbol": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "symbol",
+          "type"
+        ]
+      },
+      "AirportWeatherObservationEntity": {
+        "type": "object",
+        "properties": {
+          "airport_code": {
+            "type": "string"
+          },
+          "cloud_friendly": {
+            "type": "object",
+            "nullable": true
+          },
+          "clouds": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WeatherObservationCloudEntity"
+            }
+          },
+          "conditions": {
+            "type": "object",
+            "nullable": true
+          },
+          "pressure": {
+            "type": "object",
+            "nullable": true
+          },
+          "pressure_units": {
+            "type": "string",
+            "enum": [
+              "",
+              "mb",
+              "in Hg"
+            ],
+            "nullable": true
+          },
+          "raw_data": {
+            "type": "string"
+          },
+          "temp_air": {
+            "type": "object",
+            "nullable": true
+          },
+          "temp_dewpoint": {
+            "type": "object",
+            "nullable": true
+          },
+          "temp_perceived": {
+            "type": "object",
+            "nullable": true
+          },
+          "relative_humidity": {
+            "type": "object",
+            "nullable": true
+          },
+          "time": {
+            "type": "string"
+          },
+          "visibility": {
+            "type": "object",
+            "nullable": true
+          },
+          "visibility_units": {
+            "type": "string",
+            "enum": [
+              "",
+              "meters",
+              "SM"
+            ],
+            "nullable": true
+          },
+          "wind_direction": {
+            "type": "number"
+          },
+          "wind_friendly": {
+            "type": "string"
+          },
+          "wind_speed": {
+            "type": "number"
+          },
+          "wind_speed_gust": {
+            "type": "number"
+          },
+          "wind_units": {
+            "type": "string",
+            "enum": [
+              "MPS",
+              "KT"
+            ]
+          }
+        },
+        "required": [
+          "airport_code",
+          "raw_data",
+          "time",
+          "wind_direction",
+          "wind_friendly",
+          "wind_speed",
+          "wind_speed_gust",
+          "wind_units"
+        ]
+      },
+      "AirportConditionsEntity": {
+        "type": "object",
+        "properties": {
+          "delays": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/AirportDelaysEntity"
+              }
+            ]
+          },
+          "forecast": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/AirportWeatherForecastEntity"
+              }
+            ]
+          },
+          "observation": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/AirportWeatherObservationEntity"
+              }
+            ]
+          }
+        }
+      },
       "RouteAirportEntity": {
         "type": "object",
         "properties": {
@@ -2118,6 +2562,9 @@
           },
           "location": {
             "$ref": "#/components/schemas/LocationEntity"
+          },
+          "conditions": {
+            "$ref": "#/components/schemas/AirportConditionsEntity"
           }
         },
         "required": [
@@ -2906,9 +3353,7 @@
               "training",
               "repositioning",
               "other"
-            ],
-            "example": "personal",
-            "default": "personal"
+            ]
           },
           "notes": {
             "type": "string",

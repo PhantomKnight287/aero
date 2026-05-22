@@ -231,6 +231,46 @@ export class RedisService implements OnModuleDestroy {
     }
   }
 
+  async set(key: string, value: string): Promise<void> {
+    try {
+      const client = await this.getClient();
+      await client.set(key, value);
+    } catch (error) {
+      console.error('Redis SET error:', error);
+      throw error;
+    }
+  }
+
+  async sadd(key: string, ...members: string[]): Promise<number> {
+    try {
+      const client = await this.getClient();
+      return await client.sadd(key, ...members);
+    } catch (error) {
+      console.error('Redis SADD error:', error);
+      throw error;
+    }
+  }
+
+  async srem(key: string, ...members: string[]): Promise<number> {
+    try {
+      const client = await this.getClient();
+      return await client.srem(key, ...members);
+    } catch (error) {
+      console.error('Redis SREM error:', error);
+      throw error;
+    }
+  }
+
+  async smembers(key: string): Promise<string[]> {
+    try {
+      const client = await this.getClient();
+      return await client.smembers(key);
+    } catch (error) {
+      console.error('Redis SMEMBERS error:', error);
+      return [];
+    }
+  }
+
   /**
    * Cleanup on module destroy
    */

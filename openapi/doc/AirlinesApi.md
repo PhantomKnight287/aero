@@ -29,7 +29,7 @@ final String search = search_example; // String | The full(or a part of) name, i
 try {
     final response = api.airlinesControllerGetAirlinesV1(search);
     print(response);
-} catch on DioException (e) {
+} on DioException catch (e) {
     print('Exception when calling AirlinesApi->airlinesControllerGetAirlinesV1: $e\n');
 }
 ```

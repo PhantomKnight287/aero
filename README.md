@@ -18,7 +18,7 @@ _A comprehensive flight tracking platform with mobile apps and Wear OS companion
 ---
 
 > [!NOTE]
-> I have added any and every feature I had planned for this app. There will be no more new features in this app, yet.
+> I have added any and every feature I had planned for this app. There will be no more new features in this app however I might add few things here and there, yet.
 
 ## 🎯 What is Aero?
 

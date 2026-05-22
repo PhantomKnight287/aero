@@ -4,6 +4,7 @@ import 'package:aero/routes/main.dart';
 import 'package:aero/services/widget_update_service.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:toastification/toastification.dart';
 import 'package:workmanager/workmanager.dart';
@@ -26,6 +27,12 @@ void callbackDispatcher() {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize OneSignal for flight push alerts. Permission is requested
+  // lazily when the user opts into alerts from the flight details menu.
+  if (ONESIGNAL_APP_ID.isNotEmpty) {
+    OneSignal.initialize(ONESIGNAL_APP_ID);
+  }
 
   // Initialize Workmanager
   await Workmanager().initialize(

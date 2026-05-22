@@ -22,12 +22,18 @@ import 'package:openapi/src/model/aircraft_with_age.dart';
 import 'package:openapi/src/model/airline_entity.dart';
 import 'package:openapi/src/model/airline_info.dart';
 import 'package:openapi/src/model/airline_stats_entity.dart';
+import 'package:openapi/src/model/airport_conditions_entity.dart';
+import 'package:openapi/src/model/airport_delay_reason_entity.dart';
+import 'package:openapi/src/model/airport_delays_entity.dart';
 import 'package:openapi/src/model/airport_entity.dart';
 import 'package:openapi/src/model/airport_info.dart';
 import 'package:openapi/src/model/airport_stats_entity.dart';
 import 'package:openapi/src/model/airport_type.dart';
+import 'package:openapi/src/model/airport_weather_forecast_entity.dart';
+import 'package:openapi/src/model/airport_weather_observation_entity.dart';
 import 'package:openapi/src/model/create_flight_booking_dto.dart';
 import 'package:openapi/src/model/fligh_type.dart';
+import 'package:openapi/src/model/flight_alert_dto.dart';
 import 'package:openapi/src/model/flight_aware_data_entity.dart';
 import 'package:openapi/src/model/flight_booking_entity.dart';
 import 'package:openapi/src/model/flight_candidate_entity.dart';
@@ -69,6 +75,13 @@ import 'package:openapi/src/model/top_route_entity.dart';
 import 'package:openapi/src/model/tracked_flights_response_entity.dart';
 import 'package:openapi/src/model/update_flight_booking_dto.dart';
 import 'package:openapi/src/model/user_entity.dart';
+import 'package:openapi/src/model/weather_forecast_cloud_entity.dart';
+import 'package:openapi/src/model/weather_forecast_decoded_entity.dart';
+import 'package:openapi/src/model/weather_forecast_line_entity.dart';
+import 'package:openapi/src/model/weather_forecast_visibility_entity.dart';
+import 'package:openapi/src/model/weather_forecast_winds_entity.dart';
+import 'package:openapi/src/model/weather_forecast_windshear_entity.dart';
+import 'package:openapi/src/model/weather_observation_cloud_entity.dart';
 
 part 'serializers.g.dart';
 
@@ -81,12 +94,18 @@ part 'serializers.g.dart';
   AirlineEntity,
   AirlineInfo,
   AirlineStatsEntity,
+  AirportConditionsEntity,
+  AirportDelayReasonEntity,
+  AirportDelaysEntity,
   AirportEntity,
   AirportInfo,
   AirportStatsEntity,
   AirportType,
+  AirportWeatherForecastEntity,
+  AirportWeatherObservationEntity,
   CreateFlightBookingDTO,
   FlighType,
+  FlightAlertDTO,
   FlightAwareDataEntity,
   FlightBookingEntity,
   FlightCandidateEntity,
@@ -128,6 +147,13 @@ part 'serializers.g.dart';
   TrackedFlightsResponseEntity,
   UpdateFlightBookingDTO,
   UserEntity,
+  WeatherForecastCloudEntity,
+  WeatherForecastDecodedEntity,
+  WeatherForecastLineEntity,
+  WeatherForecastVisibilityEntity,
+  WeatherForecastWindsEntity,
+  WeatherForecastWindshearEntity,
+  WeatherObservationCloudEntity,
 ])
 Serializers serializers = (_$serializers.toBuilder()
       ..addBuilderFactory(

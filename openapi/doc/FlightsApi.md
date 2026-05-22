@@ -32,7 +32,7 @@ final GetAirlineDTO getAirlineDTO = ; // GetAirlineDTO |
 try {
     final response = api.flightsControllerGetAirlineV1(getAirlineDTO);
     print(response);
-} catch on DioException (e) {
+} on DioException catch (e) {
     print('Exception when calling FlightsApi->flightsControllerGetAirlineV1: $e\n');
 }
 ```
@@ -78,7 +78,7 @@ final num maxLng = 10; // num | Maximum longitude of the bounding box
 try {
     final response = api.flightsControllerGetFlightsInBoundsV1(minLat, maxLat, minLng, maxLng);
     print(response);
-} catch on DioException (e) {
+} on DioException catch (e) {
     print('Exception when calling FlightsApi->flightsControllerGetFlightsInBoundsV1: $e\n');
 }
 ```
@@ -126,7 +126,7 @@ final String date = 2024-03-20; // String | Flight date in ISO format
 try {
     final response = api.flightsControllerGetFlightsV1(from, to, date);
     print(response);
-} catch on DioException (e) {
+} on DioException catch (e) {
     print('Exception when calling FlightsApi->flightsControllerGetFlightsV1: $e\n');
 }
 ```
@@ -170,7 +170,7 @@ final api = Openapi().getFlightsApi();
 try {
     final response = api.flightsControllerGetTrackedFlightsV1();
     print(response);
-} catch on DioException (e) {
+} on DioException catch (e) {
     print('Exception when calling FlightsApi->flightsControllerGetTrackedFlightsV1: $e\n');
 }
 ```

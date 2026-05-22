@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:aero/formatters/time.dart';
 
 class DateSelectionList extends StatelessWidget {
@@ -26,7 +26,7 @@ class DateSelectionList extends StatelessWidget {
           final tmrh = DateTime(date.year, date.month, date.day + 1);
           return ListTile(
             title: Text("Tomorrow"),
-            leading: Icon(MdiIcons.calendarArrowRight),
+            leading: Icon(Symbols.event_upcoming),
             subtitle: Text(formatDayAndMonth(tmrh)),
             onTap: () => onDateSelected(tmrh),
           );
@@ -34,14 +34,14 @@ class DateSelectionList extends StatelessWidget {
           final yesterday = DateTime(date.year, date.month, date.day - 1);
           return ListTile(
             title: Text("Yesterday"),
-            leading: Icon(MdiIcons.calendarArrowLeft),
+            leading: Icon(Symbols.history),
             subtitle: Text(formatDayAndMonth(yesterday)),
             onTap: () => onDateSelected(yesterday),
           );
         } else {
           return ListTile(
             title: Text("Select from calendar"),
-            leading: Icon(MdiIcons.calendar),
+            leading: Icon(Symbols.edit_calendar),
             onTap: () async {
               final selectedDate = await showDatePicker(
                 context: context,

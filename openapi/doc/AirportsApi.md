@@ -29,7 +29,7 @@ final String search = VIDP; // String | Search query for airport. Can be iata, i
 try {
     final response = api.airportsControllerGetAirportsV1(search);
     print(response);
-} catch on DioException (e) {
+} on DioException catch (e) {
     print('Exception when calling AirportsApi->airportsControllerGetAirportsV1: $e\n');
 }
 ```

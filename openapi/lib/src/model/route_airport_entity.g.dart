@@ -23,6 +23,8 @@ class _$RouteAirportEntity extends RouteAirportEntity {
   final String municipalityName;
   @override
   final LocationEntity location;
+  @override
+  final AirportConditionsEntity? conditions;
 
   factory _$RouteAirportEntity(
           [void Function(RouteAirportEntityBuilder)? updates]) =>
@@ -36,7 +38,8 @@ class _$RouteAirportEntity extends RouteAirportEntity {
       this.shortName,
       required this.countryCode,
       required this.municipalityName,
-      required this.location})
+      required this.location,
+      this.conditions})
       : super._();
   @override
   RouteAirportEntity rebuild(
@@ -58,7 +61,8 @@ class _$RouteAirportEntity extends RouteAirportEntity {
         shortName == other.shortName &&
         countryCode == other.countryCode &&
         municipalityName == other.municipalityName &&
-        location == other.location;
+        location == other.location &&
+        conditions == other.conditions;
   }
 
   @override
@@ -72,6 +76,7 @@ class _$RouteAirportEntity extends RouteAirportEntity {
     _$hash = $jc(_$hash, countryCode.hashCode);
     _$hash = $jc(_$hash, municipalityName.hashCode);
     _$hash = $jc(_$hash, location.hashCode);
+    _$hash = $jc(_$hash, conditions.hashCode);
     _$hash = $jf(_$hash);
     return _$hash;
   }
@@ -86,7 +91,8 @@ class _$RouteAirportEntity extends RouteAirportEntity {
           ..add('shortName', shortName)
           ..add('countryCode', countryCode)
           ..add('municipalityName', municipalityName)
-          ..add('location', location))
+          ..add('location', location)
+          ..add('conditions', conditions))
         .toString();
   }
 }
@@ -129,6 +135,12 @@ class RouteAirportEntityBuilder
       _$this._location ??= LocationEntityBuilder();
   set location(LocationEntityBuilder? location) => _$this._location = location;
 
+  AirportConditionsEntityBuilder? _conditions;
+  AirportConditionsEntityBuilder get conditions =>
+      _$this._conditions ??= AirportConditionsEntityBuilder();
+  set conditions(AirportConditionsEntityBuilder? conditions) =>
+      _$this._conditions = conditions;
+
   RouteAirportEntityBuilder() {
     RouteAirportEntity._defaults(this);
   }
@@ -144,6 +156,7 @@ class RouteAirportEntityBuilder
       _countryCode = $v.countryCode;
       _municipalityName = $v.municipalityName;
       _location = $v.location.toBuilder();
+      _conditions = $v.conditions?.toBuilder();
       _$v = null;
     }
     return this;
@@ -181,12 +194,15 @@ class RouteAirportEntityBuilder
             municipalityName: BuiltValueNullFieldError.checkNotNull(
                 municipalityName, r'RouteAirportEntity', 'municipalityName'),
             location: location.build(),
+            conditions: _conditions?.build(),
           );
     } catch (_) {
       late String _$failedField;
       try {
         _$failedField = 'location';
         location.build();
+        _$failedField = 'conditions';
+        _conditions?.build();
       } catch (e) {
         throw BuiltValueNestedFieldError(
             r'RouteAirportEntity', _$failedField, e.toString());

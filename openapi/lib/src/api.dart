@@ -14,6 +14,7 @@ import 'package:openapi/src/api/airports_api.dart';
 import 'package:openapi/src/api/app_api.dart';
 import 'package:openapi/src/api/authentication_api.dart';
 import 'package:openapi/src/api/flight_api.dart';
+import 'package:openapi/src/api/flight_alerts_api.dart';
 import 'package:openapi/src/api/flights_api.dart';
 import 'package:openapi/src/api/profile_api.dart';
 
@@ -99,6 +100,12 @@ class Openapi {
   /// by doing that all interceptors will not be executed
   FlightApi getFlightApi() {
     return FlightApi(dio, serializers);
+  }
+
+  /// Get FlightAlertsApi instance, base route and serializer can be overridden by a given but be careful,
+  /// by doing that all interceptors will not be executed
+  FlightAlertsApi getFlightAlertsApi() {
+    return FlightAlertsApi(dio, serializers);
   }
 
   /// Get FlightsApi instance, base route and serializer can be overridden by a given but be careful,
