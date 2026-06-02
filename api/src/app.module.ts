@@ -44,7 +44,6 @@ export class AppModule implements NestModule {
       .exclude('/assets/(.*)')
       .exclude('/features/(.*)')
       .exclude('/icons/(.*)')
-      .exclude(`/alerts/(.*)`)
       .forRoutes('*');
   }
 }
