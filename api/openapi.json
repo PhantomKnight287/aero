@@ -259,6 +259,145 @@
         ]
       }
     },
+    "/v1/airports/bounds": {
+      "get": {
+        "description": "Returns airports whose coordinates fall inside the given bounding box. Restricted to non-closed airports with an IATA code, prioritized by size and capped at 200 results. Intended for plotting airports on a map as the user pans at a sufficient zoom level.",
+        "operationId": "AirportsController_getAirportsInBounds_v1",
+        "parameters": [
+          {
+            "name": "minLat",
+            "required": true,
+            "in": "query",
+            "description": "Minimum latitude of the bounding box",
+            "schema": {
+              "minimum": -90,
+              "maximum": 90,
+              "example": 28,
+              "type": "number"
+            }
+          },
+          {
+            "name": "maxLat",
+            "required": true,
+            "in": "query",
+            "description": "Maximum latitude of the bounding box",
+            "schema": {
+              "minimum": -90,
+              "maximum": 90,
+              "example": 29,
+              "type": "number"
+            }
+          },
+          {
+            "name": "minLng",
+            "required": true,
+            "in": "query",
+            "description": "Minimum longitude of the bounding box",
+            "schema": {
+              "minimum": -180,
+              "maximum": 180,
+              "example": 76,
+              "type": "number"
+            }
+          },
+          {
+            "name": "maxLng",
+            "required": true,
+            "in": "query",
+            "description": "Maximum longitude of the bounding box",
+            "schema": {
+              "minimum": -180,
+              "maximum": 180,
+              "example": 77,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AirportEntity"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericErrorEntity"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get airports within geographic bounds",
+        "tags": [
+          "Airports"
+        ]
+      }
+    },
+    "/v1/airports/{ident}/details": {
+      "get": {
+        "description": "Aggregates current delays plus the latest METAR observation and TAF forecast (raw + decoded) for the given airport identifier (ICAO/IATA). Each source is best-effort; missing data is returned as null.",
+        "operationId": "AirportsController_getAirportDetails_v1",
+        "parameters": [
+          {
+            "name": "ident",
+            "required": true,
+            "in": "path",
+            "description": "Airport identifier (ICAO preferred, IATA accepted)",
+            "schema": {
+              "example": "VIDP",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AirportDetailsEntity"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericErrorEntity"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get detailed live information for an airport",
+        "tags": [
+          "Airports"
+        ]
+      }
+    },
     "/v1/airlines": {
       "get": {
         "description": "Get airlines.  Has over 800 records, only has commerical airlines.",
@@ -1797,6 +1936,57 @@
           "name",
           "lat",
           "long"
+        ]
+      },
+      "DecodedWeatherEntity": {
+        "type": "object",
+        "properties": {
+          "raw": {
+            "type": "string",
+            "description": "Raw aviation weather string (METAR/TAF)",
+            "nullable": true
+          },
+          "decoded": {
+            "type": "object",
+            "description": "Structured/decoded representation of the raw string. Null when decoding failed or no raw string was available.",
+            "nullable": true
+          }
+        }
+      },
+      "AirportDetailsEntity": {
+        "type": "object",
+        "properties": {
+          "ident": {
+            "type": "string",
+            "example": "VIDP",
+            "description": "Airport identifier (ICAO)"
+          },
+          "delays": {
+            "type": "object",
+            "description": "FlightAware airport delay information, if any",
+            "nullable": true
+          },
+          "metar": {
+            "description": "Latest METAR observation (raw + decoded)",
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/DecodedWeatherEntity"
+              }
+            ]
+          },
+          "taf": {
+            "description": "TAF forecast (raw + decoded)",
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/DecodedWeatherEntity"
+              }
+            ]
+          }
+        },
+        "required": [
+          "ident"
         ]
       },
       "AirlineEntity": {

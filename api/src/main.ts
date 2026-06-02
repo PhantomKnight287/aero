@@ -1,6 +1,6 @@
 import 'dotenv/config';
 import { Request, Response } from 'express';
-import { existsSync, mkdirSync, writeFileSync } from 'fs';
+import { writeFileSync } from 'fs';
 import morgan from 'morgan';
 import { join } from 'path';
 
@@ -16,27 +16,6 @@ async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   app.use(morgan('dev'));
   app.enableCors();
-  app.getHttpAdapter().post('/alerts/:id', async (req, res) => {
-    const folderPath = join(process.cwd(), 'alerts', (req as any).params.id);
-    if (!existsSync(folderPath)) {
-      mkdirSync(folderPath, { recursive: true });
-    }
-    writeFileSync(
-      join(folderPath, `${new Date().getTime()}.json`),
-      JSON.stringify(
-        {
-          headers: (req as any).headers,
-          body: (req as any).body,
-        },
-        null,
-        2,
-      ),
-    );
-
-    return (res as any).json({
-      ok: true,
-    });
-  });
   app
     .getHttpAdapter()
     .get('/.well-known/assetlinks.json', (req: Request, res: Response) => {

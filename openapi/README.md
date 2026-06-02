@@ -66,6 +66,8 @@ All URIs are relative to *http://localhost*
 Class | Method | HTTP request | Description
 ------------ | ------------- | ------------- | -------------
 [*AirlinesApi*](doc/AirlinesApi.md) | [**airlinesControllerGetAirlinesV1**](doc/AirlinesApi.md#airlinescontrollergetairlinesv1) | **GET** /v1/airlines | Get airlines
+[*AirportsApi*](doc/AirportsApi.md) | [**airportsControllerGetAirportDetailsV1**](doc/AirportsApi.md#airportscontrollergetairportdetailsv1) | **GET** /v1/airports/{ident}/details | Get detailed live information for an airport
+[*AirportsApi*](doc/AirportsApi.md) | [**airportsControllerGetAirportsInBoundsV1**](doc/AirportsApi.md#airportscontrollergetairportsinboundsv1) | **GET** /v1/airports/bounds | Get airports within geographic bounds
 [*AirportsApi*](doc/AirportsApi.md) | [**airportsControllerGetAirportsV1**](doc/AirportsApi.md#airportscontrollergetairportsv1) | **GET** /v1/airports | Get all airports
 [*AppApi*](doc/AppApi.md) | [**appControllerGetHelloV1**](doc/AppApi.md#appcontrollergethellov1) | **GET** /v1 | 
 [*AuthenticationApi*](doc/AuthenticationApi.md) | [**authControllerGetCurrentUserV1**](doc/AuthenticationApi.md#authcontrollergetcurrentuserv1) | **GET** /v1/auth/@me | Get current user
@@ -79,8 +81,6 @@ Class | Method | HTTP request | Description
 [*FlightApi*](doc/FlightApi.md) | [**flightControllerGetFlightV1**](doc/FlightApi.md#flightcontrollergetflightv1) | **GET** /v1/flight | Get flight details
 [*FlightApi*](doc/FlightApi.md) | [**flightControllerSearchFlightsV1**](doc/FlightApi.md#flightcontrollersearchflightsv1) | **GET** /v1/flight/search | Search flights
 [*FlightApi*](doc/FlightApi.md) | [**flightControllerUpdateFlightBookingV1**](doc/FlightApi.md#flightcontrollerupdateflightbookingv1) | **PUT** /v1/flight/booking/{bookingId} | Update a flight booking
-[*FlightAlertsApi*](doc/FlightAlertsApi.md) | [**flightAlertsControllerSubscribeV1**](doc/FlightAlertsApi.md#flightalertscontrollersubscribev1) | **POST** /v1/flight/{id}/alerts | Subscribe to push alerts for a flight
-[*FlightAlertsApi*](doc/FlightAlertsApi.md) | [**flightAlertsControllerUnsubscribeV1**](doc/FlightAlertsApi.md#flightalertscontrollerunsubscribev1) | **DELETE** /v1/flight/{id}/alerts | Unsubscribe from push alerts for a flight
 [*FlightsApi*](doc/FlightsApi.md) | [**flightsControllerGetAirlineV1**](doc/FlightsApi.md#flightscontrollergetairlinev1) | **POST** /v1/flights/airline | Get airline
 [*FlightsApi*](doc/FlightsApi.md) | [**flightsControllerGetFlightsInBoundsV1**](doc/FlightsApi.md#flightscontrollergetflightsinboundsv1) | **GET** /v1/flights/bounds | Get flights within geographic bounds(deprecated - will return nothing)
 [*FlightsApi*](doc/FlightsApi.md) | [**flightsControllerGetFlightsV1**](doc/FlightsApi.md#flightscontrollergetflightsv1) | **GET** /v1/flights | Get flights between two airports
@@ -101,6 +101,7 @@ Class | Method | HTTP request | Description
  - [AirportConditionsEntity](doc/AirportConditionsEntity.md)
  - [AirportDelayReasonEntity](doc/AirportDelayReasonEntity.md)
  - [AirportDelaysEntity](doc/AirportDelaysEntity.md)
+ - [AirportDetailsEntity](doc/AirportDetailsEntity.md)
  - [AirportEntity](doc/AirportEntity.md)
  - [AirportInfo](doc/AirportInfo.md)
  - [AirportStatsEntity](doc/AirportStatsEntity.md)
@@ -108,8 +109,8 @@ Class | Method | HTTP request | Description
  - [AirportWeatherForecastEntity](doc/AirportWeatherForecastEntity.md)
  - [AirportWeatherObservationEntity](doc/AirportWeatherObservationEntity.md)
  - [CreateFlightBookingDTO](doc/CreateFlightBookingDTO.md)
+ - [DecodedWeatherEntity](doc/DecodedWeatherEntity.md)
  - [FlighType](doc/FlighType.md)
- - [FlightAlertDTO](doc/FlightAlertDTO.md)
  - [FlightAwareDataEntity](doc/FlightAwareDataEntity.md)
  - [FlightBookingEntity](doc/FlightBookingEntity.md)
  - [FlightCandidateEntity](doc/FlightCandidateEntity.md)

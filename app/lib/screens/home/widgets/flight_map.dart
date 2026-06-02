@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 import 'package:openapi/openapi.dart';
 import 'package:flutter/material.dart';
@@ -86,6 +87,14 @@ class FlightMap extends StatefulWidget {
   final Function(FlightsControllerGetFlightsInBoundsV1200ResponseFlightsInner)?
       onAircraftSelected;
   final bool isFlightInAir;
+  final List<AirportEntity> airports;
+  final void Function(
+    double minLat,
+    double maxLat,
+    double minLng,
+    double maxLng,
+  )? onBoundsChanged;
+  final void Function(AirportEntity airport)? onAirportTap;
 
   const FlightMap({
     super.key,
@@ -97,6 +106,9 @@ class FlightMap extends StatefulWidget {
     this.currentHeading,
     this.onAircraftSelected,
     this.isFlightInAir = false,
+    this.airports = const [],
+    this.onBoundsChanged,
+    this.onAirportTap,
   });
 
   @override
@@ -104,6 +116,8 @@ class FlightMap extends StatefulWidget {
 }
 
 class _FlightMapState extends State<FlightMap> {
+  Timer? _boundsDebounce;
+
   @override
   void initState() {
     super.initState();
@@ -111,7 +125,25 @@ class _FlightMapState extends State<FlightMap> {
 
   @override
   void dispose() {
+    _boundsDebounce?.cancel();
     super.dispose();
+  }
+
+  /// Debounced map-movement handler. Once the user has zoomed in past the
+  /// threshold, panning triggers a backend query for airports in the new bounds.
+  void _handlePositionChanged(MapCamera camera, bool hasGesture) {
+    if (widget.onBoundsChanged == null) return;
+    _boundsDebounce?.cancel();
+    _boundsDebounce = Timer(const Duration(milliseconds: 400), () {
+      if (camera.zoom < kAirportQueryMinZoom) return;
+      final bounds = getVisibleMapBounds(widget.mapController);
+      widget.onBoundsChanged!(
+        bounds.minLat,
+        bounds.maxLat,
+        bounds.minLng,
+        bounds.maxLng,
+      );
+    });
   }
 
   @override
@@ -124,9 +156,47 @@ class _FlightMapState extends State<FlightMap> {
               initialCenter:
                   const LatLng(28.086815545374254, 76.50837368121545),
               initialZoom: 5,
+              onPositionChanged: _handlePositionChanged,
               cameraConstraint: CameraConstraint.containLatitude()),
           children: [
             openStreetMapTileLayer,
+            if (widget.airports.isNotEmpty)
+              MarkerLayer(
+                markers: widget.airports
+                    .map(
+                      (airport) => Marker(
+                        point: LatLng(
+                          double.parse(airport.lat),
+                          double.parse(airport.long),
+                        ),
+                        width: 28,
+                        height: 28,
+                        child: GestureDetector(
+                          behavior: HitTestBehavior.opaque,
+                          onTap: () => widget.onAirportTap?.call(airport),
+                          child: Center(
+                            child: Container(
+                              width: 14,
+                              height: 14,
+                              decoration: BoxDecoration(
+                                color: Colors.blueGrey.shade700,
+                                shape: BoxShape.circle,
+                                border:
+                                    Border.all(color: Colors.white, width: 1.5),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.25),
+                                    blurRadius: 2,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    )
+                    .toList(),
+              ),
             MarkerLayer(
               markers: [
                 if (widget.arrivalAirport != null)

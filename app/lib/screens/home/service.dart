@@ -23,6 +23,27 @@ class HomeService {
     }
   }
 
+  Future<BuiltList<AirportEntity>> getAirportsInBounds(
+    double minLat,
+    double maxLat,
+    double minLng,
+    double maxLng, {
+    CancelToken? cancelToken,
+  }) async {
+    try {
+      final res = await _airportsApi.airportsControllerGetAirportsInBoundsV1(
+        minLat: minLat,
+        maxLat: maxLat,
+        minLng: minLng,
+        maxLng: maxLng,
+        cancelToken: cancelToken,
+      );
+      return res.data ?? BuiltList.from([]);
+    } catch (e) {
+      return BuiltList.from([]);
+    }
+  }
+
   Future<BuiltList<AirportEntity>> searchAirports(String query,
       {CancelToken? cancelToken}) async {
     if (query.isEmpty) return BuiltList.from([]);

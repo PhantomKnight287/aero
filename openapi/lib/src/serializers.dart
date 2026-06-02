@@ -25,6 +25,7 @@ import 'package:openapi/src/model/airline_stats_entity.dart';
 import 'package:openapi/src/model/airport_conditions_entity.dart';
 import 'package:openapi/src/model/airport_delay_reason_entity.dart';
 import 'package:openapi/src/model/airport_delays_entity.dart';
+import 'package:openapi/src/model/airport_details_entity.dart';
 import 'package:openapi/src/model/airport_entity.dart';
 import 'package:openapi/src/model/airport_info.dart';
 import 'package:openapi/src/model/airport_stats_entity.dart';
@@ -32,8 +33,8 @@ import 'package:openapi/src/model/airport_type.dart';
 import 'package:openapi/src/model/airport_weather_forecast_entity.dart';
 import 'package:openapi/src/model/airport_weather_observation_entity.dart';
 import 'package:openapi/src/model/create_flight_booking_dto.dart';
+import 'package:openapi/src/model/decoded_weather_entity.dart';
 import 'package:openapi/src/model/fligh_type.dart';
-import 'package:openapi/src/model/flight_alert_dto.dart';
 import 'package:openapi/src/model/flight_aware_data_entity.dart';
 import 'package:openapi/src/model/flight_booking_entity.dart';
 import 'package:openapi/src/model/flight_candidate_entity.dart';
@@ -97,6 +98,7 @@ part 'serializers.g.dart';
   AirportConditionsEntity,
   AirportDelayReasonEntity,
   AirportDelaysEntity,
+  AirportDetailsEntity,
   AirportEntity,
   AirportInfo,
   AirportStatsEntity,
@@ -104,8 +106,8 @@ part 'serializers.g.dart';
   AirportWeatherForecastEntity,
   AirportWeatherObservationEntity,
   CreateFlightBookingDTO,
+  DecodedWeatherEntity,
   FlighType,
-  FlightAlertDTO,
   FlightAwareDataEntity,
   FlightBookingEntity,
   FlightCandidateEntity,

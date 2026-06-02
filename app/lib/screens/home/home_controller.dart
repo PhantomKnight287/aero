@@ -65,6 +65,10 @@ class HomeController extends ChangeNotifier {
   String? pendingIcao;
   DateTime? pendingDate;
 
+  List<AirportEntity> nearbyAirports = [];
+  CancelToken? _airportsCancelToken;
+  List<double>? _lastAirportBounds;
+
   int get secondsUntilNextUpdate => _secondsUntilNextUpdate;
   bool get isTrackingActive =>
       _trackPollingTimer != null && _trackPollingTimer!.isActive;
@@ -84,6 +88,7 @@ class HomeController extends ChangeNotifier {
     _debounce?.cancel();
     _trackPollingTimer?.cancel();
     _countdownTimer?.cancel();
+    _airportsCancelToken?.cancel('Controller disposed');
   }
 
   void clearError() {
@@ -126,6 +131,48 @@ class HomeController extends ChangeNotifier {
 
   void clearSearchResults() {
     results.clear();
+    notifyListeners();
+  }
+
+  /// Fetch airports inside the given map bounds and expose them for plotting.
+  /// Skips redundant requests when the bounds barely changed, and cancels any
+  /// in-flight request when a newer pan supersedes it.
+  Future<void> loadAirportsInBounds(
+    double minLat,
+    double maxLat,
+    double minLng,
+    double maxLng,
+  ) async {
+    final bounds = [minLat, maxLat, minLng, maxLng];
+    if (_lastAirportBounds != null) {
+      var unchanged = true;
+      for (var i = 0; i < bounds.length; i++) {
+        if ((bounds[i] - _lastAirportBounds![i]).abs() > 0.01) {
+          unchanged = false;
+          break;
+        }
+      }
+      if (unchanged) return;
+    }
+    _lastAirportBounds = bounds;
+
+    _airportsCancelToken?.cancel('Map moved, fetching new airports');
+    final token = CancelToken();
+    _airportsCancelToken = token;
+
+    final airports = await _service.getAirportsInBounds(
+      minLat,
+      maxLat,
+      minLng,
+      maxLng,
+      cancelToken: token,
+    );
+
+    // A newer pan may have superseded this request while it was in flight;
+    // ignore the (possibly cancelled/empty) result so we don't clear markers.
+    if (token != _airportsCancelToken || token.isCancelled) return;
+
+    nearbyAirports = airports.toList();
     notifyListeners();
   }
 

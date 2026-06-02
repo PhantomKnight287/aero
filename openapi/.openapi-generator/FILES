@@ -13,6 +13,7 @@ doc/AirlinesApi.md
 doc/AirportConditionsEntity.md
 doc/AirportDelayReasonEntity.md
 doc/AirportDelaysEntity.md
+doc/AirportDetailsEntity.md
 doc/AirportEntity.md
 doc/AirportInfo.md
 doc/AirportStatsEntity.md
@@ -23,9 +24,8 @@ doc/AirportsApi.md
 doc/AppApi.md
 doc/AuthenticationApi.md
 doc/CreateFlightBookingDTO.md
+doc/DecodedWeatherEntity.md
 doc/FlighType.md
-doc/FlightAlertDTO.md
-doc/FlightAlertsApi.md
 doc/FlightApi.md
 doc/FlightAwareDataEntity.md
 doc/FlightBookingEntity.md
@@ -83,7 +83,6 @@ lib/src/api/airlines_api.dart
 lib/src/api/airports_api.dart
 lib/src/api/app_api.dart
 lib/src/api/authentication_api.dart
-lib/src/api/flight_alerts_api.dart
 lib/src/api/flight_api.dart
 lib/src/api/flights_api.dart
 lib/src/api/profile_api.dart
@@ -105,6 +104,7 @@ lib/src/model/airline_stats_entity.dart
 lib/src/model/airport_conditions_entity.dart
 lib/src/model/airport_delay_reason_entity.dart
 lib/src/model/airport_delays_entity.dart
+lib/src/model/airport_details_entity.dart
 lib/src/model/airport_entity.dart
 lib/src/model/airport_info.dart
 lib/src/model/airport_stats_entity.dart
@@ -113,8 +113,8 @@ lib/src/model/airport_weather_forecast_entity.dart
 lib/src/model/airport_weather_observation_entity.dart
 lib/src/model/create_flight_booking_dto.dart
 lib/src/model/date.dart
+lib/src/model/decoded_weather_entity.dart
 lib/src/model/fligh_type.dart
-lib/src/model/flight_alert_dto.dart
 lib/src/model/flight_aware_data_entity.dart
 lib/src/model/flight_booking_entity.dart
 lib/src/model/flight_candidate_entity.dart
@@ -165,5 +165,3 @@ lib/src/model/weather_forecast_windshear_entity.dart
 lib/src/model/weather_observation_cloud_entity.dart
 lib/src/serializers.dart
 pubspec.yaml
-test/flight_alert_dto_test.dart
-test/flight_alerts_api_test.dart

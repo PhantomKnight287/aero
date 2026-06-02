@@ -5,6 +5,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:openapi/openapi.dart';
 import 'package:aero/screens/home/home_controller.dart';
+import 'package:aero/screens/home/widgets/airport_details_sheet.dart';
 import 'package:aero/screens/home/widgets/animated_flight_info_bar.dart';
 import 'package:aero/screens/home/widgets/date_selection_list.dart';
 import 'package:aero/screens/home/widgets/booking_details_sheet.dart';
@@ -133,6 +134,18 @@ class _HomeScreenState extends State<HomeScreen>
     }
   }
 
+  void _showAirportDetailsSheet(AirportEntity airport) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (context) => AirportDetailsSheet(airport: airport),
+    );
+  }
+
   void _showBookingDetailsSheet() {
     final info = _homeController.flightInfo;
     if (info == null) return;
@@ -197,6 +210,9 @@ class _HomeScreenState extends State<HomeScreen>
               currentHeading: controller.currentPosition?.heading?.toDouble(),
               onAircraftSelected: controller.onAircraftSelected,
               isFlightInAir: controller.isInAir,
+              airports: controller.nearbyAirports,
+              onBoundsChanged: controller.loadAirportsInBounds,
+              onAirportTap: _showAirportDetailsSheet,
             ),
           ),
           if (controller.isTrackingActive)

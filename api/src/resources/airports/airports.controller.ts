@@ -1,13 +1,16 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Controller, Get, Param, Query } from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiOkResponse,
   ApiOperation,
+  ApiParam,
   ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
 
+import { GetAirportsBoundsDTO } from './dto/get-airports-bounds.dto';
 import { AirportsService } from './airports.service';
+import { AirportDetailsEntity } from './entities/airport-details.entity';
 import { AirportEntity } from './entities/airport.entity';
 
 @Controller('airports')
@@ -35,5 +38,37 @@ export class AirportsController {
   })
   getAirports(@Query('search') search?: string) {
     return this.airportsService.getAirports({ search });
+  }
+
+  @Get('bounds')
+  @ApiOperation({
+    summary: 'Get airports within geographic bounds',
+    description:
+      'Returns airports whose coordinates fall inside the given bounding box. ' +
+      'Restricted to non-closed airports with an IATA code, prioritized by size ' +
+      'and capped at 200 results. Intended for plotting airports on a map as the ' +
+      'user pans at a sufficient zoom level.',
+  })
+  @ApiOkResponse({ type: [AirportEntity] })
+  getAirportsInBounds(@Query() query: GetAirportsBoundsDTO) {
+    return this.airportsService.getAirportsInBounds(query);
+  }
+
+  @Get(':ident/details')
+  @ApiOperation({
+    summary: 'Get detailed live information for an airport',
+    description:
+      'Aggregates current delays plus the latest METAR observation and TAF ' +
+      'forecast (raw + decoded) for the given airport identifier (ICAO/IATA). ' +
+      'Each source is best-effort; missing data is returned as null.',
+  })
+  @ApiParam({
+    name: 'ident',
+    example: 'VIDP',
+    description: 'Airport identifier (ICAO preferred, IATA accepted)',
+  })
+  @ApiOkResponse({ type: AirportDetailsEntity })
+  getAirportDetails(@Param('ident') ident: string) {
+    return this.airportsService.getAirportDetails(ident);
   }
 }
