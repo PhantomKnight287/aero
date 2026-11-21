@@ -5,6 +5,9 @@ import 'package:flutter_svg/svg.dart';
 import 'package:intl/intl.dart';
 import 'package:openapi/openapi.dart';
 import 'package:aero/services/main.dart';
+import 'package:aero/ui/components/aero_sheet.dart';
+import 'package:aero/ui/tokens.dart';
+import 'package:aero/utils/error.dart';
 
 class TrackedFlightsList extends StatelessWidget {
   final BuiltList<FlightResponseEntity> trackedFlights;
@@ -23,36 +26,31 @@ class TrackedFlightsList extends StatelessWidget {
     BuildContext context,
     FlightResponseEntity flight,
   ) async {
-    final hasBooking = flight.bookings?.isNotEmpty == true;
-    final date = DateFormat('dd MMM yyyy').format(flight.date.toLocal());
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Delete flight?'),
-        content: Text(
-          'Removes ${flight.flightNo} on $date from your log and stats.'
-          '${hasBooking ? ' Its booking will be deleted too.' : ''}',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Delete'),
-          ),
-        ],
-      ),
+    final booking = flight.bookings?.firstOrNull;
+    final bookingLabel = booking == null
+        ? null
+        : [booking.bookingCode, booking.seatNumber]
+            .whereType<String>()
+            .where((s) => s.isNotEmpty)
+            .join(' · ');
+    final confirmed = await showAeroConfirm(
+      context,
+      title: 'Delete flight?',
+      subtitle:
+          '${flight.flightNo} · ${DateFormat('dd MMM yyyy').format(flight.date.toLocal())}',
+      message: 'Removes it from your log and stats.',
+      warning: booking == null
+          ? null
+          : 'Booking${bookingLabel!.isEmpty ? '' : ' $bookingLabel'} will be deleted too.',
+      confirmLabel: 'Delete flight',
+      destructive: true,
     );
-    if (confirmed != true || !context.mounted) return false;
-    final messenger = ScaffoldMessenger.of(context);
+    if (!confirmed) return false;
     try {
       await onDelete(flight);
       return true;
     } on ApiException catch (e) {
-      messenger.showSnackBar(SnackBar(content: Text(e.message)));
+      showErrorToast(e.message);
       return false;
     }
   }
@@ -73,11 +71,7 @@ class TrackedFlightsList extends StatelessWidget {
           ),
           child: Text(
             "Recently Tracked",
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: Colors.grey[700],
-            ),
+            style: AeroText.heading.copyWith(color: AeroColors.muted),
           ),
         ),
         ListView.separated(
@@ -85,7 +79,7 @@ class TrackedFlightsList extends StatelessWidget {
             return Divider(
               height: 1,
               thickness: 0.5,
-              color: Colors.grey.withOpacity(0.2),
+              color: AeroColors.line,
             );
           },
           itemBuilder: (context, index) {
@@ -98,9 +92,10 @@ class TrackedFlightsList extends StatelessWidget {
               confirmDismiss: (_) => _confirmDelete(context, flight),
               background: Container(
                 alignment: Alignment.centerRight,
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                color: Colors.red,
-                child: const Icon(Icons.delete_outline, color: Colors.white),
+                padding: const EdgeInsets.symmetric(horizontal: AeroSpace.xl),
+                color: AeroColors.danger,
+                child:
+                    const Icon(Icons.delete_outline, color: AeroColors.onInk),
               ),
               child: InkWell(
                 onTap: () => onFlightTap(
@@ -121,7 +116,7 @@ class TrackedFlightsList extends StatelessWidget {
                         width: 48,
                         height: 48,
                         decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(8),
+                          borderRadius: AeroRadius.smAll,
                         ),
                         padding: EdgeInsets.all(8),
                         child: flight.airline.image != null
@@ -138,7 +133,7 @@ class TrackedFlightsList extends StatelessWidget {
                                   return Icon(
                                     Icons.airplanemode_active,
                                     size: 24,
-                                    color: Colors.grey,
+                                    color: AeroColors.muted,
                                   );
                                 },
                               ),
@@ -151,18 +146,12 @@ class TrackedFlightsList extends StatelessWidget {
                           children: [
                             Text(
                               "${flight.departure.airport.iata} → ${flight.arrival.airport.iata}",
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 15,
-                              ),
+                              style: AeroText.heading,
                             ),
                             SizedBox(height: 4),
                             Text(
                               "${flight.departure.airport.municipalityName} to ${flight.arrival.airport.municipalityName}",
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Colors.grey[600],
-                              ),
+                              style: AeroText.caption,
                               overflow: TextOverflow.ellipsis,
                             ),
                           ],
@@ -174,9 +163,9 @@ class TrackedFlightsList extends StatelessWidget {
                         children: [
                           Text(
                             DateFormat('dd MMM yyyy').format(localDate),
-                            style: TextStyle(
-                              fontSize: 13,
+                            style: AeroText.body.copyWith(
                               fontWeight: FontWeight.w600,
+                              color: AeroColors.ink,
                             ),
                           ),
                           SizedBox(height: 4),
@@ -184,10 +173,7 @@ class TrackedFlightsList extends StatelessWidget {
                             flight.flightAwareData != null
                                 ? "${flight.flightAwareData!.identIata} • ${flight.flightAwareData!.identIcao}"
                                 : flight.flightNo,
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.grey[600],
-                            ),
+                            style: AeroText.caption,
                           ),
                         ],
                       ),

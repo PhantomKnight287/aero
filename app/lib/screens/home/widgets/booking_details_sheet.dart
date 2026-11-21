@@ -1,4 +1,5 @@
 import 'package:built_value/json_object.dart';
+import 'package:aero/ui/components/aero_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:openapi/openapi.dart';
@@ -217,26 +218,16 @@ class _BookingDetailsSheetState extends State<BookingDetailsSheet> {
   Future<void> _deleteBooking() async {
     if (widget.existingBooking == null) return;
 
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Delete Booking'),
-        content: const Text('Are you sure you want to delete this booking?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Delete'),
-          ),
-        ],
-      ),
+    final confirmed = await showAeroConfirm(
+      context,
+      title: 'Delete booking?',
+      message:
+          'Seat, class, booking code and notes for this flight will be removed. The flight stays in your log.',
+      confirmLabel: 'Delete booking',
+      destructive: true,
     );
 
-    if (confirmed != true) return;
+    if (!confirmed || !mounted) return;
 
     setState(() {
       _isLoading = true;
@@ -402,7 +393,10 @@ class _BookingDetailsSheetState extends State<BookingDetailsSheet> {
                           .map((enumValue) {
                         return DropdownMenuItem(
                           value: enumValue.name,
-                          child: Text(_formatEnumName(enumValue.name),style: TextStyle(fontSize: 16,)),
+                          child: Text(_formatEnumName(enumValue.name),
+                              style: TextStyle(
+                                fontSize: 16,
+                              )),
                         );
                       }).toList(),
                       onChanged: _isLoading
@@ -435,7 +429,10 @@ class _BookingDetailsSheetState extends State<BookingDetailsSheet> {
                           .map((enumValue) {
                         return DropdownMenuItem(
                           value: enumValue.name,
-                          child: Text(_formatEnumName(enumValue.name),style: TextStyle(fontSize: 16,)),
+                          child: Text(_formatEnumName(enumValue.name),
+                              style: TextStyle(
+                                fontSize: 16,
+                              )),
                         );
                       }).toList(),
                       onChanged: _isLoading
@@ -468,7 +465,12 @@ class _BookingDetailsSheetState extends State<BookingDetailsSheet> {
                           .map((enumValue) {
                         return DropdownMenuItem(
                           value: enumValue.name,
-                          child: Text(_formatEnumName(enumValue.name),style: TextStyle(fontSize: 16,),),
+                          child: Text(
+                            _formatEnumName(enumValue.name),
+                            style: TextStyle(
+                              fontSize: 16,
+                            ),
+                          ),
                         );
                       }).toList(),
                       onChanged: _isLoading

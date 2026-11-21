@@ -1,0 +1,107 @@
+{
+  "lib/constants/main.dart": {
+    "hex_color": 1
+  },
+  "lib/screens/auth/login/main.dart": {
+    "material_color": 17,
+    "raw_font_size": 5,
+    "raw_radius": 5
+  },
+  "lib/screens/auth/register/main.dart": {
+    "material_color": 21,
+    "raw_font_size": 5,
+    "raw_radius": 7
+  },
+  "lib/screens/home/main.dart": {
+    "material_color": 24,
+    "raw_radius": 20,
+    "snackbar": 1,
+    "raw_font_size": 2
+  },
+  "lib/screens/home/widgets/airport_details_sheet.dart": {
+    "material_color": 21,
+    "raw_radius": 11,
+    "raw_font_size": 17
+  },
+  "lib/screens/home/widgets/animated_flight_info_bar.dart": {
+    "raw_radius": 2,
+    "material_color": 10,
+    "raw_font_size": 8
+  },
+  "lib/screens/home/widgets/booking_details_sheet.dart": {
+    "material_color": 25,
+    "raw_radius": 14,
+    "raw_font_size": 7
+  },
+  "lib/screens/home/widgets/flight_info.dart": {
+    "snackbar": 2,
+    "raw_radius": 17,
+    "material_color": 32,
+    "raw_font_size": 36
+  },
+  "lib/screens/home/widgets/flight_map.dart": {
+    "material_color": 24
+  },
+  "lib/screens/home/widgets/flight_route_info.dart": {
+    "material_color": 16,
+    "raw_font_size": 9
+  },
+  "lib/screens/home/widgets/flight_selection_list.dart": {
+    "material_color": 13,
+    "raw_font_size": 7,
+    "raw_radius": 1
+  },
+  "lib/screens/home/widgets/flights_list.dart": {
+    "material_color": 7,
+    "raw_radius": 1,
+    "raw_font_size": 6
+  },
+  "lib/screens/home/widgets/refresh_countdown_timer.dart": {
+    "raw_radius": 2,
+    "material_color": 5,
+    "raw_font_size": 2
+  },
+  "lib/screens/home/widgets/search_header.dart": {
+    "raw_font_size": 1
+  },
+  "lib/screens/home/widgets/search_results_list.dart": {
+    "material_color": 2
+  },
+  "lib/screens/home/widgets/selected_filters.dart": {
+    "hex_color": 4,
+    "raw_radius": 4
+  },
+  "lib/screens/home/widgets/shareable_flight_card.dart": {
+    "hex_color": 9,
+    "raw_radius": 3,
+    "material_color": 13,
+    "raw_font_size": 14
+  },
+  "lib/screens/profile/app_icon/main.dart": {
+    "snackbar": 2,
+    "material_color": 9,
+    "raw_font_size": 2,
+    "raw_radius": 2
+  },
+  "lib/screens/profile/main.dart": {
+    "material_color": 11,
+    "raw_font_size": 4,
+    "raw_radius": 3
+  },
+  "lib/screens/profile/stats/main.dart": {
+    "raw_font_size": 47,
+    "raw_radius": 29,
+    "material_color": 22
+  },
+  "lib/screens/wearables/list/main.dart": {
+    "material_color": 2
+  },
+  "lib/screens/wearables/login/main.dart": {
+    "show_dialog": 1,
+    "alert_dialog": 1
+  },
+  "lib/widgets/input.dart": {
+    "raw_radius": 1,
+    "material_color": 2
+  }
+}
