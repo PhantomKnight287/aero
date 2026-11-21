@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:toastification/toastification.dart';
+import 'package:aero/notifiers/units.dart';
 import 'package:aero/ui/theme.dart';
 import 'package:workmanager/workmanager.dart';
 
@@ -57,7 +58,8 @@ void main() async {
           create: (context) {
             return UserNotifier();
           },
-        )
+        ),
+        ChangeNotifierProvider(create: (_) => UnitsNotifier()..load()),
       ],
       child: const MainApp(),
     ),
