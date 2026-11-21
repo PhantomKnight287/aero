@@ -31,6 +31,7 @@ doc/FlightAwareDataEntity.md
 doc/FlightBookingEntity.md
 doc/FlightCandidateEntity.md
 doc/FlightControllerDeleteFlightBookingV1200Response.md
+doc/FlightControllerDeleteFlightV1200Response.md
 doc/FlightDistanceEntity.md
 doc/FlightDurationEntity.md
 doc/FlightEntity.md
@@ -119,6 +120,7 @@ lib/src/model/flight_aware_data_entity.dart
 lib/src/model/flight_booking_entity.dart
 lib/src/model/flight_candidate_entity.dart
 lib/src/model/flight_controller_delete_flight_booking_v1200_response.dart
+lib/src/model/flight_controller_delete_flight_v1200_response.dart
 lib/src/model/flight_distance_entity.dart
 lib/src/model/flight_duration_entity.dart
 lib/src/model/flight_entity.dart
@@ -165,3 +167,4 @@ lib/src/model/weather_forecast_windshear_entity.dart
 lib/src/model/weather_observation_cloud_entity.dart
 lib/src/serializers.dart
 pubspec.yaml
+test/flight_controller_delete_flight_v1200_response_test.dart

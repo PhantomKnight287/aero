@@ -172,15 +172,17 @@ class _$FlightCandidateEntitySerializer implements PrimitiveSerializer<FlightCan
         case r'scheduledOut':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(DateTime),
-          ) as DateTime;
+            specifiedType: const FullType.nullable(DateTime),
+          ) as DateTime?;
+          if (valueDes == null) continue;
           result.scheduledOut = valueDes;
           break;
         case r'scheduledOff':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(DateTime),
-          ) as DateTime;
+            specifiedType: const FullType.nullable(DateTime),
+          ) as DateTime?;
+          if (valueDes == null) continue;
           result.scheduledOff = valueDes;
           break;
         case r'status':
@@ -225,4 +227,5 @@ class _$FlightCandidateEntitySerializer implements PrimitiveSerializer<FlightCan
     return result.build();
   }
 }
+
 

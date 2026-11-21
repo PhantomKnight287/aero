@@ -175,3 +175,4 @@ class _$WeatherForecastWindsEntitySerializer implements PrimitiveSerializer<Weat
   }
 }
 
+

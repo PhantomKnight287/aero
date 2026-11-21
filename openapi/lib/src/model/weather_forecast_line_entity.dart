@@ -239,29 +239,33 @@ class _$WeatherForecastLineEntitySerializer implements PrimitiveSerializer<Weath
         case r'winds':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(WeatherForecastWindsEntity),
-          ) as WeatherForecastWindsEntity;
+            specifiedType: const FullType.nullable(WeatherForecastWindsEntity),
+          ) as WeatherForecastWindsEntity?;
+          if (valueDes == null) continue;
           result.winds.replace(valueDes);
           break;
         case r'windshear':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(WeatherForecastWindshearEntity),
-          ) as WeatherForecastWindshearEntity;
+            specifiedType: const FullType.nullable(WeatherForecastWindshearEntity),
+          ) as WeatherForecastWindshearEntity?;
+          if (valueDes == null) continue;
           result.windshear.replace(valueDes);
           break;
         case r'visibility':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(WeatherForecastVisibilityEntity),
-          ) as WeatherForecastVisibilityEntity;
+            specifiedType: const FullType.nullable(WeatherForecastVisibilityEntity),
+          ) as WeatherForecastVisibilityEntity?;
+          if (valueDes == null) continue;
           result.visibility.replace(valueDes);
           break;
         case r'clouds':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(BuiltList, [FullType(WeatherForecastCloudEntity)]),
-          ) as BuiltList<WeatherForecastCloudEntity>;
+            specifiedType: const FullType.nullable(BuiltList, [FullType(WeatherForecastCloudEntity)]),
+          ) as BuiltList<WeatherForecastCloudEntity>?;
+          if (valueDes == null) continue;
           result.clouds.replace(valueDes);
           break;
         default:
@@ -292,4 +296,5 @@ class _$WeatherForecastLineEntitySerializer implements PrimitiveSerializer<Weath
     return result.build();
   }
 }
+
 

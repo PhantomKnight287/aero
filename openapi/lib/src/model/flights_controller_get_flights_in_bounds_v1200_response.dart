@@ -131,43 +131,49 @@ class _$FlightsControllerGetFlightsInBoundsV1200ResponseSerializer implements Pr
         case r'success':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(bool),
-          ) as bool;
+            specifiedType: const FullType.nullable(bool),
+          ) as bool?;
+          if (valueDes == null) continue;
           result.success = valueDes;
           break;
         case r'timestamp':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(DateTime),
-          ) as DateTime;
+            specifiedType: const FullType.nullable(DateTime),
+          ) as DateTime?;
+          if (valueDes == null) continue;
           result.timestamp = valueDes;
           break;
         case r'bounds':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(FlightsControllerGetFlightsInBoundsV1200ResponseBounds),
-          ) as FlightsControllerGetFlightsInBoundsV1200ResponseBounds;
+            specifiedType: const FullType.nullable(FlightsControllerGetFlightsInBoundsV1200ResponseBounds),
+          ) as FlightsControllerGetFlightsInBoundsV1200ResponseBounds?;
+          if (valueDes == null) continue;
           result.bounds.replace(valueDes);
           break;
         case r'totalAircraft':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(num),
-          ) as num;
+            specifiedType: const FullType.nullable(num),
+          ) as num?;
+          if (valueDes == null) continue;
           result.totalAircraft = valueDes;
           break;
         case r'airborneAircraft':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(num),
-          ) as num;
+            specifiedType: const FullType.nullable(num),
+          ) as num?;
+          if (valueDes == null) continue;
           result.airborneAircraft = valueDes;
           break;
         case r'flights':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(BuiltList, [FullType(FlightsControllerGetFlightsInBoundsV1200ResponseFlightsInner)]),
-          ) as BuiltList<FlightsControllerGetFlightsInBoundsV1200ResponseFlightsInner>;
+            specifiedType: const FullType.nullable(BuiltList, [FullType(FlightsControllerGetFlightsInBoundsV1200ResponseFlightsInner)]),
+          ) as BuiltList<FlightsControllerGetFlightsInBoundsV1200ResponseFlightsInner>?;
+          if (valueDes == null) continue;
           result.flights.replace(valueDes);
           break;
         default:
@@ -198,4 +204,5 @@ class _$FlightsControllerGetFlightsInBoundsV1200ResponseSerializer implements Pr
     return result.build();
   }
 }
+
 

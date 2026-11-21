@@ -140,3 +140,4 @@ class _$WeatherForecastVisibilityEntitySerializer implements PrimitiveSerializer
   }
 }
 
+

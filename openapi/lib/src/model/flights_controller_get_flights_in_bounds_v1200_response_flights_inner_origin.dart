@@ -202,3 +202,4 @@ class _$FlightsControllerGetFlightsInBoundsV1200ResponseFlightsInnerOriginSerial
   }
 }
 
+

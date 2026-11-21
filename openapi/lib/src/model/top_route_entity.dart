@@ -136,3 +136,4 @@ class _$TopRouteEntitySerializer implements PrimitiveSerializer<TopRouteEntity> 
   }
 }
 
+

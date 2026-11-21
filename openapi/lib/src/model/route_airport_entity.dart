@@ -177,8 +177,9 @@ class _$RouteAirportEntitySerializer implements PrimitiveSerializer<RouteAirport
         case r'shortName':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(String),
-          ) as String;
+            specifiedType: const FullType.nullable(String),
+          ) as String?;
+          if (valueDes == null) continue;
           result.shortName = valueDes;
           break;
         case r'countryCode':
@@ -205,8 +206,9 @@ class _$RouteAirportEntitySerializer implements PrimitiveSerializer<RouteAirport
         case r'conditions':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(AirportConditionsEntity),
-          ) as AirportConditionsEntity;
+            specifiedType: const FullType.nullable(AirportConditionsEntity),
+          ) as AirportConditionsEntity?;
+          if (valueDes == null) continue;
           result.conditions.replace(valueDes);
           break;
         default:
@@ -237,4 +239,5 @@ class _$RouteAirportEntitySerializer implements PrimitiveSerializer<RouteAirport
     return result.build();
   }
 }
+
 

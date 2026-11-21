@@ -137,8 +137,9 @@ class _$AirlineEntitySerializer implements PrimitiveSerializer<AirlineEntity> {
         case r'image':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(String),
-          ) as String;
+            specifiedType: const FullType.nullable(String),
+          ) as String?;
+          if (valueDes == null) continue;
           result.image = valueDes;
           break;
         default:
@@ -169,4 +170,5 @@ class _$AirlineEntitySerializer implements PrimitiveSerializer<AirlineEntity> {
     return result.build();
   }
 }
+
 

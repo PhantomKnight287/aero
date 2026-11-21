@@ -123,8 +123,9 @@ class _$AirportWeatherForecastEntitySerializer implements PrimitiveSerializer<Ai
         case r'decoded_forecast':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(WeatherForecastDecodedEntity),
-          ) as WeatherForecastDecodedEntity;
+            specifiedType: const FullType.nullable(WeatherForecastDecodedEntity),
+          ) as WeatherForecastDecodedEntity?;
+          if (valueDes == null) continue;
           result.decodedForecast.replace(valueDes);
           break;
         default:
@@ -155,4 +156,5 @@ class _$AirportWeatherForecastEntitySerializer implements PrimitiveSerializer<Ai
     return result.build();
   }
 }
+
 

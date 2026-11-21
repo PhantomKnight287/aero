@@ -86,8 +86,9 @@ class _$FlightTrackResponseEntitySerializer implements PrimitiveSerializer<Fligh
         case r'actual_distance':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(num),
-          ) as num;
+            specifiedType: const FullType.nullable(num),
+          ) as num?;
+          if (valueDes == null) continue;
           result.actualDistance = valueDes;
           break;
         case r'positions':
@@ -125,4 +126,5 @@ class _$FlightTrackResponseEntitySerializer implements PrimitiveSerializer<Fligh
     return result.build();
   }
 }
+
 

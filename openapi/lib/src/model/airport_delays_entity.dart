@@ -171,6 +171,7 @@ class _$AirportDelaysEntitySerializer implements PrimitiveSerializer<AirportDela
   }
 }
 
+
 class AirportDelaysEntityColorEnum extends EnumClass {
 
   @BuiltValueEnumConst(wireName: r'red')

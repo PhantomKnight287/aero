@@ -216,8 +216,9 @@ class _$FlightResponseEntitySerializer implements PrimitiveSerializer<FlightResp
         case r'aircraft':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(AircraftEntity),
-          ) as AircraftEntity;
+            specifiedType: const FullType.nullable(AircraftEntity),
+          ) as AircraftEntity?;
+          if (valueDes == null) continue;
           result.aircraft.replace(valueDes);
           break;
         case r'airline':
@@ -265,22 +266,25 @@ class _$FlightResponseEntitySerializer implements PrimitiveSerializer<FlightResp
         case r'image':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(String),
-          ) as String;
+            specifiedType: const FullType.nullable(String),
+          ) as String?;
+          if (valueDes == null) continue;
           result.image = valueDes;
           break;
         case r'flightAwareData':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(FlightAwareDataEntity),
-          ) as FlightAwareDataEntity;
+            specifiedType: const FullType.nullable(FlightAwareDataEntity),
+          ) as FlightAwareDataEntity?;
+          if (valueDes == null) continue;
           result.flightAwareData.replace(valueDes);
           break;
         case r'bookings':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(BuiltList, [FullType(FlightBookingEntity)]),
-          ) as BuiltList<FlightBookingEntity>;
+            specifiedType: const FullType.nullable(BuiltList, [FullType(FlightBookingEntity)]),
+          ) as BuiltList<FlightBookingEntity>?;
+          if (valueDes == null) continue;
           result.bookings.replace(valueDes);
           break;
         default:
@@ -311,4 +315,5 @@ class _$FlightResponseEntitySerializer implements PrimitiveSerializer<FlightResp
     return result.build();
   }
 }
+
 

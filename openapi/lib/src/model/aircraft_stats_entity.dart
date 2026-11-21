@@ -168,8 +168,9 @@ class _$AircraftStatsEntitySerializer implements PrimitiveSerializer<AircraftSta
         case r'mostFlownAircraftImage':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(String),
-          ) as String;
+            specifiedType: const FullType.nullable(String),
+          ) as String?;
+          if (valueDes == null) continue;
           result.mostFlownAircraftImage = valueDes;
           break;
         case r'mostFlownAircraftFlights':
@@ -196,22 +197,25 @@ class _$AircraftStatsEntitySerializer implements PrimitiveSerializer<AircraftSta
         case r'medianAge':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(num),
-          ) as num;
+            specifiedType: const FullType.nullable(num),
+          ) as num?;
+          if (valueDes == null) continue;
           result.medianAge = valueDes;
           break;
         case r'youngestAircraft':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(AircraftWithAge),
-          ) as AircraftWithAge;
+            specifiedType: const FullType.nullable(AircraftWithAge),
+          ) as AircraftWithAge?;
+          if (valueDes == null) continue;
           result.youngestAircraft.replace(valueDes);
           break;
         case r'oldestAircraft':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(AircraftWithAge),
-          ) as AircraftWithAge;
+            specifiedType: const FullType.nullable(AircraftWithAge),
+          ) as AircraftWithAge?;
+          if (valueDes == null) continue;
           result.oldestAircraft.replace(valueDes);
           break;
         default:
@@ -242,4 +246,5 @@ class _$AircraftStatsEntitySerializer implements PrimitiveSerializer<AircraftSta
     return result.build();
   }
 }
+
 

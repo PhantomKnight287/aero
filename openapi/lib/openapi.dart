@@ -43,6 +43,7 @@ export 'package:openapi/src/model/flight_aware_data_entity.dart';
 export 'package:openapi/src/model/flight_booking_entity.dart';
 export 'package:openapi/src/model/flight_candidate_entity.dart';
 export 'package:openapi/src/model/flight_controller_delete_flight_booking_v1200_response.dart';
+export 'package:openapi/src/model/flight_controller_delete_flight_v1200_response.dart';
 export 'package:openapi/src/model/flight_distance_entity.dart';
 export 'package:openapi/src/model/flight_duration_entity.dart';
 export 'package:openapi/src/model/flight_entity.dart';

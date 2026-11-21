@@ -124,3 +124,4 @@ class _$FlightSearchResponseEntitySerializer implements PrimitiveSerializer<Flig
   }
 }
 
+

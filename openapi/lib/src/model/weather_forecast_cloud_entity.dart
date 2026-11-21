@@ -164,6 +164,7 @@ class _$WeatherForecastCloudEntitySerializer implements PrimitiveSerializer<Weat
   }
 }
 
+
 class WeatherForecastCloudEntityCoverageEnum extends EnumClass {
 
   @BuiltValueEnumConst(wireName: r'')

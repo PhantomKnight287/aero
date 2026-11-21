@@ -126,15 +126,17 @@ class _$AirlineStatsEntitySerializer implements PrimitiveSerializer<AirlineStats
         case r'airlineIcao':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(String),
-          ) as String;
+            specifiedType: const FullType.nullable(String),
+          ) as String?;
+          if (valueDes == null) continue;
           result.airlineIcao = valueDes;
           break;
         case r'image':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(String),
-          ) as String;
+            specifiedType: const FullType.nullable(String),
+          ) as String?;
+          if (valueDes == null) continue;
           result.image = valueDes;
           break;
         case r'flightCount':
@@ -172,4 +174,5 @@ class _$AirlineStatsEntitySerializer implements PrimitiveSerializer<AirlineStats
     return result.build();
   }
 }
+
 

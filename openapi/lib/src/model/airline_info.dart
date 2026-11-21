@@ -105,8 +105,9 @@ class _$AirlineInfoSerializer implements PrimitiveSerializer<AirlineInfo> {
         case r'icaoCode':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(String),
-          ) as String;
+            specifiedType: const FullType.nullable(String),
+          ) as String?;
+          if (valueDes == null) continue;
           result.icaoCode = valueDes;
           break;
         default:
@@ -137,4 +138,5 @@ class _$AirlineInfoSerializer implements PrimitiveSerializer<AirlineInfo> {
     return result.build();
   }
 }
+
 

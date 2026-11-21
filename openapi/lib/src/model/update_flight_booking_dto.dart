@@ -213,39 +213,30 @@ class _$UpdateFlightBookingDTOSerializer implements PrimitiveSerializer<UpdateFl
   }
 }
 
+
+/// Type of seat position. Set to null to clear.
 class UpdateFlightBookingDTOSeatTypeEnum extends EnumClass {
 
-  /// Type of seat position. Set to null to clear.
   @BuiltValueEnumConst(wireName: r'window')
   static const UpdateFlightBookingDTOSeatTypeEnum window = _$updateFlightBookingDTOSeatTypeEnum_window;
-  /// Type of seat position. Set to null to clear.
   @BuiltValueEnumConst(wireName: r'middle')
   static const UpdateFlightBookingDTOSeatTypeEnum middle = _$updateFlightBookingDTOSeatTypeEnum_middle;
-  /// Type of seat position. Set to null to clear.
   @BuiltValueEnumConst(wireName: r'aisle')
   static const UpdateFlightBookingDTOSeatTypeEnum aisle = _$updateFlightBookingDTOSeatTypeEnum_aisle;
-  /// Type of seat position. Set to null to clear.
   @BuiltValueEnumConst(wireName: r'jumpseat')
   static const UpdateFlightBookingDTOSeatTypeEnum jumpseat = _$updateFlightBookingDTOSeatTypeEnum_jumpseat;
-  /// Type of seat position. Set to null to clear.
   @BuiltValueEnumConst(wireName: r'captain')
   static const UpdateFlightBookingDTOSeatTypeEnum captain = _$updateFlightBookingDTOSeatTypeEnum_captain;
-  /// Type of seat position. Set to null to clear.
   @BuiltValueEnumConst(wireName: r'pilot')
   static const UpdateFlightBookingDTOSeatTypeEnum pilot = _$updateFlightBookingDTOSeatTypeEnum_pilot;
-  /// Type of seat position. Set to null to clear.
   @BuiltValueEnumConst(wireName: r'copilot')
   static const UpdateFlightBookingDTOSeatTypeEnum copilot = _$updateFlightBookingDTOSeatTypeEnum_copilot;
-  /// Type of seat position. Set to null to clear.
   @BuiltValueEnumConst(wireName: r'flight_engineer')
   static const UpdateFlightBookingDTOSeatTypeEnum flightEngineer = _$updateFlightBookingDTOSeatTypeEnum_flightEngineer;
-  /// Type of seat position. Set to null to clear.
   @BuiltValueEnumConst(wireName: r'flight_attendant')
   static const UpdateFlightBookingDTOSeatTypeEnum flightAttendant = _$updateFlightBookingDTOSeatTypeEnum_flightAttendant;
-  /// Type of seat position. Set to null to clear.
   @BuiltValueEnumConst(wireName: r'observer')
   static const UpdateFlightBookingDTOSeatTypeEnum observer = _$updateFlightBookingDTOSeatTypeEnum_observer;
-  /// Type of seat position. Set to null to clear.
   @BuiltValueEnumConst(wireName: r'other')
   static const UpdateFlightBookingDTOSeatTypeEnum other = _$updateFlightBookingDTOSeatTypeEnum_other;
 
@@ -257,24 +248,19 @@ class UpdateFlightBookingDTOSeatTypeEnum extends EnumClass {
   static UpdateFlightBookingDTOSeatTypeEnum valueOf(String name) => _$updateFlightBookingDTOSeatTypeEnumValueOf(name);
 }
 
+/// Class of service. Set to null to clear.
 class UpdateFlightBookingDTOSeatingClassEnum extends EnumClass {
 
-  /// Class of service. Set to null to clear.
   @BuiltValueEnumConst(wireName: r'economy')
   static const UpdateFlightBookingDTOSeatingClassEnum economy = _$updateFlightBookingDTOSeatingClassEnum_economy;
-  /// Class of service. Set to null to clear.
   @BuiltValueEnumConst(wireName: r'premium_economy')
   static const UpdateFlightBookingDTOSeatingClassEnum premiumEconomy = _$updateFlightBookingDTOSeatingClassEnum_premiumEconomy;
-  /// Class of service. Set to null to clear.
   @BuiltValueEnumConst(wireName: r'business')
   static const UpdateFlightBookingDTOSeatingClassEnum business = _$updateFlightBookingDTOSeatingClassEnum_business;
-  /// Class of service. Set to null to clear.
   @BuiltValueEnumConst(wireName: r'first')
   static const UpdateFlightBookingDTOSeatingClassEnum first = _$updateFlightBookingDTOSeatingClassEnum_first;
-  /// Class of service. Set to null to clear.
   @BuiltValueEnumConst(wireName: r'private')
   static const UpdateFlightBookingDTOSeatingClassEnum private = _$updateFlightBookingDTOSeatingClassEnum_private;
-  /// Class of service. Set to null to clear.
   @BuiltValueEnumConst(wireName: r'other')
   static const UpdateFlightBookingDTOSeatingClassEnum other = _$updateFlightBookingDTOSeatingClassEnum_other;
 
@@ -286,24 +272,19 @@ class UpdateFlightBookingDTOSeatingClassEnum extends EnumClass {
   static UpdateFlightBookingDTOSeatingClassEnum valueOf(String name) => _$updateFlightBookingDTOSeatingClassEnumValueOf(name);
 }
 
+/// Reason for the flight. Set to null to clear.
 class UpdateFlightBookingDTOReasonEnum extends EnumClass {
 
-  /// Reason for the flight. Set to null to clear.
   @BuiltValueEnumConst(wireName: r'personal')
   static const UpdateFlightBookingDTOReasonEnum personal = _$updateFlightBookingDTOReasonEnum_personal;
-  /// Reason for the flight. Set to null to clear.
   @BuiltValueEnumConst(wireName: r'business')
   static const UpdateFlightBookingDTOReasonEnum business = _$updateFlightBookingDTOReasonEnum_business;
-  /// Reason for the flight. Set to null to clear.
   @BuiltValueEnumConst(wireName: r'crew')
   static const UpdateFlightBookingDTOReasonEnum crew = _$updateFlightBookingDTOReasonEnum_crew;
-  /// Reason for the flight. Set to null to clear.
   @BuiltValueEnumConst(wireName: r'training')
   static const UpdateFlightBookingDTOReasonEnum training = _$updateFlightBookingDTOReasonEnum_training;
-  /// Reason for the flight. Set to null to clear.
   @BuiltValueEnumConst(wireName: r'repositioning')
   static const UpdateFlightBookingDTOReasonEnum repositioning = _$updateFlightBookingDTOReasonEnum_repositioning;
-  /// Reason for the flight. Set to null to clear.
   @BuiltValueEnumConst(wireName: r'other')
   static const UpdateFlightBookingDTOReasonEnum other = _$updateFlightBookingDTOReasonEnum_other;
 

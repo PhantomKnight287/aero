@@ -11,6 +11,7 @@ Method | HTTP request | Description
 ------------- | ------------- | -------------
 [**flightControllerCreateFlightBookingV1**](FlightApi.md#flightcontrollercreateflightbookingv1) | **POST** /v1/flight/booking | Create a flight booking
 [**flightControllerDeleteFlightBookingV1**](FlightApi.md#flightcontrollerdeleteflightbookingv1) | **DELETE** /v1/flight/booking/{bookingId} | Delete a flight booking
+[**flightControllerDeleteFlightV1**](FlightApi.md#flightcontrollerdeleteflightv1) | **DELETE** /v1/flight/{flightId} | Delete a tracked flight
 [**flightControllerGetFlightBookingV1**](FlightApi.md#flightcontrollergetflightbookingv1) | **GET** /v1/flight/booking/{bookingId} | Get a flight booking
 [**flightControllerGetFlightBookingsByFlightIdV1**](FlightApi.md#flightcontrollergetflightbookingsbyflightidv1) | **GET** /v1/flight/booking/flight/{flightId} | Get all bookings for a flight
 [**flightControllerGetFlightTrackV1**](FlightApi.md#flightcontrollergetflighttrackv1) | **GET** /v1/flight/track | Get flight track/path
@@ -93,6 +94,49 @@ Name | Type | Description  | Notes
 ### Return type
 
 [**FlightControllerDeleteFlightBookingV1200Response**](FlightControllerDeleteFlightBookingV1200Response.md)
+
+### Authorization
+
+[JWT-auth](../README.md#JWT-auth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **flightControllerDeleteFlightV1**
+> FlightControllerDeleteFlightV1200Response flightControllerDeleteFlightV1(flightId)
+
+Delete a tracked flight
+
+Deletes a flight from the user log, including positions, booking, distance and FlightAware data
+
+### Example
+```dart
+import 'package:openapi/api.dart';
+
+final api = Openapi().getFlightApi();
+final String flightId = flight_abc123; // String | ID of the flight to delete
+
+try {
+    final response = api.flightControllerDeleteFlightV1(flightId);
+    print(response);
+} on DioException catch (e) {
+    print('Exception when calling FlightApi->flightControllerDeleteFlightV1: $e\n');
+}
+```
+
+### Parameters
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **flightId** | **String**| ID of the flight to delete | 
+
+### Return type
+
+[**FlightControllerDeleteFlightV1200Response**](FlightControllerDeleteFlightV1200Response.md)
 
 ### Authorization
 

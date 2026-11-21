@@ -39,6 +39,7 @@ import 'package:openapi/src/model/flight_aware_data_entity.dart';
 import 'package:openapi/src/model/flight_booking_entity.dart';
 import 'package:openapi/src/model/flight_candidate_entity.dart';
 import 'package:openapi/src/model/flight_controller_delete_flight_booking_v1200_response.dart';
+import 'package:openapi/src/model/flight_controller_delete_flight_v1200_response.dart';
 import 'package:openapi/src/model/flight_distance_entity.dart';
 import 'package:openapi/src/model/flight_duration_entity.dart';
 import 'package:openapi/src/model/flight_entity.dart';
@@ -112,6 +113,7 @@ part 'serializers.g.dart';
   FlightBookingEntity,
   FlightCandidateEntity,
   FlightControllerDeleteFlightBookingV1200Response,
+  FlightControllerDeleteFlightV1200Response,
   FlightDistanceEntity,
   FlightDurationEntity,
   FlightEntity,
@@ -159,8 +161,52 @@ part 'serializers.g.dart';
 ])
 Serializers serializers = (_$serializers.toBuilder()
       ..addBuilderFactory(
+        const FullType(BuiltList, [FullType(AircraftRegistrationEntity)]),
+        () => ListBuilder<AircraftRegistrationEntity>(),
+      )
+      ..addBuilderFactory(
+        const FullType(BuiltList, [FullType(FlightSummaryEntity)]),
+        () => ListBuilder<FlightSummaryEntity>(),
+      )
+      ..addBuilderFactory(
         const FullType(BuiltList, [FullType(AirlineEntity)]),
         () => ListBuilder<AirlineEntity>(),
+      )
+      ..addBuilderFactory(
+        const FullType(BuiltList, [FullType(AirportDelayReasonEntity)]),
+        () => ListBuilder<AirportDelayReasonEntity>(),
+      )
+      ..addBuilderFactory(
+        const FullType(BuiltList, [FullType(AirportStatsEntity)]),
+        () => ListBuilder<AirportStatsEntity>(),
+      )
+      ..addBuilderFactory(
+        const FullType(BuiltList, [FullType(FlightEntity)]),
+        () => ListBuilder<FlightEntity>(),
+      )
+      ..addBuilderFactory(
+        const FullType(BuiltList, [FullType(FlightsControllerGetFlightsInBoundsV1200ResponseFlightsInner)]),
+        () => ListBuilder<FlightsControllerGetFlightsInBoundsV1200ResponseFlightsInner>(),
+      )
+      ..addBuilderFactory(
+        const FullType(BuiltList, [FullType(WeatherObservationCloudEntity)]),
+        () => ListBuilder<WeatherObservationCloudEntity>(),
+      )
+      ..addBuilderFactory(
+        const FullType(BuiltList, [FullType(FlightPositionEntity)]),
+        () => ListBuilder<FlightPositionEntity>(),
+      )
+      ..addBuilderFactory(
+        const FullType(BuiltList, [FullType(FlightCandidateEntity)]),
+        () => ListBuilder<FlightCandidateEntity>(),
+      )
+      ..addBuilderFactory(
+        const FullType(BuiltList, [FullType(WeatherForecastCloudEntity)]),
+        () => ListBuilder<WeatherForecastCloudEntity>(),
+      )
+      ..addBuilderFactory(
+        const FullType(BuiltList, [FullType(WeatherForecastLineEntity)]),
+        () => ListBuilder<WeatherForecastLineEntity>(),
       )
       ..addBuilderFactory(
         const FullType(BuiltList, [FullType(AirportEntity)]),
@@ -169,6 +215,22 @@ Serializers serializers = (_$serializers.toBuilder()
       ..addBuilderFactory(
         const FullType(BuiltList, [FullType(FlightBookingEntity)]),
         () => ListBuilder<FlightBookingEntity>(),
+      )
+      ..addBuilderFactory(
+        const FullType(BuiltList, [FullType(AirlineStatsEntity)]),
+        () => ListBuilder<AirlineStatsEntity>(),
+      )
+      ..addBuilderFactory(
+        const FullType(BuiltList, [FullType(TopRouteEntity)]),
+        () => ListBuilder<TopRouteEntity>(),
+      )
+      ..addBuilderFactory(
+        const FullType(BuiltList, [FullType(FlightResponseEntity)]),
+        () => ListBuilder<FlightResponseEntity>(),
+      )
+      ..addBuilderFactory(
+        const FullType(BuiltList, [FullType(String)]),
+        () => ListBuilder<String>(),
       )
       ..add(const OneOfSerializer())
       ..add(const AnyOfSerializer())

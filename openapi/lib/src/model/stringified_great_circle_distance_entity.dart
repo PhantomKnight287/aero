@@ -117,36 +117,41 @@ class _$StringifiedGreatCircleDistanceEntitySerializer implements PrimitiveSeria
         case r'meter':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(String),
-          ) as String;
+            specifiedType: const FullType.nullable(String),
+          ) as String?;
+          if (valueDes == null) continue;
           result.meter = valueDes;
           break;
         case r'km':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(String),
-          ) as String;
+            specifiedType: const FullType.nullable(String),
+          ) as String?;
+          if (valueDes == null) continue;
           result.km = valueDes;
           break;
         case r'mile':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(String),
-          ) as String;
+            specifiedType: const FullType.nullable(String),
+          ) as String?;
+          if (valueDes == null) continue;
           result.mile = valueDes;
           break;
         case r'nm':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(String),
-          ) as String;
+            specifiedType: const FullType.nullable(String),
+          ) as String?;
+          if (valueDes == null) continue;
           result.nm = valueDes;
           break;
         case r'feet':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(String),
-          ) as String;
+            specifiedType: const FullType.nullable(String),
+          ) as String?;
+          if (valueDes == null) continue;
           result.feet = valueDes;
           break;
         default:
@@ -177,4 +182,5 @@ class _$StringifiedGreatCircleDistanceEntitySerializer implements PrimitiveSeria
     return result.build();
   }
 }
+
 

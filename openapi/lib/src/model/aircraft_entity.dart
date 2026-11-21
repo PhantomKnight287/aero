@@ -197,85 +197,97 @@ class _$AircraftEntitySerializer implements PrimitiveSerializer<AircraftEntity> 
         case r'modeS':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(String),
-          ) as String;
+            specifiedType: const FullType.nullable(String),
+          ) as String?;
+          if (valueDes == null) continue;
           result.modeS = valueDes;
           break;
         case r'registration':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(String),
-          ) as String;
+            specifiedType: const FullType.nullable(String),
+          ) as String?;
+          if (valueDes == null) continue;
           result.registration = valueDes;
           break;
         case r'model':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(String),
-          ) as String;
+            specifiedType: const FullType.nullable(String),
+          ) as String?;
+          if (valueDes == null) continue;
           result.model = valueDes;
           break;
         case r'image':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(String),
-          ) as String;
+            specifiedType: const FullType.nullable(String),
+          ) as String?;
+          if (valueDes == null) continue;
           result.image = valueDes;
           break;
         case r'aircraft_id':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(String),
-          ) as String;
+            specifiedType: const FullType.nullable(String),
+          ) as String?;
+          if (valueDes == null) continue;
           result.aircraftId = valueDes;
           break;
         case r'age':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(String),
-          ) as String;
+            specifiedType: const FullType.nullable(String),
+          ) as String?;
+          if (valueDes == null) continue;
           result.age = valueDes;
           break;
         case r'firstFlightDate':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(String),
-          ) as String;
+            specifiedType: const FullType.nullable(String),
+          ) as String?;
+          if (valueDes == null) continue;
           result.firstFlightDate = valueDes;
           break;
         case r'deliveryDate':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(String),
-          ) as String;
+            specifiedType: const FullType.nullable(String),
+          ) as String?;
+          if (valueDes == null) continue;
           result.deliveryDate = valueDes;
           break;
         case r'isFreighter':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(bool),
-          ) as bool;
+            specifiedType: const FullType.nullable(bool),
+          ) as bool?;
+          if (valueDes == null) continue;
           result.isFreighter = valueDes;
           break;
         case r'attribution':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(String),
-          ) as String;
+            specifiedType: const FullType.nullable(String),
+          ) as String?;
+          if (valueDes == null) continue;
           result.attribution = valueDes;
           break;
         case r'payload':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(JsonObject),
-          ) as JsonObject;
+            specifiedType: const FullType.nullable(JsonObject),
+          ) as JsonObject?;
+          if (valueDes == null) continue;
           result.payload = valueDes;
           break;
         case r'registrations':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(BuiltList, [FullType(AircraftRegistrationEntity)]),
-          ) as BuiltList<AircraftRegistrationEntity>;
+            specifiedType: const FullType.nullable(BuiltList, [FullType(AircraftRegistrationEntity)]),
+          ) as BuiltList<AircraftRegistrationEntity>?;
+          if (valueDes == null) continue;
           result.registrations.replace(valueDes);
           break;
         default:
@@ -306,4 +318,5 @@ class _$AircraftEntitySerializer implements PrimitiveSerializer<AircraftEntity> 
     return result.build();
   }
 }
+
 

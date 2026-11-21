@@ -122,3 +122,4 @@ class _$LoginEntitySerializer implements PrimitiveSerializer<LoginEntity> {
   }
 }
 
+

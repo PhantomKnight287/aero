@@ -140,3 +140,4 @@ class _$WeatherObservationCloudEntitySerializer implements PrimitiveSerializer<W
   }
 }
 
+

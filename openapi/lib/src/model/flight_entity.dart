@@ -177,8 +177,9 @@ class _$FlightEntitySerializer implements PrimitiveSerializer<FlightEntity> {
         case r'codeshared':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(JsonObject),
-          ) as JsonObject;
+            specifiedType: const FullType.nullable(JsonObject),
+          ) as JsonObject?;
+          if (valueDes == null) continue;
           result.codeshared = valueDes;
           break;
         default:
@@ -209,4 +210,5 @@ class _$FlightEntitySerializer implements PrimitiveSerializer<FlightEntity> {
     return result.build();
   }
 }
+
 

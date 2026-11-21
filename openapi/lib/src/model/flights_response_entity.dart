@@ -171,3 +171,4 @@ class _$FlightsResponseEntitySerializer implements PrimitiveSerializer<FlightsRe
   }
 }
 
+

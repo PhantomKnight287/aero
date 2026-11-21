@@ -120,3 +120,4 @@ class _$LocationEntitySerializer implements PrimitiveSerializer<LocationEntity> 
   }
 }
 
+

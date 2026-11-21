@@ -122,3 +122,4 @@ class _$RegisterEntitySerializer implements PrimitiveSerializer<RegisterEntity> 
   }
 }
 
+

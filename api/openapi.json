@@ -1702,6 +1702,81 @@
         ]
       }
     },
+    "/v1/flight/{flightId}": {
+      "delete": {
+        "description": "Deletes a flight from the user log, including positions, booking, distance and FlightAware data",
+        "operationId": "FlightController_deleteFlight_v1",
+        "parameters": [
+          {
+            "name": "flightId",
+            "required": true,
+            "in": "path",
+            "description": "ID of the flight to delete",
+            "schema": {
+              "example": "flight_abc123",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Flight deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Flight deleted successfully"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "User is not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericErrorEntity"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Flight not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericErrorEntity"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericErrorEntity"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ],
+        "summary": "Delete a tracked flight",
+        "tags": [
+          "Flight"
+        ]
+      }
+    },
     "/v1/profile/@me": {
       "get": {
         "description": "Returns comprehensive statistics about tracked flights including passport data, aircraft stats, airlines, airports, and routes",

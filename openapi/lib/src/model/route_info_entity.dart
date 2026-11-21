@@ -144,15 +144,17 @@ class _$RouteInfoEntitySerializer implements PrimitiveSerializer<RouteInfoEntity
         case r'terminal':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(String),
-          ) as String;
+            specifiedType: const FullType.nullable(String),
+          ) as String?;
+          if (valueDes == null) continue;
           result.terminal = valueDes;
           break;
         case r'gate':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(String),
-          ) as String;
+            specifiedType: const FullType.nullable(String),
+          ) as String?;
+          if (valueDes == null) continue;
           result.gate = valueDes;
           break;
         case r'scheduledTime':
@@ -165,22 +167,25 @@ class _$RouteInfoEntitySerializer implements PrimitiveSerializer<RouteInfoEntity
         case r'revisedTime':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(TimeEntity),
-          ) as TimeEntity;
+            specifiedType: const FullType.nullable(TimeEntity),
+          ) as TimeEntity?;
+          if (valueDes == null) continue;
           result.revisedTime.replace(valueDes);
           break;
         case r'predictedTime':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(TimeEntity),
-          ) as TimeEntity;
+            specifiedType: const FullType.nullable(TimeEntity),
+          ) as TimeEntity?;
+          if (valueDes == null) continue;
           result.predictedTime.replace(valueDes);
           break;
         case r'baggageBelt':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(String),
-          ) as String;
+            specifiedType: const FullType.nullable(String),
+          ) as String?;
+          if (valueDes == null) continue;
           result.baggageBelt = valueDes;
           break;
         default:
@@ -211,4 +216,5 @@ class _$RouteInfoEntitySerializer implements PrimitiveSerializer<RouteInfoEntity
     return result.build();
   }
 }
+
 

@@ -136,3 +136,4 @@ class _$AircraftFlightEntitySerializer implements PrimitiveSerializer<AircraftFl
   }
 }
 
+

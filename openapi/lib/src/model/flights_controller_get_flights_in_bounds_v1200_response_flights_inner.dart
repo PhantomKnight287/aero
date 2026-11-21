@@ -674,15 +674,17 @@ class _$FlightsControllerGetFlightsInBoundsV1200ResponseFlightsInnerSerializer i
         case r'lastContact':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(DateTime),
-          ) as DateTime;
+            specifiedType: const FullType.nullable(DateTime),
+          ) as DateTime?;
+          if (valueDes == null) continue;
           result.lastContact = valueDes;
           break;
         case r'isOnGround':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(bool),
-          ) as bool;
+            specifiedType: const FullType.nullable(bool),
+          ) as bool?;
+          if (valueDes == null) continue;
           result.isOnGround = valueDes;
           break;
         case r'aircraftType':
@@ -1017,4 +1019,5 @@ class _$FlightsControllerGetFlightsInBoundsV1200ResponseFlightsInnerSerializer i
     return result.build();
   }
 }
+
 

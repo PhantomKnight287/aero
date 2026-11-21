@@ -170,8 +170,9 @@ class _$ProfileStatsResponseEntitySerializer implements PrimitiveSerializer<Prof
         case r'aircraftStats':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(AircraftStatsEntity),
-          ) as AircraftStatsEntity;
+            specifiedType: const FullType.nullable(AircraftStatsEntity),
+          ) as AircraftStatsEntity?;
+          if (valueDes == null) continue;
           result.aircraftStats.replace(valueDes);
           break;
         case r'passport':
@@ -258,4 +259,5 @@ class _$ProfileStatsResponseEntitySerializer implements PrimitiveSerializer<Prof
     return result.build();
   }
 }
+
 

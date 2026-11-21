@@ -111,22 +111,25 @@ class _$PartialAirlineEntitySerializer implements PrimitiveSerializer<PartialAir
         case r'iata':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(String),
-          ) as String;
+            specifiedType: const FullType.nullable(String),
+          ) as String?;
+          if (valueDes == null) continue;
           result.iata = valueDes;
           break;
         case r'icao':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(String),
-          ) as String;
+            specifiedType: const FullType.nullable(String),
+          ) as String?;
+          if (valueDes == null) continue;
           result.icao = valueDes;
           break;
         case r'image':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(String),
-          ) as String;
+            specifiedType: const FullType.nullable(String),
+          ) as String?;
+          if (valueDes == null) continue;
           result.image = valueDes;
           break;
         default:
@@ -157,4 +160,5 @@ class _$PartialAirlineEntitySerializer implements PrimitiveSerializer<PartialAir
     return result.build();
   }
 }
+
 

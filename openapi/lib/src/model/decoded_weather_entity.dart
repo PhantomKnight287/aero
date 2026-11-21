@@ -129,3 +129,4 @@ class _$DecodedWeatherEntitySerializer implements PrimitiveSerializer<DecodedWea
   }
 }
 
+

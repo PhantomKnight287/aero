@@ -122,3 +122,4 @@ class _$FlightDurationEntitySerializer implements PrimitiveSerializer<FlightDura
   }
 }
 
+

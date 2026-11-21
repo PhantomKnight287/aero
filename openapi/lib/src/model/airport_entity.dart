@@ -212,8 +212,9 @@ class _$AirportEntitySerializer implements PrimitiveSerializer<AirportEntity> {
         case r'elevation':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(String),
-          ) as String;
+            specifiedType: const FullType.nullable(String),
+          ) as String?;
+          if (valueDes == null) continue;
           result.elevation = valueDes;
           break;
         case r'continent':
@@ -240,22 +241,25 @@ class _$AirportEntitySerializer implements PrimitiveSerializer<AirportEntity> {
         case r'municipality':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(String),
-          ) as String;
+            specifiedType: const FullType.nullable(String),
+          ) as String?;
+          if (valueDes == null) continue;
           result.municipality = valueDes;
           break;
         case r'gpsCode':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(String),
-          ) as String;
+            specifiedType: const FullType.nullable(String),
+          ) as String?;
+          if (valueDes == null) continue;
           result.gpsCode = valueDes;
           break;
         case r'iataCode':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(String),
-          ) as String;
+            specifiedType: const FullType.nullable(String),
+          ) as String?;
+          if (valueDes == null) continue;
           result.iataCode = valueDes;
           break;
         case r'name':
@@ -307,4 +311,5 @@ class _$AirportEntitySerializer implements PrimitiveSerializer<AirportEntity> {
     return result.build();
   }
 }
+
 

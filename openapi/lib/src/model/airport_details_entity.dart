@@ -167,3 +167,4 @@ class _$AirportDetailsEntitySerializer implements PrimitiveSerializer<AirportDet
   }
 }
 
+

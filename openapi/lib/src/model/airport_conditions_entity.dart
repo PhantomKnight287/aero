@@ -148,3 +148,4 @@ class _$AirportConditionsEntitySerializer implements PrimitiveSerializer<Airport
   }
 }
 
+

@@ -120,3 +120,4 @@ class _$UserEntitySerializer implements PrimitiveSerializer<UserEntity> {
   }
 }
 
+

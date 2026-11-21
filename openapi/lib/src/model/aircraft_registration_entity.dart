@@ -143,22 +143,25 @@ class _$AircraftRegistrationEntitySerializer implements PrimitiveSerializer<Airc
         case r'hexIcao':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(String),
-          ) as String;
+            specifiedType: const FullType.nullable(String),
+          ) as String?;
+          if (valueDes == null) continue;
           result.hexIcao = valueDes;
           break;
         case r'airlineName':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(String),
-          ) as String;
+            specifiedType: const FullType.nullable(String),
+          ) as String?;
+          if (valueDes == null) continue;
           result.airlineName = valueDes;
           break;
         case r'registrationDate':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(String),
-          ) as String;
+            specifiedType: const FullType.nullable(String),
+          ) as String?;
+          if (valueDes == null) continue;
           result.registrationDate = valueDes;
           break;
         default:
@@ -189,4 +192,5 @@ class _$AircraftRegistrationEntitySerializer implements PrimitiveSerializer<Airc
     return result.build();
   }
 }
+
 

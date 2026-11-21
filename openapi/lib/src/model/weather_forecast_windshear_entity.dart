@@ -172,3 +172,4 @@ class _$WeatherForecastWindshearEntitySerializer implements PrimitiveSerializer<
   }
 }
 
+

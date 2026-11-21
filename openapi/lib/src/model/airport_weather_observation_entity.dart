@@ -276,8 +276,9 @@ class _$AirportWeatherObservationEntitySerializer implements PrimitiveSerializer
         case r'clouds':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(BuiltList, [FullType(WeatherObservationCloudEntity)]),
-          ) as BuiltList<WeatherObservationCloudEntity>;
+            specifiedType: const FullType.nullable(BuiltList, [FullType(WeatherObservationCloudEntity)]),
+          ) as BuiltList<WeatherObservationCloudEntity>?;
+          if (valueDes == null) continue;
           result.clouds.replace(valueDes);
           break;
         case r'conditions':
@@ -429,6 +430,7 @@ class _$AirportWeatherObservationEntitySerializer implements PrimitiveSerializer
     return result.build();
   }
 }
+
 
 class AirportWeatherObservationEntityPressureUnitsEnum extends EnumClass {
 

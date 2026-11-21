@@ -161,8 +161,9 @@ class _$FlightPositionEntitySerializer implements PrimitiveSerializer<FlightPosi
         case r'fa_flight_id':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(String),
-          ) as String;
+            specifiedType: const FullType.nullable(String),
+          ) as String?;
+          if (valueDes == null) continue;
           result.faFlightId = valueDes;
           break;
         case r'altitude':
@@ -189,8 +190,9 @@ class _$FlightPositionEntitySerializer implements PrimitiveSerializer<FlightPosi
         case r'heading':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(num),
-          ) as num;
+            specifiedType: const FullType.nullable(num),
+          ) as num?;
+          if (valueDes == null) continue;
           result.heading = valueDes;
           break;
         case r'latitude':
@@ -217,8 +219,9 @@ class _$FlightPositionEntitySerializer implements PrimitiveSerializer<FlightPosi
         case r'update_type':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(FlightPositionEntityUpdateTypeEnum),
-          ) as FlightPositionEntityUpdateTypeEnum;
+            specifiedType: const FullType.nullable(FlightPositionEntityUpdateTypeEnum),
+          ) as FlightPositionEntityUpdateTypeEnum?;
+          if (valueDes == null) continue;
           result.updateType = valueDes;
           break;
         default:
@@ -250,15 +253,14 @@ class _$FlightPositionEntitySerializer implements PrimitiveSerializer<FlightPosi
   }
 }
 
+
+/// Altitude change indicator
 class FlightPositionEntityAltitudeChangeEnum extends EnumClass {
 
-  /// Altitude change indicator
   @BuiltValueEnumConst(wireName: r'C')
   static const FlightPositionEntityAltitudeChangeEnum C = _$flightPositionEntityAltitudeChangeEnum_C;
-  /// Altitude change indicator
   @BuiltValueEnumConst(wireName: r'D')
   static const FlightPositionEntityAltitudeChangeEnum D = _$flightPositionEntityAltitudeChangeEnum_D;
-  /// Altitude change indicator
   @BuiltValueEnumConst(wireName: r'-')
   static const FlightPositionEntityAltitudeChangeEnum underscore = _$flightPositionEntityAltitudeChangeEnum_underscore;
 
@@ -270,33 +272,25 @@ class FlightPositionEntityAltitudeChangeEnum extends EnumClass {
   static FlightPositionEntityAltitudeChangeEnum valueOf(String name) => _$flightPositionEntityAltitudeChangeEnumValueOf(name);
 }
 
+/// Update type: P=projected, O=oceanic, Z=radar, A=ADS-B, M=multilateration, D=datalink, X=surface and near surface, S=space-based, V=virtual event
 class FlightPositionEntityUpdateTypeEnum extends EnumClass {
 
-  /// Update type: P=projected, O=oceanic, Z=radar, A=ADS-B, M=multilateration, D=datalink, X=surface and near surface, S=space-based, V=virtual event
   @BuiltValueEnumConst(wireName: r'P')
   static const FlightPositionEntityUpdateTypeEnum P = _$flightPositionEntityUpdateTypeEnum_P;
-  /// Update type: P=projected, O=oceanic, Z=radar, A=ADS-B, M=multilateration, D=datalink, X=surface and near surface, S=space-based, V=virtual event
   @BuiltValueEnumConst(wireName: r'O')
   static const FlightPositionEntityUpdateTypeEnum O = _$flightPositionEntityUpdateTypeEnum_O;
-  /// Update type: P=projected, O=oceanic, Z=radar, A=ADS-B, M=multilateration, D=datalink, X=surface and near surface, S=space-based, V=virtual event
   @BuiltValueEnumConst(wireName: r'Z')
   static const FlightPositionEntityUpdateTypeEnum Z = _$flightPositionEntityUpdateTypeEnum_Z;
-  /// Update type: P=projected, O=oceanic, Z=radar, A=ADS-B, M=multilateration, D=datalink, X=surface and near surface, S=space-based, V=virtual event
   @BuiltValueEnumConst(wireName: r'A')
   static const FlightPositionEntityUpdateTypeEnum A = _$flightPositionEntityUpdateTypeEnum_A;
-  /// Update type: P=projected, O=oceanic, Z=radar, A=ADS-B, M=multilateration, D=datalink, X=surface and near surface, S=space-based, V=virtual event
   @BuiltValueEnumConst(wireName: r'M')
   static const FlightPositionEntityUpdateTypeEnum M = _$flightPositionEntityUpdateTypeEnum_M;
-  /// Update type: P=projected, O=oceanic, Z=radar, A=ADS-B, M=multilateration, D=datalink, X=surface and near surface, S=space-based, V=virtual event
   @BuiltValueEnumConst(wireName: r'D')
   static const FlightPositionEntityUpdateTypeEnum D = _$flightPositionEntityUpdateTypeEnum_D;
-  /// Update type: P=projected, O=oceanic, Z=radar, A=ADS-B, M=multilateration, D=datalink, X=surface and near surface, S=space-based, V=virtual event
   @BuiltValueEnumConst(wireName: r'X')
   static const FlightPositionEntityUpdateTypeEnum X = _$flightPositionEntityUpdateTypeEnum_X;
-  /// Update type: P=projected, O=oceanic, Z=radar, A=ADS-B, M=multilateration, D=datalink, X=surface and near surface, S=space-based, V=virtual event
   @BuiltValueEnumConst(wireName: r'S')
   static const FlightPositionEntityUpdateTypeEnum S = _$flightPositionEntityUpdateTypeEnum_S;
-  /// Update type: P=projected, O=oceanic, Z=radar, A=ADS-B, M=multilateration, D=datalink, X=surface and near surface, S=space-based, V=virtual event
   @BuiltValueEnumConst(wireName: r'V')
   static const FlightPositionEntityUpdateTypeEnum V = _$flightPositionEntityUpdateTypeEnum_V;
 

@@ -116,15 +116,17 @@ class _$AircraftWithAgeSerializer implements PrimitiveSerializer<AircraftWithAge
         case r'age':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(num),
-          ) as num;
+            specifiedType: const FullType.nullable(num),
+          ) as num?;
+          if (valueDes == null) continue;
           result.age = valueDes;
           break;
         case r'image':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(String),
-          ) as String;
+            specifiedType: const FullType.nullable(String),
+          ) as String?;
+          if (valueDes == null) continue;
           result.image = valueDes;
           break;
         default:
@@ -155,4 +157,5 @@ class _$AircraftWithAgeSerializer implements PrimitiveSerializer<AircraftWithAge
     return result.build();
   }
 }
+
 

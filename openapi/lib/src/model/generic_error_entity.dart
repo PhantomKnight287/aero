@@ -104,3 +104,4 @@ class _$GenericErrorEntitySerializer implements PrimitiveSerializer<GenericError
   }
 }
 
+

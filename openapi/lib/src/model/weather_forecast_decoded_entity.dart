@@ -107,8 +107,9 @@ class _$WeatherForecastDecodedEntitySerializer implements PrimitiveSerializer<We
         case r'lines':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(BuiltList, [FullType(WeatherForecastLineEntity)]),
-          ) as BuiltList<WeatherForecastLineEntity>;
+            specifiedType: const FullType.nullable(BuiltList, [FullType(WeatherForecastLineEntity)]),
+          ) as BuiltList<WeatherForecastLineEntity>?;
+          if (valueDes == null) continue;
           result.lines.replace(valueDes);
           break;
         default:
@@ -139,4 +140,5 @@ class _$WeatherForecastDecodedEntitySerializer implements PrimitiveSerializer<We
     return result.build();
   }
 }
+
 

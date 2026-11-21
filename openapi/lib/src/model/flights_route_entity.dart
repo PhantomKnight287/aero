@@ -120,3 +120,4 @@ class _$FlightsRouteEntitySerializer implements PrimitiveSerializer<FlightsRoute
   }
 }
 
+

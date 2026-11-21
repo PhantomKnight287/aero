@@ -120,3 +120,4 @@ class _$TimeEntitySerializer implements PrimitiveSerializer<TimeEntity> {
   }
 }
 
+

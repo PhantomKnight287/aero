@@ -106,29 +106,33 @@ class _$FlightsControllerGetFlightsInBoundsV1200ResponseBoundsSerializer impleme
         case r'minLat':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(num),
-          ) as num;
+            specifiedType: const FullType.nullable(num),
+          ) as num?;
+          if (valueDes == null) continue;
           result.minLat = valueDes;
           break;
         case r'maxLat':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(num),
-          ) as num;
+            specifiedType: const FullType.nullable(num),
+          ) as num?;
+          if (valueDes == null) continue;
           result.maxLat = valueDes;
           break;
         case r'minLng':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(num),
-          ) as num;
+            specifiedType: const FullType.nullable(num),
+          ) as num?;
+          if (valueDes == null) continue;
           result.minLng = valueDes;
           break;
         case r'maxLng':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(num),
-          ) as num;
+            specifiedType: const FullType.nullable(num),
+          ) as num?;
+          if (valueDes == null) continue;
           result.maxLng = valueDes;
           break;
         default:
@@ -159,4 +163,5 @@ class _$FlightsControllerGetFlightsInBoundsV1200ResponseBoundsSerializer impleme
     return result.build();
   }
 }
+
 

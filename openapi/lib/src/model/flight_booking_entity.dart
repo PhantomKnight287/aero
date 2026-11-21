@@ -196,43 +196,49 @@ class _$FlightBookingEntitySerializer implements PrimitiveSerializer<FlightBooki
         case r'bookingCode':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(JsonObject),
-          ) as JsonObject;
+            specifiedType: const FullType.nullable(JsonObject),
+          ) as JsonObject?;
+          if (valueDes == null) continue;
           result.bookingCode = valueDes;
           break;
         case r'seatNumber':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(JsonObject),
-          ) as JsonObject;
+            specifiedType: const FullType.nullable(JsonObject),
+          ) as JsonObject?;
+          if (valueDes == null) continue;
           result.seatNumber = valueDes;
           break;
         case r'seatType':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(FlightBookingEntitySeatTypeEnum),
-          ) as FlightBookingEntitySeatTypeEnum;
+            specifiedType: const FullType.nullable(FlightBookingEntitySeatTypeEnum),
+          ) as FlightBookingEntitySeatTypeEnum?;
+          if (valueDes == null) continue;
           result.seatType = valueDes;
           break;
         case r'seatingClass':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(FlightBookingEntitySeatingClassEnum),
-          ) as FlightBookingEntitySeatingClassEnum;
+            specifiedType: const FullType.nullable(FlightBookingEntitySeatingClassEnum),
+          ) as FlightBookingEntitySeatingClassEnum?;
+          if (valueDes == null) continue;
           result.seatingClass = valueDes;
           break;
         case r'reason':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(FlightBookingEntityReasonEnum),
-          ) as FlightBookingEntityReasonEnum;
+            specifiedType: const FullType.nullable(FlightBookingEntityReasonEnum),
+          ) as FlightBookingEntityReasonEnum?;
+          if (valueDes == null) continue;
           result.reason = valueDes;
           break;
         case r'notes':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(JsonObject),
-          ) as JsonObject;
+            specifiedType: const FullType.nullable(JsonObject),
+          ) as JsonObject?;
+          if (valueDes == null) continue;
           result.notes = valueDes;
           break;
         case r'flightId':
@@ -292,39 +298,30 @@ class _$FlightBookingEntitySerializer implements PrimitiveSerializer<FlightBooki
   }
 }
 
+
+/// Type of seat position
 class FlightBookingEntitySeatTypeEnum extends EnumClass {
 
-  /// Type of seat position
   @BuiltValueEnumConst(wireName: r'window')
   static const FlightBookingEntitySeatTypeEnum window = _$flightBookingEntitySeatTypeEnum_window;
-  /// Type of seat position
   @BuiltValueEnumConst(wireName: r'middle')
   static const FlightBookingEntitySeatTypeEnum middle = _$flightBookingEntitySeatTypeEnum_middle;
-  /// Type of seat position
   @BuiltValueEnumConst(wireName: r'aisle')
   static const FlightBookingEntitySeatTypeEnum aisle = _$flightBookingEntitySeatTypeEnum_aisle;
-  /// Type of seat position
   @BuiltValueEnumConst(wireName: r'jumpseat')
   static const FlightBookingEntitySeatTypeEnum jumpseat = _$flightBookingEntitySeatTypeEnum_jumpseat;
-  /// Type of seat position
   @BuiltValueEnumConst(wireName: r'captain')
   static const FlightBookingEntitySeatTypeEnum captain = _$flightBookingEntitySeatTypeEnum_captain;
-  /// Type of seat position
   @BuiltValueEnumConst(wireName: r'pilot')
   static const FlightBookingEntitySeatTypeEnum pilot = _$flightBookingEntitySeatTypeEnum_pilot;
-  /// Type of seat position
   @BuiltValueEnumConst(wireName: r'copilot')
   static const FlightBookingEntitySeatTypeEnum copilot = _$flightBookingEntitySeatTypeEnum_copilot;
-  /// Type of seat position
   @BuiltValueEnumConst(wireName: r'flight_engineer')
   static const FlightBookingEntitySeatTypeEnum flightEngineer = _$flightBookingEntitySeatTypeEnum_flightEngineer;
-  /// Type of seat position
   @BuiltValueEnumConst(wireName: r'flight_attendant')
   static const FlightBookingEntitySeatTypeEnum flightAttendant = _$flightBookingEntitySeatTypeEnum_flightAttendant;
-  /// Type of seat position
   @BuiltValueEnumConst(wireName: r'observer')
   static const FlightBookingEntitySeatTypeEnum observer = _$flightBookingEntitySeatTypeEnum_observer;
-  /// Type of seat position
   @BuiltValueEnumConst(wireName: r'other')
   static const FlightBookingEntitySeatTypeEnum other = _$flightBookingEntitySeatTypeEnum_other;
 
@@ -336,24 +333,19 @@ class FlightBookingEntitySeatTypeEnum extends EnumClass {
   static FlightBookingEntitySeatTypeEnum valueOf(String name) => _$flightBookingEntitySeatTypeEnumValueOf(name);
 }
 
+/// Class of service
 class FlightBookingEntitySeatingClassEnum extends EnumClass {
 
-  /// Class of service
   @BuiltValueEnumConst(wireName: r'economy')
   static const FlightBookingEntitySeatingClassEnum economy = _$flightBookingEntitySeatingClassEnum_economy;
-  /// Class of service
   @BuiltValueEnumConst(wireName: r'premium_economy')
   static const FlightBookingEntitySeatingClassEnum premiumEconomy = _$flightBookingEntitySeatingClassEnum_premiumEconomy;
-  /// Class of service
   @BuiltValueEnumConst(wireName: r'business')
   static const FlightBookingEntitySeatingClassEnum business = _$flightBookingEntitySeatingClassEnum_business;
-  /// Class of service
   @BuiltValueEnumConst(wireName: r'first')
   static const FlightBookingEntitySeatingClassEnum first = _$flightBookingEntitySeatingClassEnum_first;
-  /// Class of service
   @BuiltValueEnumConst(wireName: r'private')
   static const FlightBookingEntitySeatingClassEnum private = _$flightBookingEntitySeatingClassEnum_private;
-  /// Class of service
   @BuiltValueEnumConst(wireName: r'other')
   static const FlightBookingEntitySeatingClassEnum other = _$flightBookingEntitySeatingClassEnum_other;
 
@@ -365,24 +357,19 @@ class FlightBookingEntitySeatingClassEnum extends EnumClass {
   static FlightBookingEntitySeatingClassEnum valueOf(String name) => _$flightBookingEntitySeatingClassEnumValueOf(name);
 }
 
+/// Reason for the flight
 class FlightBookingEntityReasonEnum extends EnumClass {
 
-  /// Reason for the flight
   @BuiltValueEnumConst(wireName: r'personal')
   static const FlightBookingEntityReasonEnum personal = _$flightBookingEntityReasonEnum_personal;
-  /// Reason for the flight
   @BuiltValueEnumConst(wireName: r'business')
   static const FlightBookingEntityReasonEnum business = _$flightBookingEntityReasonEnum_business;
-  /// Reason for the flight
   @BuiltValueEnumConst(wireName: r'crew')
   static const FlightBookingEntityReasonEnum crew = _$flightBookingEntityReasonEnum_crew;
-  /// Reason for the flight
   @BuiltValueEnumConst(wireName: r'training')
   static const FlightBookingEntityReasonEnum training = _$flightBookingEntityReasonEnum_training;
-  /// Reason for the flight
   @BuiltValueEnumConst(wireName: r'repositioning')
   static const FlightBookingEntityReasonEnum repositioning = _$flightBookingEntityReasonEnum_repositioning;
-  /// Reason for the flight
   @BuiltValueEnumConst(wireName: r'other')
   static const FlightBookingEntityReasonEnum other = _$flightBookingEntityReasonEnum_other;
 

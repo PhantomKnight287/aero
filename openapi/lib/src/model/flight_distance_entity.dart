@@ -122,3 +122,4 @@ class _$FlightDistanceEntitySerializer implements PrimitiveSerializer<FlightDist
   }
 }
 
+

@@ -238,3 +238,4 @@ class _$FlightSummaryEntitySerializer implements PrimitiveSerializer<FlightSumma
   }
 }
 
+
