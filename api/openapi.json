@@ -1772,7 +1772,7 @@
     },
     "/v1/flight/{flightId}/aircraft-recent": {
       "get": {
-        "description": "Up to 10 most recent FlightAware legs for the registration (cached 1h). Returns [] when FlightAware is unavailable.",
+        "description": "Up to 10 most recent FlightAware legs for the registration (cached 1h). 502 when FlightAware is unavailable.",
         "operationId": "FlightController_getAircraftRecent_v1",
         "parameters": [
           {
