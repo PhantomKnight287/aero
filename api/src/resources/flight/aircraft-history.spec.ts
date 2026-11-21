@@ -175,3 +175,68 @@ describe('FlightService.getAircraftHistory', () => {
     });
   });
 });
+
+describe('FlightService.getAircraftRecent', () => {
+  let service: FlightService;
+  let fa: { searchFlightsByIdent: jest.Mock };
+
+  const leg = (n: number) => ({
+    ...faLeg,
+    fa_flight_id: `leg-${n}`,
+    scheduled_out: new Date(Date.UTC(2026, 10, n)).toISOString(),
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    fa = { searchFlightsByIdent: jest.fn() };
+    service = new FlightService(
+      { get: () => undefined } as any,
+      fa as any,
+      { getOrNil: () => null } as any,
+    );
+    db.flight.findFirst.mockResolvedValue({
+      id: 'f1',
+      aircraft: {},
+      flightAwareData: { registration: 'A6-EPO' },
+    });
+  });
+
+  it('404s for a flight the user does not own', async () => {
+    db.flight.findFirst.mockResolvedValue(null);
+    await expect(service.getAircraftRecent('f1', 'u1')).rejects.toBeInstanceOf(
+      NotFoundException,
+    );
+  });
+
+  it('asks FlightAware by registration without the dash, cached 1h', async () => {
+    fa.searchFlightsByIdent.mockResolvedValue({ flights: [leg(1)] });
+    const legs = await service.getAircraftRecent('f1', 'u1');
+    expect(fa.searchFlightsByIdent).toHaveBeenCalledWith(
+      'A6EPO',
+      'registration',
+      3600,
+    );
+    expect(legs.map((l) => l.faFlightId)).toEqual(['leg-1']);
+  });
+
+  it('returns the 10 newest legs, newest first', async () => {
+    fa.searchFlightsByIdent.mockResolvedValue({
+      flights: Array.from({ length: 12 }, (_, i) => leg(i + 1)),
+    });
+    const legs = await service.getAircraftRecent('f1', 'u1');
+    expect(legs).toHaveLength(10);
+    expect(legs[0].faFlightId).toBe('leg-12');
+    expect(legs[9].faFlightId).toBe('leg-3');
+  });
+
+  it('returns [] when FlightAware fails or there is no registration', async () => {
+    fa.searchFlightsByIdent.mockRejectedValue(new Error('429'));
+    await expect(service.getAircraftRecent('f1', 'u1')).resolves.toEqual([]);
+    db.flight.findFirst.mockResolvedValue({
+      id: 'f1',
+      aircraft: {},
+      flightAwareData: null,
+    });
+    await expect(service.getAircraftRecent('f1', 'u1')).resolves.toEqual([]);
+  });
+});

@@ -445,6 +445,29 @@ export class FlightController {
     return await this.flightService.getAircraftHistory(flightId, auth.id);
   }
 
+  @Get(':flightId/aircraft-recent')
+  @ApiOperation({
+    summary: 'Recent legs of the aircraft operating a flight',
+    description:
+      'Up to 10 most recent FlightAware legs for the registration (cached 1h). Returns [] when FlightAware is unavailable.',
+  })
+  @ApiParam({ name: 'flightId', description: 'ID of the flight' })
+  @ApiResponse({ status: 200, type: [AircraftLegEntity] })
+  @ApiNotFoundResponse({
+    description: 'Flight not found',
+    type: GenericErrorEntity,
+  })
+  @ApiUnauthorizedResponse({
+    description: 'User is not authenticated',
+    type: GenericErrorEntity,
+  })
+  async getAircraftRecent(
+    @Param('flightId') flightId: string,
+    @Auth() auth: User,
+  ) {
+    return await this.flightService.getAircraftRecent(flightId, auth.id);
+  }
+
   @Delete(':flightId')
   @ApiOperation({
     summary: 'Delete a tracked flight',

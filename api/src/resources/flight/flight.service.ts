@@ -19,7 +19,10 @@ import {
   toAircraftLeg,
   toFlightSummary,
 } from './aircraft-history.util';
-import { AircraftHistoryEntity } from './entities/aircraft-history.entity';
+import {
+  AircraftHistoryEntity,
+  AircraftLegEntity,
+} from './entities/aircraft-history.entity';
 import { CreateFlightBookingDTO } from './dto/create-flight-booking.dto';
 import { GetFlightSearchDTO } from './dto/get-flight-search.dto';
 import { GetFlightTrackDTO } from './dto/get-flight-track.dto';
@@ -1395,6 +1398,46 @@ export class FlightService {
     ]);
 
     return { registration, inbound, ownFlights: own.map(toFlightSummary) };
+  }
+
+  /**
+   * Last ≤10 legs flown by this flight's airframe (FlightAware, by
+   * registration, cached 1h). Called on demand; failures return [].
+   */
+  async getAircraftRecent(
+    flightId: string,
+    userId: string,
+  ): Promise<AircraftLegEntity[]> {
+    const flight = await prisma.flight.findFirst({
+      where: { id: flightId, userId },
+      include: { flightAwareData: true },
+    });
+    if (!flight) {
+      throw new NotFoundException(
+        'Flight not found or does not belong to the user',
+      );
+    }
+    const registration: string | undefined =
+      flight.flightAwareData?.registration ??
+      (flight.aircraft as any)?.registration;
+    if (!registration) return [];
+
+    try {
+      const response = await this.flightAwareService.searchFlightsByIdent(
+        registration.replace(/-/g, ''),
+        'registration',
+        3600,
+      );
+      return (response?.flights ?? [])
+        .map(toAircraftLeg)
+        .sort((a, b) =>
+          (b.scheduledOut ?? '').localeCompare(a.scheduledOut ?? ''),
+        )
+        .slice(0, 10);
+    } catch (error) {
+      console.warn(`Recent flights lookup failed for ${registration}:`, error);
+      return [];
+    }
   }
 
   async deleteFlight(flightId: string, userId: string) {
