@@ -14,6 +14,7 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { createId } from '@paralleldrive/cuid2';
+import { inboundCacheTtl } from './aircraft-history.util';
 import { CreateFlightBookingDTO } from './dto/create-flight-booking.dto';
 import { GetFlightSearchDTO } from './dto/get-flight-search.dto';
 import { GetFlightTrackDTO } from './dto/get-flight-track.dto';
@@ -396,13 +397,21 @@ export class FlightService {
     }
 
     console.log(`Cache miss for ${faFlightId}, fetching from FlightAware API`);
-    const response = await this.flightAwareService.searchFlightsByIdent(faFlightId);
+    const response = await this.flightAwareService.searchFlightsByIdent(
+      faFlightId,
+      'fa_flight_id',
+    );
     if (!response || !response.flights?.length) return null;
     const faFlight = response.flights[0];
 
     if (this.redis) {
       try {
-        await this.redis.setex(cacheKey, 3600, JSON.stringify(faFlight));
+        // Short TTL while the flight can still change (used for inbound legs).
+        await this.redis.setex(
+          cacheKey,
+          inboundCacheTtl(faFlight),
+          JSON.stringify(faFlight),
+        );
         console.log(`Cached flight ${faFlightId} in Redis for future use`);
       } catch (error) {
         console.warn('Failed to cache flight in Redis:', error);
@@ -452,7 +461,10 @@ export class FlightService {
     if (forceUpdate && existingFlight?.flightAwareData?.faFlightId) {
       const id = existingFlight.flightAwareData.faFlightId;
       console.log(`Force update: Using existing fa_flight_id ${id} to fetch from FlightAware`);
-      const response = await this.flightAwareService.searchFlightsByIdent(id);
+      const response = await this.flightAwareService.searchFlightsByIdent(
+        id,
+        'fa_flight_id',
+      );
       if (!response || !response.flights?.length) {
         throw new BadRequestException(
           'Unable to fetch flight information. Please make sure the flight number is correct.',

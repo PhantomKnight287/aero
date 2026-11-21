@@ -430,8 +430,18 @@ export class FlightAwareService {
   /**
    * Search flights by ident (returns array of flights)
    */
-  async searchFlightsByIdent(ident: string): Promise<FlightAwareResponse | null> {
-    const cacheKey = `flightaware:search:${ident}`;
+  /**
+   * GET /flights/{ident}. [identType] maps to FlightAware's `ident_type`
+   * (designator | registration | fa_flight_id) so a registration can't be
+   * mistaken for a flight designator. [ttlSeconds] overrides the cache TTL.
+   */
+  async searchFlightsByIdent(
+    ident: string,
+    identType?: 'designator' | 'registration' | 'fa_flight_id',
+    ttlSeconds?: number,
+  ): Promise<FlightAwareResponse | null> {
+    const cacheKey = `flightaware:search:${identType ?? 'any'}:${ident}`;
+    const ttl = ttlSeconds ?? this.cacheTTL;
 
     // Check cache first
     try {
@@ -456,7 +466,8 @@ export class FlightAwareService {
       // Check rate limit before making API call
       await this.checkRateLimit();
       
-      const url = new URL(`${this.baseUrl}/flights/${ident}`);
+      const url = new URL(`${this.baseUrl}/flights/${encodeURIComponent(ident)}`);
+      if (identType) url.searchParams.append('ident_type', identType);
 
       const response = await fetch(url.toString(), {
         headers: {
@@ -515,14 +526,14 @@ export class FlightAwareService {
         };
         
         // Cache the processed data (what we return)
-        await this.redis.setex(cacheKey, this.cacheTTL, JSON.stringify(processedData));
+        await this.redis.setex(cacheKey, ttl, JSON.stringify(processedData));
         
         // Cache the raw API response for analysis
         const rawCacheKey = `${cacheKey}:raw`;
-        await this.redis.setex(rawCacheKey, this.cacheTTL, JSON.stringify(data));
+        await this.redis.setex(rawCacheKey, ttl, JSON.stringify(data));
         
         console.log(
-          `FlightAware: Search data for ${ident} cached for 10 seconds (processed + raw)`,
+          `FlightAware: Search data for ${ident} cached for ${ttl} seconds (processed + raw)`,
         );
       } catch (error) {
         console.warn('Redis cache write error:', error);
