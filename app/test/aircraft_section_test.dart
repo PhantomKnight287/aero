@@ -78,24 +78,22 @@ Future<void> pump(WidgetTester tester, Widget child) async {
 }
 
 void main() {
-  testWidgets('late inbound gets a warning headline', (tester) async {
-    await pump(
-      tester,
-      AircraftSection(
-        info: flight,
-        history: AircraftHistoryEntity((b) => b
-          ..registration = 'A6-EOF'
-          // Lands 06:15Z, our departure 06:40Z: 25 min turnaround (< 45).
-          ..inbound.replace(leg('in', estimatedIn: '2026-11-15T06:15:00Z'))),
-      ),
-    );
-    expect(find.text('Your aircraft'), findsOneWidget);
-    expect(find.text('EK381 · UAE381'), findsOneWidget);
+  final history = AircraftHistoryEntity((b) => b
+    ..registration = 'A6-EOF'
+    ..inbound.replace(leg('in', estimatedIn: '2026-11-15T06:15:00Z')));
+
+  testWidgets('late inbound: tight turnaround chip and sentence',
+      (tester) async {
+    await pump(tester, AircraftSection(info: flight, history: history));
+    expect(find.text('TIGHT TURNAROUND'), findsOneWidget);
     expect(find.text('Only 25 min between its arrival and your departure'),
         findsOneWidget);
+    expect(find.text('This flight'), findsOneWidget);
+    expect(find.text('Hong Kong → Dubai'), findsOneWidget);
+    expect(find.text('HKG VHHH → DXB OMDB'), findsOneWidget);
   });
 
-  testWidgets('comfortable inbound has no warning', (tester) async {
+  testWidgets('arrived inbound: summary sentence', (tester) async {
     await pump(
       tester,
       AircraftSection(
@@ -105,64 +103,83 @@ void main() {
           ..inbound.replace(leg('in', actualIn: '2026-11-15T04:00:00Z'))),
       ),
     );
+    expect(find.text('ARRIVED'), findsOneWidget);
+    expect(
+        find.text('The inbound aircraft arrived 35 min late'), findsOneWidget);
     expect(find.textContaining('min between'), findsNothing);
-    expect(find.textContaining('after your scheduled departure'), findsNothing);
   });
 
-  testWidgets('own flights: 5 shown, then show all', (tester) async {
+  testWidgets('tapping a leg opens that exact flight', (tester) async {
+    String? openedFa;
+    await pump(
+      tester,
+      AircraftSection(
+        info: flight,
+        history: history,
+        onOpenFlight: (ident, date, {faFlightId}) => openedFa = faFlightId,
+      ),
+    );
+    // 01:00Z departure is 09:00 in Hong Kong, dated in Hong Kong.
+    expect(find.text('EK381 · UAE381'), findsOneWidget);
+    expect(find.text('Dep Nov 15, 09:00 AM'), findsOneWidget);
+    await tester.tap(find.text('Hong Kong → Dubai'));
+    expect(openedFa, 'in');
+  });
+
+  testWidgets('show earlier flights extends the chain with older legs only',
+      (tester) async {
+    var loads = 0;
+    await pump(
+        tester,
+        AircraftSection(
+            info: flight, history: history, onLoadRecent: () => loads++));
+    await tester.tap(find.text('Show earlier flights'));
+    expect(loads, 1);
+
+    AircraftLegEntity at(String id, String out) => leg(id).rebuild((b) => b
+      ..scheduledOut = out
+      ..originCity = 'Frankfurt'
+      ..destinationCity = 'Hong Kong');
+    await pump(
+      tester,
+      AircraftSection(
+        info: flight,
+        history: history,
+        recent: [
+          at('future', '2026-11-16T01:00:00Z'), // after ours: excluded
+          at('in', '2026-11-15T01:00:00Z'), // the inbound itself: excluded
+          at('older', '2026-11-14T10:00:00Z'),
+        ],
+      ),
+    );
+    expect(find.text('Frankfurt → Hong Kong'), findsOneWidget);
+    expect(find.text('Show earlier flights'), findsNothing);
+
+    await pump(tester,
+        AircraftSection(info: flight, history: history, recent: const []));
+    expect(find.text('No earlier flights found'), findsOneWidget);
+  });
+
+  testWidgets('own flights: one row, sheet with the full list', (tester) async {
     String? opened;
     await pump(
       tester,
       AircraftSection(
         info: flight,
-        history: AircraftHistoryEntity((b) => b
-          ..registration = 'A6-EOF'
-          ..ownFlights.addAll([for (var i = 1; i <= 7; i++) own(i)])),
+        history: history.rebuild(
+            (b) => b..ownFlights.addAll([for (var i = 1; i <= 7; i++) own(i)])),
         onOpenFlight: (ident, _, {faFlightId}) => opened = ident,
       ),
     );
-    expect(find.text("You've flown this tail (7)"), findsOneWidget);
-    expect(find.textContaining('EK'), findsNWidgets(5));
-    await tester.tap(find.text('Show all (7)'));
+    expect(find.text('You have 7 flights on A6-EOF'), findsOneWidget);
+    await tester.tap(find.text('You have 7 flights on A6-EOF'));
     await tester.pumpAndSettle();
-    expect(find.textContaining('EK'), findsNWidgets(7));
+    expect(find.text('Your history on A6-EOF'), findsOneWidget);
+    expect(find.text('DXB → LHR'), findsNWidgets(7));
     await tester.tap(find.text('EK3 · UAE3'));
+    await tester.pumpAndSettle();
     expect(opened, 'EK3');
-  });
-
-  testWidgets('recent flights button, then list', (tester) async {
-    var loads = 0;
-    await pump(
-      tester,
-      AircraftSection(
-        info: flight,
-        history: AircraftHistoryEntity((b) => b..registration = 'A6-EOF'),
-        onLoadRecent: () => loads++,
-      ),
-    );
-    await tester.tap(find.text('Show recent flights of A6-EOF'));
-    expect(loads, 1);
-
-    await pump(
-      tester,
-      AircraftSection(
-        info: flight,
-        history: AircraftHistoryEntity((b) => b..registration = 'A6-EOF'),
-        recent: [leg('r1'), leg('r2')],
-      ),
-    );
-    expect(find.text('Recent flights of A6-EOF'), findsOneWidget);
-    expect(find.text('EK381 · UAE381'), findsNWidgets(2));
-
-    await pump(
-      tester,
-      AircraftSection(
-        info: flight,
-        history: AircraftHistoryEntity((b) => b..registration = 'A6-EOF'),
-        recent: const [],
-      ),
-    );
-    expect(find.text('No recent flights found'), findsOneWidget);
+    expect(find.text('Your history on A6-EOF'), findsNothing); // sheet closed
   });
 
   testWidgets('history still shows when aircraft details are missing',
@@ -171,32 +188,10 @@ void main() {
       tester,
       AircraftSection(
         info: flight.rebuild((b) => b..aircraft = null),
-        history: AircraftHistoryEntity((b) => b
-          ..registration = 'A6-EOF'
-          ..inbound.replace(leg('in', actualIn: '2026-11-15T04:00:00Z'))),
+        history: history,
       ),
     );
-    expect(find.text('Your aircraft'), findsOneWidget);
-    expect(find.text('Show recent flights of A6-EOF'), findsOneWidget);
-  });
-
-  testWidgets('leg rows show ICAO codes, cities and local departure',
-      (tester) async {
-    String? openedFa;
-    await pump(
-      tester,
-      AircraftSection(
-        info: flight,
-        history: AircraftHistoryEntity((b) => b..registration = 'A6-EOF'),
-        recent: [leg('r1')],
-        onOpenFlight: (ident, date, {faFlightId}) => openedFa = faFlightId,
-      ),
-    );
-    expect(find.text('HKG VHHH → DXB OMDB'), findsOneWidget);
-    // 01:00Z departure is 09:00 in Hong Kong, dated in Hong Kong.
-    expect(
-        find.text('Hong Kong → Dubai · Dep Nov 15, 09:00 AM'), findsOneWidget);
-    await tester.tap(find.text('EK381 · UAE381'));
-    expect(openedFa, 'r1');
+    expect(find.text('This flight'), findsOneWidget);
+    expect(find.text('Show earlier flights'), findsOneWidget);
   });
 }

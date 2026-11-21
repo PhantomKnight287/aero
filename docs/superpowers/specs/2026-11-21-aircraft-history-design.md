@@ -35,3 +35,8 @@ Know the airframe, not just the flight: where your plane is coming from right no
 ## Data notes
 - Registration stored with dash (`A6-EPO`); 51 distinct regs / 55 rows. FA registration ident format to be verified on first real call (dash vs no dash).
 - Hex comes through as `aircraft.modeS` (from `aircrafts.hex_icao`, 78/78 filled).
+
+## Revision (approved 2026-11-21, after comparing with Flighty)
+- Inbound card + recent list + own-flights list replaced by one **rotation timeline**: status chip + one-line summary on top; "This flight" → airport → inbound leg → airport → earlier legs (newest first, only legs before the inbound; future legs excluded); "Show earlier flights" at the end is the on-demand FA call (replaces "Show recent flights").
+- Own flights become one row "You have N flights on <reg> ›" opening an `AeroSheet` ("Your history on <reg>").
+- Chain rows keep max info: cities, IATA+ICAO, idents, local departure, arrival time, delay colour. API unchanged.

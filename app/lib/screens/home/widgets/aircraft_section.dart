@@ -1,7 +1,7 @@
 import 'package:aero/formatters/time.dart';
 import 'package:aero/formatters/units.dart';
 import 'package:aero/notifiers/units.dart';
-import 'package:aero/ui/components/aero_button.dart';
+import 'package:aero/ui/components/aero_sheet.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:aero/ui/components/aero_pressable.dart';
@@ -73,30 +73,23 @@ class _AircraftSectionState extends State<AircraftSection> {
           Text(aircraft!.model!, style: AeroText.heading),
           const SizedBox(height: AeroSpace.sm),
         ],
-        if (widget.history?.inbound != null) ...[
-          _InboundCard(
-            leg: widget.history!.inbound!,
-            ourDeparture:
-                DateTime.tryParse(widget.info.departure.scheduledTime.utc),
+        if (widget.history?.registration != null) ...[
+          _Rotation(
+            info: widget.info,
+            history: widget.history!,
+            recent: widget.recent,
+            recentLoading: widget.recentLoading,
+            onLoadRecent: widget.onLoadRecent,
             onOpenFlight: widget.onOpenFlight,
           ),
           const SizedBox(height: AeroSpace.md),
         ],
         if (aircraft?.registration != null) _buildAircraftCard(aircraft!),
         if (widget.history?.ownFlights.isNotEmpty == true) ...[
-          const SizedBox(height: AeroSpace.lg),
-          _OwnTailFlights(
+          const SizedBox(height: AeroSpace.md),
+          _OwnFlightsRow(
+            registration: widget.history!.registration ?? '',
             flights: widget.history!.ownFlights.toList(),
-            onOpenFlight: widget.onOpenFlight,
-          ),
-        ],
-        if (widget.history?.registration != null) ...[
-          const SizedBox(height: AeroSpace.lg),
-          _RecentLegs(
-            registration: widget.history!.registration!,
-            legs: widget.recent,
-            loading: widget.recentLoading,
-            onLoad: widget.onLoadRecent,
             onOpenFlight: widget.onOpenFlight,
           ),
         ],
@@ -455,6 +448,24 @@ const _minTurnaround = Duration(minutes: 45);
 String _idents(String? iata, String? icao, String fallback) =>
     {iata ?? fallback, icao ?? fallback}.where((s) => s.isNotEmpty).join(' · ');
 
+/// "35 min late" / "3 min early" / "on time" from seconds of delay.
+String _delayText(num? seconds) {
+  final m = (seconds ?? 0) ~/ 60;
+  if (m >= 1) return '$m min late';
+  if (m <= -1) return '${-m} min early';
+  return 'on time';
+}
+
+Color _delayColor(num? seconds) {
+  final m = (seconds ?? 0) ~/ 60;
+  if (m >= 15) return AeroColors.danger;
+  if (m >= 5) return AeroColors.warn;
+  return AeroColors.success;
+}
+
+DateTime? _legArrival(AircraftLegEntity l) =>
+    DateTime.tryParse(l.actualIn ?? l.estimatedIn ?? l.scheduledIn ?? '');
+
 class _Tappable extends StatelessWidget {
   final VoidCallback? onTap;
   final Widget child;
@@ -470,45 +481,318 @@ class _Tappable extends StatelessWidget {
         );
 }
 
-/// One leg: idents, route, status and arrival time.
-class _LegRow extends StatelessWidget {
+/// Status chip: uppercase micro label on a tinted pill.
+class _Chip extends StatelessWidget {
+  final String label;
+  final Color color;
+  final Color tint;
+  const _Chip(this.label, this.color, this.tint);
+
+  @override
+  Widget build(BuildContext context) => Container(
+        padding: const EdgeInsets.symmetric(
+            horizontal: AeroSpace.sm, vertical: AeroSpace.xs),
+        decoration: BoxDecoration(color: tint, borderRadius: AeroRadius.smAll),
+        child: Text(label,
+            style: AeroText.micro.copyWith(
+                color: color, fontWeight: FontWeight.w700, letterSpacing: 0.6)),
+      );
+}
+
+enum _Mark { arrow, dot, none, dashed }
+
+/// One row of the timeline: a 24px rail (line + optional marker) and content.
+class _RailRow extends StatelessWidget {
+  final _Mark mark;
+  final bool lineAbove;
+  final bool lineBelow;
+  final Widget child;
+
+  const _RailRow({
+    required this.mark,
+    required this.child,
+    this.lineAbove = true,
+    this.lineBelow = true,
+  });
+
+  Widget _line(bool on) => Expanded(
+        child: Center(
+          child: Container(width: 2, color: on ? AeroColors.ink : null),
+        ),
+      );
+
+  @override
+  Widget build(BuildContext context) {
+    final marker = switch (mark) {
+      _Mark.arrow =>
+        const Icon(Icons.arrow_upward, size: 18, color: AeroColors.ink),
+      _Mark.dot => Container(
+          width: 10,
+          height: 10,
+          decoration: const BoxDecoration(
+              color: AeroColors.ink, shape: BoxShape.circle),
+        ),
+      _Mark.dashed => Column(children: [
+          for (var i = 0; i < 3; i++)
+            Container(
+                width: 2,
+                height: 4,
+                margin: const EdgeInsets.only(bottom: 3),
+                color: AeroColors.muted),
+        ]),
+      _Mark.none => const SizedBox.shrink(),
+    };
+    return IntrinsicHeight(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          SizedBox(
+            width: 24,
+            child: Column(children: [
+              _line(lineAbove),
+              marker,
+              _line(lineBelow),
+            ]),
+          ),
+          const SizedBox(width: AeroSpace.md),
+          Expanded(child: child),
+        ],
+      ),
+    );
+  }
+}
+
+/// The airframe's rotation, newest first: this flight, the airport it
+/// departs from, the inbound leg, its origin, then earlier legs on demand.
+class _Rotation extends StatelessWidget {
+  final FlightResponseEntity info;
+  final AircraftHistoryEntity history;
+  final List<AircraftLegEntity>? recent;
+  final bool recentLoading;
+  final VoidCallback? onLoadRecent;
+  final OpenFlight? onOpenFlight;
+
+  const _Rotation({
+    required this.info,
+    required this.history,
+    required this.recent,
+    required this.recentLoading,
+    this.onLoadRecent,
+    this.onOpenFlight,
+  });
+
+  DateTime? get _ourDeparture =>
+      DateTime.tryParse(info.departure.scheduledTime.utc);
+
+  /// (chip, color, tint, sentence) for the top of the card, or null.
+  (String, Color, Color, String)? _summary(BuildContext context) {
+    final leg = history.inbound;
+    if (leg == null) return null;
+    if (leg.cancelled) {
+      return (
+        'INBOUND CANCELLED',
+        AeroColors.danger,
+        AeroColors.dangerTint,
+        'The aircraft\'s previous flight was cancelled'
+      );
+    }
+    final arrival = _legArrival(leg);
+    final ours = _ourDeparture;
+    if (arrival != null && ours != null) {
+      final gap = ours.difference(arrival);
+      if (gap < _minTurnaround) {
+        return (
+          'TIGHT TURNAROUND',
+          AeroColors.danger,
+          AeroColors.dangerTint,
+          gap.isNegative
+              ? 'Arrives ${-gap.inMinutes} min after your scheduled departure'
+              : 'Only ${gap.inMinutes} min between its arrival and your departure'
+        );
+      }
+    }
+    final delay = _delayText(leg.arrivalDelay);
+    if (leg.actualIn != null) {
+      return (
+        'ARRIVED',
+        AeroColors.success,
+        AeroColors.successTint,
+        'The inbound aircraft arrived $delay'
+      );
+    }
+    final units = context.watch<UnitsNotifier>();
+    final at = arrival == null
+        ? ''
+        : ' at ${formatClock(arrival, airportTz: leg.destinationTimezone, mode: units.time, use24: MediaQuery.of(context).alwaysUse24HourFormat)}';
+    return (
+      'INBOUND EN ROUTE',
+      AeroColors.ink,
+      AeroColors.surface,
+      'The inbound aircraft lands$at, $delay'
+    );
+  }
+
+  /// Recent legs strictly before the inbound (or our flight when there is
+  /// no inbound), newest first. Future legs and the inbound itself drop out.
+  List<AircraftLegEntity> _earlier() {
+    final cutoff =
+        DateTime.tryParse(history.inbound?.scheduledOut ?? '') ?? _ourDeparture;
+    if (cutoff == null) return const [];
+    final legs = (recent ?? const <AircraftLegEntity>[]).where((l) {
+      final out = DateTime.tryParse(l.scheduledOut ?? '');
+      return out != null &&
+          out.isBefore(cutoff) &&
+          l.faFlightId != history.inbound?.faFlightId;
+    }).toList()
+      ..sort((a, b) => b.scheduledOut!.compareTo(a.scheduledOut!));
+    return legs;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final summary = _summary(context);
+    final inbound = history.inbound;
+    final legs = [if (inbound != null) inbound, ..._earlier()];
+    final fa = info.flightAwareData;
+    final departed = fa?.actualOut ?? fa?.actualOff;
+    final ourStatus = departed != null
+        ? 'Departed ${_delayText(fa?.departureDelay)}'
+        : 'Not departed yet';
+    final ourColor =
+        departed != null ? _delayColor(fa?.departureDelay) : AeroColors.muted;
+    final ourOrigin = info.departure.airport.iata.isNotEmpty
+        ? info.departure.airport.iata
+        : info.departure.airport.icao;
+
+    return Container(
+      padding: const EdgeInsets.all(AeroSpace.md),
+      decoration: const BoxDecoration(
+        color: AeroColors.surfaceAlt,
+        borderRadius: AeroRadius.mdAll,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (summary != null) ...[
+            Align(
+              alignment: Alignment.centerLeft,
+              child: _Chip(summary.$1, summary.$2, summary.$3),
+            ),
+            const SizedBox(height: AeroSpace.sm),
+            Text(summary.$4,
+                style: AeroText.body.copyWith(color: AeroColors.ink)),
+            const SizedBox(height: AeroSpace.md),
+          ],
+          _RailRow(
+            mark: _Mark.arrow,
+            lineAbove: false,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: AeroSpace.sm),
+              child: Row(children: [
+                Expanded(
+                  child: Text('This flight',
+                      style: AeroText.body.copyWith(
+                          color: AeroColors.ink, fontWeight: FontWeight.w600)),
+                ),
+                Text(ourStatus,
+                    style: AeroText.caption.copyWith(
+                        color: ourColor, fontWeight: FontWeight.w600)),
+              ]),
+            ),
+          ),
+          _RailRow(
+            mark: _Mark.dot,
+            child: _AirportLabel(ourOrigin),
+          ),
+          for (final leg in legs) ...[
+            _RailRow(
+              mark: _Mark.none,
+              child: _ChainLeg(leg: leg, onOpenFlight: onOpenFlight),
+            ),
+            _RailRow(
+              mark: _Mark.dot,
+              child: _AirportLabel(leg.originIata ?? leg.originIcao ?? '—'),
+            ),
+          ],
+          _RailRow(
+            mark: _Mark.dashed,
+            lineAbove: false,
+            lineBelow: false,
+            child: recent == null
+                ? Align(
+                    alignment: Alignment.centerLeft,
+                    child: _Tappable(
+                      onTap: recentLoading ? null : onLoadRecent,
+                      child: Padding(
+                        padding:
+                            const EdgeInsets.symmetric(vertical: AeroSpace.sm),
+                        child: Row(mainAxisSize: MainAxisSize.min, children: [
+                          Text(
+                              recentLoading
+                                  ? 'Loading earlier flights…'
+                                  : 'Show earlier flights',
+                              style: AeroText.body.copyWith(
+                                  color: AeroColors.ink,
+                                  fontWeight: FontWeight.w600)),
+                          if (!recentLoading) ...[
+                            const SizedBox(width: AeroSpace.xs),
+                            const Icon(Icons.expand_more,
+                                size: 18, color: AeroColors.ink),
+                          ],
+                        ]),
+                      ),
+                    ),
+                  )
+                : legs.length == (inbound != null ? 1 : 0)
+                    ? Padding(
+                        padding:
+                            const EdgeInsets.symmetric(vertical: AeroSpace.sm),
+                        child: Text('No earlier flights found',
+                            style: AeroText.caption),
+                      )
+                    : const SizedBox(height: AeroSpace.sm),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _AirportLabel extends StatelessWidget {
+  final String code;
+  const _AirportLabel(this.code);
+
+  @override
+  Widget build(BuildContext context) => Align(
+        alignment: Alignment.centerLeft,
+        child: Text(code,
+            style: AeroText.caption.copyWith(
+                fontWeight: FontWeight.w600, fontFeatures: AeroText.tabular)),
+      );
+}
+
+/// A leg in the chain: cities, codes, idents + local departure, arrival.
+class _ChainLeg extends StatelessWidget {
   final AircraftLegEntity leg;
   final OpenFlight? onOpenFlight;
-  const _LegRow({required this.leg, this.onOpenFlight});
+  const _ChainLeg({required this.leg, this.onOpenFlight});
 
   @override
   Widget build(BuildContext context) {
     final units = context.watch<UnitsNotifier>();
     final use24 = MediaQuery.of(context).alwaysUse24HourFormat;
-    final arrival = DateTime.tryParse(
-        leg.actualIn ?? leg.estimatedIn ?? leg.scheduledIn ?? '');
+    final arrival = _legArrival(leg);
     final departure = DateTime.tryParse(leg.scheduledOut ?? '');
-    final delayMin = (leg.arrivalDelay ?? 0) ~/ 60;
-    final delayText = leg.cancelled
-        ? 'Cancelled'
-        : delayMin >= 5
-            ? '$delayMin min late'
-            : delayMin <= -5
-                ? '${-delayMin} min early'
-                : 'On time';
-    final delayColor = leg.cancelled || delayMin >= 15
-        ? AeroColors.danger
-        : delayMin >= 5
-            ? AeroColors.warn
-            : AeroColors.success;
     String code(String? iata, String? icao) =>
         [iata, icao].whereType<String>().join(' ');
-    final route = '${code(leg.originIata, leg.originIcao)} → '
-        '${code(leg.destinationIata, leg.destinationIcao)}';
-    // Cities + scheduled departure dated in the origin's zone (same zone
-    // rule as the arrival time, which uses the destination's).
-    final places = [
-      if (leg.originCity != null || leg.destinationCity != null)
-        '${leg.originCity ?? '—'} → ${leg.destinationCity ?? '—'}',
-      if (departure != null)
-        'Dep ${formatDateClock(departure, airportTz: leg.originTimezone, mode: units.time, use24: use24)}',
-    ].join(' · ');
+    final title = leg.originCity != null || leg.destinationCity != null
+        ? '${leg.originCity ?? leg.originIata ?? '—'} → ${leg.destinationCity ?? leg.destinationIata ?? '—'}'
+        : '${leg.originIata ?? '—'} → ${leg.destinationIata ?? '—'}';
     final ident = leg.identIata ?? leg.identIcao ?? leg.ident;
+    final idents = _idents(leg.identIata, leg.identIcao, leg.ident);
+    final dep = departure == null
+        ? null
+        : 'Dep ${formatDateClock(departure, airportTz: leg.originTimezone, mode: units.time, use24: use24)}';
 
     return _Tappable(
       onTap: onOpenFlight == null || departure == null
@@ -516,7 +800,7 @@ class _LegRow extends StatelessWidget {
           : () => onOpenFlight!(ident, departure.toLocal(),
               faFlightId: leg.faFlightId),
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: AeroSpace.xs),
+        padding: const EdgeInsets.symmetric(vertical: AeroSpace.sm),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -524,23 +808,25 @@ class _LegRow extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(_idents(leg.identIata, leg.identIcao, leg.ident),
+                  Text(title,
                       style: AeroText.body.copyWith(
-                          color: AeroColors.ink,
-                          fontWeight: FontWeight.w600,
-                          fontFeatures: AeroText.tabular)),
+                          color: AeroColors.ink, fontWeight: FontWeight.w600)),
                   const SizedBox(height: 2),
-                  Text(route,
+                  Text(
+                      '${code(leg.originIata, leg.originIcao)} → '
+                      '${code(leg.destinationIata, leg.destinationIcao)}',
                       style: AeroText.caption.copyWith(
                           color: AeroColors.ink,
                           fontFeatures: AeroText.tabular)),
-                  if (places.isNotEmpty) ...[
-                    const SizedBox(height: 2),
-                    Text(places, style: AeroText.caption),
-                  ],
+                  const SizedBox(height: 2),
+                  Text(idents,
+                      style: AeroText.caption
+                          .copyWith(fontFeatures: AeroText.tabular)),
+                  if (dep != null) Text(dep, style: AeroText.caption),
                 ],
               ),
             ),
+            const SizedBox(width: AeroSpace.sm),
             Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
@@ -552,9 +838,14 @@ class _LegRow extends StatelessWidget {
                         color: AeroColors.ink, fontFeatures: AeroText.tabular),
                   ),
                 const SizedBox(height: 2),
-                Text(delayText,
-                    style: AeroText.micro.copyWith(
-                        color: delayColor, fontWeight: FontWeight.w700)),
+                Text(
+                  leg.cancelled ? 'Cancelled' : _delayText(leg.arrivalDelay),
+                  style: AeroText.micro.copyWith(
+                      color: leg.cancelled
+                          ? AeroColors.danger
+                          : _delayColor(leg.arrivalDelay),
+                      fontWeight: FontWeight.w700),
+                ),
               ],
             ),
           ],
@@ -564,202 +855,106 @@ class _LegRow extends StatelessWidget {
   }
 }
 
-class _InboundCard extends StatelessWidget {
-  final AircraftLegEntity leg;
-  final DateTime? ourDeparture;
-  final OpenFlight? onOpenFlight;
-  const _InboundCard(
-      {required this.leg, required this.ourDeparture, this.onOpenFlight});
-
-  /// Warning when the inbound arrival leaves less than [_minTurnaround]
-  /// before our scheduled departure; null when it's comfortable.
-  String? _warning() {
-    final arrival = DateTime.tryParse(
-        leg.actualIn ?? leg.estimatedIn ?? leg.scheduledIn ?? '');
-    if (arrival == null || ourDeparture == null || leg.cancelled) return null;
-    final gap = ourDeparture!.difference(arrival);
-    if (gap >= _minTurnaround) return null;
-    return gap.isNegative
-        ? 'Arrives ${-gap.inMinutes} min after your scheduled departure'
-        : 'Only ${gap.inMinutes} min between its arrival and your departure';
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final warning = _warning();
-    return Container(
-      padding: const EdgeInsets.all(AeroSpace.md),
-      decoration: const BoxDecoration(
-        color: AeroColors.surfaceAlt,
-        borderRadius: AeroRadius.mdAll,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Text('Your aircraft',
-              style: AeroText.caption.copyWith(fontWeight: FontWeight.w600)),
-          const SizedBox(height: 2),
-          Text('Its previous flight, before it operates yours',
-              style: AeroText.micro),
-          const SizedBox(height: AeroSpace.sm),
-          _LegRow(leg: leg, onOpenFlight: onOpenFlight),
-          if (warning != null) ...[
-            const SizedBox(height: AeroSpace.sm),
-            Container(
-              padding: const EdgeInsets.all(AeroSpace.sm),
-              decoration: const BoxDecoration(
-                color: AeroColors.dangerTint,
-                borderRadius: AeroRadius.smAll,
-              ),
-              child: Row(children: [
-                const Icon(Icons.schedule, size: 16, color: AeroColors.danger),
-                const SizedBox(width: AeroSpace.sm),
-                Expanded(
-                  child: Text(warning,
-                      style: AeroText.caption.copyWith(
-                          color: AeroColors.danger,
-                          fontWeight: FontWeight.w600)),
-                ),
-              ]),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-}
-
-class _OwnTailFlights extends StatefulWidget {
+/// "You have N flights on <reg> ›" → sheet with the full list.
+class _OwnFlightsRow extends StatelessWidget {
+  final String registration;
   final List<FlightSummaryEntity> flights;
   final OpenFlight? onOpenFlight;
-  const _OwnTailFlights({required this.flights, this.onOpenFlight});
 
-  @override
-  State<_OwnTailFlights> createState() => _OwnTailFlightsState();
-}
-
-class _OwnTailFlightsState extends State<_OwnTailFlights> {
-  static const _collapsed = 5;
-  bool _all = false;
-
-  @override
-  Widget build(BuildContext context) {
-    final all = widget.flights;
-    final shown = _all ? all : all.take(_collapsed).toList();
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Text("You've flown this tail (${all.length})", style: AeroText.heading),
-        const SizedBox(height: AeroSpace.sm),
-        for (final f in shown)
-          _Tappable(
-            onTap: widget.onOpenFlight == null
-                ? null
-                : () => widget.onOpenFlight!(
-                    f.flightNo, DateTime.parse(f.date).toLocal()),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: AeroSpace.xs + 2),
-              child: Row(children: [
-                AirlineLogo(
-                  svgUrl: f.airline.image,
-                  icao: f.airline.icao,
-                  size: 20,
-                ),
-                const SizedBox(width: AeroSpace.sm),
-                SizedBox(
-                  width: 84,
-                  child: Text(
-                    DateFormat('d MMM yyyy')
-                        .format(DateTime.parse(f.date).toLocal()),
-                    style: AeroText.caption
-                        .copyWith(fontFeatures: AeroText.tabular),
-                  ),
-                ),
-                Expanded(
-                  child: Text(_idents(f.flightNo, f.callSign, f.flightNo),
-                      style: AeroText.body.copyWith(
-                          color: AeroColors.ink,
-                          fontWeight: FontWeight.w600,
-                          fontFeatures: AeroText.tabular)),
-                ),
-                Flexible(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Text(
-                          '${f.departureAirportCode} → ${f.arrivalAirportCode}',
-                          style:
-                              AeroText.caption.copyWith(color: AeroColors.ink)),
-                      if (f.departureAirportName.isNotEmpty ||
-                          f.arrivalAirportName.isNotEmpty)
-                        Text(
-                          '${f.departureAirportName} → ${f.arrivalAirportName}',
-                          style: AeroText.micro,
-                          overflow: TextOverflow.ellipsis,
-                          textAlign: TextAlign.end,
-                        ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: AeroSpace.xs),
-                const Icon(Icons.chevron_right,
-                    size: 18, color: AeroColors.muted),
-              ]),
-            ),
-          ),
-        if (all.length > _collapsed && !_all)
-          Align(
-            alignment: Alignment.centerLeft,
-            child: _Tappable(
-              onTap: () => setState(() => _all = true),
-              child: Padding(
-                padding: const EdgeInsets.only(top: AeroSpace.xs),
-                child: Text('Show all (${all.length})',
-                    style: AeroText.body.copyWith(
-                        color: AeroColors.ink, fontWeight: FontWeight.w600)),
-              ),
-            ),
-          ),
-      ],
-    );
-  }
-}
-
-class _RecentLegs extends StatelessWidget {
-  final String registration;
-  final List<AircraftLegEntity>? legs;
-  final bool loading;
-  final VoidCallback? onLoad;
-  final OpenFlight? onOpenFlight;
-
-  const _RecentLegs({
+  const _OwnFlightsRow({
     required this.registration,
-    required this.legs,
-    required this.loading,
-    this.onLoad,
+    required this.flights,
     this.onOpenFlight,
   });
 
+  void _open(BuildContext context) {
+    showAeroSheet(
+      context,
+      AeroSheet(
+        title: 'Your history on $registration',
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+              maxHeight: MediaQuery.of(context).size.height * 0.6),
+          child: ListView.separated(
+            shrinkWrap: true,
+            itemCount: flights.length,
+            separatorBuilder: (_, __) => const Divider(height: AeroSpace.lg),
+            itemBuilder: (sheetContext, i) {
+              final f = flights[i];
+              final date = DateTime.parse(f.date).toLocal();
+              return _Tappable(
+                onTap: onOpenFlight == null
+                    ? null
+                    : () {
+                        Navigator.of(sheetContext).pop();
+                        onOpenFlight!(f.flightNo, date);
+                      },
+                child: Row(children: [
+                  AirlineLogo(
+                      svgUrl: f.airline.image, icao: f.airline.icao, size: 28),
+                  const SizedBox(width: AeroSpace.md),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                            '${f.departureAirportCode} → ${f.arrivalAirportCode}',
+                            style: AeroText.heading),
+                        if (f.departureAirportName.isNotEmpty ||
+                            f.arrivalAirportName.isNotEmpty)
+                          Text(
+                            '${f.departureAirportName} → ${f.arrivalAirportName}',
+                            style: AeroText.caption,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                      ],
+                    ),
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(DateFormat('d MMM yyyy').format(date),
+                          style: AeroText.body.copyWith(
+                              color: AeroColors.ink,
+                              fontFeatures: AeroText.tabular)),
+                      Text(_idents(f.flightNo, f.callSign, f.flightNo),
+                          style: AeroText.caption
+                              .copyWith(fontFeatures: AeroText.tabular)),
+                    ],
+                  ),
+                ]),
+              );
+            },
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    if (legs == null) {
-      return AeroButton.secondary(
-        label: 'Show recent flights of $registration',
-        loading: loading,
-        onPressed: onLoad,
-      );
-    }
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Text('Recent flights of $registration', style: AeroText.heading),
-        const SizedBox(height: AeroSpace.sm),
-        if (legs!.isEmpty)
-          Text('No recent flights found', style: AeroText.caption)
-        else
-          for (final leg in legs!)
-            _LegRow(leg: leg, onOpenFlight: onOpenFlight),
-      ],
+    final n = flights.length;
+    return _Tappable(
+      onTap: () => _open(context),
+      child: Container(
+        padding: const EdgeInsets.all(AeroSpace.md),
+        decoration: const BoxDecoration(
+          color: AeroColors.surfaceAlt,
+          borderRadius: AeroRadius.mdAll,
+        ),
+        child: Row(children: [
+          const Icon(Icons.airplane_ticket_outlined,
+              size: 20, color: AeroColors.ink),
+          const SizedBox(width: AeroSpace.md),
+          Expanded(
+            child: Text(
+                'You have $n ${n == 1 ? 'flight' : 'flights'} on $registration',
+                style: AeroText.body.copyWith(
+                    color: AeroColors.ink, fontWeight: FontWeight.w600)),
+          ),
+          const Icon(Icons.chevron_right, color: AeroColors.muted),
+        ]),
+      ),
     );
   }
 }
