@@ -1,31 +1,29 @@
-# Unit toggles — design (draft)
+# Unit toggles — design (approved 2026-11-21)
 
 ## Intent
-Aero is a nerd app; pilots and avgeeks think in knots, flight levels and Zulu. Let the user pick units once and have every screen respect it.
+Aero is a nerd app; pilots and avgeeks think in knots, flight levels and Zulu. Let the user pick units and flip them instantly by tapping any value.
 
-## Goals
-- Preferences: distance (km / mi / nm), speed (kt / km/h / mph), altitude (ft / m / FL), time display (local airport time / device time / UTC "Z").
-- One formatter used everywhere: flight detail, stats, charts, widgets, share card.
-- Defaults match today's output (km, km/h?, ft, local airport time) so nothing changes until the user touches it.
+## Decisions (user)
+- **Tap to cycle** any unit-bearing value, plus a "Units" section in Profile settings.
+- Approved design below, including the process call: in huge files (`flight_info.dart`, `profile/stats/main.dart`, `airport_details_sheet.dart`) only the unit values change now; full design migration happens with the features that rework them (#3–5, #8). Small files touched are fully migrated.
 
-## Non-goals
-- Server-side unit handling. API keeps returning SI/raw values; conversion is client-only.
-- Temperature/pressure units (METAR decode, spec 7, may add °C/°F and hPa/inHg later).
+## Behaviour
+- Dimensions and options; **defaults match today's display**:
+  - distance: **km** / mi / nm
+  - speed: **kt** / km/h / mph
+  - altitude: **ft** / m / FL (airport elevation shows ft when FL is selected — FL isn't meaningful for ground elevation)
+  - temperature: **°C** / °F
+  - time: **airport local** / my time (device zone) / UTC (`06:40Z`, always 24h)
+- One global setting per dimension. Tapping a value cycles that dimension's setting globally (map bar, cards, stats all update) — never per-spot.
+- First cycle ever shows a toast: "<Dimension> now in <unit> everywhere · change anytime in Profile → Units".
+- Feel: `AeroPressable` press scale; value crossfades 150ms `AeroMotion.easeOut`; tabular figures; `HapticFeedback.selectionClick()` per cycle; reduced motion → instant swap.
+- Home widget times follow the time setting.
+- METAR cloud bases stay in ft (aviation convention).
 
 ## Approaches
-- **Client-only prefs in `shared_preferences` + `UnitsNotifier` (provider) + pure formatter functions (picked).** Both packages already installed; no sync needed for a single-user app.
-- Store on User in DB — rejected: needs migration and endpoint for no gain (one device per user in practice).
-- Per-screen toggles — rejected: inconsistent, user asked for app-wide.
+- **Client-only `UnitsNotifier` (provider) + `shared_preferences` + pure formatters (picked).** Both packages already installed.
+- Store on User in DB — rejected: migration + endpoint for a per-device preference.
+- Settings-only toggles — rejected by user in favour of tap-to-cycle.
 
-## Design
-- `app/lib/notifiers/units.dart`: `UnitsNotifier extends ChangeNotifier` with 4 enum fields, loads/saves to shared_preferences.
-- `app/lib/formatters/units.dart`: pure functions `formatDistance(km, unit)`, `formatSpeed(kt, unit)`, `formatAltitude(ft, unit)` (FL = ft/100 rounded, `FL350`), `formatTime(DateTime utc, tz, mode)`. Inputs in the units the API gives (verify per field: GCD has all units; positions give ft and kt).
-- Settings UI: new "Units" section on the profile screen (`app/lib/screens/profile/main.dart`), segmented buttons.
-- Replace hardcoded conversions (e.g. stats `totalDistance * 0.621371`) with the formatter.
-- Unit test for the formatter (pure Dart, `flutter test`) — `app/test/` does not exist yet; create it.
-
-## Open (ask when we reach this)
-- Should the time mode also apply to the Android widget?
-
-## Left to builder
-Exact rounding per unit, where the "Units" section sits on the profile screen.
+## Surfaces
+Map bar (alt/speed), route info (distance, times), flight summary card (distance, times), flight timetable times, METAR temperature, airport elevation, stats distances, share card distance/times, home widget times. Remove `utils/distance.dart` (unused) and hand-written `* 0.621371` conversions.
