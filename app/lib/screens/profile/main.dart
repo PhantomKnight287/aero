@@ -1,142 +1,119 @@
+import 'package:aero/formatters/units.dart';
+import 'package:aero/notifiers/units.dart';
+import 'package:aero/notifiers/user.dart';
+import 'package:aero/ui/components/aero_button.dart';
+import 'package:aero/ui/components/aero_pressable.dart';
+import 'package:aero/ui/components/aero_segmented.dart';
+import 'package:aero/ui/tokens.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:aero/notifiers/user.dart';
 import 'package:provider/provider.dart';
 
-class ProfileScreen extends StatefulWidget {
+class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
   @override
-  State<ProfileScreen> createState() => _ProfileScreenState();
-}
-
-class _ProfileScreenState extends State<ProfileScreen> {
-  @override
   Widget build(BuildContext context) {
+    final user = context.watch<UserNotifier>().user;
     return Scaffold(
-      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text(
-          'Profile',
-          style: TextStyle(
-            fontFamily: "CalSans",
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
-          ),
-        ),
+        title: Text('Profile', style: AeroText.title),
         centerTitle: false,
-        backgroundColor: Colors.white,
-        elevation: 0,
-        scrolledUnderElevation: 0,
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+          padding: const EdgeInsets.symmetric(
+              horizontal: AeroSpace.xl, vertical: AeroSpace.lg),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // User Avatar Section
-              Builder(
-                builder: (context) {
-                  final user = Provider.of<UserNotifier>(context).user;
-                  return Column(
-                    children: [
-                      Hero(
-                        tag: "avatar",
-                        child: CircleAvatar(
-                          radius: 50,
-                          backgroundColor: Colors.grey.shade200,
-                          backgroundImage: CachedNetworkImageProvider(
-                            "https://api.dicebear.com/9.x/initials/png?seed=${user?.name}",
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      Text(
-                        user?.name ?? 'User',
-                        style: const TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: "CalSans",
-                          color: Colors.black,
-                          letterSpacing: -0.5,
-                        ),
-                      ),
-                    ],
-                  );
-                },
+              Hero(
+                tag: 'avatar',
+                child: CircleAvatar(
+                  radius: 50,
+                  backgroundColor: AeroColors.surfaceAlt,
+                  backgroundImage: CachedNetworkImageProvider(
+                    'https://api.dicebear.com/9.x/initials/png?seed=${user?.name}',
+                  ),
+                ),
               ),
-              const SizedBox(height: 24),
-              // Menu Items
+              const SizedBox(height: AeroSpace.md),
+              Text(
+                user?.name ?? 'User',
+                textAlign: TextAlign.center,
+                style: AeroText.display,
+              ),
+              const SizedBox(height: AeroSpace.xl),
               _ProfileMenuItem(
                 icon: Icons.flight_takeoff_outlined,
                 title: 'Flight Stats',
-                onTap: () {
-                  GoRouter.of(context).push("/profile/stats");
-                },
+                onTap: () => GoRouter.of(context).push('/profile/stats'),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: AeroSpace.sm),
               _ProfileMenuItem(
                 icon: Icons.watch_outlined,
                 title: 'Connected Wear OS Devices',
-                onTap: () {
-                  GoRouter.of(context).push("/wearables");
-                },
+                onTap: () => GoRouter.of(context).push('/wearables'),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: AeroSpace.sm),
               _ProfileMenuItem(
                 icon: Icons.image_outlined,
                 title: 'App Icon',
-                onTap: () {
-                  GoRouter.of(context).push("/profile/app-icon");
-                },
+                onTap: () => GoRouter.of(context).push('/profile/app-icon'),
               ),
-              const SizedBox(height: 24),
-              // Log Out Button
-              Consumer(
-                builder: (context, ref, child) {
-                  return SizedBox(
-                    height: 52,
-                    child: OutlinedButton(
-                      onPressed: () {
-                        final user = Provider.of<UserNotifier>(
-                          context,
-                          listen: false,
-                        );
-                        user.logOut();
-                        if (context.mounted) {
-                          GoRouter.of(context).go("/auth/login");
-                        }
-                      },
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: Colors.black,
-                        side: const BorderSide(
-                          color: Colors.black,
-                          width: 1.5,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      child: const Text(
-                        "Log Out",
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          fontFamily: "CalSans",
-                          letterSpacing: 0.5,
-                        ),
-                      ),
-                    ),
-                  );
+              const SizedBox(height: AeroSpace.xl),
+              const UnitsSection(),
+              const SizedBox(height: AeroSpace.xl),
+              AeroButton.secondary(
+                label: 'Log out',
+                onPressed: () {
+                  context.read<UserNotifier>().logOut();
+                  GoRouter.of(context).go('/auth/login');
                 },
               ),
             ],
           ),
         ),
       ),
+    );
+  }
+}
+
+/// Profile → Units: one segmented control per dimension. Same settings the
+/// tap-to-cycle values change.
+class UnitsSection extends StatelessWidget {
+  const UnitsSection({super.key});
+
+  static String _segmentLabel(Enum unit) => switch (unit) {
+        TimeMode.airport => 'Airport',
+        TimeMode.device => 'My time',
+        TimeMode.utc => 'UTC',
+        _ => unitLabel(unit),
+      };
+
+  @override
+  Widget build(BuildContext context) {
+    final units = context.watch<UnitsNotifier>();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text('Units', style: AeroText.heading),
+        const SizedBox(height: AeroSpace.xs),
+        Text('Tip: tap any value in the app to switch its unit.',
+            style: AeroText.caption),
+        for (final d in UnitDimension.values) ...[
+          const SizedBox(height: AeroSpace.lg),
+          Text(dimensionLabel(d), style: AeroText.body),
+          const SizedBox(height: AeroSpace.sm),
+          AeroSegmented<Enum>(
+            values: UnitsNotifier.valuesOf(d),
+            selected: units.unitOf(d),
+            label: _segmentLabel,
+            onChanged: (u) => units.set(d, u),
+          ),
+        ],
+      ],
     );
   }
 }
@@ -154,43 +131,29 @@ class _ProfileMenuItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
       onTap: onTap,
-      borderRadius: BorderRadius.circular(8),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        decoration: BoxDecoration(
-          border: Border.all(
-            color: Colors.grey.shade300,
-            width: 1,
+      child: AeroPressable(
+        child: Container(
+          padding: const EdgeInsets.symmetric(
+              horizontal: AeroSpace.lg, vertical: AeroSpace.md + 2),
+          decoration: const BoxDecoration(
+            color: AeroColors.surfaceAlt,
+            borderRadius: AeroRadius.mdAll,
           ),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Row(
-          children: [
-            Icon(
-              icon,
-              color: Colors.black,
-              size: 24,
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  fontFamily: "DM Sans",
-                  color: Colors.black,
-                ),
+          child: Row(
+            children: [
+              Icon(icon, color: AeroColors.ink, size: 22),
+              const SizedBox(width: AeroSpace.lg),
+              Expanded(
+                child: Text(title,
+                    style: AeroText.body.copyWith(
+                        color: AeroColors.ink, fontWeight: FontWeight.w500)),
               ),
-            ),
-            Icon(
-              Icons.chevron_right,
-              color: Colors.grey.shade400,
-              size: 24,
-            ),
-          ],
+              const Icon(Icons.chevron_right, color: AeroColors.muted),
+            ],
+          ),
         ),
       ),
     );

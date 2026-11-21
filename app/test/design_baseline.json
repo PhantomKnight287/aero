@@ -83,11 +83,6 @@
     "raw_font_size": 2,
     "raw_radius": 2
   },
-  "lib/screens/profile/main.dart": {
-    "material_color": 11,
-    "raw_font_size": 4,
-    "raw_radius": 3
-  },
   "lib/screens/profile/stats/main.dart": {
     "raw_font_size": 47,
     "raw_radius": 29,
