@@ -168,8 +168,7 @@ class WidgetUpdateService {
           'is_expedite_in_arrival', isExpediteInArrival);
 
       // Store flight metadata for polling updates
-      await HomeWidget.saveWidgetData(
-          'flight_id', flight.flightAwareData?.id ?? flight.id);
+      await HomeWidget.saveWidgetData('flight_id', widgetFlightId(flight));
       await HomeWidget.saveWidgetData('flight_iata', flightNumberIata);
       await HomeWidget.saveWidgetData('flight_icao', flightNumberIcao);
       await HomeWidget.saveWidgetData(
@@ -282,12 +281,19 @@ class WidgetUpdateService {
     }
   }
 
-  /// Clears the widget only if it shows [flight]. Used after deleting a
-  /// flight: refreshing instead would re-fetch it and recreate it server-side.
-  static Future<void> clearWidgetIfShowing(FlightResponseEntity flight) async {
-    final widgetFlightId = await HomeWidget.getWidgetData<String>('flight_id');
-    if (widgetFlightId == (flight.flightAwareData?.id ?? flight.id)) {
-      await clearWidget();
+  /// The id the widget stores in 'flight_id' for [flight].
+  static String widgetFlightId(FlightResponseEntity flight) =>
+      flight.flightAwareData?.id ?? flight.id;
+
+  /// Clears the widget only if it shows [flightId] (see [widgetFlightId]).
+  /// Used after deleting a flight: refreshing instead would re-fetch it and
+  /// recreate it server-side. Never throws: the delete already succeeded.
+  static Future<void> clearWidgetIfShowing(String flightId) async {
+    try {
+      final shown = await HomeWidget.getWidgetData<String>('flight_id');
+      if (shown == flightId) await clearWidget();
+    } catch (e) {
+      print('Error checking widget flight: $e');
     }
   }
 

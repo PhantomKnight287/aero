@@ -395,6 +395,8 @@ export class FlightsService {
               faFlightId: true,
             },
           },
+          // App warns before deleting a flight that has a booking.
+          bookings: { where: { userId } },
         },
       });
 

@@ -282,7 +282,9 @@ class HomeController extends ChangeNotifier {
     trackedFlights =
         trackedFlights.rebuild((b) => b.removeWhere((f) => f.id == flight.id));
     notifyListeners();
-    await WidgetUpdateService.clearWidgetIfShowing(flight);
+    await WidgetUpdateService.clearWidgetIfShowing(
+      WidgetUpdateService.widgetFlightId(flight),
+    );
   }
 
   Future<void> loadFlightsForSelection(DateTime date) async {
