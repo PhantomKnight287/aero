@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:toastification/toastification.dart';
 import 'package:flutter/material.dart';
+import 'package:aero/ui/tokens.dart';
 
 getErrorMessage(dynamic error, [String? message]) {
   if (error is String) {
@@ -47,6 +48,19 @@ ToastificationItem showSuccessToast({String? title, String? description}) {
     autoCloseDuration: const Duration(
       seconds: 3,
     ),
+    showProgressBar: false,
+  );
+}
+
+/// Neutral information toast (e.g. explaining a setting that just changed).
+ToastificationItem showInfoToast({required String title, String? description}) {
+  return toastification.show(
+    title: Text(title, style: AeroText.heading),
+    description:
+        description != null ? Text(description, style: AeroText.caption) : null,
+    type: ToastificationType.info,
+    style: ToastificationStyle.minimal,
+    autoCloseDuration: const Duration(seconds: 3),
     showProgressBar: false,
   );
 }

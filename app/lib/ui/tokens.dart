@@ -20,6 +20,7 @@ abstract final class AeroColors {
   static const successTint = Color(0xffe8f5e9);
   static const warn = Color(0xffef6c00);
   static const onInk = Color(0xffffffff); // text on ink/danger buttons
+  static const shadow = Color(0x1f000000); // soft elevation (12% black)
 }
 
 abstract final class AeroRadius {
@@ -97,6 +98,7 @@ abstract final class AeroMotion {
   static const sheet = Cubic(0.32, 0.72, 0, 1);
 
   static const press = Duration(milliseconds: 160);
+  static const move = Duration(milliseconds: 220); // on-screen movement
   static const sheetIn = Duration(milliseconds: 450);
   static const sheetOut = Duration(milliseconds: 250);
 
