@@ -440,6 +440,7 @@ class _HomeScreenState extends State<HomeScreen>
             controller.trackedFlights.isNotEmpty)
           TrackedFlightsList(
             trackedFlights: controller.trackedFlights,
+            onDelete: controller.deleteTrackedFlight,
             onFlightTap: (iata, icao, date, forceUpdate) =>
                 controller.loadFlightInfo(
               iata,

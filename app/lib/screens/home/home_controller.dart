@@ -274,6 +274,17 @@ class HomeController extends ChangeNotifier {
     }
   }
 
+  /// Deletes a flight from the user's log. Removes it locally instead of
+  /// reloading: a reload hides the list, and a dismissed Dismissible must
+  /// leave the tree immediately. Throws [ApiException] on failure.
+  Future<void> deleteTrackedFlight(FlightResponseEntity flight) async {
+    await _flightService.deleteFlight(flight.id);
+    trackedFlights =
+        trackedFlights.rebuild((b) => b.removeWhere((f) => f.id == flight.id));
+    notifyListeners();
+    await WidgetUpdateService.clearWidgetIfShowing(flight);
+  }
+
   Future<void> loadFlightsForSelection(DateTime date) async {
     selectedDate = date;
     flights = BuiltList.from([]);

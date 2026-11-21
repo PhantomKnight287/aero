@@ -175,4 +175,15 @@ class FlightDataService {
       );
     }
   }
+
+  Future<void> deleteFlight(String flightId) async {
+    try {
+      await _flightApi.flightControllerDeleteFlightV1(flightId: flightId);
+    } catch (e) {
+      if (e is DioException) {
+        throw ApiException(message: getErrorMessage(e.response?.data));
+      }
+      throw ApiException(message: 'Failed to delete flight: $e');
+    }
+  }
 }

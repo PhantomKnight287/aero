@@ -282,6 +282,15 @@ class WidgetUpdateService {
     }
   }
 
+  /// Clears the widget only if it shows [flight]. Used after deleting a
+  /// flight: refreshing instead would re-fetch it and recreate it server-side.
+  static Future<void> clearWidgetIfShowing(FlightResponseEntity flight) async {
+    final widgetFlightId = await HomeWidget.getWidgetData<String>('flight_id');
+    if (widgetFlightId == (flight.flightAwareData?.id ?? flight.id)) {
+      await clearWidget();
+    }
+  }
+
   /// Clears widget data (public method for external use)
   static Future<void> clearWidget() async {
     try {
