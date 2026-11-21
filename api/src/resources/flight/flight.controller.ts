@@ -39,6 +39,10 @@ import {
   FlightSearchResponseEntity,
 } from './entities/flight.entity';
 import { FlightBookingEntity } from './entities/flight-booking.entity';
+import {
+  AircraftHistoryEntity,
+  AircraftLegEntity,
+} from './entities/aircraft-history.entity';
 import { FlightService } from './flight.service';
 
 @Controller('flight')
@@ -416,6 +420,29 @@ export class FlightController {
     @Auth() auth: User,
   ) {
     return await this.flightService.deleteFlightBooking(bookingId, auth.id);
+  }
+
+  @Get(':flightId/aircraft-history')
+  @ApiOperation({
+    summary: 'Aircraft history for a flight',
+    description:
+      "The airframe's previous (inbound) leg from FlightAware and the user's other logged flights on the same registration",
+  })
+  @ApiParam({ name: 'flightId', description: 'ID of the flight' })
+  @ApiResponse({ status: 200, type: AircraftHistoryEntity })
+  @ApiNotFoundResponse({
+    description: 'Flight not found',
+    type: GenericErrorEntity,
+  })
+  @ApiUnauthorizedResponse({
+    description: 'User is not authenticated',
+    type: GenericErrorEntity,
+  })
+  async getAircraftHistory(
+    @Param('flightId') flightId: string,
+    @Auth() auth: User,
+  ) {
+    return await this.flightService.getAircraftHistory(flightId, auth.id);
   }
 
   @Delete(':flightId')

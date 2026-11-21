@@ -14,7 +14,12 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { createId } from '@paralleldrive/cuid2';
-import { inboundCacheTtl } from './aircraft-history.util';
+import {
+  inboundCacheTtl,
+  toAircraftLeg,
+  toFlightSummary,
+} from './aircraft-history.util';
+import { AircraftHistoryEntity } from './entities/aircraft-history.entity';
 import { CreateFlightBookingDTO } from './dto/create-flight-booking.dto';
 import { GetFlightSearchDTO } from './dto/get-flight-search.dto';
 import { GetFlightTrackDTO } from './dto/get-flight-track.dto';
@@ -1347,6 +1352,49 @@ export class FlightService {
     }
     await prisma.flightBooking.delete({ where: { id: bookingId } });
     return { message: 'Booking deleted successfully' };
+  }
+
+  /** Previous leg of this airframe + the user's other flights on it. */
+  async getAircraftHistory(
+    flightId: string,
+    userId: string,
+  ): Promise<AircraftHistoryEntity> {
+    const flight = await prisma.flight.findFirst({
+      where: { id: flightId, userId },
+      include: { flightAwareData: true },
+    });
+    if (!flight) {
+      throw new NotFoundException(
+        'Flight not found or does not belong to the user',
+      );
+    }
+    const fa = flight.flightAwareData;
+    const registration =
+      fa?.registration ?? (flight.aircraft as any)?.registration ?? null;
+    if (!registration) {
+      return { registration: null, inbound: null, ownFlights: [] };
+    }
+
+    const [inbound, own] = await Promise.all([
+      fa?.inboundFaFlightId
+        ? this.getFaFlightById(fa.inboundFaFlightId)
+            .then((leg) => (leg ? toAircraftLeg(leg) : null))
+            .catch((error) => {
+              console.warn('Inbound aircraft lookup failed:', error);
+              return null;
+            })
+        : Promise.resolve(null),
+      prisma.flight.findMany({
+        where: {
+          userId,
+          id: { not: flightId },
+          flightAwareData: { registration },
+        },
+        orderBy: { date: 'desc' },
+      }),
+    ]);
+
+    return { registration, inbound, ownFlights: own.map(toFlightSummary) };
   }
 
   async deleteFlight(flightId: string, userId: string) {
