@@ -721,25 +721,17 @@ class _Rotation extends StatelessWidget {
             child: recent == null
                 ? Align(
                     alignment: Alignment.centerLeft,
-                    child: _Tappable(
-                      onTap: recentLoading ? null : onLoadRecent,
-                      child: Padding(
-                        padding:
-                            const EdgeInsets.symmetric(vertical: AeroSpace.sm),
-                        child: Row(mainAxisSize: MainAxisSize.min, children: [
-                          Text(
-                              recentLoading
-                                  ? 'Loading earlier flights…'
-                                  : 'Show earlier flights',
-                              style: AeroText.body.copyWith(
-                                  color: AeroColors.ink,
-                                  fontWeight: FontWeight.w600)),
-                          if (!recentLoading) ...[
-                            const SizedBox(width: AeroSpace.xs),
-                            const Icon(Icons.expand_more,
-                                size: 18, color: AeroColors.ink),
-                          ],
-                        ]),
+                    child: Padding(
+                      padding:
+                          const EdgeInsets.symmetric(vertical: AeroSpace.xs),
+                      child: _PillButton(
+                        key: const ValueKey('show-earlier'),
+                        icon: Icons.history,
+                        label: recentLoading
+                            ? 'Loading earlier flights…'
+                            : 'Show earlier flights',
+                        trailing: recentLoading ? null : Icons.expand_more,
+                        onTap: recentLoading ? null : onLoadRecent,
                       ),
                     ),
                   )
@@ -794,8 +786,9 @@ class _ChainLeg extends StatelessWidget {
         ? null
         : 'Dep ${formatDateClock(departure, airportTz: leg.originTimezone, mode: units.time, use24: use24)}';
 
+    final tappable = onOpenFlight != null && departure != null;
     return _Tappable(
-      onTap: onOpenFlight == null || departure == null
+      onTap: !tappable
           ? null
           : () => onOpenFlight!(ident, departure.toLocal(),
               faFlightId: leg.faFlightId),
@@ -848,6 +841,16 @@ class _ChainLeg extends StatelessWidget {
                 ),
               ],
             ),
+            if (tappable) ...[
+              const SizedBox(width: AeroSpace.xs),
+              Padding(
+                padding: const EdgeInsets.only(top: 2),
+                child: Icon(Icons.chevron_right,
+                    key: ValueKey('leg-chevron-${leg.faFlightId}'),
+                    size: 18,
+                    color: AeroColors.muted),
+              ),
+            ],
           ],
         ),
       ),
@@ -952,8 +955,63 @@ class _OwnFlightsRow extends StatelessWidget {
                 style: AeroText.body.copyWith(
                     color: AeroColors.ink, fontWeight: FontWeight.w600)),
           ),
-          const Icon(Icons.chevron_right, color: AeroColors.muted),
+          Text('View',
+              style: AeroText.body.copyWith(
+                  color: AeroColors.ink, fontWeight: FontWeight.w600)),
+          const Icon(Icons.chevron_right, color: AeroColors.ink),
         ]),
+      ),
+    );
+  }
+}
+
+/// Compact secondary action inside a panel: white pill on the grey surface
+/// with an icon, so it reads as a button before it is touched.
+class _PillButton extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final IconData? trailing;
+  final VoidCallback? onTap;
+
+  const _PillButton({
+    super.key,
+    required this.icon,
+    required this.label,
+    this.trailing,
+    this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      button: true,
+      child: _Tappable(
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(
+              horizontal: AeroSpace.md, vertical: AeroSpace.sm),
+          decoration: const BoxDecoration(
+            color: AeroColors.surface,
+            borderRadius: AeroRadius.pillAll,
+            boxShadow: [
+              BoxShadow(
+                  color: AeroColors.shadow,
+                  blurRadius: 4,
+                  offset: Offset(0, 1)),
+            ],
+          ),
+          child: Row(mainAxisSize: MainAxisSize.min, children: [
+            Icon(icon, size: 16, color: AeroColors.ink),
+            const SizedBox(width: AeroSpace.sm),
+            Text(label,
+                style: AeroText.caption.copyWith(
+                    color: AeroColors.ink, fontWeight: FontWeight.w600)),
+            if (trailing != null) ...[
+              const SizedBox(width: AeroSpace.xs),
+              Icon(trailing, size: 16, color: AeroColors.ink),
+            ],
+          ]),
+        ),
       ),
     );
   }

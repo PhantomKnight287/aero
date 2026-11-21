@@ -42,6 +42,12 @@ For a one-off variant, use `copyWith` on a token style. If you need a new value,
 
 - **Use `AeroButton`, `AeroButton.secondary` or `AeroButton.destructive`.** Don't use bare `ElevatedButton`, `OutlinedButton` or `TextButton` in new code.
 - **Every custom tappable surface gets `AeroPressable`.** It scales to 0.97 on pointer-down (not on release) over 160ms with `AeroMotion.easeOut`, so the press feels heard instantly.
+- **Show that something is tappable before it is touched.** Press feedback only confirms a tap; it doesn't invite one. Every tappable thing needs a visible cue:
+  - a button shape: `AeroButton`, or a white pill on a grey panel;
+  - a trailing chevron on rows that open something;
+  - a verb ("View", "Show earlier flights").
+
+  Bare text or a panel that looks like every other panel is not tappable-looking.
 - **Haptics only where they earn it:** committing a destructive action (built into `AeroButton.destructive`), or a snap/success moment. Never on every tap.
 
 ## 6. Motion

@@ -194,4 +194,24 @@ void main() {
     expect(find.text('This flight'), findsOneWidget);
     expect(find.text('Show earlier flights'), findsOneWidget);
   });
+
+  testWidgets('tappable things show an affordance before being touched',
+      (tester) async {
+    await pump(
+      tester,
+      AircraftSection(
+        info: flight,
+        history: history.rebuild((b) => b..ownFlights.add(own(1))),
+        onLoadRecent: () {},
+        onOpenFlight: (_, __, {faFlightId}) {},
+      ),
+    );
+    // Earlier flights: a button with an icon, not bare text.
+    expect(find.byKey(const ValueKey('show-earlier')), findsOneWidget);
+    expect(find.byIcon(Icons.history), findsOneWidget);
+    // Own flights row carries a verb.
+    expect(find.text('View'), findsOneWidget);
+    // Tappable leg rows get a chevron.
+    expect(find.byKey(const ValueKey('leg-chevron-in')), findsOneWidget);
+  });
 }
