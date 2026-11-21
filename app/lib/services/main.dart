@@ -176,6 +176,33 @@ class FlightDataService {
     }
   }
 
+  Future<AircraftHistoryEntity> getAircraftHistory(String flightId) async {
+    try {
+      final res = await _flightApi.flightControllerGetAircraftHistoryV1(
+          flightId: flightId);
+      return res.data!;
+    } catch (e) {
+      if (e is DioException) {
+        throw ApiException(message: getErrorMessage(e.response?.data));
+      }
+      throw ApiException(message: 'Failed to load aircraft history: $e');
+    }
+  }
+
+  Future<BuiltList<AircraftLegEntity>> getAircraftRecent(
+      String flightId) async {
+    try {
+      final res = await _flightApi.flightControllerGetAircraftRecentV1(
+          flightId: flightId);
+      return res.data!;
+    } catch (e) {
+      if (e is DioException) {
+        throw ApiException(message: getErrorMessage(e.response?.data));
+      }
+      throw ApiException(message: 'Failed to load recent flights: $e');
+    }
+  }
+
   Future<void> deleteFlight(String flightId) async {
     try {
       await _flightApi.flightControllerDeleteFlightV1(flightId: flightId);

@@ -56,6 +56,13 @@ class HomeController extends ChangeNotifier {
   List<LatLng> flightTrackPoints = [];
   FlightPositionEntity? currentPosition;
   BuiltList<FlightResponseEntity> trackedFlights = BuiltList.from([]);
+
+  /// Airframe history for the open flight (inbound leg, own flights on the
+  /// tail) and, on request, its recent legs. Reset when the flight changes.
+  AircraftHistoryEntity? aircraftHistory;
+  BuiltList<AircraftLegEntity>? recentLegs;
+  bool recentLegsLoading = false;
+  String? _historyFlightId;
   bool loadingTrackedFlights = false;
   bool isInAir = false;
   CancelToken? _cancelToken;
@@ -454,6 +461,34 @@ class HomeController extends ChangeNotifier {
     }
   }
 
+  Future<void> loadAircraftHistory(String flightId) async {
+    try {
+      final history = await _flightService.getAircraftHistory(flightId);
+      if (_historyFlightId != flightId) return; // flight changed meanwhile
+      aircraftHistory = history;
+      notifyListeners();
+    } catch (e) {
+      // Non-essential: keep whatever we had; cards just stay hidden.
+      print('Aircraft history failed: $e');
+    }
+  }
+
+  Future<void> loadRecentLegs() async {
+    final flightId = _historyFlightId;
+    if (flightId == null || recentLegsLoading) return;
+    recentLegsLoading = true;
+    notifyListeners();
+    try {
+      final legs = await _flightService.getAircraftRecent(flightId);
+      if (_historyFlightId == flightId) recentLegs = legs;
+    } catch (e) {
+      showErrorToast("Couldn't load recent flights");
+    } finally {
+      recentLegsLoading = false;
+      notifyListeners();
+    }
+  }
+
   void refreshTracking() {
     if (flightInfo == null) return;
     stopTrackPolling();
@@ -465,6 +500,9 @@ class HomeController extends ChangeNotifier {
   void clearFlightContext() {
     stopTrackPolling();
     flightInfo = null;
+    aircraftHistory = null;
+    recentLegs = null;
+    _historyFlightId = null;
     panelState = FlightPanelState.idle;
     arrivalAirport = null;
     departureAirport = null;
@@ -598,6 +636,13 @@ class HomeController extends ChangeNotifier {
 
     flightInfo = info;
     panelState = FlightPanelState.showingFlight;
+    if (_historyFlightId != info.id) {
+      _historyFlightId = info.id;
+      aircraftHistory = null;
+      recentLegs = null;
+    }
+    // Also re-runs on every refresh so the inbound leg stays current.
+    loadAircraftHistory(info.id);
 
     // Update the widget with the fetched flight data
     WidgetUpdateService.updateWidgetWithFlight(info).catchError((e) {

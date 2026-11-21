@@ -32,7 +32,17 @@ class FlightInfoWidget extends StatefulWidget {
   final Function()? onRefreshFlightData;
   final Function()? onBookingDetails;
   final BuiltList<FlightPositionEntity> flightPositions;
+  final AircraftHistoryEntity? aircraftHistory;
+  final BuiltList<AircraftLegEntity>? recentLegs;
+  final bool recentLegsLoading;
+  final VoidCallback? onLoadRecentLegs;
+  final void Function(String ident, DateTime date)? onOpenFlight;
   const FlightInfoWidget({
+    this.aircraftHistory,
+    this.recentLegs,
+    this.recentLegsLoading = false,
+    this.onLoadRecentLegs,
+    this.onOpenFlight,
     super.key,
     required this.info,
     required this.onClose,
@@ -729,7 +739,14 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
             ),
           ],
           Gap(8),
-          AircraftSection(info: widget.info),
+          AircraftSection(
+            info: widget.info,
+            history: widget.aircraftHistory,
+            recent: widget.recentLegs?.toList(),
+            recentLoading: widget.recentLegsLoading,
+            onLoadRecent: widget.onLoadRecentLegs,
+            onOpenFlight: widget.onOpenFlight,
+          ),
           // Jet2 Holiday Meme
           if (widget.info.airline.icao == 'EXS' &&
               widget.info.airline.iata == 'LS') ...[

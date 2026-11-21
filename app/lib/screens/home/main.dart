@@ -289,6 +289,12 @@ class _HomeScreenState extends State<HomeScreen>
     return FlightInfoWidget(
       info: info,
       flightPositions: controller.flightPositions,
+      aircraftHistory: controller.aircraftHistory,
+      recentLegs: controller.recentLegs,
+      recentLegsLoading: controller.recentLegsLoading,
+      onLoadRecentLegs: controller.loadRecentLegs,
+      onOpenFlight: (ident, date) =>
+          controller.loadFlightInfo(ident, ident, date),
       onRefreshFlightData: () {
         controller.loadFlightInfo(
           info.flightNo,
