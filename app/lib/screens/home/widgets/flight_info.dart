@@ -1237,8 +1237,6 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
     final theme = Theme.of(context);
     final use24Hrs = MediaQuery.of(context).alwaysUse24HourFormat;
 
-    final depTz = _sanitizeTimezone(departure.airport.timeZone);
-    final arrTz = _sanitizeTimezone(arrival.airport.timeZone);
 
     // Check if any timetable data exists
     final hasAnyData = fa.scheduledOut != null ||
@@ -1260,23 +1258,10 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
       tz.initializeTimeZones();
     } catch (_) {}
 
-    // Date + time in the zone the user's time mode selects.
-    String formatDateTimeInTz(DateTime dt, String timezone, TimeMode mode) {
-      DateTime zoned;
-      try {
-        zoned = switch (mode) {
-          TimeMode.airport =>
-            tz.TZDateTime.from(dt.toUtc(), tz.getLocation(timezone)),
-          TimeMode.device => dt.toLocal(),
-          TimeMode.utc => dt.toUtc(),
-        };
-      } catch (_) {
-        zoned = dt.toUtc();
-      }
-      final time =
-          formatClock(dt, airportTz: timezone, mode: mode, use24: use24Hrs);
-      return '${MONTHS[zoned.month - 1]} ${zoned.day}, $time';
-    }
+    // Date + time in the zone the user's time mode selects. Raw (not
+    // sanitised) zones so a missing zone shows UTC with a Z.
+    String formatDateTimeInTz(DateTime dt, String? timezone, TimeMode mode) =>
+        formatDateClock(dt, airportTz: timezone, mode: mode, use24: use24Hrs);
 
     String formatDuration(int mins) {
       final absMins = mins.abs();
@@ -1301,7 +1286,7 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
     Widget buildPhaseRow({
       required String phase,
       required IconData icon,
-      required String timezone,
+      required String? timezone,
       required DateTime? scheduled,
       required DateTime? estimated,
       required DateTime? actual,
@@ -1419,7 +1404,7 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
               buildPhaseRow(
                 phase: 'Gate Departure',
                 icon: Icons.door_sliding_outlined,
-                timezone: depTz,
+                timezone: departure.airport.timeZone,
                 scheduled: fa.scheduledOut,
                 estimated: fa.estimatedOut,
                 actual: fa.actualOut,
@@ -1427,7 +1412,7 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
               buildPhaseRow(
                 phase: 'Takeoff',
                 icon: Icons.flight_takeoff,
-                timezone: depTz,
+                timezone: departure.airport.timeZone,
                 scheduled: fa.scheduledOff,
                 estimated: fa.estimatedOff,
                 actual: fa.actualOff,
@@ -1435,7 +1420,7 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
               buildPhaseRow(
                 phase: 'Landing',
                 icon: Icons.flight_land,
-                timezone: arrTz,
+                timezone: arrival.airport.timeZone,
                 scheduled: fa.scheduledOn,
                 estimated: fa.estimatedOn,
                 actual: fa.actualOn,
@@ -1443,7 +1428,7 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
               buildPhaseRow(
                 phase: 'Gate Arrival',
                 icon: Icons.door_front_door_outlined,
-                timezone: arrTz,
+                timezone: arrival.airport.timeZone,
                 scheduled: fa.scheduledIn,
                 estimated: fa.estimatedIn,
                 actual: fa.actualIn,
@@ -1673,6 +1658,13 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
     }
 
     if (parts.isEmpty) return const SizedBox.shrink();
+    final weatherText = Text(
+      parts.join(' • '),
+      style: TextStyle(
+        fontSize: 12,
+        color: theme.textTheme.bodySmall?.color?.withValues(alpha: 0.8),
+      ),
+    );
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1700,14 +1692,14 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
                 style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
               ),
               const SizedBox(height: 2),
-              Text(
-                parts.join(' • '),
-                style: TextStyle(
-                  fontSize: 12,
-                  color:
-                      theme.textTheme.bodySmall?.color?.withValues(alpha: 0.8),
-                ),
-              ),
+              if (tempAir != null)
+                // Leads with the temperature: tap switches °C/°F.
+                UnitCycle(
+                  dimension: UnitDimension.temperature,
+                  builder: (_, __) => weatherText,
+                )
+              else
+                weatherText,
             ],
           ),
         ),

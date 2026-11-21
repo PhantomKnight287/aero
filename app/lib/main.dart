@@ -51,6 +51,10 @@ void main() async {
     ),
   );
 
+  // Loaded before the first frame so non-default units never flash.
+  final units = UnitsNotifier();
+  await units.load();
+
   runApp(
     MultiProvider(
       providers: [
@@ -59,7 +63,7 @@ void main() async {
             return UserNotifier();
           },
         ),
-        ChangeNotifierProvider(create: (_) => UnitsNotifier()..load()),
+        ChangeNotifierProvider.value(value: units),
       ],
       child: const MainApp(),
     ),

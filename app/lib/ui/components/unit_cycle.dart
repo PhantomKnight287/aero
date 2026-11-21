@@ -35,17 +35,24 @@ class UnitCycle extends StatelessWidget {
   Widget build(BuildContext context) {
     final units = context.watch<UnitsNotifier>();
     final reduceMotion = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: () => _cycle(context),
-      child: AeroPressable(
-        child: AnimatedSwitcher(
-          duration: reduceMotion ? Duration.zero : AeroMotion.press,
-          switchInCurve: AeroMotion.easeOut,
-          switchOutCurve: AeroMotion.easeOut,
-          child: KeyedSubtree(
-            key: ValueKey(units.unitOf(dimension)),
-            child: builder(context, units),
+    final label = dimension == UnitDimension.time
+        ? 'Change time zone'
+        : 'Change ${dimensionLabel(dimension).toLowerCase()} unit';
+    return Semantics(
+      button: true,
+      label: label,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: () => _cycle(context),
+        child: AeroPressable(
+          child: AnimatedSwitcher(
+            duration: reduceMotion ? Duration.zero : AeroMotion.press,
+            switchInCurve: AeroMotion.easeOut,
+            switchOutCurve: AeroMotion.easeOut,
+            child: KeyedSubtree(
+              key: ValueKey(units.unitOf(dimension)),
+              child: builder(context, units),
+            ),
           ),
         ),
       ),

@@ -102,32 +102,51 @@ String formatTemp(num c, TempUnit u) =>
 
 bool _tzReady = false;
 
+/// [utc] shifted into the zone [mode] selects, or null when the airport
+/// zone is missing/unknown (callers then show UTC with a Z).
+DateTime? _zoned(DateTime utc, String? airportTz, TimeMode mode) {
+  switch (mode) {
+    case TimeMode.utc:
+      return null;
+    case TimeMode.device:
+      return utc.toLocal();
+    case TimeMode.airport:
+      if (airportTz == null || airportTz.isEmpty) return null;
+      try {
+        if (!_tzReady) {
+          tzdata.initializeTimeZones();
+          _tzReady = true;
+        }
+        return tz.TZDateTime.from(utc, tz.getLocation(airportTz));
+      } catch (_) {
+        return null;
+      }
+  }
+}
+
 /// [airport]: in the airport's zone (falls back to UTC if unknown);
 /// [device]: phone's zone; [utc]: always 24h with a Z suffix.
+/// 12h keeps the leading zero ("09:05 AM"), matching the app's old format.
 String formatClock(
   DateTime utc, {
   required String? airportTz,
   required TimeMode mode,
   required bool use24,
 }) {
-  final pattern = use24 ? 'H:mm' : 'h:mm a';
-  final asUtc = '${DateFormat('HH:mm').format(utc.toUtc())}Z';
-  switch (mode) {
-    case TimeMode.utc:
-      return asUtc;
-    case TimeMode.device:
-      return DateFormat(pattern).format(utc.toLocal());
-    case TimeMode.airport:
-      if (airportTz == null || airportTz.isEmpty) return asUtc;
-      try {
-        if (!_tzReady) {
-          tzdata.initializeTimeZones();
-          _tzReady = true;
-        }
-        final local = tz.TZDateTime.from(utc, tz.getLocation(airportTz));
-        return DateFormat(pattern).format(local);
-      } catch (_) {
-        return asUtc;
-      }
-  }
+  final zoned = _zoned(utc, airportTz, mode);
+  if (zoned == null) return '${DateFormat('HH:mm').format(utc.toUtc())}Z';
+  return DateFormat(use24 ? 'H:mm' : 'hh:mm a').format(zoned);
+}
+
+/// "Nov 15, 10:40" — date taken from the same zone as the time.
+String formatDateClock(
+  DateTime utc, {
+  required String? airportTz,
+  required TimeMode mode,
+  required bool use24,
+}) {
+  final day = _zoned(utc, airportTz, mode) ?? utc.toUtc();
+  final clock =
+      formatClock(utc, airportTz: airportTz, mode: mode, use24: use24);
+  return '${DateFormat('MMM d').format(day)}, $clock';
 }

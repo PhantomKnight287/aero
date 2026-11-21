@@ -377,9 +377,17 @@ class _AirportDetailsSheetState extends State<AirportDetailsSheet> {
                 _formatVisibility(_asMap(d?['visibility'])),
               ),
               if (temp != null)
-                _statChip(context, 'TEMP', '${_fmtNum(temp)}°C'),
+                UnitCycle(
+                  dimension: UnitDimension.temperature,
+                  builder: (context, u) => _statChip(
+                      context, 'TEMP', formatTemp(temp, u.temperature)),
+                ),
               if (dew != null)
-                _statChip(context, 'DEWPOINT', '${_fmtNum(dew)}°C'),
+                UnitCycle(
+                  dimension: UnitDimension.temperature,
+                  builder: (context, u) => _statChip(
+                      context, 'DEWPOINT', formatTemp(dew, u.temperature)),
+                ),
               if (temp != null && dew != null)
                 _statChip(context, 'HUMIDITY', '${_relHumidity(temp, dew)}%'),
               if (hPa != null || inHg != null)

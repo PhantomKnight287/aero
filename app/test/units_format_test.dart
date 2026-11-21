@@ -57,4 +57,30 @@ void main() {
     expect(unitLabel(AltitudeUnit.fl), 'FL');
     expect(unitLabel(TimeMode.utc), 'UTC');
   });
+
+  test('12h clock keeps the leading zero like before (09:05 AM)', () {
+    expect(
+        formatClock(DateTime.utc(2026, 11, 15, 5, 5),
+            airportTz: 'Asia/Dubai', mode: TimeMode.airport, use24: false),
+        '09:05 AM');
+  });
+
+  test('date + clock follows the same zone, empty tz falls back to Z', () {
+    final t = DateTime.utc(2026, 11, 15, 6, 40);
+    expect(
+        formatDateClock(t,
+            airportTz: 'Asia/Dubai', mode: TimeMode.airport, use24: true),
+        'Nov 15, 10:40');
+    expect(
+        formatDateClock(t, airportTz: '', mode: TimeMode.airport, use24: true),
+        'Nov 15, 06:40Z');
+    expect(
+        formatDateClock(DateTime.utc(2026, 11, 15, 22),
+            airportTz: 'Asia/Dubai', mode: TimeMode.airport, use24: true),
+        'Nov 16, 2:00');
+    expect(
+        formatDateClock(DateTime.utc(2026, 11, 15, 22),
+            airportTz: 'Asia/Dubai', mode: TimeMode.utc, use24: false),
+        'Nov 15, 22:00Z');
+  });
 }

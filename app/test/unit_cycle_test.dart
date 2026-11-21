@@ -37,6 +37,7 @@ void main() {
     ));
 
     expect(find.text('39,000 ft'), findsOneWidget);
+    expect(find.bySemanticsLabel(RegExp('Change altitude unit')), findsOneWidget);
     await tester.tap(find.text('39,000 ft'));
     await tester.pumpAndSettle();
     expect(find.text('11,887 m'), findsOneWidget);
