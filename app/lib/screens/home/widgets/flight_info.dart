@@ -1,4 +1,7 @@
 import 'dart:io';
+import 'package:aero/screens/home/widgets/flight_timetable.dart';
+import 'package:aero/screens/home/widgets/timezone_shift.dart';
+import 'package:aero/ui/tokens.dart';
 import 'package:aero/formatters/units.dart';
 import 'package:aero/notifiers/units.dart';
 import 'package:provider/provider.dart';
@@ -14,7 +17,6 @@ import 'package:openapi/openapi.dart';
 import 'package:aero/constants/main.dart';
 import 'package:aero/services/alerts_service.dart';
 import 'package:aero/utils/error.dart';
-import 'package:aero/extensions/datetime.dart';
 import 'package:aero/formatters/time.dart';
 import 'package:aero/screens/home/widgets/aircraft_section.dart';
 import 'package:aero/screens/home/widgets/flight_route_info.dart';
@@ -618,11 +620,7 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
           ),
           Column(
             children: [
-              _buildTimezonePill(
-                context: context,
-                arrival: arrival,
-                departure: departure,
-              ),
+              TimezoneShift(departure: departure, arrival: arrival),
               if (codeshares.isNotEmpty) ...[
                 const Gap(8),
                 _buildCodesharePill(context, codeshares),
@@ -630,8 +628,15 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
             ],
           ),
           // Flight Timetable Section
-          if (widget.info.flightAwareData != null)
-            _buildFlightTimetable(context),
+          if (widget.info.flightAwareData != null) ...[
+            const SizedBox(height: AeroSpace.sm),
+            FlightTimetable(
+              key: ValueKey('timetable-${widget.info.id}'),
+              fa: widget.info.flightAwareData!,
+              departureTz: departure.airport.timeZone,
+              arrivalTz: arrival.airport.timeZone,
+            ),
+          ],
           // Airport Conditions Section
           _buildAirportConditionsSection(context),
           // Booking Details Section
@@ -775,216 +780,6 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildFlightTimetable(BuildContext context) {
-    final fa = widget.info.flightAwareData!;
-    final departure = widget.info.departure;
-    final arrival = widget.info.arrival;
-    final theme = Theme.of(context);
-    final use24Hrs = MediaQuery.of(context).alwaysUse24HourFormat;
-
-
-    // Check if any timetable data exists
-    final hasAnyData = fa.scheduledOut != null ||
-        fa.estimatedOut != null ||
-        fa.actualOut != null ||
-        fa.scheduledOff != null ||
-        fa.estimatedOff != null ||
-        fa.actualOff != null ||
-        fa.scheduledOn != null ||
-        fa.estimatedOn != null ||
-        fa.actualOn != null ||
-        fa.scheduledIn != null ||
-        fa.estimatedIn != null ||
-        fa.actualIn != null;
-
-    if (!hasAnyData) return const SizedBox.shrink();
-
-    try {
-      tz.initializeTimeZones();
-    } catch (_) {}
-
-    // Date + time in the zone the user's time mode selects. Raw (not
-    // sanitised) zones so a missing zone shows UTC with a Z.
-    String formatDateTimeInTz(DateTime dt, String? timezone, TimeMode mode) =>
-        formatDateClock(dt, airportTz: timezone, mode: mode, use24: use24Hrs);
-
-    String formatDuration(int mins) {
-      final absMins = mins.abs();
-      if (absMins < 60) return '${absMins}m';
-      final hours = absMins ~/ 60;
-      final remainder = absMins % 60;
-      if (remainder == 0) return '${hours}h';
-      return '${hours}h ${remainder}m';
-    }
-
-    /// Returns (label, color) for the status indicator comparing scheduled vs actual/estimated
-    (String, Color) getTimeDelta(DateTime scheduled, DateTime? actual) {
-      if (actual == null) return ('', Colors.grey);
-      final diff = actual.difference(scheduled);
-      final mins = diff.inMinutes;
-      if (mins.abs() < 2) return ('On time', Colors.green);
-      if (mins < 0) return ('${formatDuration(mins)} early', Colors.green);
-      if (mins <= 15) return ('${formatDuration(mins)} late', Colors.orange);
-      return ('${formatDuration(mins)} late', Colors.red);
-    }
-
-    Widget buildPhaseRow({
-      required String phase,
-      required IconData icon,
-      required String? timezone,
-      required DateTime? scheduled,
-      required DateTime? estimated,
-      required DateTime? actual,
-    }) {
-      if (scheduled == null && estimated == null && actual == null) {
-        return const SizedBox.shrink();
-      }
-
-      // Determine the best "resolved" time and its status
-      final resolvedTime = actual ?? estimated;
-      final (deltaLabel, deltaColor) = scheduled != null && resolvedTime != null
-          ? getTimeDelta(scheduled, resolvedTime)
-          : ('', Colors.grey);
-
-      return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 6),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(icon, size: 16, color: theme.colorScheme.primary),
-                const SizedBox(width: 8),
-                Text(
-                  phase,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w700,
-                    fontSize: 13,
-                  ),
-                ),
-                if (deltaLabel.isNotEmpty) ...[
-                  const Spacer(),
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: deltaColor.withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: Text(
-                      deltaLabel,
-                      style: TextStyle(
-                        color: deltaColor,
-                        fontSize: 11,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ),
-                ],
-              ],
-            ),
-            const SizedBox(height: 4),
-            UnitCycle(
-              dimension: UnitDimension.time,
-              builder: (_, u) => Padding(
-                padding: const EdgeInsets.only(left: 24),
-                child: Table(
-                  columnWidths: const {
-                    0: FlexColumnWidth(1),
-                    1: FlexColumnWidth(2),
-                  },
-                  children: [
-                    if (scheduled != null)
-                      _buildTimeRow(
-                          'Scheduled',
-                          formatDateTimeInTz(scheduled, timezone, u.time),
-                          Colors.grey.shade600,
-                          theme),
-                    if (estimated != null)
-                      _buildTimeRow(
-                        'Estimated',
-                        formatDateTimeInTz(estimated, timezone, u.time),
-                        actual == null ? deltaColor : Colors.grey.shade600,
-                        theme,
-                      ),
-                    if (actual != null)
-                      _buildTimeRow(
-                        'Actual',
-                        formatDateTimeInTz(actual, timezone, u.time),
-                        deltaColor,
-                        theme,
-                        bold: true,
-                      ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Gap(8),
-        Text(
-          'Flight Timetable',
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        Gap(4),
-        Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: theme.dividerColor.withValues(alpha: 0.4),
-            ),
-          ),
-          child: Column(
-            children: [
-              buildPhaseRow(
-                phase: 'Gate Departure',
-                icon: Icons.door_sliding_outlined,
-                timezone: departure.airport.timeZone,
-                scheduled: fa.scheduledOut,
-                estimated: fa.estimatedOut,
-                actual: fa.actualOut,
-              ),
-              buildPhaseRow(
-                phase: 'Takeoff',
-                icon: Icons.flight_takeoff,
-                timezone: departure.airport.timeZone,
-                scheduled: fa.scheduledOff,
-                estimated: fa.estimatedOff,
-                actual: fa.actualOff,
-              ),
-              buildPhaseRow(
-                phase: 'Landing',
-                icon: Icons.flight_land,
-                timezone: arrival.airport.timeZone,
-                scheduled: fa.scheduledOn,
-                estimated: fa.estimatedOn,
-                actual: fa.actualOn,
-              ),
-              buildPhaseRow(
-                phase: 'Gate Arrival',
-                icon: Icons.door_front_door_outlined,
-                timezone: arrival.airport.timeZone,
-                scheduled: fa.scheduledIn,
-                estimated: fa.estimatedIn,
-                actual: fa.actualIn,
-              ),
-            ],
-          ),
-        ),
-      ],
     );
   }
 
@@ -1307,115 +1102,6 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
     );
   }
 
-  TableRow _buildTimeRow(
-      String label, String time, Color color, ThemeData theme,
-      {bool bold = false}) {
-    return TableRow(
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 2),
-          child: Text(
-            label,
-            style: TextStyle(
-              fontSize: 12,
-              color: theme.textTheme.bodySmall?.color?.withValues(alpha: 0.7),
-            ),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 2),
-          child: Text(
-            time,
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: bold ? FontWeight.w700 : FontWeight.w500,
-              color: color,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildTimezonePill({
-    required BuildContext context,
-    required RouteInfoEntity arrival,
-    required RouteInfoEntity departure,
-  }) {
-    final arrivalTime = _resolveEventTime(arrival);
-    if (arrivalTime == null) {
-      return const SizedBox.shrink();
-    }
-
-    final use24Hrs = MediaQuery.of(context).alwaysUse24HourFormat;
-    final arrivalTz = _sanitizeTimezone(arrival.airport.timeZone);
-    final departureTz = _sanitizeTimezone(departure.airport.timeZone);
-    final arrivalLocal =
-        arrivalTime.toTimezoneString(arrivalTz, use24Hrs: use24Hrs);
-    final arrivalInDeparture =
-        arrivalTime.toTimezoneString(departureTz, use24Hrs: use24Hrs);
-    final diff = getTimezoneDifference(arrivalTz, departureTz);
-
-    final arrivalLabel = _formatAirportLabel(arrival.airport);
-    final departureLabel = _formatAirportLabel(departure.airport);
-
-    final diffTitle = _formatDiffTitle(diff);
-    final subtitle = diff == 'same timezone'
-        ? "$arrivalLocal arrival in $arrivalLabel also reads $arrivalLocal in $departureLabel"
-        : "$arrivalLocal arrival in $arrivalLabel is $arrivalInDeparture ${_airportCity(departure.airport)} time";
-
-    final theme = Theme.of(context);
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: theme.dividerColor.withValues(alpha: 0.4),
-        ),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: 32,
-            height: 32,
-            decoration: BoxDecoration(
-              color: theme.colorScheme.primary.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Icon(
-              Symbols.schedule,
-              size: 18,
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              spacing: 4,
-              children: [
-                Text(
-                  diffTitle,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                Text(
-                  subtitle,
-                  style: TextStyle(
-                    color: theme.textTheme.bodySmall?.color?.withValues(
-                        alpha: theme.brightness == Brightness.dark ? 0.8 : 0.7),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildCodesharePill(
     BuildContext context,
     List<String> codeshares,
@@ -1479,48 +1165,8 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
     );
   }
 
-  DateTime? _resolveEventTime(RouteInfoEntity segment) {
-    final candidate =
-        segment.revisedTime ?? segment.predictedTime ?? segment.scheduledTime;
-    try {
-      return DateTime.parse(candidate.utc).toUtc();
-    } catch (_) {
-      return null;
-    }
-  }
-
-  String _formatAirportLabel(RouteAirportEntity airport) {
-    final code = _airportCode(airport);
-    if (code.isEmpty) return airport.name;
-    return "${airport.name} ($code)";
-  }
-
   String _airportCode(RouteAirportEntity airport) {
     return airport.iata.isNotEmpty ? airport.iata : airport.icao;
-  }
-
-  String _sanitizeTimezone(String timezone) {
-    return timezone.trim().isEmpty ? 'UTC' : timezone;
-  }
-
-  String _formatDiffTitle(String diff) {
-    if (diff == 'same timezone') {
-      return "No Timezone Change";
-    }
-    final sign = diff.startsWith('-') ? '-' : '+';
-    final remainder = diff.substring(1).trim();
-    final normalized = remainder
-        .replaceAll('hrs', 'Hours')
-        .replaceAll('hr', 'Hour')
-        .replaceAll('mins', 'Minutes')
-        .replaceAll('min', 'Minute');
-    return "$sign$normalized Timezone Change";
-  }
-
-  String _airportCity(RouteAirportEntity airport) {
-    return airport.municipalityName.isNotEmpty
-        ? airport.municipalityName
-        : airport.shortName ?? airport.name;
   }
 
   Duration? _calculateDelay(dynamic revisedTime, dynamic scheduledTime) {

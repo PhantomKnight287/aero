@@ -4,6 +4,7 @@ import 'package:aero/notifiers/units.dart';
 import 'package:aero/ui/components/aero_sheet.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:aero/ui/components/aero_pill_button.dart';
 import 'package:aero/ui/components/aero_pressable.dart';
 import 'package:aero/ui/components/airline_logo.dart';
 import 'package:aero/ui/tokens.dart';
@@ -724,7 +725,7 @@ class _Rotation extends StatelessWidget {
                     child: Padding(
                       padding:
                           const EdgeInsets.symmetric(vertical: AeroSpace.xs),
-                      child: _PillButton(
+                      child: AeroPillButton(
                         key: const ValueKey('show-earlier'),
                         icon: Icons.history,
                         label: recentLoading
@@ -960,58 +961,6 @@ class _OwnFlightsRow extends StatelessWidget {
                   color: AeroColors.ink, fontWeight: FontWeight.w600)),
           const Icon(Icons.chevron_right, color: AeroColors.ink),
         ]),
-      ),
-    );
-  }
-}
-
-/// Compact secondary action inside a panel: white pill on the grey surface
-/// with an icon, so it reads as a button before it is touched.
-class _PillButton extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final IconData? trailing;
-  final VoidCallback? onTap;
-
-  const _PillButton({
-    super.key,
-    required this.icon,
-    required this.label,
-    this.trailing,
-    this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Semantics(
-      button: true,
-      child: _Tappable(
-        onTap: onTap,
-        child: Container(
-          padding: const EdgeInsets.symmetric(
-              horizontal: AeroSpace.md, vertical: AeroSpace.sm),
-          decoration: const BoxDecoration(
-            color: AeroColors.surface,
-            borderRadius: AeroRadius.pillAll,
-            boxShadow: [
-              BoxShadow(
-                  color: AeroColors.shadow,
-                  blurRadius: 4,
-                  offset: Offset(0, 1)),
-            ],
-          ),
-          child: Row(mainAxisSize: MainAxisSize.min, children: [
-            Icon(icon, size: 16, color: AeroColors.ink),
-            const SizedBox(width: AeroSpace.sm),
-            Text(label,
-                style: AeroText.caption.copyWith(
-                    color: AeroColors.ink, fontWeight: FontWeight.w600)),
-            if (trailing != null) ...[
-              const SizedBox(width: AeroSpace.xs),
-              Icon(trailing, size: 16, color: AeroColors.ink),
-            ],
-          ]),
-        ),
       ),
     );
   }

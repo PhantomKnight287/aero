@@ -30,9 +30,9 @@
   },
   "lib/screens/home/widgets/flight_info.dart": {
     "snackbar": 2,
-    "raw_radius": 15,
-    "material_color": 22,
-    "raw_font_size": 28
+    "raw_radius": 11,
+    "material_color": 14,
+    "raw_font_size": 23
   },
   "lib/screens/home/widgets/flight_map.dart": {
     "material_color": 24
