@@ -104,7 +104,7 @@ bool _tzReady = false;
 
 /// [airport]: in the airport's zone (falls back to UTC if unknown);
 /// [device]: phone's zone; [utc]: always 24h with a Z suffix.
-String formatTime(
+String formatClock(
   DateTime utc, {
   required String? airportTz,
   required TimeMode mode,

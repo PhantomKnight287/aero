@@ -1,4 +1,8 @@
 import 'dart:io';
+import 'package:aero/formatters/units.dart';
+import 'package:aero/notifiers/units.dart';
+import 'package:provider/provider.dart';
+import 'package:aero/ui/components/unit_cycle.dart';
 import 'package:built_collection/built_collection.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -127,7 +131,11 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
           context,
           MediaQuery(
             data: MediaQuery.of(context),
-            child: ShareableFlightCard(info: widget.info),
+            child: ShareableFlightCard(
+              info: widget.info,
+              distanceUnit: context.read<UnitsNotifier>().distance,
+              timeMode: context.read<UnitsNotifier>().time,
+            ),
           ),
         ),
         pixelRatio: 2.0,
@@ -1252,21 +1260,22 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
       tz.initializeTimeZones();
     } catch (_) {}
 
-    String formatTimeInTz(DateTime dt, String timezone) {
-      final location = tz.getLocation(timezone);
-      final tzDt = tz.TZDateTime.from(dt.toUtc(), location);
-      if (use24Hrs) {
-        return '${tzDt.hour.toString().padLeft(2, '0')}:${tzDt.minute.toString().padLeft(2, '0')}';
+    // Date + time in the zone the user's time mode selects.
+    String formatDateTimeInTz(DateTime dt, String timezone, TimeMode mode) {
+      DateTime zoned;
+      try {
+        zoned = switch (mode) {
+          TimeMode.airport =>
+            tz.TZDateTime.from(dt.toUtc(), tz.getLocation(timezone)),
+          TimeMode.device => dt.toLocal(),
+          TimeMode.utc => dt.toUtc(),
+        };
+      } catch (_) {
+        zoned = dt.toUtc();
       }
-      final hour = tzDt.hour % 12 == 0 ? 12 : tzDt.hour % 12;
-      final amPm = tzDt.hour >= 12 ? 'PM' : 'AM';
-      return '$hour:${tzDt.minute.toString().padLeft(2, '0')} $amPm';
-    }
-
-    String formatDateTimeInTz(DateTime dt, String timezone) {
-      final location = tz.getLocation(timezone);
-      final tzDt = tz.TZDateTime.from(dt.toUtc(), location);
-      return '${MONTHS[tzDt.month - 1]} ${tzDt.day}, ${formatTimeInTz(dt, timezone)}';
+      final time =
+          formatClock(dt, airportTz: timezone, mode: mode, use24: use24Hrs);
+      return '${MONTHS[zoned.month - 1]} ${zoned.day}, $time';
     }
 
     String formatDuration(int mins) {
@@ -1345,36 +1354,39 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
               ],
             ),
             const SizedBox(height: 4),
-            Padding(
-              padding: const EdgeInsets.only(left: 24),
-              child: Table(
-                columnWidths: const {
-                  0: FlexColumnWidth(1),
-                  1: FlexColumnWidth(2),
-                },
-                children: [
-                  if (scheduled != null)
-                    _buildTimeRow(
-                        'Scheduled',
-                        formatDateTimeInTz(scheduled, timezone),
-                        Colors.grey.shade600,
-                        theme),
-                  if (estimated != null)
-                    _buildTimeRow(
-                      'Estimated',
-                      formatDateTimeInTz(estimated, timezone),
-                      actual == null ? deltaColor : Colors.grey.shade600,
-                      theme,
-                    ),
-                  if (actual != null)
-                    _buildTimeRow(
-                      'Actual',
-                      formatDateTimeInTz(actual, timezone),
-                      deltaColor,
-                      theme,
-                      bold: true,
-                    ),
-                ],
+            UnitCycle(
+              dimension: UnitDimension.time,
+              builder: (_, u) => Padding(
+                padding: const EdgeInsets.only(left: 24),
+                child: Table(
+                  columnWidths: const {
+                    0: FlexColumnWidth(1),
+                    1: FlexColumnWidth(2),
+                  },
+                  children: [
+                    if (scheduled != null)
+                      _buildTimeRow(
+                          'Scheduled',
+                          formatDateTimeInTz(scheduled, timezone, u.time),
+                          Colors.grey.shade600,
+                          theme),
+                    if (estimated != null)
+                      _buildTimeRow(
+                        'Estimated',
+                        formatDateTimeInTz(estimated, timezone, u.time),
+                        actual == null ? deltaColor : Colors.grey.shade600,
+                        theme,
+                      ),
+                    if (actual != null)
+                      _buildTimeRow(
+                        'Actual',
+                        formatDateTimeInTz(actual, timezone, u.time),
+                        deltaColor,
+                        theme,
+                        bold: true,
+                      ),
+                  ],
+                ),
               ),
             ),
           ],
@@ -1630,7 +1642,8 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
     );
   }
 
-  Widget _buildObservationRow(BuildContext context, AirportWeatherObservationEntity observation) {
+  Widget _buildObservationRow(
+      BuildContext context, AirportWeatherObservationEntity observation) {
     final theme = Theme.of(context);
     final tempAir = int.tryParse(observation.tempAir.toString());
     final tempPerceived = int.tryParse(observation.tempPerceived.toString());
@@ -1642,9 +1655,10 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
 
     final parts = <String>[];
     if (tempAir != null) {
+      final tu = context.watch<UnitsNotifier>().temperature;
       parts.add(tempPerceived != null && tempPerceived != tempAir
-          ? '$tempAir°C (feels $tempPerceived°C)'
-          : '$tempAir°C');
+          ? '${formatTemp(tempAir, tu)} (feels ${formatTemp(tempPerceived, tu)})'
+          : formatTemp(tempAir, tu));
     }
     if (windFriendly != null && windFriendly.isNotEmpty)
       parts.add(windFriendly);

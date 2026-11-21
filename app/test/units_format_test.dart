@@ -31,21 +31,22 @@ void main() {
   test('time modes', () {
     final t = DateTime.utc(2026, 11, 15, 6, 40);
     expect(
-        formatTime(t,
+        formatClock(t,
             airportTz: 'Asia/Dubai', mode: TimeMode.airport, use24: true),
         '10:40');
     expect(
-        formatTime(t,
+        formatClock(t,
             airportTz: 'Asia/Dubai', mode: TimeMode.airport, use24: false),
         '10:40 AM');
     expect(
-        formatTime(t, airportTz: 'Asia/Dubai', mode: TimeMode.utc, use24: false),
+        formatClock(t,
+            airportTz: 'Asia/Dubai', mode: TimeMode.utc, use24: false),
         '06:40Z');
     expect(
-        formatTime(t, airportTz: 'Not/AZone', mode: TimeMode.airport, use24: true),
+        formatClock(t,
+            airportTz: 'Not/AZone', mode: TimeMode.airport, use24: true),
         '06:40Z');
-    expect(
-        formatTime(t, airportTz: null, mode: TimeMode.airport, use24: true),
+    expect(formatClock(t, airportTz: null, mode: TimeMode.airport, use24: true),
         '06:40Z');
   });
 

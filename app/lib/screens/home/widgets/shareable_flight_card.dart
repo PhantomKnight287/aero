@@ -5,15 +5,25 @@ import 'package:gap/gap.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:openapi/openapi.dart';
 
-import 'package:aero/extensions/datetime.dart';
 import 'package:aero/extensions/duration.dart';
 import 'package:aero/formatters/time.dart';
+import 'package:aero/formatters/units.dart';
 import 'package:aero/utils/duration.dart';
 
 class ShareableFlightCard extends StatelessWidget {
-  const ShareableFlightCard({super.key, required this.info});
+  const ShareableFlightCard({
+    super.key,
+    required this.info,
+    this.distanceUnit = DistanceUnit.km,
+    this.timeMode = TimeMode.airport,
+  });
 
   final FlightResponseEntity info;
+
+  /// Passed in (not read from context): the card is rendered off-tree by
+  /// captureFromWidget, outside the providers.
+  final DistanceUnit distanceUnit;
+  final TimeMode timeMode;
 
   static const _bgBottom = Color(0xFF0E0E12);
   static const _bgTop = Color(0xFF17171E);
@@ -95,14 +105,14 @@ class ShareableFlightCard extends StatelessWidget {
                         : '—',
                     depCity: departure.airport.municipalityName,
                     arrCity: arrival.airport.municipalityName,
-                    depTime: departureTime.toTimezoneString(
-                      departure.airport.timeZone,
-                      use24Hrs: use24,
-                    ),
-                    arrTime: arrivalTime.toTimezoneString(
-                      arrival.airport.timeZone,
-                      use24Hrs: use24,
-                    ),
+                    depTime: formatClock(departureTime.toUtc(),
+                        airportTz: departure.airport.timeZone,
+                        mode: timeMode,
+                        use24: use24),
+                    arrTime: formatClock(arrivalTime.toUtc(),
+                        airportTz: arrival.airport.timeZone,
+                        mode: timeMode,
+                        use24: use24),
                     depDelay: departureDelay,
                     arrDelay: arrivalDelay,
                     duration: duration,
@@ -111,9 +121,7 @@ class ShareableFlightCard extends StatelessWidget {
               ),
             ),
           ),
-
           const _Perforation(),
-
           Expanded(
             flex: 5,
             child: Padding(
@@ -147,6 +155,7 @@ class ShareableFlightCard extends StatelessWidget {
                   const Spacer(),
                   _Footer(
                     distanceKm: info.greatCircleDistance.km,
+                    distanceUnit: distanceUnit,
                     registration: info.aircraft?.registration,
                   ),
                 ],
@@ -348,8 +357,7 @@ class _Endpoint extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final align =
-        alignEnd ? CrossAxisAlignment.end : CrossAxisAlignment.start;
+    final align = alignEnd ? CrossAxisAlignment.end : CrossAxisAlignment.start;
     final textAlign = alignEnd ? TextAlign.end : TextAlign.start;
     return Column(
       crossAxisAlignment: align,
@@ -443,7 +451,8 @@ class _RouteLine extends StatelessWidget {
         const Gap(8),
         Row(
           children: [
-            const Expanded(child: _DashedLine(color: ShareableFlightCard._line)),
+            const Expanded(
+                child: _DashedLine(color: ShareableFlightCard._line)),
             const Gap(6),
             Container(
               width: 28,
@@ -464,7 +473,8 @@ class _RouteLine extends StatelessWidget {
               ),
             ),
             const Gap(6),
-            const Expanded(child: _DashedLine(color: ShareableFlightCard._line)),
+            const Expanded(
+                child: _DashedLine(color: ShareableFlightCard._line)),
           ],
         ),
       ],
@@ -581,9 +591,8 @@ class _MetaCell extends StatelessWidget {
         Text(
           value,
           softWrap: true,
-          textAlign: align == CrossAxisAlignment.end
-              ? TextAlign.end
-              : TextAlign.start,
+          textAlign:
+              align == CrossAxisAlignment.end ? TextAlign.end : TextAlign.start,
           style: const TextStyle(
             fontFamily: 'DM Sans',
             fontSize: 13,
@@ -663,15 +672,20 @@ class _AirportRow extends StatelessWidget {
 }
 
 class _Footer extends StatelessWidget {
-  const _Footer({required this.distanceKm, required this.registration});
+  const _Footer({
+    required this.distanceKm,
+    required this.distanceUnit,
+    required this.registration,
+  });
   final String? distanceKm;
+  final DistanceUnit distanceUnit;
   final String? registration;
 
   @override
   Widget build(BuildContext context) {
     final km = distanceKm != null ? double.tryParse(distanceKm!) : null;
     final distance = km != null
-        ? '${km.toStringAsFixed(0)} km  ·  ${(km * 0.621371).toStringAsFixed(0)} mi'
+        ? '${formatDistance(km, distanceUnit)}  ·  ${formatDistance(km, nextOf(DistanceUnit.values, distanceUnit))}'
         : null;
 
     return Column(
@@ -740,8 +754,7 @@ class _DashedLine extends StatelessWidget {
       builder: (context, constraints) {
         const dashWidth = 4.0;
         const dashSpace = 4.0;
-        final count =
-            (constraints.maxWidth / (dashWidth + dashSpace)).floor();
+        final count = (constraints.maxWidth / (dashWidth + dashSpace)).floor();
         return Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: List.generate(

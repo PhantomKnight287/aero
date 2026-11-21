@@ -1,5 +1,7 @@
 import 'dart:math';
 
+import 'package:aero/formatters/units.dart';
+import 'package:aero/ui/components/unit_cycle.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:material_symbols_icons/symbols.dart';
@@ -175,7 +177,16 @@ class _AirportDetailsSheetState extends State<AirportDetailsSheet> {
       runSpacing: 8,
       children: [
         if (a.elevation != null && a.elevation!.isNotEmpty)
-          _statChip(context, 'ELEV', '${a.elevation} ft'),
+          UnitCycle(
+            dimension: UnitDimension.altitude,
+            builder: (context, u) => _statChip(
+              context,
+              'ELEV',
+              num.tryParse(a.elevation!) == null
+                  ? '${a.elevation} ft'
+                  : formatElevation(num.parse(a.elevation!), u.altitude),
+            ),
+          ),
         _statChip(context, 'COUNTRY', a.isoCountry),
         _statChip(context, 'REGION', a.isoRegion),
         _statChip(context, 'CONTINENT', a.continent),

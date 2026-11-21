@@ -1,4 +1,8 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:aero/formatters/units.dart';
+import 'package:aero/notifiers/units.dart';
+import 'package:aero/ui/components/unit_cycle.dart';
+import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gap/gap.dart';
@@ -179,9 +183,12 @@ class _FlightStatsScreenState extends State<FlightStatsScreen> {
         Row(
           children: [
             Expanded(
-              child: _buildStatCard(
-                'DISTANCE',
-                '${passport.totalDistanceKm.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')} km',
+              child: UnitCycle(
+                dimension: UnitDimension.distance,
+                builder: (_, u) => _buildStatCard(
+                  'DISTANCE',
+                  formatDistance(passport.totalDistanceKm, u.distance),
+                ),
               ),
             ),
             const Gap(12),
@@ -278,27 +285,36 @@ class _FlightStatsScreenState extends State<FlightStatsScreen> {
           ),
         ),
         const Gap(16),
-        Text(
-          '${totalDistance.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')} km',
-          style: TextStyle(
-            fontSize: 32,
-            fontWeight: FontWeight.w700,
-            color: colorScheme.onSurface,
-            height: 1.2,
-          ),
-        ),
-        const Gap(4),
-        Text(
-          '${(totalDistance * 0.621371).toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')} mi',
-          style: TextStyle(
-            fontSize: 14,
-            color: colorScheme.onSurfaceVariant,
-            fontWeight: FontWeight.w500,
+        UnitCycle(
+          dimension: UnitDimension.distance,
+          builder: (_, u) => Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                formatDistance(totalDistance, u.distance),
+                style: TextStyle(
+                  fontSize: 32,
+                  fontWeight: FontWeight.w700,
+                  color: colorScheme.onSurface,
+                  height: 1.2,
+                ),
+              ),
+              const Gap(4),
+              Text(
+                formatDistance(
+                    totalDistance, nextOf(DistanceUnit.values, u.distance)),
+                style: TextStyle(
+                  fontSize: 14,
+                  color: colorScheme.onSurfaceVariant,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
           ),
         ),
         const Gap(8),
         Text(
-          'Average: ${avgDistance.toStringAsFixed(0)} km per flight',
+          'Average: ${formatDistance(avgDistance, context.watch<UnitsNotifier>().distance)} per flight',
           style: TextStyle(
             fontSize: 13,
             color: colorScheme.onSurfaceVariant,
@@ -565,7 +581,8 @@ class _FlightStatsScreenState extends State<FlightStatsScreen> {
     String flightInfo;
 
     if (isDistance && flight is FlightDistanceEntity) {
-      value = '${flight.distanceKm.toStringAsFixed(0)} km';
+      value = formatDistance(
+          flight.distanceKm, context.watch<UnitsNotifier>().distance);
       route =
           '${flight.flight.departureAirportName} → ${flight.flight.arrivalAirportName}';
       flightInfo = '${flight.flight.airline.name} ${flight.flight.flightNo}';

@@ -23,11 +23,6 @@
     "raw_radius": 11,
     "raw_font_size": 17
   },
-  "lib/screens/home/widgets/animated_flight_info_bar.dart": {
-    "raw_radius": 2,
-    "material_color": 10,
-    "raw_font_size": 8
-  },
   "lib/screens/home/widgets/booking_details_sheet.dart": {
     "material_color": 25,
     "raw_radius": 14,
@@ -41,10 +36,6 @@
   },
   "lib/screens/home/widgets/flight_map.dart": {
     "material_color": 24
-  },
-  "lib/screens/home/widgets/flight_route_info.dart": {
-    "material_color": 16,
-    "raw_font_size": 9
   },
   "lib/screens/home/widgets/flight_selection_list.dart": {
     "material_color": 13,

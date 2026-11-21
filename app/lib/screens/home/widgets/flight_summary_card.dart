@@ -1,4 +1,5 @@
-import 'package:aero/extensions/datetime.dart';
+import 'package:aero/formatters/units.dart';
+import 'package:aero/ui/components/unit_cycle.dart';
 import 'package:aero/ui/components/airline_logo.dart';
 import 'package:aero/ui/tokens.dart';
 import 'package:flutter/material.dart';
@@ -45,10 +46,8 @@ class FlightSummaryCard extends StatelessWidget {
       flight.aircraft?.registration ?? fa?.registration,
     ].whereType<String>().where((s) => s.isNotEmpty).join(' · ');
     final km = num.tryParse(flight.greatCircleDistance.km ?? '');
-    final legInfo = [
-      _duration(),
-      if (km != null) '${NumberFormat.decimalPattern().format(km.round())} km',
-    ].whereType<String>();
+    final duration = _duration();
+    final legStyle = AeroText.micro.copyWith(fontFeatures: AeroText.tabular);
 
     return Container(
       padding: const EdgeInsets.all(AeroSpace.lg),
@@ -106,11 +105,12 @@ class FlightSummaryCard extends StatelessWidget {
                 child: Column(
                   children: [
                     const Icon(Icons.flight, size: 18, color: AeroColors.muted),
-                    for (final line in legInfo)
-                      Text(
-                        line,
-                        style: AeroText.micro
-                            .copyWith(fontFeatures: AeroText.tabular),
+                    if (duration != null) Text(duration, style: legStyle),
+                    if (km != null)
+                      UnitCycle(
+                        dimension: UnitDimension.distance,
+                        builder: (_, u) => Text(formatDistance(km, u.distance),
+                            style: legStyle),
                       ),
                   ],
                 ),
@@ -145,14 +145,7 @@ class _Endpoint extends StatelessWidget {
     required this.alignEnd,
   });
 
-  String? _time() {
-    try {
-      return DateTime.parse(segment.scheduledTime.utc)
-          .toTimezoneString(segment.airport.timeZone, use24Hrs: use24);
-    } catch (_) {
-      return null;
-    }
-  }
+  DateTime? _time() => DateTime.tryParse(segment.scheduledTime.utc);
 
   @override
   Widget build(BuildContext context) {
@@ -179,9 +172,15 @@ class _Endpoint extends StatelessWidget {
         ),
         if (time != null) ...[
           const SizedBox(height: AeroSpace.xs),
-          Text(
-            time,
-            style: AeroText.heading.copyWith(fontFeatures: AeroText.tabular),
+          UnitCycle(
+            dimension: UnitDimension.time,
+            builder: (_, u) => Text(
+              formatClock(time,
+                  airportTz: segment.airport.timeZone,
+                  mode: u.time,
+                  use24: use24),
+              style: AeroText.heading.copyWith(fontFeatures: AeroText.tabular),
+            ),
           ),
         ],
       ],

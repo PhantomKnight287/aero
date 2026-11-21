@@ -1,8 +1,9 @@
+import 'package:aero/extensions/duration.dart';
+import 'package:aero/formatters/units.dart';
+import 'package:aero/ui/components/unit_cycle.dart';
+import 'package:aero/ui/tokens.dart';
 import 'package:flutter/material.dart';
 import 'package:openapi/openapi.dart';
-import 'package:aero/extensions/datetime.dart';
-import 'package:aero/extensions/duration.dart';
-import 'package:intl/intl.dart';
 
 class FlightRouteInfo extends StatelessWidget {
   final String departureCode;
@@ -58,21 +59,13 @@ class FlightRouteInfo extends StatelessWidget {
     final Duration totalDuration = arrivalTime.difference(departureTime);
 
     return Container(
-      padding: const EdgeInsets.all(
-        8.0,
-      ),
+      padding: const EdgeInsets.all(AeroSpace.sm),
       decoration: BoxDecoration(
-        border: Border.all(
-          color: Colors.grey.shade300,
-        ),
-        borderRadius: BorderRadius.circular(
-          5,
-        ),
+        border: Border.all(color: AeroColors.line),
+        borderRadius: AeroRadius.mdAll,
       ),
       child: Padding(
-        padding: const EdgeInsets.only(
-          top: 8.0,
-        ),
+        padding: const EdgeInsets.only(top: AeroSpace.sm),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -124,8 +117,10 @@ class FlightRouteInfo extends StatelessWidget {
     final Duration? d = delay;
     final bool hasDelay = d != null && d != Duration.zero;
     final bool isEarly = hasDelay && d.isNegative;
-    final Color timeColor =
-        hasDelay ? (isEarly ? Colors.green : Colors.red) : Colors.black;
+    final Color timeColor = hasDelay
+        ? (isEarly ? AeroColors.success : AeroColors.danger)
+        : AeroColors.ink;
+    final cancelled = flightAwareDataEntity?.cancelled == true;
     final DateTime? originalTime = hasDelay ? time.subtract(d) : null;
 
     // Prefer props, fallback to FlightAware
@@ -154,99 +149,76 @@ class FlightRouteInfo extends StatelessWidget {
               // Airport code and name on same line with reduced opacity
               Text(
                 '$code • $name',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.black.withOpacity(0.6),
-                ),
+                style: AeroText.heading.copyWith(color: AeroColors.muted),
               ),
               if (subtitle.isNotEmpty) ...[
-                const SizedBox(height: 4),
-                Text(
-                  subtitle,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey.shade500,
-                  ),
-                ),
+                const SizedBox(height: AeroSpace.xs),
+                Text(subtitle, style: AeroText.caption),
               ],
-              const SizedBox(height: 8),
+              const SizedBox(height: AeroSpace.sm),
               // Time row with original time if delayed
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.baseline,
-                textBaseline: TextBaseline.alphabetic,
-                children: [
-                  Text(
-                    time.toTimezoneString(
-                      timezone,
-                      use24Hrs: use24Hrs,
-                    ),
-                    style: TextStyle(
-                      fontSize: 24,
-                      color: (flightAwareDataEntity?.cancelled == true)
-                          ? Colors.red
-                          : timeColor,
-                      fontWeight: FontWeight.bold,
-                      decoration: (flightAwareDataEntity?.cancelled == true)
-                          ? TextDecoration.lineThrough
-                          : null,
-                      decorationColor: (flightAwareDataEntity?.cancelled == true)
-                          ? Colors.red
-                          : null,
-                    ),
-                  ),
-                  if (originalTime != null)
-                    Padding(
-                      padding: const EdgeInsets.only(left: 8.0),
-                      child: Text(
-                        originalTime.toTimezoneString(
-                          timezone,
-                          use24Hrs: use24Hrs,
-                        ),
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.grey.shade500,
-                        ),
+              UnitCycle(
+                dimension: UnitDimension.time,
+                builder: (context, units) => Row(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.baseline,
+                  textBaseline: TextBaseline.alphabetic,
+                  children: [
+                    Text(
+                      formatClock(time.toUtc(),
+                          airportTz: timezone,
+                          mode: units.time,
+                          use24: use24Hrs),
+                      style: AeroText.figure.copyWith(
+                        color: cancelled ? AeroColors.danger : timeColor,
+                        decoration:
+                            cancelled ? TextDecoration.lineThrough : null,
+                        decorationColor: cancelled ? AeroColors.danger : null,
                       ),
                     ),
-                ],
+                    if (originalTime != null)
+                      Padding(
+                        padding: const EdgeInsets.only(left: AeroSpace.sm),
+                        child: Text(
+                          formatClock(originalTime.toUtc(),
+                              airportTz: timezone,
+                              mode: units.time,
+                              use24: use24Hrs),
+                          style: AeroText.heading.copyWith(
+                              color: AeroColors.muted,
+                              fontWeight: FontWeight.w400,
+                              fontFeatures: AeroText.tabular),
+                        ),
+                      ),
+                  ],
+                ),
               ),
               const SizedBox(height: 2),
               // Status text
-              if (flightAwareDataEntity?.cancelled == true)
+              if (cancelled)
                 Text(
                   'Cancelled',
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: Colors.red,
-                    fontWeight: FontWeight.w700,
-                  ),
+                  style: AeroText.caption.copyWith(
+                      color: AeroColors.danger, fontWeight: FontWeight.w700),
                 )
               else if (hasDelay)
                 Text(
                   isEarly
                       ? "${_formatMinutesOnly(d.abs())} Early"
                       : "${_formatMinutesOnly(d)} Late",
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: timeColor,
-                    fontWeight: FontWeight.w700,
-                  ),
+                  style: AeroText.caption
+                      .copyWith(color: timeColor, fontWeight: FontWeight.w700),
                 )
               else
                 Text(
                   'On Time',
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: Colors.green,
-                    fontWeight: FontWeight.w700,
-                  ),
+                  style: AeroText.caption.copyWith(
+                      color: AeroColors.success, fontWeight: FontWeight.w700),
                 ),
             ],
           ),
         ),
-        const SizedBox(width: 16),
+        const SizedBox(width: AeroSpace.lg),
         Column(
           crossAxisAlignment: CrossAxisAlignment.end,
           mainAxisAlignment: MainAxisAlignment.start,
@@ -262,7 +234,7 @@ class FlightRouteInfo extends StatelessWidget {
                 icon: Icons.door_front_door,
                 label: effGate ?? '--',
               ),
-            const SizedBox(height: 4),
+            const SizedBox(height: AeroSpace.xs),
             // Terminal
             _buildInfoBadge(
               icon: Icons.title_rounded,
@@ -276,33 +248,30 @@ class FlightRouteInfo extends StatelessWidget {
 
   Widget _buildMidDivider(
       {required Duration totalDuration, double? distanceKm}) {
-    final String durationText = totalDuration.toHumanReadable();
-    String centerText = durationText;
-    if (distanceKm != null) {
-      final numberFormatter = NumberFormat.decimalPattern();
-      final String kmFormatted = numberFormatter.format(distanceKm.round());
-      centerText = "$durationText • $kmFormatted km";
-    }
-
+    final style = AeroText.caption.copyWith(
+        color: AeroColors.inkSoft,
+        fontWeight: FontWeight.w600,
+        fontFeatures: AeroText.tabular);
     return Row(
       children: [
-        Expanded(child: Divider(color: Colors.grey.shade300)),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-          margin: const EdgeInsets.symmetric(
-            horizontal: 4,
-            vertical: 4,
-          ),
-          child: Text(
-            centerText,
-            style: TextStyle(
-              fontSize: 12,
-              color: Colors.grey.shade800,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
+        const Expanded(child: Divider(color: AeroColors.line)),
+        Padding(
+          padding: const EdgeInsets.symmetric(
+              horizontal: AeroSpace.md, vertical: AeroSpace.sm),
+          child: Row(mainAxisSize: MainAxisSize.min, children: [
+            Text(totalDuration.toHumanReadable(), style: style),
+            if (distanceKm != null) ...[
+              Text(' • ', style: style),
+              UnitCycle(
+                dimension: UnitDimension.distance,
+                builder: (_, units) => Text(
+                    formatDistance(distanceKm, units.distance),
+                    style: style),
+              ),
+            ],
+          ]),
         ),
-        Expanded(child: Divider(color: Colors.grey.shade300)),
+        const Expanded(child: Divider(color: AeroColors.line)),
       ],
     );
   }
@@ -314,15 +283,12 @@ class FlightRouteInfo extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, size: 16, color: Colors.grey.shade700),
+        Icon(icon, size: 16, color: AeroColors.muted),
         const SizedBox(width: 6),
         Text(
           label,
-          style: TextStyle(
-            fontSize: 13,
-            color: Colors.grey.shade700,
-            fontWeight: FontWeight.w600,
-          ),
+          style: AeroText.caption
+              .copyWith(color: AeroColors.inkSoft, fontWeight: FontWeight.w600),
         ),
       ],
     );
@@ -342,5 +308,4 @@ class FlightRouteInfo extends StatelessWidget {
       return "just now";
     }
   }
-
 }

@@ -1,8 +1,9 @@
 import 'package:home_widget/home_widget.dart';
-import 'package:intl/intl.dart';
 import 'package:openapi/openapi.dart';
 import 'package:aero/services/main.dart';
-import 'package:aero/extensions/datetime.dart';
+import 'package:aero/formatters/units.dart';
+import 'package:aero/notifiers/units.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class WidgetUpdateService {
   static final FlightDataService _flightService = FlightDataService();
@@ -115,18 +116,21 @@ class WidgetUpdateService {
       final departureAirportCode =
           departure.airport.iata ?? departure.airport.icao ?? '';
 
-      // Format times using airport timezones
+      // Format times per the user's time mode (airport local by default)
+      final timeMode = await _timeMode();
       final departureTimeLocal = _formatTime(
         departure.predictedTime?.utc ??
             departure.revisedTime?.utc ??
             departure.scheduledTime?.utc,
         timezone: departure.airport.timeZone,
+        mode: timeMode,
       );
       final arrivalTimeLocal = _formatTime(
         arrival.predictedTime?.utc ??
             arrival.revisedTime?.utc ??
             arrival.scheduledTime?.utc,
         timezone: arrival.airport.timeZone,
+        mode: timeMode,
       );
 
       // Determine delay/expedite status
@@ -215,27 +219,25 @@ class WidgetUpdateService {
 
   /// Formats a time string to HH:mm format in the specified timezone
   /// If timezone is not provided or invalid, falls back to UTC
-  static String _formatTime(String? timeString, {String? timezone}) {
-    if (timeString == null || timeString.isEmpty) return '--:--';
+  static String _formatTime(String? timeString,
+      {String? timezone, TimeMode mode = TimeMode.airport}) {
+    final dateTime = DateTime.tryParse(timeString ?? '');
+    if (dateTime == null) return '--:--';
+    return formatClock(dateTime, airportTz: timezone, mode: mode, use24: true);
+  }
 
+  /// Time mode from Profile → Units. Reloads prefs: this also runs in the
+  /// workmanager isolate, which has its own (possibly stale) cache.
+  static Future<TimeMode> _timeMode() async {
     try {
-      final dateTime = DateTime.parse(timeString);
-
-      // If timezone is provided and valid, convert to that timezone
-      if (timezone != null && timezone.isNotEmpty) {
-        try {
-          return dateTime.toTimezoneString(timezone, use24Hrs: true);
-        } catch (e) {
-          // If timezone conversion fails, fall back to UTC formatting
-          print('Error converting time to timezone $timezone: $e');
-          return DateFormat('HH:mm').format(dateTime);
-        }
-      }
-
-      // Fall back to UTC formatting if no timezone provided
-      return DateFormat('HH:mm').format(dateTime);
-    } catch (e) {
-      return '--:--';
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.reload();
+      final key = UnitsNotifier.keyFor(UnitDimension.time);
+      return UnitsNotifier.parse(UnitDimension.time, prefs.getString(key))
+              as TimeMode? ??
+          TimeMode.airport;
+    } catch (_) {
+      return TimeMode.airport;
     }
   }
 

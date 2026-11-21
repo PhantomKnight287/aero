@@ -21,6 +21,10 @@ abstract final class AeroColors {
   static const warn = Color(0xffef6c00);
   static const onInk = Color(0xffffffff); // text on ink/danger buttons
   static const shadow = Color(0x1f000000); // soft elevation (12% black)
+  // Dark translucent overlay chrome over the map.
+  static const glass = Color(0x80000000);
+  static const glassEdge = Color(0x4dffffff);
+  static const onInkMuted = Color(0xccffffff);
 }
 
 abstract final class AeroRadius {
@@ -74,6 +78,15 @@ abstract final class AeroText {
       fontWeight: FontWeight.w600,
       letterSpacing: -0.1,
       color: AeroColors.ink);
+
+  /// Big numeric readouts (scheduled times on the route card).
+  static final figure = TextStyle(
+      fontFamily: AeroFonts.inter,
+      fontSize: 24,
+      fontWeight: FontWeight.w700,
+      letterSpacing: -0.3,
+      color: AeroColors.ink,
+      fontFeatures: tabular);
   static final body = TextStyle(
       fontFamily: AeroFonts.inter, fontSize: 14, color: AeroColors.inkSoft);
   static final caption = TextStyle(
