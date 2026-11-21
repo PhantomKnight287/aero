@@ -20,6 +20,7 @@ final rules = <String, RegExp>{
   'hex_color': RegExp(r'\bColor\(0x'),
   'raw_radius': RegExp(r'Radius\.circular\(\s*[\d.]+'),
   'raw_font_size': RegExp(r'fontSize:\s*[\d.]+'),
+  'ease_in': RegExp(r'Curves\.easeIn\b'),
 };
 
 const baselinePath = 'test/design_baseline.json';

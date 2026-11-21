@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../tokens.dart';
+import 'aero_pressable.dart';
 
 enum AeroButtonKind { primary, secondary, destructive }
 
-/// Full-width-capable button. Use instead of Text/Elevated/OutlinedButton in
-/// new code.
+/// Use instead of Text/Elevated/OutlinedButton in new code.
 class AeroButton extends StatelessWidget {
   final String label;
   final VoidCallback? onPressed;
@@ -34,36 +35,43 @@ class AeroButton extends StatelessWidget {
     this.loading = false,
   }) : kind = AeroButtonKind.destructive;
 
+  void _handlePress() {
+    // Haptics only where they earn it: committing a destructive action.
+    if (kind == AeroButtonKind.destructive) HapticFeedback.mediumImpact();
+    onPressed?.call();
+  }
+
   @override
   Widget build(BuildContext context) {
-    final (bg, fg, border) = switch (kind) {
-      AeroButtonKind.primary => (AeroColors.ink, AeroColors.onInk, null),
-      AeroButtonKind.destructive => (AeroColors.danger, AeroColors.onInk, null),
-      AeroButtonKind.secondary => (
-          AeroColors.surface,
-          AeroColors.ink,
-          const BorderSide(color: AeroColors.line),
-        ),
+    final (bg, fg) = switch (kind) {
+      AeroButtonKind.primary => (AeroColors.ink, AeroColors.onInk),
+      AeroButtonKind.destructive => (AeroColors.danger, AeroColors.onInk),
+      AeroButtonKind.secondary => (AeroColors.surfaceAlt, AeroColors.ink),
     };
-    return SizedBox(
-      height: 48,
-      child: TextButton(
-        onPressed: loading ? null : onPressed,
-        style: TextButton.styleFrom(
-          backgroundColor: bg,
-          foregroundColor: fg,
-          disabledBackgroundColor: bg.withValues(alpha: .5),
-          disabledForegroundColor: fg,
-          side: border,
-          shape: const RoundedRectangleBorder(borderRadius: AeroRadius.mdAll),
-          textStyle: AeroText.heading,
+    final enabled = onPressed != null && !loading;
+    return AeroPressable(
+      enabled: enabled,
+      child: SizedBox(
+        height: 52,
+        child: TextButton(
+          onPressed: enabled ? _handlePress : null,
+          style: TextButton.styleFrom(
+            backgroundColor: bg,
+            foregroundColor: fg,
+            disabledBackgroundColor: bg.withValues(alpha: .5),
+            disabledForegroundColor: fg,
+            overlayColor: fg,
+            shape: const RoundedRectangleBorder(borderRadius: AeroRadius.mdAll),
+            // Full style incl. fontFamily: styleFrom replaces, not merges.
+            textStyle: AeroText.heading,
+          ),
+          child: loading
+              ? SizedBox.square(
+                  dimension: 18,
+                  child: CircularProgressIndicator(strokeWidth: 2, color: fg),
+                )
+              : Text(label, style: AeroText.heading.copyWith(color: fg)),
         ),
-        child: loading
-            ? SizedBox.square(
-                dimension: 18,
-                child: CircularProgressIndicator(strokeWidth: 2, color: fg),
-              )
-            : Text(label),
       ),
     );
   }

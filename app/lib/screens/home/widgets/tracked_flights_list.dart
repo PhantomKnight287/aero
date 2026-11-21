@@ -1,11 +1,11 @@
 import 'package:built_collection/built_collection.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:intl/intl.dart';
 import 'package:openapi/openapi.dart';
 import 'package:aero/services/main.dart';
+import 'package:aero/screens/home/widgets/flight_summary_card.dart';
 import 'package:aero/ui/components/aero_sheet.dart';
+import 'package:aero/ui/components/airline_logo.dart';
 import 'package:aero/ui/tokens.dart';
 import 'package:aero/utils/error.dart';
 
@@ -35,14 +35,14 @@ class TrackedFlightsList extends StatelessWidget {
             .join(' · ');
     final confirmed = await showAeroConfirm(
       context,
-      title: 'Delete flight?',
-      subtitle:
-          '${flight.flightNo} · ${DateFormat('dd MMM yyyy').format(flight.date.toLocal())}',
-      message: 'Removes it from your log and stats.',
+      title: 'Delete this flight?',
+      message: 'It will be removed from your log and stats.',
+      details: FlightSummaryCard(flight: flight),
       warning: booking == null
           ? null
-          : 'Booking${bookingLabel!.isEmpty ? '' : ' $bookingLabel'} will be deleted too.',
+          : 'Your booking${bookingLabel!.isEmpty ? '' : ' ($bookingLabel)'} will be deleted too.',
       confirmLabel: 'Delete flight',
+      cancelLabel: 'Keep it',
       destructive: true,
     );
     if (!confirmed) return false;
@@ -112,31 +112,12 @@ class TrackedFlightsList extends StatelessWidget {
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Container(
-                        width: 48,
-                        height: 48,
-                        decoration: BoxDecoration(
-                          borderRadius: AeroRadius.smAll,
+                      Padding(
+                        padding: const EdgeInsets.all(AeroSpace.sm),
+                        child: AirlineLogo(
+                          svgUrl: flight.airline.image,
+                          icao: flight.airline.icao,
                         ),
-                        padding: EdgeInsets.all(8),
-                        child: flight.airline.image != null
-                            ? SvgPicture.network(
-                                flight.airline.image!,
-                                width: 24,
-                                height: 18,
-                              )
-                            : CachedNetworkImage(
-                                imageUrl:
-                                    "https://www.flightaware.com/images/airline_logos/180px/${flight.airline.icao}.png",
-                                fit: BoxFit.contain,
-                                errorWidget: (context, url, error) {
-                                  return Icon(
-                                    Icons.airplanemode_active,
-                                    size: 24,
-                                    color: AeroColors.muted,
-                                  );
-                                },
-                              ),
                       ),
                       SizedBox(width: 12),
                       Expanded(

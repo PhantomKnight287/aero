@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import 'tokens.dart';
 
@@ -29,7 +28,7 @@ ThemeData aeroTheme() {
     useMaterial3: true,
     colorScheme: scheme,
     scaffoldBackgroundColor: AeroColors.surface,
-    fontFamily: GoogleFonts.inter().fontFamily,
+    fontFamily: AeroFonts.inter,
     brightness: Brightness.light,
     primaryColor: AeroColors.ink,
     splashFactory: InkRipple.splashFactory,
@@ -48,10 +47,10 @@ ThemeData aeroTheme() {
     ),
     // Dialogs are banned in new code (use showAeroConfirm); legacy ones at
     // least stop looking stock.
-    dialogTheme: const DialogThemeData(
+    dialogTheme: DialogThemeData(
       backgroundColor: AeroColors.surface,
       surfaceTintColor: Colors.transparent,
-      shape: RoundedRectangleBorder(borderRadius: AeroRadius.mdAll),
+      shape: const RoundedRectangleBorder(borderRadius: AeroRadius.mdAll),
       titleTextStyle: AeroText.title,
       contentTextStyle: AeroText.body,
     ),
@@ -66,18 +65,18 @@ ThemeData aeroTheme() {
       backgroundColor: AeroColors.surfaceAlt,
       indicatorColor: AeroColors.ink.withValues(alpha: .4),
     ),
-    appBarTheme: const AppBarTheme(
+    appBarTheme: AppBarTheme(
       elevation: 0,
       scrolledUnderElevation: 0,
       titleTextStyle: AeroText.title,
       toolbarHeight: 50,
       backgroundColor: AeroColors.surface,
     ),
-    textTheme: const TextTheme(
-      labelMedium: TextStyle(fontSize: 20),
-      titleLarge: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
-      titleSmall: TextStyle(fontSize: 16, color: AeroColors.muted),
-      titleMedium: TextStyle(fontSize: 20),
+    textTheme: TextTheme(
+      labelMedium: const TextStyle(fontSize: 20),
+      titleLarge: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+      titleSmall: const TextStyle(fontSize: 16, color: AeroColors.muted),
+      titleMedium: const TextStyle(fontSize: 20),
       bodyMedium: AeroText.body,
     ),
     // Legacy button themes kept as-is so existing screens don't shift;
