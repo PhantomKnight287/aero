@@ -1,39 +1,37 @@
-# Aircraft history — design (draft)
+# Aircraft history — design (approved 2026-11-21)
 
 Covers idea 1 (inbound aircraft + previous flights on this tail) and 7 (aircraft biography).
 
 ## Intent
-Know the airframe, not just the flight: where your plane is coming from right now (predicts your delay), when you've been on this exact tail before, and its life story.
+Know the airframe, not just the flight: where your plane is coming from right now (predicts your delay), when you've flown this exact tail before, what else it has been doing, and its life story.
 
-## Goals
-1. **Inbound aircraft card** on flight detail: the previous leg of this airframe via `FlightAwareData.inboundFaFlightId` — ident, origin → destination, status, ETA / actual arrival, delay. Line like "Your aircraft lands at BOM 35 min late".
-2. **"You've flown this tail" list**: user's own flights where `FlightAwareData.registration` matches (indexed). Shows date, flight no, route. Tap opens that flight.
-3. **Recent flights of this tail (public)**: FlightAware flights for the registration (`searchFlightsByIdent(registration)` already exists), last ~10 legs.
-4. **Biography additions** to the existing aircraft section / Registration History card (`flight_info.dart:1057`):
-   - Age on the day you flew (`firstFlightDate` or `deliveryDate` vs flight date).
-   - Country of registration from hex ICAO 24-bit address block (static allocation table) + flag.
-   - Reg prefix → country flag (VT- India, A6- UAE, N USA…) as fallback when hex missing.
+## Decisions (user)
+- Recent public flights of the tail: **behind a "Show recent flights" button** (FA calls only on demand).
+- Approved design below, incl. `ident_type` on FA calls and the adaptive inbound cache.
+- Process call (approved): extract `flight_info.dart`'s aircraft section into `aircraft_section.dart`, fully on tokens; rest of `flight_info.dart` migrates in #4/#5.
 
-## Non-goals
-- Live position of inbound aircraft on map (maybe later).
-- Fleet siblings.
+## API (Aero's own endpoints, `flight.controller.ts`; both scoped to the auth user's flight, 404 otherwise)
+- `GET /v1/flight/:flightId/aircraft-history` → `{ registration, inbound, ownFlights }`
+  - `inbound`: previous leg via FA `GET /flights/{inbound_fa_flight_id}?ident_type=fa_flight_id` (existing `getFaFlightById`). Cache **120 s while that leg hasn't arrived, 3600 s once landed/cancelled**. Null when no inbound id or FA has nothing.
+  - `ownFlights`: user's flights whose `FlightAwareData.registration` equals this one's (indexed), excluding this flight, newest first. DB only.
+- `GET /v1/flight/:flightId/aircraft-recent` → last ≤10 legs of the tail via FA `GET /flights/{registration}?ident_type=registration`, cached 1 h. Only called from the button.
+- FA `/flights/{ident}` is the one FlightAware endpoint behind both; `ident_type` (designator | registration | fa_flight_id) disambiguates.
+
+## App
+- Aircraft area on the flight screen (`aircraft_section.dart`): existing photo/age/payload/registration history + new:
+  - **Your aircraft** card: inbound leg route, status, arrival time (actual/estimated), delay; headline turns red when the inbound arrival is later than this flight's scheduled departure minus a 45 min turnaround.
+  - Biography line: registration · flag + country (from hex via ICAO 24-bit allocation blocks; fallback registration prefix) · type; age now and age on the day you flew.
+  - **You've flown this tail (n)** list.
+  - **Show recent flights of <reg>** button → list of legs.
+  - Tapping inbound / own / recent legs opens that flight (lookups add to the log — accepted behaviour from the delete-flight spec).
+- Inbound card refreshes with the main flight. Cards hide when data is missing.
+- Times and units via the units formatters; everything per `app/DESIGN.md`.
 
 ## Approaches
-- **New endpoint `GET /v1/flight/:flightId/aircraft-history` returning `{ inbound, ownFlights, recentFlights }` (picked).** One call, server caches FA responses in Redis (pattern exists: "Get a faFlight via Redis cache").
-- Three separate endpoints — rejected: three round trips for one card stack.
-- Fetch inbound inside existing `GET /v1/flight` — rejected: slows the main flight load and spends FA quota on every view.
+- **Two endpoints, history eager + recent on demand (picked)** — matches the button decision; history is cheap (cached FA call + DB).
+- One endpoint with everything — rejected: would spend FA quota on every view.
+- Inbound inside `GET /v1/flight` — rejected: slows the main load and couples refresh rates.
 
-## Constraints
-- FlightAware has a rate limiter (`checkRateLimit`) and costs per call. Cache inbound for ~5 min while active, recentFlights for ~1 h.
-- 47/108 flights have a registration; card hides when missing.
-
-## Data
-- Hex → country table: static TS map in `api/src/common/` (ICAO Annex 10 allocation ranges). Pure function + unit test.
-- Reg prefix → country: static map, same file.
-
-## Open (ask when we reach this)
-- Is the public recent-flights list (costs FA calls) worth it, or only inbound + own flights?
-- Should inbound card auto-refresh like the main flight (refresh countdown exists)?
-
-## Left to builder
-Card layout (reuse existing card/chip patterns), cache TTLs within the ranges above.
+## Data notes
+- Registration stored with dash (`A6-EPO`); 51 distinct regs / 55 rows. FA registration ident format to be verified on first real call (dash vs no dash).
+- Hex comes through as `aircraft.modeS` (from `aircrafts.hex_icao`, 78/78 filled).
