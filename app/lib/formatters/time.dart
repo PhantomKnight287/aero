@@ -1,3 +1,4 @@
+import 'package:aero/constants/main.dart';
 import 'package:intl/intl.dart';
 
 String formatTime(
@@ -83,4 +84,28 @@ String getTimeMessage(DateTime departureTime, DateTime arrivalTime) {
     final days = (minutes / 1440).floor();
     return 'In flight, lands in $days ${days == 1 ? 'day' : 'days'}';
   }
+}
+
+/// "11 years and 2 months" from fractional years.
+String formatAge(double age) {
+  if (age == 0) return '0 months';
+
+  final years = age.floor();
+  final months = ((age - years) * 12).round();
+
+  final List<String> parts = [];
+
+  if (years > 0) {
+    parts.add('$years ${years == 1 ? 'year' : 'years'}');
+  }
+
+  if (months > 0) {
+    parts.add('$months ${months == 1 ? 'month' : 'months'}');
+  }
+
+  return parts.join(' and ');
+}
+
+String formatDate(DateTime date) {
+  return '${MONTHS[date.month - 1]} ${date.day}, ${date.year}';
 }
