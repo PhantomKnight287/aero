@@ -482,9 +482,13 @@ class HomeController extends ChangeNotifier {
       final legs = await _flightService.getAircraftRecent(flightId);
       if (_historyFlightId == flightId) recentLegs = legs;
     } catch (e) {
-      showErrorToast("Couldn't load recent flights");
+      // recentLegs stays null so the button is there to retry.
+      if (_historyFlightId == flightId) {
+        showErrorToast("Couldn't load recent flights");
+      }
     } finally {
-      recentLegsLoading = false;
+      // A request for a previous flight must not touch the new one's state.
+      if (_historyFlightId == flightId) recentLegsLoading = false;
       notifyListeners();
     }
   }
@@ -502,6 +506,7 @@ class HomeController extends ChangeNotifier {
     flightInfo = null;
     aircraftHistory = null;
     recentLegs = null;
+    recentLegsLoading = false;
     _historyFlightId = null;
     panelState = FlightPanelState.idle;
     arrivalAirport = null;
@@ -640,6 +645,7 @@ class HomeController extends ChangeNotifier {
       _historyFlightId = info.id;
       aircraftHistory = null;
       recentLegs = null;
+      recentLegsLoading = false;
     }
     // Also re-runs on every refresh so the inbound leg stays current.
     loadAircraftHistory(info.id);

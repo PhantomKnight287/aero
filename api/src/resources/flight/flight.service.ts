@@ -9,12 +9,14 @@ import {
   HttpStatus,
   Injectable,
   InternalServerErrorException,
+  BadGatewayException,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { createId } from '@paralleldrive/cuid2';
 import {
+  INBOUND_LOOKBACK_MS,
   inboundCacheTtl,
   toAircraftLeg,
   toFlightSummary,
@@ -1379,7 +1381,10 @@ export class FlightService {
     }
 
     const [inbound, own] = await Promise.all([
-      fa?.inboundFaFlightId
+      // Old flights: FA no longer has the inbound leg (404, uncached), so
+      // don't spend rate-limited calls on it.
+      fa?.inboundFaFlightId &&
+      !(flight.date && Date.now() - flight.date.getTime() > INBOUND_LOOKBACK_MS)
         ? this.getFaFlightById(fa.inboundFaFlightId)
             .then((leg) => (leg ? toAircraftLeg(leg) : null))
             .catch((error) => {
@@ -1391,7 +1396,10 @@ export class FlightService {
         where: {
           userId,
           id: { not: flightId },
-          flightAwareData: { registration },
+          OR: [
+            { flightAwareData: { registration } },
+            { aircraft: { path: ['registration'], equals: registration } },
+          ],
         },
         orderBy: { date: 'desc' },
       }),
@@ -1436,7 +1444,10 @@ export class FlightService {
         .slice(0, 10);
     } catch (error) {
       console.warn(`Recent flights lookup failed for ${registration}:`, error);
-      return [];
+      // Surface it: the app shows an error and keeps the button for retry.
+      throw new BadGatewayException(
+        "Couldn't load recent flights from FlightAware",
+      );
     }
   }
 

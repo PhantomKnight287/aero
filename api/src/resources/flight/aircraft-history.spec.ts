@@ -1,4 +1,4 @@
-import { NotFoundException } from '@nestjs/common';
+import { BadGatewayException, NotFoundException } from '@nestjs/common';
 import { prisma } from 'src/db';
 import { toAircraftLeg } from './aircraft-history.util';
 import { FlightService } from './flight.service';
@@ -140,7 +140,10 @@ describe('FlightService.getAircraftHistory', () => {
         where: {
           userId: 'u1',
           id: { not: 'f1' },
-          flightAwareData: { registration: 'A6-EOF' },
+          OR: [
+            { flightAwareData: { registration: 'A6-EOF' } },
+            { aircraft: { path: ['registration'], equals: 'A6-EOF' } },
+          ],
         },
         orderBy: { date: 'desc' },
       }),
@@ -158,6 +161,41 @@ describe('FlightService.getAircraftHistory', () => {
         date: '2025-01-14T00:00:00.000Z',
       },
     ]);
+  });
+
+  it('skips the inbound lookup for flights older than 10 days', async () => {
+    db.flight.findFirst.mockResolvedValue({
+      id: 'f1',
+      date: new Date(Date.now() - 11 * 24 * 3600 * 1000),
+      aircraft: {},
+      flightAwareData: { registration: 'A6-EOF', inboundFaFlightId: 'x' },
+    });
+    db.flight.findMany.mockResolvedValue([]);
+    const r = await service.getAircraftHistory('f1', 'u1');
+    expect(getFaFlightById).not.toHaveBeenCalled();
+    expect(r.inbound).toBeNull();
+  });
+
+  it('matches own flights by FlightAware or aircraft registration', async () => {
+    db.flight.findFirst.mockResolvedValue({
+      id: 'f1',
+      aircraft: { registration: 'A6-EOF' },
+      flightAwareData: null,
+    });
+    db.flight.findMany.mockResolvedValue([]);
+    await service.getAircraftHistory('f1', 'u1');
+    expect(db.flight.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: {
+          userId: 'u1',
+          id: { not: 'f1' },
+          OR: [
+            { flightAwareData: { registration: 'A6-EOF' } },
+            { aircraft: { path: ['registration'], equals: 'A6-EOF' } },
+          ],
+        },
+      }),
+    );
   });
 
   it('still returns own flights when the inbound lookup fails', async () => {
@@ -229,9 +267,14 @@ describe('FlightService.getAircraftRecent', () => {
     expect(legs[9].faFlightId).toBe('leg-3');
   });
 
-  it('returns [] when FlightAware fails or there is no registration', async () => {
+  it('502s when FlightAware fails, so the app can say so and retry', async () => {
     fa.searchFlightsByIdent.mockRejectedValue(new Error('429'));
-    await expect(service.getAircraftRecent('f1', 'u1')).resolves.toEqual([]);
+    await expect(service.getAircraftRecent('f1', 'u1')).rejects.toBeInstanceOf(
+      BadGatewayException,
+    );
+  });
+
+  it('returns [] when there is no registration', async () => {
     db.flight.findFirst.mockResolvedValue({
       id: 'f1',
       aircraft: {},

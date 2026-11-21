@@ -449,7 +449,7 @@ export class FlightController {
   @ApiOperation({
     summary: 'Recent legs of the aircraft operating a flight',
     description:
-      'Up to 10 most recent FlightAware legs for the registration (cached 1h). Returns [] when FlightAware is unavailable.',
+      'Up to 10 most recent FlightAware legs for the registration (cached 1h). 502 when FlightAware is unavailable.',
   })
   @ApiParam({ name: 'flightId', description: 'ID of the flight' })
   @ApiResponse({ status: 200, type: [AircraftLegEntity] })

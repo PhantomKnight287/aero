@@ -5,11 +5,17 @@ import 'package:aero/ui/components/aero_button.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:aero/ui/components/aero_pressable.dart';
+import 'package:aero/ui/components/airline_logo.dart';
 import 'package:aero/ui/tokens.dart';
 import 'package:aero/utils/aircraft_registry.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:openapi/openapi.dart';
+
+/// Opens a flight by identifier and (local) departure date; [faFlightId]
+/// pins the exact FlightAware flight when known.
+typedef OpenFlight = void Function(String ident, DateTime date,
+    {String? faFlightId});
 
 /// Everything about the airframe operating a flight: photo, age, registry
 /// country, raw data, registration history, and (when supplied) its
@@ -22,8 +28,7 @@ class AircraftSection extends StatefulWidget {
   final bool recentLoading;
   final VoidCallback? onLoadRecent;
 
-  /// Opens a flight by identifier and (local) departure date.
-  final void Function(String ident, DateTime date)? onOpenFlight;
+  final OpenFlight? onOpenFlight;
 
   const AircraftSection({
     super.key,
@@ -57,15 +62,15 @@ class _AircraftSectionState extends State<AircraftSection> {
 
   @override
   Widget build(BuildContext context) {
+    // History comes from FlightAware and can exist without aircraft details.
     final aircraft = _aircraft;
-    if (aircraft == null) return const SizedBox.shrink();
-    final registrations = aircraft.registrations?.toList() ?? const [];
+    final registrations = aircraft?.registrations?.toList() ?? const [];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        if (aircraft.model != null) ...[
-          Text(aircraft.model!, style: AeroText.heading),
+        if (aircraft?.model != null) ...[
+          Text(aircraft!.model!, style: AeroText.heading),
           const SizedBox(height: AeroSpace.sm),
         ],
         if (widget.history?.inbound != null) ...[
@@ -77,7 +82,7 @@ class _AircraftSectionState extends State<AircraftSection> {
           ),
           const SizedBox(height: AeroSpace.md),
         ],
-        if (aircraft.registration != null) _buildAircraftCard(aircraft),
+        if (aircraft?.registration != null) _buildAircraftCard(aircraft!),
         if (widget.history?.ownFlights.isNotEmpty == true) ...[
           const SizedBox(height: AeroSpace.lg),
           _OwnTailFlights(
@@ -115,8 +120,8 @@ class _AircraftSectionState extends State<AircraftSection> {
 
     return Container(
       padding: const EdgeInsets.all(AeroSpace.md),
-      decoration: BoxDecoration(
-        border: Border.all(color: AeroColors.line),
+      decoration: const BoxDecoration(
+        color: AeroColors.surfaceAlt,
         borderRadius: AeroRadius.mdAll,
       ),
       child: Column(
@@ -352,8 +357,8 @@ class _RegistrationHistory extends StatelessWidget {
         const SizedBox(height: AeroSpace.sm),
         Container(
           padding: const EdgeInsets.all(AeroSpace.md),
-          decoration: BoxDecoration(
-            border: Border.all(color: AeroColors.line),
+          decoration: const BoxDecoration(
+            color: AeroColors.surfaceAlt,
             borderRadius: AeroRadius.mdAll,
           ),
           child: Column(
@@ -468,7 +473,7 @@ class _Tappable extends StatelessWidget {
 /// One leg: idents, route, status and arrival time.
 class _LegRow extends StatelessWidget {
   final AircraftLegEntity leg;
-  final void Function(String ident, DateTime date)? onOpenFlight;
+  final OpenFlight? onOpenFlight;
   const _LegRow({required this.leg, this.onOpenFlight});
 
   @override
@@ -491,14 +496,25 @@ class _LegRow extends StatelessWidget {
         : delayMin >= 5
             ? AeroColors.warn
             : AeroColors.success;
-    final route = '${leg.originIata ?? leg.originIcao ?? '—'} → '
-        '${leg.destinationIata ?? leg.destinationIcao ?? '—'}';
+    String code(String? iata, String? icao) =>
+        [iata, icao].whereType<String>().join(' ');
+    final route = '${code(leg.originIata, leg.originIcao)} → '
+        '${code(leg.destinationIata, leg.destinationIcao)}';
+    // Cities + scheduled departure dated in the origin's zone (same zone
+    // rule as the arrival time, which uses the destination's).
+    final places = [
+      if (leg.originCity != null || leg.destinationCity != null)
+        '${leg.originCity ?? '—'} → ${leg.destinationCity ?? '—'}',
+      if (departure != null)
+        'Dep ${formatDateClock(departure, airportTz: leg.originTimezone, mode: units.time, use24: use24)}',
+    ].join(' · ');
     final ident = leg.identIata ?? leg.identIcao ?? leg.ident;
 
     return _Tappable(
       onTap: onOpenFlight == null || departure == null
           ? null
-          : () => onOpenFlight!(ident, departure.toLocal()),
+          : () => onOpenFlight!(ident, departure.toLocal(),
+              faFlightId: leg.faFlightId),
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: AeroSpace.xs),
         child: Row(
@@ -514,14 +530,14 @@ class _LegRow extends StatelessWidget {
                           fontWeight: FontWeight.w600,
                           fontFeatures: AeroText.tabular)),
                   const SizedBox(height: 2),
-                  Text(
-                    [
-                      route,
-                      if (departure != null)
-                        DateFormat('d MMM').format(departure.toLocal()),
-                    ].join(' · '),
-                    style: AeroText.caption,
-                  ),
+                  Text(route,
+                      style: AeroText.caption.copyWith(
+                          color: AeroColors.ink,
+                          fontFeatures: AeroText.tabular)),
+                  if (places.isNotEmpty) ...[
+                    const SizedBox(height: 2),
+                    Text(places, style: AeroText.caption),
+                  ],
                 ],
               ),
             ),
@@ -551,7 +567,7 @@ class _LegRow extends StatelessWidget {
 class _InboundCard extends StatelessWidget {
   final AircraftLegEntity leg;
   final DateTime? ourDeparture;
-  final void Function(String ident, DateTime date)? onOpenFlight;
+  final OpenFlight? onOpenFlight;
   const _InboundCard(
       {required this.leg, required this.ourDeparture, this.onOpenFlight});
 
@@ -615,7 +631,7 @@ class _InboundCard extends StatelessWidget {
 
 class _OwnTailFlights extends StatefulWidget {
   final List<FlightSummaryEntity> flights;
-  final void Function(String ident, DateTime date)? onOpenFlight;
+  final OpenFlight? onOpenFlight;
   const _OwnTailFlights({required this.flights, this.onOpenFlight});
 
   @override
@@ -644,8 +660,14 @@ class _OwnTailFlightsState extends State<_OwnTailFlights> {
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: AeroSpace.xs + 2),
               child: Row(children: [
+                AirlineLogo(
+                  svgUrl: f.airline.image,
+                  icao: f.airline.icao,
+                  size: 20,
+                ),
+                const SizedBox(width: AeroSpace.sm),
                 SizedBox(
-                  width: 88,
+                  width: 84,
                   child: Text(
                     DateFormat('d MMM yyyy')
                         .format(DateTime.parse(f.date).toLocal()),
@@ -660,8 +682,25 @@ class _OwnTailFlightsState extends State<_OwnTailFlights> {
                           fontWeight: FontWeight.w600,
                           fontFeatures: AeroText.tabular)),
                 ),
-                Text('${f.departureAirportCode} → ${f.arrivalAirportCode}',
-                    style: AeroText.caption),
+                Flexible(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                          '${f.departureAirportCode} → ${f.arrivalAirportCode}',
+                          style:
+                              AeroText.caption.copyWith(color: AeroColors.ink)),
+                      if (f.departureAirportName.isNotEmpty ||
+                          f.arrivalAirportName.isNotEmpty)
+                        Text(
+                          '${f.departureAirportName} → ${f.arrivalAirportName}',
+                          style: AeroText.micro,
+                          overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.end,
+                        ),
+                    ],
+                  ),
+                ),
                 const SizedBox(width: AeroSpace.xs),
                 const Icon(Icons.chevron_right,
                     size: 18, color: AeroColors.muted),
@@ -691,7 +730,7 @@ class _RecentLegs extends StatelessWidget {
   final List<AircraftLegEntity>? legs;
   final bool loading;
   final VoidCallback? onLoad;
-  final void Function(String ident, DateTime date)? onOpenFlight;
+  final OpenFlight? onOpenFlight;
 
   const _RecentLegs({
     required this.registration,

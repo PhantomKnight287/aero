@@ -3,13 +3,17 @@ import { AircraftLegEntity } from './entities/aircraft-history.entity';
 
 /**
  * Cache TTL for an inbound (previous-leg) FlightAware flight: short while it
- * can still change (ETA, delay), long once it has landed or was cancelled.
+ * can still change (ETA, delay), 10 min after touchdown (gate time still
+ * coming), long once at the gate or cancelled.
  */
 export function inboundCacheTtl(faFlight: any): number {
-  const settled =
-    !!faFlight?.actual_on || !!faFlight?.actual_in || !!faFlight?.cancelled;
-  return settled ? 3600 : 120;
+  if (faFlight?.actual_in || faFlight?.cancelled) return 3600;
+  if (faFlight?.actual_on) return 600;
+  return 120;
 }
+
+/** FlightAware's /flights/{id} only covers roughly the last 10 days. */
+export const INBOUND_LOOKBACK_MS = 10 * 24 * 3600 * 1000;
 
 const opt = (v: any) => (v === null || v === undefined ? undefined : v);
 

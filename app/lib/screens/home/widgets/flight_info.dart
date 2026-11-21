@@ -36,7 +36,7 @@ class FlightInfoWidget extends StatefulWidget {
   final BuiltList<AircraftLegEntity>? recentLegs;
   final bool recentLegsLoading;
   final VoidCallback? onLoadRecentLegs;
-  final void Function(String ident, DateTime date)? onOpenFlight;
+  final OpenFlight? onOpenFlight;
   const FlightInfoWidget({
     this.aircraftHistory,
     this.recentLegs,

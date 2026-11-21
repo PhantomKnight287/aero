@@ -41,7 +41,12 @@ AircraftLegEntity leg(String id, {String? estimatedIn, String? actualIn}) =>
       ..identIcao = 'UAE381'
       ..status = 'En Route'
       ..originIata = 'HKG'
+      ..originIcao = 'VHHH'
+      ..originCity = 'Hong Kong'
+      ..originTimezone = 'Asia/Hong_Kong'
       ..destinationIata = 'DXB'
+      ..destinationIcao = 'OMDB'
+      ..destinationCity = 'Dubai'
       ..destinationTimezone = 'Asia/Dubai'
       ..scheduledOut = '2026-11-15T01:00:00Z'
       ..scheduledIn = '2026-11-15T05:40:00Z'
@@ -113,7 +118,7 @@ void main() {
         history: AircraftHistoryEntity((b) => b
           ..registration = 'A6-EOF'
           ..ownFlights.addAll([for (var i = 1; i <= 7; i++) own(i)])),
-        onOpenFlight: (ident, _) => opened = ident,
+        onOpenFlight: (ident, _, {faFlightId}) => opened = ident,
       ),
     );
     expect(find.text("You've flown this tail (7)"), findsOneWidget);
@@ -158,5 +163,40 @@ void main() {
       ),
     );
     expect(find.text('No recent flights found'), findsOneWidget);
+  });
+
+  testWidgets('history still shows when aircraft details are missing',
+      (tester) async {
+    await pump(
+      tester,
+      AircraftSection(
+        info: flight.rebuild((b) => b..aircraft = null),
+        history: AircraftHistoryEntity((b) => b
+          ..registration = 'A6-EOF'
+          ..inbound.replace(leg('in', actualIn: '2026-11-15T04:00:00Z'))),
+      ),
+    );
+    expect(find.text('Your aircraft'), findsOneWidget);
+    expect(find.text('Show recent flights of A6-EOF'), findsOneWidget);
+  });
+
+  testWidgets('leg rows show ICAO codes, cities and local departure',
+      (tester) async {
+    String? openedFa;
+    await pump(
+      tester,
+      AircraftSection(
+        info: flight,
+        history: AircraftHistoryEntity((b) => b..registration = 'A6-EOF'),
+        recent: [leg('r1')],
+        onOpenFlight: (ident, date, {faFlightId}) => openedFa = faFlightId,
+      ),
+    );
+    expect(find.text('HKG VHHH → DXB OMDB'), findsOneWidget);
+    // 01:00Z departure is 09:00 in Hong Kong, dated in Hong Kong.
+    expect(
+        find.text('Hong Kong → Dubai · Dep Nov 15, 09:00 AM'), findsOneWidget);
+    await tester.tap(find.text('EK381 · UAE381'));
+    expect(openedFa, 'r1');
   });
 }

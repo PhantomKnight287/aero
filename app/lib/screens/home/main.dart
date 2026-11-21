@@ -293,8 +293,9 @@ class _HomeScreenState extends State<HomeScreen>
       recentLegs: controller.recentLegs,
       recentLegsLoading: controller.recentLegsLoading,
       onLoadRecentLegs: controller.loadRecentLegs,
-      onOpenFlight: (ident, date) =>
-          controller.loadFlightInfo(ident, ident, date),
+      onOpenFlight: (ident, date, {faFlightId}) => controller.loadFlightInfo(
+          ident, ident, date,
+          faFlightId: faFlightId),
       onRefreshFlightData: () {
         controller.loadFlightInfo(
           info.flightNo,
