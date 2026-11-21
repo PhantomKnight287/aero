@@ -1,4 +1,4 @@
-# Flight timing details — design (draft)
+# Flight timing details — design (approved 2026-11-21, built without a separate plan at user's request)
 
 Covers ideas 4 (OOOI breakdown), 5 (runways on a flight), 13 (timezone shift).
 
@@ -28,8 +28,10 @@ The timetable (`_buildFlightTimetable`, `flight_info.dart:1225`) already lists s
 - "Crossed N zones" = |offset delta| in hours rounded down; note half-hour zones by showing exact delta.
 - Uses units formatter (spec 2) for time display.
 
-## Open (ask when we reach this)
-- Show the timezone delta relative to the departure airport, or to the device's current zone?
+## Decisions (user)
+- Inline durations (option A), **collapsible**: collapsed by default (phase + best time + delay chip, block line); "Show timing details" pill expands sched/est/act per phase, runways, taxi/air durations. Resets per flight.
+- "Crossed N zones" dropped (zones aren't uniform); timezone panel shows offset change **on the flight date** (DST-correct) and a summer-time note.
+- "flying east/west" wording dropped during build: wrong across the date line (LAX→SYD goes +19 h flying west).
 
 ## Left to builder
 Placement inside the timetable card.
