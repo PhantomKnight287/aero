@@ -16,6 +16,8 @@ import 'package:openapi/src/model/date.dart';
 
 import 'package:openapi/src/model/aircraft_entity.dart';
 import 'package:openapi/src/model/aircraft_flight_entity.dart';
+import 'package:openapi/src/model/aircraft_history_entity.dart';
+import 'package:openapi/src/model/aircraft_leg_entity.dart';
 import 'package:openapi/src/model/aircraft_registration_entity.dart';
 import 'package:openapi/src/model/aircraft_stats_entity.dart';
 import 'package:openapi/src/model/aircraft_with_age.dart';
@@ -90,6 +92,8 @@ part 'serializers.g.dart';
 @SerializersFor([
   AircraftEntity,
   AircraftFlightEntity,
+  AircraftHistoryEntity,
+  AircraftLegEntity,
   AircraftRegistrationEntity,
   AircraftStatsEntity,
   AircraftWithAge,
@@ -187,6 +191,10 @@ Serializers serializers = (_$serializers.toBuilder()
       ..addBuilderFactory(
         const FullType(BuiltList, [FullType(FlightsControllerGetFlightsInBoundsV1200ResponseFlightsInner)]),
         () => ListBuilder<FlightsControllerGetFlightsInBoundsV1200ResponseFlightsInner>(),
+      )
+      ..addBuilderFactory(
+        const FullType(BuiltList, [FullType(AircraftLegEntity)]),
+        () => ListBuilder<AircraftLegEntity>(),
       )
       ..addBuilderFactory(
         const FullType(BuiltList, [FullType(WeatherObservationCloudEntity)]),

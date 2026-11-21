@@ -12,6 +12,8 @@ Method | HTTP request | Description
 [**flightControllerCreateFlightBookingV1**](FlightApi.md#flightcontrollercreateflightbookingv1) | **POST** /v1/flight/booking | Create a flight booking
 [**flightControllerDeleteFlightBookingV1**](FlightApi.md#flightcontrollerdeleteflightbookingv1) | **DELETE** /v1/flight/booking/{bookingId} | Delete a flight booking
 [**flightControllerDeleteFlightV1**](FlightApi.md#flightcontrollerdeleteflightv1) | **DELETE** /v1/flight/{flightId} | Delete a tracked flight
+[**flightControllerGetAircraftHistoryV1**](FlightApi.md#flightcontrollergetaircrafthistoryv1) | **GET** /v1/flight/{flightId}/aircraft-history | Aircraft history for a flight
+[**flightControllerGetAircraftRecentV1**](FlightApi.md#flightcontrollergetaircraftrecentv1) | **GET** /v1/flight/{flightId}/aircraft-recent | Recent legs of the aircraft operating a flight
 [**flightControllerGetFlightBookingV1**](FlightApi.md#flightcontrollergetflightbookingv1) | **GET** /v1/flight/booking/{bookingId} | Get a flight booking
 [**flightControllerGetFlightBookingsByFlightIdV1**](FlightApi.md#flightcontrollergetflightbookingsbyflightidv1) | **GET** /v1/flight/booking/flight/{flightId} | Get all bookings for a flight
 [**flightControllerGetFlightTrackV1**](FlightApi.md#flightcontrollergetflighttrackv1) | **GET** /v1/flight/track | Get flight track/path
@@ -137,6 +139,92 @@ Name | Type | Description  | Notes
 ### Return type
 
 [**FlightControllerDeleteFlightV1200Response**](FlightControllerDeleteFlightV1200Response.md)
+
+### Authorization
+
+[JWT-auth](../README.md#JWT-auth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **flightControllerGetAircraftHistoryV1**
+> AircraftHistoryEntity flightControllerGetAircraftHistoryV1(flightId)
+
+Aircraft history for a flight
+
+The airframe's previous (inbound) leg from FlightAware and the user's other logged flights on the same registration
+
+### Example
+```dart
+import 'package:openapi/api.dart';
+
+final api = Openapi().getFlightApi();
+final String flightId = flightId_example; // String | ID of the flight
+
+try {
+    final response = api.flightControllerGetAircraftHistoryV1(flightId);
+    print(response);
+} on DioException catch (e) {
+    print('Exception when calling FlightApi->flightControllerGetAircraftHistoryV1: $e\n');
+}
+```
+
+### Parameters
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **flightId** | **String**| ID of the flight | 
+
+### Return type
+
+[**AircraftHistoryEntity**](AircraftHistoryEntity.md)
+
+### Authorization
+
+[JWT-auth](../README.md#JWT-auth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **flightControllerGetAircraftRecentV1**
+> BuiltList<AircraftLegEntity> flightControllerGetAircraftRecentV1(flightId)
+
+Recent legs of the aircraft operating a flight
+
+Up to 10 most recent FlightAware legs for the registration (cached 1h). Returns [] when FlightAware is unavailable.
+
+### Example
+```dart
+import 'package:openapi/api.dart';
+
+final api = Openapi().getFlightApi();
+final String flightId = flightId_example; // String | ID of the flight
+
+try {
+    final response = api.flightControllerGetAircraftRecentV1(flightId);
+    print(response);
+} on DioException catch (e) {
+    print('Exception when calling FlightApi->flightControllerGetAircraftRecentV1: $e\n');
+}
+```
+
+### Parameters
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **flightId** | **String**| ID of the flight | 
+
+### Return type
+
+[**BuiltList&lt;AircraftLegEntity&gt;**](AircraftLegEntity.md)
 
 ### Authorization
 

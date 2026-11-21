@@ -3,6 +3,8 @@ README.md
 analysis_options.yaml
 doc/AircraftEntity.md
 doc/AircraftFlightEntity.md
+doc/AircraftHistoryEntity.md
+doc/AircraftLegEntity.md
 doc/AircraftRegistrationEntity.md
 doc/AircraftStatsEntity.md
 doc/AircraftWithAge.md
@@ -96,6 +98,8 @@ lib/src/auth/oauth.dart
 lib/src/date_serializer.dart
 lib/src/model/aircraft_entity.dart
 lib/src/model/aircraft_flight_entity.dart
+lib/src/model/aircraft_history_entity.dart
+lib/src/model/aircraft_leg_entity.dart
 lib/src/model/aircraft_registration_entity.dart
 lib/src/model/aircraft_stats_entity.dart
 lib/src/model/aircraft_with_age.dart
@@ -167,4 +171,5 @@ lib/src/model/weather_forecast_windshear_entity.dart
 lib/src/model/weather_observation_cloud_entity.dart
 lib/src/serializers.dart
 pubspec.yaml
-test/flight_controller_delete_flight_v1200_response_test.dart
+test/aircraft_history_entity_test.dart
+test/aircraft_leg_entity_test.dart

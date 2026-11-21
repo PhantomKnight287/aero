@@ -20,6 +20,8 @@ export 'package:openapi/src/api/profile_api.dart';
 
 export 'package:openapi/src/model/aircraft_entity.dart';
 export 'package:openapi/src/model/aircraft_flight_entity.dart';
+export 'package:openapi/src/model/aircraft_history_entity.dart';
+export 'package:openapi/src/model/aircraft_leg_entity.dart';
 export 'package:openapi/src/model/aircraft_registration_entity.dart';
 export 'package:openapi/src/model/aircraft_stats_entity.dart';
 export 'package:openapi/src/model/aircraft_with_age.dart';

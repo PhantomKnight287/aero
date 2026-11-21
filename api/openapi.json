@@ -1702,6 +1702,145 @@
         ]
       }
     },
+    "/v1/flight/{flightId}/aircraft-history": {
+      "get": {
+        "description": "The airframe's previous (inbound) leg from FlightAware and the user's other logged flights on the same registration",
+        "operationId": "FlightController_getAircraftHistory_v1",
+        "parameters": [
+          {
+            "name": "flightId",
+            "required": true,
+            "in": "path",
+            "description": "ID of the flight",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AircraftHistoryEntity"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "User is not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericErrorEntity"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Flight not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericErrorEntity"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericErrorEntity"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ],
+        "summary": "Aircraft history for a flight",
+        "tags": [
+          "Flight"
+        ]
+      }
+    },
+    "/v1/flight/{flightId}/aircraft-recent": {
+      "get": {
+        "description": "Up to 10 most recent FlightAware legs for the registration (cached 1h). Returns [] when FlightAware is unavailable.",
+        "operationId": "FlightController_getAircraftRecent_v1",
+        "parameters": [
+          {
+            "name": "flightId",
+            "required": true,
+            "in": "path",
+            "description": "ID of the flight",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AircraftLegEntity"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "User is not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericErrorEntity"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Flight not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericErrorEntity"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericErrorEntity"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ],
+        "summary": "Recent legs of the aircraft operating a flight",
+        "tags": [
+          "Flight"
+        ]
+      }
+    },
     "/v1/flight/{flightId}": {
       "delete": {
         "description": "Deletes a flight from the user log, including positions, booking, distance and FlightAware data",
@@ -3704,19 +3843,90 @@
           }
         }
       },
-      "MostFlownAircraftEntity": {
+      "AircraftLegEntity": {
         "type": "object",
         "properties": {
-          "aircraftName": {
+          "faFlightId": {
             "type": "string"
           },
-          "flightCount": {
-            "type": "number"
+          "ident": {
+            "type": "string"
+          },
+          "identIata": {
+            "type": "string"
+          },
+          "identIcao": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "description": "FlightAware status text"
+          },
+          "originIata": {
+            "type": "string"
+          },
+          "originIcao": {
+            "type": "string"
+          },
+          "originCity": {
+            "type": "string"
+          },
+          "originTimezone": {
+            "type": "string"
+          },
+          "destinationIata": {
+            "type": "string"
+          },
+          "destinationIcao": {
+            "type": "string"
+          },
+          "destinationCity": {
+            "type": "string"
+          },
+          "destinationTimezone": {
+            "type": "string"
+          },
+          "scheduledOut": {
+            "type": "string",
+            "description": "ISO time"
+          },
+          "estimatedOut": {
+            "type": "string",
+            "description": "ISO time"
+          },
+          "actualOut": {
+            "type": "string",
+            "description": "ISO time"
+          },
+          "scheduledIn": {
+            "type": "string",
+            "description": "ISO time"
+          },
+          "estimatedIn": {
+            "type": "string",
+            "description": "ISO time"
+          },
+          "actualIn": {
+            "type": "string",
+            "description": "ISO time"
+          },
+          "arrivalDelay": {
+            "type": "number",
+            "description": "Seconds, negative = early"
+          },
+          "progressPercent": {
+            "type": "number",
+            "description": "0-100"
+          },
+          "cancelled": {
+            "type": "boolean"
           }
         },
         "required": [
-          "aircraftName",
-          "flightCount"
+          "faFlightId",
+          "ident",
+          "status",
+          "cancelled"
         ]
       },
       "FlightSummaryEntity": {
@@ -3765,6 +3975,52 @@
           "arrivalAirportCode",
           "arrivalAirportName",
           "date"
+        ]
+      },
+      "AircraftHistoryEntity": {
+        "type": "object",
+        "properties": {
+          "registration": {
+            "type": "string",
+            "nullable": true,
+            "example": "A6-EOF"
+          },
+          "inbound": {
+            "nullable": true,
+            "description": "This airframe's previous leg (inbound to this flight)",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/AircraftLegEntity"
+              }
+            ]
+          },
+          "ownFlights": {
+            "description": "The user's other logged flights on the same registration",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FlightSummaryEntity"
+            }
+          }
+        },
+        "required": [
+          "registration",
+          "inbound",
+          "ownFlights"
+        ]
+      },
+      "MostFlownAircraftEntity": {
+        "type": "object",
+        "properties": {
+          "aircraftName": {
+            "type": "string"
+          },
+          "flightCount": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "aircraftName",
+          "flightCount"
         ]
       },
       "AircraftWithAge": {

@@ -76,6 +76,8 @@ Class | Method | HTTP request | Description
 [*FlightApi*](doc/FlightApi.md) | [**flightControllerCreateFlightBookingV1**](doc/FlightApi.md#flightcontrollercreateflightbookingv1) | **POST** /v1/flight/booking | Create a flight booking
 [*FlightApi*](doc/FlightApi.md) | [**flightControllerDeleteFlightBookingV1**](doc/FlightApi.md#flightcontrollerdeleteflightbookingv1) | **DELETE** /v1/flight/booking/{bookingId} | Delete a flight booking
 [*FlightApi*](doc/FlightApi.md) | [**flightControllerDeleteFlightV1**](doc/FlightApi.md#flightcontrollerdeleteflightv1) | **DELETE** /v1/flight/{flightId} | Delete a tracked flight
+[*FlightApi*](doc/FlightApi.md) | [**flightControllerGetAircraftHistoryV1**](doc/FlightApi.md#flightcontrollergetaircrafthistoryv1) | **GET** /v1/flight/{flightId}/aircraft-history | Aircraft history for a flight
+[*FlightApi*](doc/FlightApi.md) | [**flightControllerGetAircraftRecentV1**](doc/FlightApi.md#flightcontrollergetaircraftrecentv1) | **GET** /v1/flight/{flightId}/aircraft-recent | Recent legs of the aircraft operating a flight
 [*FlightApi*](doc/FlightApi.md) | [**flightControllerGetFlightBookingV1**](doc/FlightApi.md#flightcontrollergetflightbookingv1) | **GET** /v1/flight/booking/{bookingId} | Get a flight booking
 [*FlightApi*](doc/FlightApi.md) | [**flightControllerGetFlightBookingsByFlightIdV1**](doc/FlightApi.md#flightcontrollergetflightbookingsbyflightidv1) | **GET** /v1/flight/booking/flight/{flightId} | Get all bookings for a flight
 [*FlightApi*](doc/FlightApi.md) | [**flightControllerGetFlightTrackV1**](doc/FlightApi.md#flightcontrollergetflighttrackv1) | **GET** /v1/flight/track | Get flight track/path
@@ -93,6 +95,8 @@ Class | Method | HTTP request | Description
 
  - [AircraftEntity](doc/AircraftEntity.md)
  - [AircraftFlightEntity](doc/AircraftFlightEntity.md)
+ - [AircraftHistoryEntity](doc/AircraftHistoryEntity.md)
+ - [AircraftLegEntity](doc/AircraftLegEntity.md)
  - [AircraftRegistrationEntity](doc/AircraftRegistrationEntity.md)
  - [AircraftStatsEntity](doc/AircraftStatsEntity.md)
  - [AircraftWithAge](doc/AircraftWithAge.md)

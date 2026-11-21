@@ -9,6 +9,8 @@ part of 'serializers.dart';
 Serializers _$serializers = (Serializers().toBuilder()
       ..add(AircraftEntity.serializer)
       ..add(AircraftFlightEntity.serializer)
+      ..add(AircraftHistoryEntity.serializer)
+      ..add(AircraftLegEntity.serializer)
       ..add(AircraftRegistrationEntity.serializer)
       ..add(AircraftStatsEntity.serializer)
       ..add(AircraftWithAge.serializer)
@@ -132,6 +134,10 @@ Serializers _$serializers = (Serializers().toBuilder()
           const FullType(
               BuiltList, const [const FullType(FlightResponseEntity)]),
           () => ListBuilder<FlightResponseEntity>())
+      ..addBuilderFactory(
+          const FullType(
+              BuiltList, const [const FullType(FlightSummaryEntity)]),
+          () => ListBuilder<FlightSummaryEntity>())
       ..addBuilderFactory(
           const FullType(
               BuiltList, const [const FullType(FlightSummaryEntity)]),
