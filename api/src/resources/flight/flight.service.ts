@@ -1336,4 +1336,21 @@ export class FlightService {
     await prisma.flightBooking.delete({ where: { id: bookingId } });
     return { message: 'Booking deleted successfully' };
   }
+
+  async deleteFlight(flightId: string, userId: string) {
+    const existing = await prisma.flight.findFirst({
+      where: { id: flightId, userId },
+    });
+    if (!existing) {
+      throw new NotFoundException(
+        'Flight not found or does not belong to the user',
+      );
+    }
+    // Positions have no cascade; bookings, distance and FlightAware data do.
+    await prisma.$transaction([
+      prisma.flightPositions.deleteMany({ where: { flightId } }),
+      prisma.flight.delete({ where: { id: flightId } }),
+    ]);
+    return { message: 'Flight deleted successfully' };
+  }
 }

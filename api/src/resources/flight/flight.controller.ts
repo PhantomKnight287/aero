@@ -417,4 +417,44 @@ export class FlightController {
   ) {
     return await this.flightService.deleteFlightBooking(bookingId, auth.id);
   }
+
+  @Delete(':flightId')
+  @ApiOperation({
+    summary: 'Delete a tracked flight',
+    description:
+      'Deletes a flight from the user log, including positions, booking, distance and FlightAware data',
+  })
+  @ApiParam({
+    name: 'flightId',
+    description: 'ID of the flight to delete',
+    example: 'flight_abc123',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Flight deleted successfully',
+    schema: {
+      type: 'object',
+      properties: {
+        message: {
+          type: 'string',
+          example: 'Flight deleted successfully',
+        },
+      },
+    },
+  })
+  @ApiNotFoundResponse({
+    description: 'Flight not found',
+    type: GenericErrorEntity,
+  })
+  @ApiUnauthorizedResponse({
+    description: 'User is not authenticated',
+    type: GenericErrorEntity,
+  })
+  @ApiInternalServerErrorResponse({
+    description: 'Internal server error',
+    type: GenericErrorEntity,
+  })
+  async deleteFlight(@Param('flightId') flightId: string, @Auth() auth: User) {
+    return await this.flightService.deleteFlight(flightId, auth.id);
+  }
 }
