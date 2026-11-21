@@ -9,6 +9,25 @@ rootProject.buildDir = "../build"
 subprojects {
     project.buildDir = "${rootProject.buildDir}/${project.name}"
 }
+// Must stay before evaluationDependsOn(":app"), which evaluates plugin
+// projects early; afterEvaluate on an evaluated project throws.
+subprojects {
+    if (name == "home_widget") {
+        afterEvaluate {
+            android {
+                compileOptions {
+                    sourceCompatibility JavaVersion.VERSION_11
+                    targetCompatibility JavaVersion.VERSION_11
+                }
+            }
+            tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+                compilerOptions {
+                    jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_11)
+                }
+            }
+        }
+    }
+}
 subprojects {
     project.evaluationDependsOn(":app")
 }
