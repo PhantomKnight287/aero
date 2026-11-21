@@ -63,6 +63,15 @@ class HomeController extends ChangeNotifier {
   BuiltList<AircraftLegEntity>? recentLegs;
   bool recentLegsLoading = false;
   String? _historyFlightId;
+
+  /// Position scrubbed on the flight profile chart (map shows a marker).
+  LatLng? scrubPosition;
+
+  void setScrubPosition(LatLng? p) {
+    if (scrubPosition == p) return;
+    scrubPosition = p;
+    notifyListeners();
+  }
   bool loadingTrackedFlights = false;
   bool isInAir = false;
   CancelToken? _cancelToken;
@@ -508,6 +517,7 @@ class HomeController extends ChangeNotifier {
     recentLegs = null;
     recentLegsLoading = false;
     _historyFlightId = null;
+    scrubPosition = null;
     panelState = FlightPanelState.idle;
     arrivalAirport = null;
     departureAirport = null;

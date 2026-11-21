@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:aero/ui/tokens.dart';
 import 'dart:math';
 import 'package:openapi/openapi.dart';
 import 'package:flutter/material.dart';
@@ -96,8 +97,12 @@ class FlightMap extends StatefulWidget {
   )? onBoundsChanged;
   final void Function(AirportEntity airport)? onAirportTap;
 
+  /// Where the aircraft was at the point scrubbed on the flight profile.
+  final LatLng? highlightPosition;
+
   const FlightMap({
     super.key,
+    this.highlightPosition,
     required this.mapController,
     this.arrivalAirport,
     this.departureAirport,
@@ -199,6 +204,22 @@ class _FlightMapState extends State<FlightMap> {
               ),
             MarkerLayer(
               markers: [
+                if (widget.highlightPosition != null)
+                  Marker(
+                    point: widget.highlightPosition!,
+                    width: 18,
+                    height: 18,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: AeroColors.ink,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: AeroColors.surface, width: 3),
+                        boxShadow: const [
+                          BoxShadow(color: AeroColors.shadow, blurRadius: 4),
+                        ],
+                      ),
+                    ),
+                  ),
                 if (widget.arrivalAirport != null)
                   Marker(
                     point: LatLng(double.parse(widget.arrivalAirport!.lat),

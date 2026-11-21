@@ -213,6 +213,7 @@ class _HomeScreenState extends State<HomeScreen>
               airports: controller.nearbyAirports,
               onBoundsChanged: controller.loadAirportsInBounds,
               onAirportTap: _showAirportDetailsSheet,
+              highlightPosition: controller.scrubPosition,
             ),
           ),
           if (controller.isTrackingActive)
@@ -293,6 +294,7 @@ class _HomeScreenState extends State<HomeScreen>
       recentLegs: controller.recentLegs,
       recentLegsLoading: controller.recentLegsLoading,
       onLoadRecentLegs: controller.loadRecentLegs,
+      onScrub: controller.setScrubPosition,
       onOpenFlight: (ident, date, {faFlightId}) => controller.loadFlightInfo(
           ident, ident, date,
           faFlightId: faFlightId),

@@ -1,4 +1,6 @@
 import 'dart:io';
+import 'package:aero/screens/home/widgets/flight_profile.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:aero/screens/home/widgets/flight_timetable.dart';
 import 'package:aero/screens/home/widgets/timezone_shift.dart';
 import 'package:aero/ui/tokens.dart';
@@ -39,7 +41,9 @@ class FlightInfoWidget extends StatefulWidget {
   final bool recentLegsLoading;
   final VoidCallback? onLoadRecentLegs;
   final OpenFlight? onOpenFlight;
+  final ValueChanged<LatLng?>? onScrub;
   const FlightInfoWidget({
+    this.onScrub,
     this.aircraftHistory,
     this.recentLegs,
     this.recentLegsLoading = false,
@@ -637,6 +641,16 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
               arrivalTz: arrival.airport.timeZone,
             ),
           ],
+          if (widget.flightPositions.length >= 20) ...[
+            const SizedBox(height: AeroSpace.lg),
+            FlightProfile(
+              key: ValueKey('profile-${widget.info.id}'),
+              positions: widget.flightPositions,
+              departureTz: departure.airport.timeZone,
+              onScrub: (p) => widget.onScrub?.call(
+                  p?.lat == null ? null : LatLng(p!.lat!, p.lon!)),
+            ),
+          ],
           // Airport Conditions Section
           _buildAirportConditionsSection(context),
           // Booking Details Section
@@ -1206,17 +1220,4 @@ DateTime convertToArrivalTimeZone(
   final arrivalTZTime = tz.TZDateTime.from(departureTZTime, arrivalLocation);
 
   return arrivalTZTime.toLocal();
-}
-
-// ignore: unused_element
-class _ChartPosition {
-  final double altitude;
-  final double speed;
-  final DateTime timestamp;
-
-  _ChartPosition({
-    required this.altitude,
-    required this.speed,
-    required this.timestamp,
-  });
 }

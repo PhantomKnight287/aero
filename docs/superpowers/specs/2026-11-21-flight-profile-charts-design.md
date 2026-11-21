@@ -1,4 +1,4 @@
-# Flight profile charts — design (draft)
+# Flight profile charts — design (approved 2026-11-22, built without a separate plan at user's request)
 
 Covers idea 2.
 
@@ -27,8 +27,12 @@ See how the flight was actually flown: climb, cruise, step climbs, descent, spee
 - Downsample to ≤ 300 points for rendering.
 - Hide the section when < 20 positions.
 
-## Open (ask when we reach this)
-- Its own expandable card, or a full-screen chart page from a "Profile" button?
+## Decisions
+- User: "whichever works better"; past attempt failed because a phone is too narrow for on-plot markers and fl_chart's default look is ugly.
+- Inline collapsible card (altitude collapsed; speed chart + event list expanded), scrub moves a marker on the map.
+- **No text on the plot**: event dots only; fixed scrub readout above; phase strip below; event list. Grid labels in a right gutter, ≤3 nice steps.
+- **CustomPainter instead of fl_chart** (full control, tokens). Two single-series charts on one time axis (no dual axis, per dataviz rules).
+- Phase detection validated against all 44 stored tracks (plausible TOC/TOD/steps, incl. step descents).
 
 ## Left to builder
 Colors from the existing theme, smoothing window size.
