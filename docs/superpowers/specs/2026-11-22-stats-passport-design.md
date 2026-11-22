@@ -110,7 +110,7 @@ They want it to work like Flighty's Passport (23 reference screenshots reviewed 
 - **Which flights count (my call, builder check):**
   - Every `Flight` row in the user's log counts. Lookups land in the log by design, and the user removes the ones they didn't fly by swiping (spec 1).
   - Not counted:
-    - flights not flown yet (`date` in the future, or the FlightAware status not yet landed);
+    - flights not flown yet (`date` in the future). FlightAware status is not used, because old lookups keep a FlightAware snapshot taken before landing;
     - flights FlightAware marks `cancelled`. These appear only in the delay breakdown's Cancelled bucket.
   - Diverted flights count everywhere, using the stored route.
   - The same base query feeds the stats, `availableYears`, the history endpoint and `yearCounts`.
@@ -152,13 +152,13 @@ They want it to work like Flighty's Passport (23 reference screenshots reviewed 
 
 ## Design
 ### API
-- `GET /v1/profile/stats?year=YYYY` returns `ProfileStatsResponseEntity`, extended with:
+- `GET /v1/profile/@me?year=YYYY` (the existing stats route) returns `ProfileStatsResponseEntity`, extended with:
   - `availableYears: number[]`;
   - `passport`, with corrected counts plus `countries`, `longHaul`, `domestic`, `international`, `airMinutes`, `taxiMinutes`;
   - `flightsPer: { year[], month[12], weekday[7] }`;
   - `records`: shortest and longest by distance and by duration. Each is a `FlightSummaryEntity` extended with the ICAO flight number, the departure and arrival city, and the date.
   - `topAirports`, `topAirlines` and `topRoutes`, each with `flightCount` and `distanceKm`, so the Flights / Distance switch needs no refetch. The full lists are returned; the app shows the first 8.
-  - `countries[]` (ISO code, name, flightCount) and `continents[]` (bucket, airportCount, flightShare).
+  - `countries[]` (ISO code, name, flightCount) and `continents[]` (bucket, countryCount, flightShare).
   - `runways`:
     - `basedOn`;
     - `items[]`: airport (IATA, ICAO, name), runway ident, departures, arrivals.
@@ -172,7 +172,7 @@ They want it to work like Flighty's Passport (23 reference screenshots reviewed 
 
     The app draws the arcs.
   - `extremes`: north, south, east, west, highest. Each is an airport (IATA, ICAO, name, city, ISO country, lat, lon, elevationFt).
-  - `delays`:
+  - `delays` (part 1 ships only `basedOn`, `delayedCount`, `arrivedCount`, `minutesLost` and `avgDelayMinutes` for the hub card; part 2 adds the rest):
     - `basedOn`, `delayedCount`, `minutesLost`, `avgDelayMinutes`;
     - `buckets`;
     - `worst` (flight summary plus minutes);
@@ -184,7 +184,7 @@ They want it to work like Flighty's Passport (23 reference screenshots reviewed 
     - `types[]`;
     - `families[]` (family, count, firstFlown, flown);
     - the age records already computed today.
-- `GET /v1/flights/history?cursor=<flightId>&limit=30` returns:
+- `GET /v1/flight/history?cursor=<flightId>&limit=30&year=YYYY` (on the existing `flight` controller) returns:
   - the user's flights, newest `date` first, as `FlightSummaryEntity`-shaped rows (airline with logo, IATA and ICAO idents, IATA and ICAO codes for both airports, cities, date);
   - `nextCursor`;
   - `yearCounts: {year: count}`, so the group headers show totals before every page has loaded.
