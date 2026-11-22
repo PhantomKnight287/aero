@@ -8,6 +8,7 @@ import 'package:built_value/json_object.dart';
 import 'package:built_value/serializer.dart';
 import 'package:dio/dio.dart';
 
+import 'package:openapi/src/api_util.dart';
 import 'package:openapi/src/model/generic_error_entity.dart';
 import 'package:openapi/src/model/profile_stats_response_entity.dart';
 
@@ -23,6 +24,7 @@ class ProfileApi {
   /// Returns comprehensive statistics about tracked flights including passport data, aircraft stats, airlines, airports, and routes
   ///
   /// Parameters:
+  /// * [year] 
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -33,6 +35,7 @@ class ProfileApi {
   /// Returns a [Future] containing a [Response] with a [ProfileStatsResponseEntity] as data
   /// Throws [DioException] if API call or serialization fails
   Future<Response<ProfileStatsResponseEntity>> profileControllerGetProfileStatsV1({ 
+    num? year,
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
     Map<String, dynamic>? extra,
@@ -59,9 +62,14 @@ class ProfileApi {
       validateStatus: validateStatus,
     );
 
+    final _queryParameters = <String, dynamic>{
+      if (year != null) r'year': encodeQueryParameter(_serializers, year, const FullType(num)),
+    };
+
     final _response = await _dio.request<Object>(
       _path,
       options: _options,
+      queryParameters: _queryParameters,
       cancelToken: cancelToken,
       onSendProgress: onSendProgress,
       onReceiveProgress: onReceiveProgress,

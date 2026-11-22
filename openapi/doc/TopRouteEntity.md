@@ -8,9 +8,10 @@ import 'package:openapi/api.dart';
 ## Properties
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**origin** | **String** |  | 
-**destination** | **String** |  | 
+**from** | [**StatsAirportEntity**](StatsAirportEntity.md) |  | 
+**to** | [**StatsAirportEntity**](StatsAirportEntity.md) |  | 
 **flightCount** | **num** |  | 
+**distanceKm** | **num** |  | 
 
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
 

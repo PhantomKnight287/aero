@@ -8,19 +8,22 @@ part of 'top_route_entity.dart';
 
 class _$TopRouteEntity extends TopRouteEntity {
   @override
-  final String origin;
+  final StatsAirportEntity from;
   @override
-  final String destination;
+  final StatsAirportEntity to;
   @override
   final num flightCount;
+  @override
+  final num distanceKm;
 
   factory _$TopRouteEntity([void Function(TopRouteEntityBuilder)? updates]) =>
       (TopRouteEntityBuilder()..update(updates))._build();
 
   _$TopRouteEntity._(
-      {required this.origin,
-      required this.destination,
-      required this.flightCount})
+      {required this.from,
+      required this.to,
+      required this.flightCount,
+      required this.distanceKm})
       : super._();
   @override
   TopRouteEntity rebuild(void Function(TopRouteEntityBuilder) updates) =>
@@ -33,17 +36,19 @@ class _$TopRouteEntity extends TopRouteEntity {
   bool operator ==(Object other) {
     if (identical(other, this)) return true;
     return other is TopRouteEntity &&
-        origin == other.origin &&
-        destination == other.destination &&
-        flightCount == other.flightCount;
+        from == other.from &&
+        to == other.to &&
+        flightCount == other.flightCount &&
+        distanceKm == other.distanceKm;
   }
 
   @override
   int get hashCode {
     var _$hash = 0;
-    _$hash = $jc(_$hash, origin.hashCode);
-    _$hash = $jc(_$hash, destination.hashCode);
+    _$hash = $jc(_$hash, from.hashCode);
+    _$hash = $jc(_$hash, to.hashCode);
     _$hash = $jc(_$hash, flightCount.hashCode);
+    _$hash = $jc(_$hash, distanceKm.hashCode);
     _$hash = $jf(_$hash);
     return _$hash;
   }
@@ -51,9 +56,10 @@ class _$TopRouteEntity extends TopRouteEntity {
   @override
   String toString() {
     return (newBuiltValueToStringHelper(r'TopRouteEntity')
-          ..add('origin', origin)
-          ..add('destination', destination)
-          ..add('flightCount', flightCount))
+          ..add('from', from)
+          ..add('to', to)
+          ..add('flightCount', flightCount)
+          ..add('distanceKm', distanceKm))
         .toString();
   }
 }
@@ -62,17 +68,23 @@ class TopRouteEntityBuilder
     implements Builder<TopRouteEntity, TopRouteEntityBuilder> {
   _$TopRouteEntity? _$v;
 
-  String? _origin;
-  String? get origin => _$this._origin;
-  set origin(String? origin) => _$this._origin = origin;
+  StatsAirportEntityBuilder? _from;
+  StatsAirportEntityBuilder get from =>
+      _$this._from ??= StatsAirportEntityBuilder();
+  set from(StatsAirportEntityBuilder? from) => _$this._from = from;
 
-  String? _destination;
-  String? get destination => _$this._destination;
-  set destination(String? destination) => _$this._destination = destination;
+  StatsAirportEntityBuilder? _to;
+  StatsAirportEntityBuilder get to =>
+      _$this._to ??= StatsAirportEntityBuilder();
+  set to(StatsAirportEntityBuilder? to) => _$this._to = to;
 
   num? _flightCount;
   num? get flightCount => _$this._flightCount;
   set flightCount(num? flightCount) => _$this._flightCount = flightCount;
+
+  num? _distanceKm;
+  num? get distanceKm => _$this._distanceKm;
+  set distanceKm(num? distanceKm) => _$this._distanceKm = distanceKm;
 
   TopRouteEntityBuilder() {
     TopRouteEntity._defaults(this);
@@ -81,9 +93,10 @@ class TopRouteEntityBuilder
   TopRouteEntityBuilder get _$this {
     final $v = _$v;
     if ($v != null) {
-      _origin = $v.origin;
-      _destination = $v.destination;
+      _from = $v.from.toBuilder();
+      _to = $v.to.toBuilder();
       _flightCount = $v.flightCount;
+      _distanceKm = $v.distanceKm;
       _$v = null;
     }
     return this;
@@ -103,15 +116,30 @@ class TopRouteEntityBuilder
   TopRouteEntity build() => _build();
 
   _$TopRouteEntity _build() {
-    final _$result = _$v ??
-        _$TopRouteEntity._(
-          origin: BuiltValueNullFieldError.checkNotNull(
-              origin, r'TopRouteEntity', 'origin'),
-          destination: BuiltValueNullFieldError.checkNotNull(
-              destination, r'TopRouteEntity', 'destination'),
-          flightCount: BuiltValueNullFieldError.checkNotNull(
-              flightCount, r'TopRouteEntity', 'flightCount'),
-        );
+    _$TopRouteEntity _$result;
+    try {
+      _$result = _$v ??
+          _$TopRouteEntity._(
+            from: from.build(),
+            to: to.build(),
+            flightCount: BuiltValueNullFieldError.checkNotNull(
+                flightCount, r'TopRouteEntity', 'flightCount'),
+            distanceKm: BuiltValueNullFieldError.checkNotNull(
+                distanceKm, r'TopRouteEntity', 'distanceKm'),
+          );
+    } catch (_) {
+      late String _$failedField;
+      try {
+        _$failedField = 'from';
+        from.build();
+        _$failedField = 'to';
+        to.build();
+      } catch (e) {
+        throw BuiltValueNestedFieldError(
+            r'TopRouteEntity', _$failedField, e.toString());
+      }
+      rethrow;
+    }
     replace(_$result);
     return _$result;
   }

@@ -1,0 +1,19 @@
+# openapi.model.MapRouteEntity
+
+## Load the model package
+```dart
+import 'package:openapi/api.dart';
+```
+
+## Properties
+Name | Type | Description | Notes
+------------ | ------------- | ------------- | -------------
+**fromLat** | **num** |  | 
+**fromLon** | **num** |  | 
+**toLat** | **num** |  | 
+**toLon** | **num** |  | 
+**count** | **num** |  | 
+
+[[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
+
+

@@ -16,6 +16,7 @@ import 'package:openapi/src/model/create_flight_booking_dto.dart';
 import 'package:openapi/src/model/flight_booking_entity.dart';
 import 'package:openapi/src/model/flight_controller_delete_flight_booking_v1200_response.dart';
 import 'package:openapi/src/model/flight_controller_delete_flight_v1200_response.dart';
+import 'package:openapi/src/model/flight_history_response_entity.dart';
 import 'package:openapi/src/model/flight_response_entity.dart';
 import 'package:openapi/src/model/flight_search_response_entity.dart';
 import 'package:openapi/src/model/flight_track_response_entity.dart';
@@ -375,7 +376,7 @@ class FlightApi {
   }
 
   /// Recent legs of the aircraft operating a flight
-  /// Up to 10 most recent FlightAware legs for the registration (cached 1h). Returns [] when FlightAware is unavailable.
+  /// Up to 10 most recent FlightAware legs for the registration (cached 1h). 502 when FlightAware is unavailable.
   ///
   /// Parameters:
   /// * [flightId] - ID of the flight
@@ -606,6 +607,98 @@ class FlightApi {
     }
 
     return Response<BuiltList<FlightBookingEntity>>(
+      data: _responseData,
+      headers: _response.headers,
+      isRedirect: _response.isRedirect,
+      requestOptions: _response.requestOptions,
+      redirects: _response.redirects,
+      statusCode: _response.statusCode,
+      statusMessage: _response.statusMessage,
+      extra: _response.extra,
+    );
+  }
+
+  /// Paged flight history
+  /// Counted flights, newest first. Cursor is the last item id of the previous page.
+  ///
+  /// Parameters:
+  /// * [cursor] 
+  /// * [limit] - Default 30, clamped to 1..100
+  /// * [year] 
+  /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
+  /// * [headers] - Can be used to add additional headers to the request
+  /// * [extras] - Can be used to add flags to the request
+  /// * [validateStatus] - A [ValidateStatus] callback that can be used to determine request success based on the HTTP status of the response
+  /// * [onSendProgress] - A [ProgressCallback] that can be used to get the send progress
+  /// * [onReceiveProgress] - A [ProgressCallback] that can be used to get the receive progress
+  ///
+  /// Returns a [Future] containing a [Response] with a [FlightHistoryResponseEntity] as data
+  /// Throws [DioException] if API call or serialization fails
+  Future<Response<FlightHistoryResponseEntity>> flightControllerGetFlightHistoryV1({ 
+    String? cursor,
+    num? limit,
+    num? year,
+    CancelToken? cancelToken,
+    Map<String, dynamic>? headers,
+    Map<String, dynamic>? extra,
+    ValidateStatus? validateStatus,
+    ProgressCallback? onSendProgress,
+    ProgressCallback? onReceiveProgress,
+  }) async {
+    final _path = r'/v1/flight/history';
+    final _options = Options(
+      method: r'GET',
+      headers: <String, dynamic>{
+        ...?headers,
+      },
+      extra: <String, dynamic>{
+        'secure': <Map<String, String>>[
+          {
+            'type': 'http',
+            'scheme': 'bearer',
+            'name': 'JWT-auth',
+          },
+        ],
+        ...?extra,
+      },
+      validateStatus: validateStatus,
+    );
+
+    final _queryParameters = <String, dynamic>{
+      if (cursor != null) r'cursor': encodeQueryParameter(_serializers, cursor, const FullType(String)),
+      if (limit != null) r'limit': encodeQueryParameter(_serializers, limit, const FullType(num)),
+      if (year != null) r'year': encodeQueryParameter(_serializers, year, const FullType(num)),
+    };
+
+    final _response = await _dio.request<Object>(
+      _path,
+      options: _options,
+      queryParameters: _queryParameters,
+      cancelToken: cancelToken,
+      onSendProgress: onSendProgress,
+      onReceiveProgress: onReceiveProgress,
+    );
+
+    FlightHistoryResponseEntity? _responseData;
+
+    try {
+      final rawResponse = _response.data;
+      _responseData = rawResponse == null ? null : _serializers.deserialize(
+        rawResponse,
+        specifiedType: const FullType(FlightHistoryResponseEntity),
+      ) as FlightHistoryResponseEntity;
+
+    } catch (error, stackTrace) {
+      throw DioException(
+        requestOptions: _response.requestOptions,
+        response: _response,
+        type: DioExceptionType.unknown,
+        error: error,
+        stackTrace: stackTrace,
+      );
+    }
+
+    return Response<FlightHistoryResponseEntity>(
       data: _responseData,
       headers: _response.headers,
       isRedirect: _response.isRedirect,

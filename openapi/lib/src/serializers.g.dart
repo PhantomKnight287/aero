@@ -16,7 +16,6 @@ Serializers _$serializers = (Serializers().toBuilder()
       ..add(AircraftWithAge.serializer)
       ..add(AirlineEntity.serializer)
       ..add(AirlineInfo.serializer)
-      ..add(AirlineStatsEntity.serializer)
       ..add(AirportConditionsEntity.serializer)
       ..add(AirportDelayReasonEntity.serializer)
       ..add(AirportDelayReasonEntityColorEnum.serializer)
@@ -25,18 +24,22 @@ Serializers _$serializers = (Serializers().toBuilder()
       ..add(AirportDetailsEntity.serializer)
       ..add(AirportEntity.serializer)
       ..add(AirportInfo.serializer)
-      ..add(AirportStatsEntity.serializer)
       ..add(AirportType.serializer)
       ..add(AirportWeatherForecastEntity.serializer)
       ..add(AirportWeatherObservationEntity.serializer)
       ..add(AirportWeatherObservationEntityPressureUnitsEnum.serializer)
       ..add(AirportWeatherObservationEntityVisibilityUnitsEnum.serializer)
       ..add(AirportWeatherObservationEntityWindUnitsEnum.serializer)
+      ..add(ContinentBucket.serializer)
+      ..add(ContinentEntity.serializer)
+      ..add(CountryEntity.serializer)
       ..add(CreateFlightBookingDTO.serializer)
       ..add(CreateFlightBookingDTOReasonEnum.serializer)
       ..add(CreateFlightBookingDTOSeatTypeEnum.serializer)
       ..add(CreateFlightBookingDTOSeatingClassEnum.serializer)
       ..add(DecodedWeatherEntity.serializer)
+      ..add(DelaySummaryEntity.serializer)
+      ..add(ExtremesEntity.serializer)
       ..add(FlighType.serializer)
       ..add(FlightAwareDataEntity.serializer)
       ..add(FlightBookingEntity.serializer)
@@ -46,9 +49,8 @@ Serializers _$serializers = (Serializers().toBuilder()
       ..add(FlightCandidateEntity.serializer)
       ..add(FlightControllerDeleteFlightBookingV1200Response.serializer)
       ..add(FlightControllerDeleteFlightV1200Response.serializer)
-      ..add(FlightDistanceEntity.serializer)
-      ..add(FlightDurationEntity.serializer)
       ..add(FlightEntity.serializer)
+      ..add(FlightHistoryResponseEntity.serializer)
       ..add(FlightPositionEntity.serializer)
       ..add(FlightPositionEntityAltitudeChangeEnum.serializer)
       ..add(FlightPositionEntityUpdateTypeEnum.serializer)
@@ -66,6 +68,7 @@ Serializers _$serializers = (Serializers().toBuilder()
           .serializer)
       ..add(FlightsControllerGetFlightsInBoundsV1200ResponseFlightsInnerOrigin
           .serializer)
+      ..add(FlightsPerEntity.serializer)
       ..add(FlightsResponseEntity.serializer)
       ..add(FlightsRouteEntity.serializer)
       ..add(GenericErrorEntity.serializer)
@@ -73,16 +76,30 @@ Serializers _$serializers = (Serializers().toBuilder()
       ..add(LocationEntity.serializer)
       ..add(LoginDTO.serializer)
       ..add(LoginEntity.serializer)
+      ..add(MapAirportEntity.serializer)
+      ..add(MapDataEntity.serializer)
+      ..add(MapRouteEntity.serializer)
       ..add(MostFlownAircraftEntity.serializer)
       ..add(PartialAirlineEntity.serializer)
       ..add(PassportEntity.serializer)
       ..add(ProfileStatsResponseEntity.serializer)
+      ..add(RecordsEntity.serializer)
       ..add(RegisterDTO.serializer)
       ..add(RegisterEntity.serializer)
       ..add(RouteAirportEntity.serializer)
       ..add(RouteInfoEntity.serializer)
+      ..add(RunwayUseEntity.serializer)
+      ..add(RunwaysEntity.serializer)
+      ..add(StatsAirlineEntity.serializer)
+      ..add(StatsAirportEntity.serializer)
+      ..add(StatsFlightSummaryEntity.serializer)
+      ..add(StatsRecordEntity.serializer)
       ..add(StringifiedGreatCircleDistanceEntity.serializer)
+      ..add(TaxiAirportEntity.serializer)
+      ..add(TaxiByAirportEntity.serializer)
       ..add(TimeEntity.serializer)
+      ..add(TopAirlineEntity.serializer)
+      ..add(TopAirportEntity.serializer)
       ..add(TopRouteEntity.serializer)
       ..add(TrackedFlightsResponseEntity.serializer)
       ..add(UpdateFlightBookingDTO.serializer)
@@ -98,19 +115,11 @@ Serializers _$serializers = (Serializers().toBuilder()
       ..add(WeatherForecastWindsEntity.serializer)
       ..add(WeatherForecastWindshearEntity.serializer)
       ..add(WeatherObservationCloudEntity.serializer)
+      ..add(YearCountEntity.serializer)
       ..addBuilderFactory(
           const FullType(
               BuiltList, const [const FullType(AircraftRegistrationEntity)]),
           () => ListBuilder<AircraftRegistrationEntity>())
-      ..addBuilderFactory(
-          const FullType(BuiltList, const [const FullType(AirlineStatsEntity)]),
-          () => ListBuilder<AirlineStatsEntity>())
-      ..addBuilderFactory(
-          const FullType(BuiltList, const [const FullType(AirportStatsEntity)]),
-          () => ListBuilder<AirportStatsEntity>())
-      ..addBuilderFactory(
-          const FullType(BuiltList, const [const FullType(TopRouteEntity)]),
-          () => ListBuilder<TopRouteEntity>())
       ..addBuilderFactory(
           const FullType(
               BuiltList, const [const FullType(AirportDelayReasonEntity)]),
@@ -150,14 +159,33 @@ Serializers _$serializers = (Serializers().toBuilder()
           () => ListBuilder<
               FlightsControllerGetFlightsInBoundsV1200ResponseFlightsInner>())
       ..addBuilderFactory(
-          const FullType(BuiltList, const [const FullType(String)]),
-          () => ListBuilder<String>())
+          const FullType(BuiltList, const [const FullType(MapAirportEntity)]),
+          () => ListBuilder<MapAirportEntity>())
+      ..addBuilderFactory(
+          const FullType(BuiltList, const [const FullType(MapRouteEntity)]),
+          () => ListBuilder<MapRouteEntity>())
+      ..addBuilderFactory(
+          const FullType(BuiltList, const [const FullType(RunwayUseEntity)]),
+          () => ListBuilder<RunwayUseEntity>())
+      ..addBuilderFactory(
+          const FullType(
+              BuiltList, const [const FullType(StatsFlightSummaryEntity)]),
+          () => ListBuilder<StatsFlightSummaryEntity>())
+      ..addBuilderFactory(
+          const FullType(BuiltList, const [const FullType(YearCountEntity)]),
+          () => ListBuilder<YearCountEntity>())
       ..addBuilderFactory(
           const FullType(BuiltList, const [const FullType(String)]),
           () => ListBuilder<String>())
       ..addBuilderFactory(
           const FullType(BuiltList, const [const FullType(String)]),
           () => ListBuilder<String>())
+      ..addBuilderFactory(
+          const FullType(BuiltList, const [const FullType(String)]),
+          () => ListBuilder<String>())
+      ..addBuilderFactory(
+          const FullType(BuiltList, const [const FullType(TaxiAirportEntity)]),
+          () => ListBuilder<TaxiAirportEntity>())
       ..addBuilderFactory(
           const FullType(
               BuiltList, const [const FullType(WeatherForecastCloudEntity)]),
@@ -169,7 +197,34 @@ Serializers _$serializers = (Serializers().toBuilder()
       ..addBuilderFactory(
           const FullType(
               BuiltList, const [const FullType(WeatherObservationCloudEntity)]),
-          () => ListBuilder<WeatherObservationCloudEntity>()))
+          () => ListBuilder<WeatherObservationCloudEntity>())
+      ..addBuilderFactory(
+          const FullType(BuiltList, const [const FullType(YearCountEntity)]),
+          () => ListBuilder<YearCountEntity>())
+      ..addBuilderFactory(
+          const FullType(BuiltList, const [const FullType(num)]),
+          () => ListBuilder<num>())
+      ..addBuilderFactory(
+          const FullType(BuiltList, const [const FullType(num)]),
+          () => ListBuilder<num>())
+      ..addBuilderFactory(
+          const FullType(BuiltList, const [const FullType(num)]),
+          () => ListBuilder<num>())
+      ..addBuilderFactory(
+          const FullType(BuiltList, const [const FullType(TopAirportEntity)]),
+          () => ListBuilder<TopAirportEntity>())
+      ..addBuilderFactory(
+          const FullType(BuiltList, const [const FullType(TopAirlineEntity)]),
+          () => ListBuilder<TopAirlineEntity>())
+      ..addBuilderFactory(
+          const FullType(BuiltList, const [const FullType(TopRouteEntity)]),
+          () => ListBuilder<TopRouteEntity>())
+      ..addBuilderFactory(
+          const FullType(BuiltList, const [const FullType(CountryEntity)]),
+          () => ListBuilder<CountryEntity>())
+      ..addBuilderFactory(
+          const FullType(BuiltList, const [const FullType(ContinentEntity)]),
+          () => ListBuilder<ContinentEntity>()))
     .build();
 
 // ignore_for_file: deprecated_member_use_from_same_package,type=lint

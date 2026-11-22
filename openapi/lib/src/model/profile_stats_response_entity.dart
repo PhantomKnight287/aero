@@ -3,15 +3,22 @@
 //
 
 // ignore_for_file: unused_element
-import 'package:openapi/src/model/flight_duration_entity.dart';
-import 'package:openapi/src/model/airline_stats_entity.dart';
-import 'package:openapi/src/model/flight_distance_entity.dart';
-import 'package:built_collection/built_collection.dart';
-import 'package:openapi/src/model/airport_stats_entity.dart';
+import 'package:openapi/src/model/country_entity.dart';
 import 'package:openapi/src/model/aircraft_stats_entity.dart';
-import 'package:openapi/src/model/top_route_entity.dart';
+import 'package:openapi/src/model/flights_per_entity.dart';
+import 'package:openapi/src/model/runways_entity.dart';
 import 'package:openapi/src/model/most_flown_aircraft_entity.dart';
+import 'package:openapi/src/model/extremes_entity.dart';
+import 'package:openapi/src/model/records_entity.dart';
+import 'package:openapi/src/model/delay_summary_entity.dart';
+import 'package:built_collection/built_collection.dart';
+import 'package:openapi/src/model/top_airport_entity.dart';
+import 'package:openapi/src/model/top_airline_entity.dart';
+import 'package:openapi/src/model/top_route_entity.dart';
+import 'package:openapi/src/model/map_data_entity.dart';
 import 'package:openapi/src/model/passport_entity.dart';
+import 'package:openapi/src/model/continent_entity.dart';
+import 'package:openapi/src/model/taxi_by_airport_entity.dart';
 import 'package:built_value/built_value.dart';
 import 'package:built_value/serializer.dart';
 
@@ -20,47 +27,76 @@ part 'profile_stats_response_entity.g.dart';
 /// ProfileStatsResponseEntity
 ///
 /// Properties:
+/// * [availableYears] - Years with counted flights, descending
+/// * [year] 
+/// * [passport] 
+/// * [flightsPer] 
+/// * [records] 
+/// * [topAirports] 
+/// * [topAirlines] 
+/// * [topRoutes] 
+/// * [countries] 
+/// * [continents] 
+/// * [delays] 
+/// * [runways] 
+/// * [taxiByAirport] 
+/// * [extremes] 
+/// * [map] 
 /// * [mostFlownAircraft] 
 /// * [aircraftStats] 
-/// * [passport] 
-/// * [shortestDistanceFlight] 
-/// * [longestDistanceFlight] 
-/// * [shortestDurationFlight] 
-/// * [longestDurationFlight] 
-/// * [airlines] 
-/// * [airports] 
-/// * [topRoutes] 
 @BuiltValue()
 abstract class ProfileStatsResponseEntity implements Built<ProfileStatsResponseEntity, ProfileStatsResponseEntityBuilder> {
+  /// Years with counted flights, descending
+  @BuiltValueField(wireName: r'availableYears')
+  BuiltList<num> get availableYears;
+
+  @BuiltValueField(wireName: r'year')
+  num? get year;
+
+  @BuiltValueField(wireName: r'passport')
+  PassportEntity get passport;
+
+  @BuiltValueField(wireName: r'flightsPer')
+  FlightsPerEntity get flightsPer;
+
+  @BuiltValueField(wireName: r'records')
+  RecordsEntity get records;
+
+  @BuiltValueField(wireName: r'topAirports')
+  BuiltList<TopAirportEntity> get topAirports;
+
+  @BuiltValueField(wireName: r'topAirlines')
+  BuiltList<TopAirlineEntity> get topAirlines;
+
+  @BuiltValueField(wireName: r'topRoutes')
+  BuiltList<TopRouteEntity> get topRoutes;
+
+  @BuiltValueField(wireName: r'countries')
+  BuiltList<CountryEntity> get countries;
+
+  @BuiltValueField(wireName: r'continents')
+  BuiltList<ContinentEntity> get continents;
+
+  @BuiltValueField(wireName: r'delays')
+  DelaySummaryEntity get delays;
+
+  @BuiltValueField(wireName: r'runways')
+  RunwaysEntity get runways;
+
+  @BuiltValueField(wireName: r'taxiByAirport')
+  TaxiByAirportEntity get taxiByAirport;
+
+  @BuiltValueField(wireName: r'extremes')
+  ExtremesEntity get extremes;
+
+  @BuiltValueField(wireName: r'map')
+  MapDataEntity get map;
+
   @BuiltValueField(wireName: r'mostFlownAircraft')
   MostFlownAircraftEntity get mostFlownAircraft;
 
   @BuiltValueField(wireName: r'aircraftStats')
   AircraftStatsEntity? get aircraftStats;
-
-  @BuiltValueField(wireName: r'passport')
-  PassportEntity get passport;
-
-  @BuiltValueField(wireName: r'shortestDistanceFlight')
-  FlightDistanceEntity get shortestDistanceFlight;
-
-  @BuiltValueField(wireName: r'longestDistanceFlight')
-  FlightDistanceEntity get longestDistanceFlight;
-
-  @BuiltValueField(wireName: r'shortestDurationFlight')
-  FlightDurationEntity get shortestDurationFlight;
-
-  @BuiltValueField(wireName: r'longestDurationFlight')
-  FlightDurationEntity get longestDurationFlight;
-
-  @BuiltValueField(wireName: r'airlines')
-  BuiltList<AirlineStatsEntity> get airlines;
-
-  @BuiltValueField(wireName: r'airports')
-  BuiltList<AirportStatsEntity> get airports;
-
-  @BuiltValueField(wireName: r'topRoutes')
-  BuiltList<TopRouteEntity> get topRoutes;
 
   ProfileStatsResponseEntity._();
 
@@ -85,6 +121,83 @@ class _$ProfileStatsResponseEntitySerializer implements PrimitiveSerializer<Prof
     ProfileStatsResponseEntity object, {
     FullType specifiedType = FullType.unspecified,
   }) sync* {
+    yield r'availableYears';
+    yield serializers.serialize(
+      object.availableYears,
+      specifiedType: const FullType(BuiltList, [FullType(num)]),
+    );
+    if (object.year != null) {
+      yield r'year';
+      yield serializers.serialize(
+        object.year,
+        specifiedType: const FullType.nullable(num),
+      );
+    }
+    yield r'passport';
+    yield serializers.serialize(
+      object.passport,
+      specifiedType: const FullType(PassportEntity),
+    );
+    yield r'flightsPer';
+    yield serializers.serialize(
+      object.flightsPer,
+      specifiedType: const FullType(FlightsPerEntity),
+    );
+    yield r'records';
+    yield serializers.serialize(
+      object.records,
+      specifiedType: const FullType(RecordsEntity),
+    );
+    yield r'topAirports';
+    yield serializers.serialize(
+      object.topAirports,
+      specifiedType: const FullType(BuiltList, [FullType(TopAirportEntity)]),
+    );
+    yield r'topAirlines';
+    yield serializers.serialize(
+      object.topAirlines,
+      specifiedType: const FullType(BuiltList, [FullType(TopAirlineEntity)]),
+    );
+    yield r'topRoutes';
+    yield serializers.serialize(
+      object.topRoutes,
+      specifiedType: const FullType(BuiltList, [FullType(TopRouteEntity)]),
+    );
+    yield r'countries';
+    yield serializers.serialize(
+      object.countries,
+      specifiedType: const FullType(BuiltList, [FullType(CountryEntity)]),
+    );
+    yield r'continents';
+    yield serializers.serialize(
+      object.continents,
+      specifiedType: const FullType(BuiltList, [FullType(ContinentEntity)]),
+    );
+    yield r'delays';
+    yield serializers.serialize(
+      object.delays,
+      specifiedType: const FullType(DelaySummaryEntity),
+    );
+    yield r'runways';
+    yield serializers.serialize(
+      object.runways,
+      specifiedType: const FullType(RunwaysEntity),
+    );
+    yield r'taxiByAirport';
+    yield serializers.serialize(
+      object.taxiByAirport,
+      specifiedType: const FullType(TaxiByAirportEntity),
+    );
+    yield r'extremes';
+    yield serializers.serialize(
+      object.extremes,
+      specifiedType: const FullType(ExtremesEntity),
+    );
+    yield r'map';
+    yield serializers.serialize(
+      object.map,
+      specifiedType: const FullType(MapDataEntity),
+    );
     yield r'mostFlownAircraft';
     yield serializers.serialize(
       object.mostFlownAircraft,
@@ -97,46 +210,6 @@ class _$ProfileStatsResponseEntitySerializer implements PrimitiveSerializer<Prof
         specifiedType: const FullType(AircraftStatsEntity),
       );
     }
-    yield r'passport';
-    yield serializers.serialize(
-      object.passport,
-      specifiedType: const FullType(PassportEntity),
-    );
-    yield r'shortestDistanceFlight';
-    yield serializers.serialize(
-      object.shortestDistanceFlight,
-      specifiedType: const FullType(FlightDistanceEntity),
-    );
-    yield r'longestDistanceFlight';
-    yield serializers.serialize(
-      object.longestDistanceFlight,
-      specifiedType: const FullType(FlightDistanceEntity),
-    );
-    yield r'shortestDurationFlight';
-    yield serializers.serialize(
-      object.shortestDurationFlight,
-      specifiedType: const FullType(FlightDurationEntity),
-    );
-    yield r'longestDurationFlight';
-    yield serializers.serialize(
-      object.longestDurationFlight,
-      specifiedType: const FullType(FlightDurationEntity),
-    );
-    yield r'airlines';
-    yield serializers.serialize(
-      object.airlines,
-      specifiedType: const FullType(BuiltList, [FullType(AirlineStatsEntity)]),
-    );
-    yield r'airports';
-    yield serializers.serialize(
-      object.airports,
-      specifiedType: const FullType(BuiltList, [FullType(AirportStatsEntity)]),
-    );
-    yield r'topRoutes';
-    yield serializers.serialize(
-      object.topRoutes,
-      specifiedType: const FullType(BuiltList, [FullType(TopRouteEntity)]),
-    );
   }
 
   @override
@@ -160,6 +233,112 @@ class _$ProfileStatsResponseEntitySerializer implements PrimitiveSerializer<Prof
       final key = serializedList[i] as String;
       final value = serializedList[i + 1];
       switch (key) {
+        case r'availableYears':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType(BuiltList, [FullType(num)]),
+          ) as BuiltList<num>;
+          result.availableYears.replace(valueDes);
+          break;
+        case r'year':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType.nullable(num),
+          ) as num?;
+          if (valueDes == null) continue;
+          result.year = valueDes;
+          break;
+        case r'passport':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType(PassportEntity),
+          ) as PassportEntity;
+          result.passport.replace(valueDes);
+          break;
+        case r'flightsPer':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType(FlightsPerEntity),
+          ) as FlightsPerEntity;
+          result.flightsPer.replace(valueDes);
+          break;
+        case r'records':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType(RecordsEntity),
+          ) as RecordsEntity;
+          result.records.replace(valueDes);
+          break;
+        case r'topAirports':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType(BuiltList, [FullType(TopAirportEntity)]),
+          ) as BuiltList<TopAirportEntity>;
+          result.topAirports.replace(valueDes);
+          break;
+        case r'topAirlines':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType(BuiltList, [FullType(TopAirlineEntity)]),
+          ) as BuiltList<TopAirlineEntity>;
+          result.topAirlines.replace(valueDes);
+          break;
+        case r'topRoutes':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType(BuiltList, [FullType(TopRouteEntity)]),
+          ) as BuiltList<TopRouteEntity>;
+          result.topRoutes.replace(valueDes);
+          break;
+        case r'countries':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType(BuiltList, [FullType(CountryEntity)]),
+          ) as BuiltList<CountryEntity>;
+          result.countries.replace(valueDes);
+          break;
+        case r'continents':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType(BuiltList, [FullType(ContinentEntity)]),
+          ) as BuiltList<ContinentEntity>;
+          result.continents.replace(valueDes);
+          break;
+        case r'delays':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType(DelaySummaryEntity),
+          ) as DelaySummaryEntity;
+          result.delays.replace(valueDes);
+          break;
+        case r'runways':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType(RunwaysEntity),
+          ) as RunwaysEntity;
+          result.runways.replace(valueDes);
+          break;
+        case r'taxiByAirport':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType(TaxiByAirportEntity),
+          ) as TaxiByAirportEntity;
+          result.taxiByAirport.replace(valueDes);
+          break;
+        case r'extremes':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType(ExtremesEntity),
+          ) as ExtremesEntity;
+          result.extremes.replace(valueDes);
+          break;
+        case r'map':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType(MapDataEntity),
+          ) as MapDataEntity;
+          result.map.replace(valueDes);
+          break;
         case r'mostFlownAircraft':
           final valueDes = serializers.deserialize(
             value,
@@ -174,62 +353,6 @@ class _$ProfileStatsResponseEntitySerializer implements PrimitiveSerializer<Prof
           ) as AircraftStatsEntity?;
           if (valueDes == null) continue;
           result.aircraftStats.replace(valueDes);
-          break;
-        case r'passport':
-          final valueDes = serializers.deserialize(
-            value,
-            specifiedType: const FullType(PassportEntity),
-          ) as PassportEntity;
-          result.passport.replace(valueDes);
-          break;
-        case r'shortestDistanceFlight':
-          final valueDes = serializers.deserialize(
-            value,
-            specifiedType: const FullType(FlightDistanceEntity),
-          ) as FlightDistanceEntity;
-          result.shortestDistanceFlight.replace(valueDes);
-          break;
-        case r'longestDistanceFlight':
-          final valueDes = serializers.deserialize(
-            value,
-            specifiedType: const FullType(FlightDistanceEntity),
-          ) as FlightDistanceEntity;
-          result.longestDistanceFlight.replace(valueDes);
-          break;
-        case r'shortestDurationFlight':
-          final valueDes = serializers.deserialize(
-            value,
-            specifiedType: const FullType(FlightDurationEntity),
-          ) as FlightDurationEntity;
-          result.shortestDurationFlight.replace(valueDes);
-          break;
-        case r'longestDurationFlight':
-          final valueDes = serializers.deserialize(
-            value,
-            specifiedType: const FullType(FlightDurationEntity),
-          ) as FlightDurationEntity;
-          result.longestDurationFlight.replace(valueDes);
-          break;
-        case r'airlines':
-          final valueDes = serializers.deserialize(
-            value,
-            specifiedType: const FullType(BuiltList, [FullType(AirlineStatsEntity)]),
-          ) as BuiltList<AirlineStatsEntity>;
-          result.airlines.replace(valueDes);
-          break;
-        case r'airports':
-          final valueDes = serializers.deserialize(
-            value,
-            specifiedType: const FullType(BuiltList, [FullType(AirportStatsEntity)]),
-          ) as BuiltList<AirportStatsEntity>;
-          result.airports.replace(valueDes);
-          break;
-        case r'topRoutes':
-          final valueDes = serializers.deserialize(
-            value,
-            specifiedType: const FullType(BuiltList, [FullType(TopRouteEntity)]),
-          ) as BuiltList<TopRouteEntity>;
-          result.topRoutes.replace(valueDes);
           break;
         default:
           unhandled.add(key);

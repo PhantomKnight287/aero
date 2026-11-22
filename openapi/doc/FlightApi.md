@@ -16,6 +16,7 @@ Method | HTTP request | Description
 [**flightControllerGetAircraftRecentV1**](FlightApi.md#flightcontrollergetaircraftrecentv1) | **GET** /v1/flight/{flightId}/aircraft-recent | Recent legs of the aircraft operating a flight
 [**flightControllerGetFlightBookingV1**](FlightApi.md#flightcontrollergetflightbookingv1) | **GET** /v1/flight/booking/{bookingId} | Get a flight booking
 [**flightControllerGetFlightBookingsByFlightIdV1**](FlightApi.md#flightcontrollergetflightbookingsbyflightidv1) | **GET** /v1/flight/booking/flight/{flightId} | Get all bookings for a flight
+[**flightControllerGetFlightHistoryV1**](FlightApi.md#flightcontrollergetflighthistoryv1) | **GET** /v1/flight/history | Paged flight history
 [**flightControllerGetFlightTrackV1**](FlightApi.md#flightcontrollergetflighttrackv1) | **GET** /v1/flight/track | Get flight track/path
 [**flightControllerGetFlightV1**](FlightApi.md#flightcontrollergetflightv1) | **GET** /v1/flight | Get flight details
 [**flightControllerSearchFlightsV1**](FlightApi.md#flightcontrollersearchflightsv1) | **GET** /v1/flight/search | Search flights
@@ -199,7 +200,7 @@ Name | Type | Description  | Notes
 
 Recent legs of the aircraft operating a flight
 
-Up to 10 most recent FlightAware legs for the registration (cached 1h). Returns [] when FlightAware is unavailable.
+Up to 10 most recent FlightAware legs for the registration (cached 1h). 502 when FlightAware is unavailable.
 
 ### Example
 ```dart
@@ -311,6 +312,53 @@ Name | Type | Description  | Notes
 ### Return type
 
 [**BuiltList&lt;FlightBookingEntity&gt;**](FlightBookingEntity.md)
+
+### Authorization
+
+[JWT-auth](../README.md#JWT-auth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **flightControllerGetFlightHistoryV1**
+> FlightHistoryResponseEntity flightControllerGetFlightHistoryV1(cursor, limit, year)
+
+Paged flight history
+
+Counted flights, newest first. Cursor is the last item id of the previous page.
+
+### Example
+```dart
+import 'package:openapi/api.dart';
+
+final api = Openapi().getFlightApi();
+final String cursor = cursor_example; // String | 
+final num limit = 8.14; // num | Default 30, clamped to 1..100
+final num year = 8.14; // num | 
+
+try {
+    final response = api.flightControllerGetFlightHistoryV1(cursor, limit, year);
+    print(response);
+} on DioException catch (e) {
+    print('Exception when calling FlightApi->flightControllerGetFlightHistoryV1: $e\n');
+}
+```
+
+### Parameters
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **cursor** | **String**|  | [optional] 
+ **limit** | **num**| Default 30, clamped to 1..100 | [optional] 
+ **year** | **num**|  | [optional] 
+
+### Return type
+
+[**FlightHistoryResponseEntity**](FlightHistoryResponseEntity.md)
 
 ### Authorization
 

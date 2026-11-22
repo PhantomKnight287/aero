@@ -13,7 +13,7 @@ Method | HTTP request | Description
 
 
 # **profileControllerGetProfileStatsV1**
-> ProfileStatsResponseEntity profileControllerGetProfileStatsV1()
+> ProfileStatsResponseEntity profileControllerGetProfileStatsV1(year)
 
 Get profile stats
 
@@ -24,9 +24,10 @@ Returns comprehensive statistics about tracked flights including passport data, 
 import 'package:openapi/api.dart';
 
 final api = Openapi().getProfileApi();
+final num year = 8.14; // num | 
 
 try {
-    final response = api.profileControllerGetProfileStatsV1();
+    final response = api.profileControllerGetProfileStatsV1(year);
     print(response);
 } on DioException catch (e) {
     print('Exception when calling ProfileApi->profileControllerGetProfileStatsV1: $e\n');
@@ -34,7 +35,10 @@ try {
 ```
 
 ### Parameters
-This endpoint does not need any parameter.
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **year** | **num**|  | [optional] 
 
 ### Return type
 

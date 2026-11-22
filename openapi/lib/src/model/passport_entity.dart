@@ -11,32 +11,59 @@ part 'passport_entity.g.dart';
 /// PassportEntity
 ///
 /// Properties:
-/// * [totalFlights] - Total number of flights taken
-/// * [totalDistanceKm] - Total distance in kilometers
-/// * [totalDurationMinutes] - Total flight duration in minutes (including delays)
-/// * [totalAirports] - Number of unique airports
-/// * [totalAirlines] - Number of unique airlines
+/// * [totalFlights] 
+/// * [totalDistanceKm] 
+/// * [blockMinutes] 
+/// * [airMinutes] 
+/// * [airBasedOn] 
+/// * [taxiMinutes] 
+/// * [taxiBasedOn] 
+/// * [totalAirports] 
+/// * [totalAirlines] 
+/// * [totalCountries] 
+/// * [domestic] 
+/// * [international] 
+/// * [longHaul] 
 @BuiltValue()
 abstract class PassportEntity implements Built<PassportEntity, PassportEntityBuilder> {
-  /// Total number of flights taken
   @BuiltValueField(wireName: r'totalFlights')
   num get totalFlights;
 
-  /// Total distance in kilometers
   @BuiltValueField(wireName: r'totalDistanceKm')
   num get totalDistanceKm;
 
-  /// Total flight duration in minutes (including delays)
-  @BuiltValueField(wireName: r'totalDurationMinutes')
-  num get totalDurationMinutes;
+  @BuiltValueField(wireName: r'blockMinutes')
+  num get blockMinutes;
 
-  /// Number of unique airports
+  @BuiltValueField(wireName: r'airMinutes')
+  num get airMinutes;
+
+  @BuiltValueField(wireName: r'airBasedOn')
+  num get airBasedOn;
+
+  @BuiltValueField(wireName: r'taxiMinutes')
+  num get taxiMinutes;
+
+  @BuiltValueField(wireName: r'taxiBasedOn')
+  num get taxiBasedOn;
+
   @BuiltValueField(wireName: r'totalAirports')
   num get totalAirports;
 
-  /// Number of unique airlines
   @BuiltValueField(wireName: r'totalAirlines')
   num get totalAirlines;
+
+  @BuiltValueField(wireName: r'totalCountries')
+  num get totalCountries;
+
+  @BuiltValueField(wireName: r'domestic')
+  num get domestic;
+
+  @BuiltValueField(wireName: r'international')
+  num get international;
+
+  @BuiltValueField(wireName: r'longHaul')
+  num get longHaul;
 
   PassportEntity._();
 
@@ -71,9 +98,29 @@ class _$PassportEntitySerializer implements PrimitiveSerializer<PassportEntity> 
       object.totalDistanceKm,
       specifiedType: const FullType(num),
     );
-    yield r'totalDurationMinutes';
+    yield r'blockMinutes';
     yield serializers.serialize(
-      object.totalDurationMinutes,
+      object.blockMinutes,
+      specifiedType: const FullType(num),
+    );
+    yield r'airMinutes';
+    yield serializers.serialize(
+      object.airMinutes,
+      specifiedType: const FullType(num),
+    );
+    yield r'airBasedOn';
+    yield serializers.serialize(
+      object.airBasedOn,
+      specifiedType: const FullType(num),
+    );
+    yield r'taxiMinutes';
+    yield serializers.serialize(
+      object.taxiMinutes,
+      specifiedType: const FullType(num),
+    );
+    yield r'taxiBasedOn';
+    yield serializers.serialize(
+      object.taxiBasedOn,
       specifiedType: const FullType(num),
     );
     yield r'totalAirports';
@@ -84,6 +131,26 @@ class _$PassportEntitySerializer implements PrimitiveSerializer<PassportEntity> 
     yield r'totalAirlines';
     yield serializers.serialize(
       object.totalAirlines,
+      specifiedType: const FullType(num),
+    );
+    yield r'totalCountries';
+    yield serializers.serialize(
+      object.totalCountries,
+      specifiedType: const FullType(num),
+    );
+    yield r'domestic';
+    yield serializers.serialize(
+      object.domestic,
+      specifiedType: const FullType(num),
+    );
+    yield r'international';
+    yield serializers.serialize(
+      object.international,
+      specifiedType: const FullType(num),
+    );
+    yield r'longHaul';
+    yield serializers.serialize(
+      object.longHaul,
       specifiedType: const FullType(num),
     );
   }
@@ -123,12 +190,40 @@ class _$PassportEntitySerializer implements PrimitiveSerializer<PassportEntity> 
           ) as num;
           result.totalDistanceKm = valueDes;
           break;
-        case r'totalDurationMinutes':
+        case r'blockMinutes':
           final valueDes = serializers.deserialize(
             value,
             specifiedType: const FullType(num),
           ) as num;
-          result.totalDurationMinutes = valueDes;
+          result.blockMinutes = valueDes;
+          break;
+        case r'airMinutes':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType(num),
+          ) as num;
+          result.airMinutes = valueDes;
+          break;
+        case r'airBasedOn':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType(num),
+          ) as num;
+          result.airBasedOn = valueDes;
+          break;
+        case r'taxiMinutes':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType(num),
+          ) as num;
+          result.taxiMinutes = valueDes;
+          break;
+        case r'taxiBasedOn':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType(num),
+          ) as num;
+          result.taxiBasedOn = valueDes;
           break;
         case r'totalAirports':
           final valueDes = serializers.deserialize(
@@ -143,6 +238,34 @@ class _$PassportEntitySerializer implements PrimitiveSerializer<PassportEntity> 
             specifiedType: const FullType(num),
           ) as num;
           result.totalAirlines = valueDes;
+          break;
+        case r'totalCountries':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType(num),
+          ) as num;
+          result.totalCountries = valueDes;
+          break;
+        case r'domestic':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType(num),
+          ) as num;
+          result.domestic = valueDes;
+          break;
+        case r'international':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType(num),
+          ) as num;
+          result.international = valueDes;
+          break;
+        case r'longHaul':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType(num),
+          ) as num;
+          result.longHaul = valueDes;
           break;
         default:
           unhandled.add(key);

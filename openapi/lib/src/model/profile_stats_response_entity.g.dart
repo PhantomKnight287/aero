@@ -8,41 +8,62 @@ part of 'profile_stats_response_entity.dart';
 
 class _$ProfileStatsResponseEntity extends ProfileStatsResponseEntity {
   @override
-  final MostFlownAircraftEntity mostFlownAircraft;
+  final BuiltList<num> availableYears;
   @override
-  final AircraftStatsEntity? aircraftStats;
+  final num? year;
   @override
   final PassportEntity passport;
   @override
-  final FlightDistanceEntity shortestDistanceFlight;
+  final FlightsPerEntity flightsPer;
   @override
-  final FlightDistanceEntity longestDistanceFlight;
+  final RecordsEntity records;
   @override
-  final FlightDurationEntity shortestDurationFlight;
+  final BuiltList<TopAirportEntity> topAirports;
   @override
-  final FlightDurationEntity longestDurationFlight;
-  @override
-  final BuiltList<AirlineStatsEntity> airlines;
-  @override
-  final BuiltList<AirportStatsEntity> airports;
+  final BuiltList<TopAirlineEntity> topAirlines;
   @override
   final BuiltList<TopRouteEntity> topRoutes;
+  @override
+  final BuiltList<CountryEntity> countries;
+  @override
+  final BuiltList<ContinentEntity> continents;
+  @override
+  final DelaySummaryEntity delays;
+  @override
+  final RunwaysEntity runways;
+  @override
+  final TaxiByAirportEntity taxiByAirport;
+  @override
+  final ExtremesEntity extremes;
+  @override
+  final MapDataEntity map;
+  @override
+  final MostFlownAircraftEntity mostFlownAircraft;
+  @override
+  final AircraftStatsEntity? aircraftStats;
 
   factory _$ProfileStatsResponseEntity(
           [void Function(ProfileStatsResponseEntityBuilder)? updates]) =>
       (ProfileStatsResponseEntityBuilder()..update(updates))._build();
 
   _$ProfileStatsResponseEntity._(
-      {required this.mostFlownAircraft,
-      this.aircraftStats,
+      {required this.availableYears,
+      this.year,
       required this.passport,
-      required this.shortestDistanceFlight,
-      required this.longestDistanceFlight,
-      required this.shortestDurationFlight,
-      required this.longestDurationFlight,
-      required this.airlines,
-      required this.airports,
-      required this.topRoutes})
+      required this.flightsPer,
+      required this.records,
+      required this.topAirports,
+      required this.topAirlines,
+      required this.topRoutes,
+      required this.countries,
+      required this.continents,
+      required this.delays,
+      required this.runways,
+      required this.taxiByAirport,
+      required this.extremes,
+      required this.map,
+      required this.mostFlownAircraft,
+      this.aircraftStats})
       : super._();
   @override
   ProfileStatsResponseEntity rebuild(
@@ -57,31 +78,45 @@ class _$ProfileStatsResponseEntity extends ProfileStatsResponseEntity {
   bool operator ==(Object other) {
     if (identical(other, this)) return true;
     return other is ProfileStatsResponseEntity &&
-        mostFlownAircraft == other.mostFlownAircraft &&
-        aircraftStats == other.aircraftStats &&
+        availableYears == other.availableYears &&
+        year == other.year &&
         passport == other.passport &&
-        shortestDistanceFlight == other.shortestDistanceFlight &&
-        longestDistanceFlight == other.longestDistanceFlight &&
-        shortestDurationFlight == other.shortestDurationFlight &&
-        longestDurationFlight == other.longestDurationFlight &&
-        airlines == other.airlines &&
-        airports == other.airports &&
-        topRoutes == other.topRoutes;
+        flightsPer == other.flightsPer &&
+        records == other.records &&
+        topAirports == other.topAirports &&
+        topAirlines == other.topAirlines &&
+        topRoutes == other.topRoutes &&
+        countries == other.countries &&
+        continents == other.continents &&
+        delays == other.delays &&
+        runways == other.runways &&
+        taxiByAirport == other.taxiByAirport &&
+        extremes == other.extremes &&
+        map == other.map &&
+        mostFlownAircraft == other.mostFlownAircraft &&
+        aircraftStats == other.aircraftStats;
   }
 
   @override
   int get hashCode {
     var _$hash = 0;
+    _$hash = $jc(_$hash, availableYears.hashCode);
+    _$hash = $jc(_$hash, year.hashCode);
+    _$hash = $jc(_$hash, passport.hashCode);
+    _$hash = $jc(_$hash, flightsPer.hashCode);
+    _$hash = $jc(_$hash, records.hashCode);
+    _$hash = $jc(_$hash, topAirports.hashCode);
+    _$hash = $jc(_$hash, topAirlines.hashCode);
+    _$hash = $jc(_$hash, topRoutes.hashCode);
+    _$hash = $jc(_$hash, countries.hashCode);
+    _$hash = $jc(_$hash, continents.hashCode);
+    _$hash = $jc(_$hash, delays.hashCode);
+    _$hash = $jc(_$hash, runways.hashCode);
+    _$hash = $jc(_$hash, taxiByAirport.hashCode);
+    _$hash = $jc(_$hash, extremes.hashCode);
+    _$hash = $jc(_$hash, map.hashCode);
     _$hash = $jc(_$hash, mostFlownAircraft.hashCode);
     _$hash = $jc(_$hash, aircraftStats.hashCode);
-    _$hash = $jc(_$hash, passport.hashCode);
-    _$hash = $jc(_$hash, shortestDistanceFlight.hashCode);
-    _$hash = $jc(_$hash, longestDistanceFlight.hashCode);
-    _$hash = $jc(_$hash, shortestDurationFlight.hashCode);
-    _$hash = $jc(_$hash, longestDurationFlight.hashCode);
-    _$hash = $jc(_$hash, airlines.hashCode);
-    _$hash = $jc(_$hash, airports.hashCode);
-    _$hash = $jc(_$hash, topRoutes.hashCode);
     _$hash = $jf(_$hash);
     return _$hash;
   }
@@ -89,16 +124,23 @@ class _$ProfileStatsResponseEntity extends ProfileStatsResponseEntity {
   @override
   String toString() {
     return (newBuiltValueToStringHelper(r'ProfileStatsResponseEntity')
-          ..add('mostFlownAircraft', mostFlownAircraft)
-          ..add('aircraftStats', aircraftStats)
+          ..add('availableYears', availableYears)
+          ..add('year', year)
           ..add('passport', passport)
-          ..add('shortestDistanceFlight', shortestDistanceFlight)
-          ..add('longestDistanceFlight', longestDistanceFlight)
-          ..add('shortestDurationFlight', shortestDurationFlight)
-          ..add('longestDurationFlight', longestDurationFlight)
-          ..add('airlines', airlines)
-          ..add('airports', airports)
-          ..add('topRoutes', topRoutes))
+          ..add('flightsPer', flightsPer)
+          ..add('records', records)
+          ..add('topAirports', topAirports)
+          ..add('topAirlines', topAirlines)
+          ..add('topRoutes', topRoutes)
+          ..add('countries', countries)
+          ..add('continents', continents)
+          ..add('delays', delays)
+          ..add('runways', runways)
+          ..add('taxiByAirport', taxiByAirport)
+          ..add('extremes', extremes)
+          ..add('map', map)
+          ..add('mostFlownAircraft', mostFlownAircraft)
+          ..add('aircraftStats', aircraftStats))
         .toString();
   }
 }
@@ -107,6 +149,87 @@ class ProfileStatsResponseEntityBuilder
     implements
         Builder<ProfileStatsResponseEntity, ProfileStatsResponseEntityBuilder> {
   _$ProfileStatsResponseEntity? _$v;
+
+  ListBuilder<num>? _availableYears;
+  ListBuilder<num> get availableYears =>
+      _$this._availableYears ??= ListBuilder<num>();
+  set availableYears(ListBuilder<num>? availableYears) =>
+      _$this._availableYears = availableYears;
+
+  num? _year;
+  num? get year => _$this._year;
+  set year(num? year) => _$this._year = year;
+
+  PassportEntityBuilder? _passport;
+  PassportEntityBuilder get passport =>
+      _$this._passport ??= PassportEntityBuilder();
+  set passport(PassportEntityBuilder? passport) => _$this._passport = passport;
+
+  FlightsPerEntityBuilder? _flightsPer;
+  FlightsPerEntityBuilder get flightsPer =>
+      _$this._flightsPer ??= FlightsPerEntityBuilder();
+  set flightsPer(FlightsPerEntityBuilder? flightsPer) =>
+      _$this._flightsPer = flightsPer;
+
+  RecordsEntityBuilder? _records;
+  RecordsEntityBuilder get records =>
+      _$this._records ??= RecordsEntityBuilder();
+  set records(RecordsEntityBuilder? records) => _$this._records = records;
+
+  ListBuilder<TopAirportEntity>? _topAirports;
+  ListBuilder<TopAirportEntity> get topAirports =>
+      _$this._topAirports ??= ListBuilder<TopAirportEntity>();
+  set topAirports(ListBuilder<TopAirportEntity>? topAirports) =>
+      _$this._topAirports = topAirports;
+
+  ListBuilder<TopAirlineEntity>? _topAirlines;
+  ListBuilder<TopAirlineEntity> get topAirlines =>
+      _$this._topAirlines ??= ListBuilder<TopAirlineEntity>();
+  set topAirlines(ListBuilder<TopAirlineEntity>? topAirlines) =>
+      _$this._topAirlines = topAirlines;
+
+  ListBuilder<TopRouteEntity>? _topRoutes;
+  ListBuilder<TopRouteEntity> get topRoutes =>
+      _$this._topRoutes ??= ListBuilder<TopRouteEntity>();
+  set topRoutes(ListBuilder<TopRouteEntity>? topRoutes) =>
+      _$this._topRoutes = topRoutes;
+
+  ListBuilder<CountryEntity>? _countries;
+  ListBuilder<CountryEntity> get countries =>
+      _$this._countries ??= ListBuilder<CountryEntity>();
+  set countries(ListBuilder<CountryEntity>? countries) =>
+      _$this._countries = countries;
+
+  ListBuilder<ContinentEntity>? _continents;
+  ListBuilder<ContinentEntity> get continents =>
+      _$this._continents ??= ListBuilder<ContinentEntity>();
+  set continents(ListBuilder<ContinentEntity>? continents) =>
+      _$this._continents = continents;
+
+  DelaySummaryEntityBuilder? _delays;
+  DelaySummaryEntityBuilder get delays =>
+      _$this._delays ??= DelaySummaryEntityBuilder();
+  set delays(DelaySummaryEntityBuilder? delays) => _$this._delays = delays;
+
+  RunwaysEntityBuilder? _runways;
+  RunwaysEntityBuilder get runways =>
+      _$this._runways ??= RunwaysEntityBuilder();
+  set runways(RunwaysEntityBuilder? runways) => _$this._runways = runways;
+
+  TaxiByAirportEntityBuilder? _taxiByAirport;
+  TaxiByAirportEntityBuilder get taxiByAirport =>
+      _$this._taxiByAirport ??= TaxiByAirportEntityBuilder();
+  set taxiByAirport(TaxiByAirportEntityBuilder? taxiByAirport) =>
+      _$this._taxiByAirport = taxiByAirport;
+
+  ExtremesEntityBuilder? _extremes;
+  ExtremesEntityBuilder get extremes =>
+      _$this._extremes ??= ExtremesEntityBuilder();
+  set extremes(ExtremesEntityBuilder? extremes) => _$this._extremes = extremes;
+
+  MapDataEntityBuilder? _map;
+  MapDataEntityBuilder get map => _$this._map ??= MapDataEntityBuilder();
+  set map(MapDataEntityBuilder? map) => _$this._map = map;
 
   MostFlownAircraftEntityBuilder? _mostFlownAircraft;
   MostFlownAircraftEntityBuilder get mostFlownAircraft =>
@@ -120,57 +243,6 @@ class ProfileStatsResponseEntityBuilder
   set aircraftStats(AircraftStatsEntityBuilder? aircraftStats) =>
       _$this._aircraftStats = aircraftStats;
 
-  PassportEntityBuilder? _passport;
-  PassportEntityBuilder get passport =>
-      _$this._passport ??= PassportEntityBuilder();
-  set passport(PassportEntityBuilder? passport) => _$this._passport = passport;
-
-  FlightDistanceEntityBuilder? _shortestDistanceFlight;
-  FlightDistanceEntityBuilder get shortestDistanceFlight =>
-      _$this._shortestDistanceFlight ??= FlightDistanceEntityBuilder();
-  set shortestDistanceFlight(
-          FlightDistanceEntityBuilder? shortestDistanceFlight) =>
-      _$this._shortestDistanceFlight = shortestDistanceFlight;
-
-  FlightDistanceEntityBuilder? _longestDistanceFlight;
-  FlightDistanceEntityBuilder get longestDistanceFlight =>
-      _$this._longestDistanceFlight ??= FlightDistanceEntityBuilder();
-  set longestDistanceFlight(
-          FlightDistanceEntityBuilder? longestDistanceFlight) =>
-      _$this._longestDistanceFlight = longestDistanceFlight;
-
-  FlightDurationEntityBuilder? _shortestDurationFlight;
-  FlightDurationEntityBuilder get shortestDurationFlight =>
-      _$this._shortestDurationFlight ??= FlightDurationEntityBuilder();
-  set shortestDurationFlight(
-          FlightDurationEntityBuilder? shortestDurationFlight) =>
-      _$this._shortestDurationFlight = shortestDurationFlight;
-
-  FlightDurationEntityBuilder? _longestDurationFlight;
-  FlightDurationEntityBuilder get longestDurationFlight =>
-      _$this._longestDurationFlight ??= FlightDurationEntityBuilder();
-  set longestDurationFlight(
-          FlightDurationEntityBuilder? longestDurationFlight) =>
-      _$this._longestDurationFlight = longestDurationFlight;
-
-  ListBuilder<AirlineStatsEntity>? _airlines;
-  ListBuilder<AirlineStatsEntity> get airlines =>
-      _$this._airlines ??= ListBuilder<AirlineStatsEntity>();
-  set airlines(ListBuilder<AirlineStatsEntity>? airlines) =>
-      _$this._airlines = airlines;
-
-  ListBuilder<AirportStatsEntity>? _airports;
-  ListBuilder<AirportStatsEntity> get airports =>
-      _$this._airports ??= ListBuilder<AirportStatsEntity>();
-  set airports(ListBuilder<AirportStatsEntity>? airports) =>
-      _$this._airports = airports;
-
-  ListBuilder<TopRouteEntity>? _topRoutes;
-  ListBuilder<TopRouteEntity> get topRoutes =>
-      _$this._topRoutes ??= ListBuilder<TopRouteEntity>();
-  set topRoutes(ListBuilder<TopRouteEntity>? topRoutes) =>
-      _$this._topRoutes = topRoutes;
-
   ProfileStatsResponseEntityBuilder() {
     ProfileStatsResponseEntity._defaults(this);
   }
@@ -178,16 +250,23 @@ class ProfileStatsResponseEntityBuilder
   ProfileStatsResponseEntityBuilder get _$this {
     final $v = _$v;
     if ($v != null) {
+      _availableYears = $v.availableYears.toBuilder();
+      _year = $v.year;
+      _passport = $v.passport.toBuilder();
+      _flightsPer = $v.flightsPer.toBuilder();
+      _records = $v.records.toBuilder();
+      _topAirports = $v.topAirports.toBuilder();
+      _topAirlines = $v.topAirlines.toBuilder();
+      _topRoutes = $v.topRoutes.toBuilder();
+      _countries = $v.countries.toBuilder();
+      _continents = $v.continents.toBuilder();
+      _delays = $v.delays.toBuilder();
+      _runways = $v.runways.toBuilder();
+      _taxiByAirport = $v.taxiByAirport.toBuilder();
+      _extremes = $v.extremes.toBuilder();
+      _map = $v.map.toBuilder();
       _mostFlownAircraft = $v.mostFlownAircraft.toBuilder();
       _aircraftStats = $v.aircraftStats?.toBuilder();
-      _passport = $v.passport.toBuilder();
-      _shortestDistanceFlight = $v.shortestDistanceFlight.toBuilder();
-      _longestDistanceFlight = $v.longestDistanceFlight.toBuilder();
-      _shortestDurationFlight = $v.shortestDurationFlight.toBuilder();
-      _longestDurationFlight = $v.longestDurationFlight.toBuilder();
-      _airlines = $v.airlines.toBuilder();
-      _airports = $v.airports.toBuilder();
-      _topRoutes = $v.topRoutes.toBuilder();
       _$v = null;
     }
     return this;
@@ -211,40 +290,60 @@ class ProfileStatsResponseEntityBuilder
     try {
       _$result = _$v ??
           _$ProfileStatsResponseEntity._(
+            availableYears: availableYears.build(),
+            year: year,
+            passport: passport.build(),
+            flightsPer: flightsPer.build(),
+            records: records.build(),
+            topAirports: topAirports.build(),
+            topAirlines: topAirlines.build(),
+            topRoutes: topRoutes.build(),
+            countries: countries.build(),
+            continents: continents.build(),
+            delays: delays.build(),
+            runways: runways.build(),
+            taxiByAirport: taxiByAirport.build(),
+            extremes: extremes.build(),
+            map: map.build(),
             mostFlownAircraft: mostFlownAircraft.build(),
             aircraftStats: _aircraftStats?.build(),
-            passport: passport.build(),
-            shortestDistanceFlight: shortestDistanceFlight.build(),
-            longestDistanceFlight: longestDistanceFlight.build(),
-            shortestDurationFlight: shortestDurationFlight.build(),
-            longestDurationFlight: longestDurationFlight.build(),
-            airlines: airlines.build(),
-            airports: airports.build(),
-            topRoutes: topRoutes.build(),
           );
     } catch (_) {
       late String _$failedField;
       try {
+        _$failedField = 'availableYears';
+        availableYears.build();
+
+        _$failedField = 'passport';
+        passport.build();
+        _$failedField = 'flightsPer';
+        flightsPer.build();
+        _$failedField = 'records';
+        records.build();
+        _$failedField = 'topAirports';
+        topAirports.build();
+        _$failedField = 'topAirlines';
+        topAirlines.build();
+        _$failedField = 'topRoutes';
+        topRoutes.build();
+        _$failedField = 'countries';
+        countries.build();
+        _$failedField = 'continents';
+        continents.build();
+        _$failedField = 'delays';
+        delays.build();
+        _$failedField = 'runways';
+        runways.build();
+        _$failedField = 'taxiByAirport';
+        taxiByAirport.build();
+        _$failedField = 'extremes';
+        extremes.build();
+        _$failedField = 'map';
+        map.build();
         _$failedField = 'mostFlownAircraft';
         mostFlownAircraft.build();
         _$failedField = 'aircraftStats';
         _aircraftStats?.build();
-        _$failedField = 'passport';
-        passport.build();
-        _$failedField = 'shortestDistanceFlight';
-        shortestDistanceFlight.build();
-        _$failedField = 'longestDistanceFlight';
-        longestDistanceFlight.build();
-        _$failedField = 'shortestDurationFlight';
-        shortestDurationFlight.build();
-        _$failedField = 'longestDurationFlight';
-        longestDurationFlight.build();
-        _$failedField = 'airlines';
-        airlines.build();
-        _$failedField = 'airports';
-        airports.build();
-        _$failedField = 'topRoutes';
-        topRoutes.build();
       } catch (e) {
         throw BuiltValueNestedFieldError(
             r'ProfileStatsResponseEntity', _$failedField, e.toString());
