@@ -77,4 +77,15 @@ describe('core stats', () => {
     ]);
     expect(d).toEqual({ basedOn: 4, arrivedCount: 4, delayedCount: 2, minutesLost: 110, avgDelayMinutes: 55 });
   });
+
+  it('boundaries', () => {
+    expect(passport([mk({ blockMinutes: 360 })]).longHaul).toBe(0);
+    expect(passport([mk({ blockMinutes: 361 })]).longHaul).toBe(1);
+    expect(delaySummary([mk({ arrivalDelayMin: 15 })])).toMatchObject({ basedOn: 1, delayedCount: 0, minutesLost: 0 });
+    const r = records([mk({ distanceKm: 0 }), mk({ distanceKm: 500 })]);
+    expect(r.shortestDistance!.value).toBe(500);
+    const p = passport([mk({ taxiOutMin: 10 }), mk({ taxiOutMin: 5, taxiInMin: 4 }), mk()]);
+    expect(p.taxiMinutes).toBe(19);
+    expect(p.taxiBasedOn).toBe(2);
+  });
 });

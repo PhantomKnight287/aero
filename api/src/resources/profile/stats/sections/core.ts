@@ -1,4 +1,7 @@
 import { StatsFlight } from '../stats-flight';
+import { StatsRecord } from './record';
+
+export type { StatsRecord } from './record';
 
 const sum = (xs: number[]) => xs.reduce((a, b) => a + b, 0);
 const defined = <T>(x: T | undefined): x is T => x !== undefined;
@@ -6,8 +9,8 @@ const defined = <T>(x: T | undefined): x is T => x !== undefined;
 export function passport(fs: StatsFlight[]) {
   const air = fs.map((f) => f.airMinutes).filter(defined);
   const taxi = fs
-    .filter((f) => f.taxiOutMin !== undefined && f.taxiInMin !== undefined)
-    .map((f) => f.taxiOutMin! + f.taxiInMin!);
+    .filter((f) => f.taxiOutMin !== undefined || f.taxiInMin !== undefined)
+    .map((f) => (f.taxiOutMin ?? 0) + (f.taxiInMin ?? 0));
   const countries = new Set<string>();
   let domestic = 0, international = 0;
   for (const f of fs) {
@@ -45,8 +48,6 @@ export function flightsPer(fs: StatsFlight[]) {
   const year = [...years].map(([y, count]) => ({ year: y, count })).sort((a, b) => a.year - b.year);
   return { year, month, weekday };
 }
-
-export interface StatsRecord { flight: StatsFlight; value: number }
 
 export function records(fs: StatsFlight[]) {
   const pick = (get: (f: StatsFlight) => number, max: boolean): StatsRecord | null => {
