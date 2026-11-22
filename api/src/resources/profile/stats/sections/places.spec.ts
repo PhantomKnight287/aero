@@ -48,7 +48,14 @@ describe('places', () => {
 
   it('continents single domestic asia flight', () => {
     const BOM = ap('VABB', { iata: 'BOM' });
-    expect(continents([f(DEL, BOM)])[0]).toEqual({ bucket: 'asia', countryCount: 1, flightShare: 1 });
+    expect(continents([f(DEL, BOM)])[0]).toEqual({ bucket: 'asia', countryCount: 1, flightShare: 1, flightCount: 1 });
+  });
+
+  it('continents flightCount counts each flight once', () => {
+    const BOM = ap('VABB', { iata: 'BOM' });
+    const r = continents([f(DEL, BOM), f(DEL, DXB)]);
+    expect(r.find((x) => x.bucket === 'asia')!.flightCount).toBe(2);
+    expect(r.find((x) => x.bucket === 'middle_east')!.flightCount).toBe(1);
   });
 
   it('continent buckets', () => {
@@ -64,9 +71,9 @@ describe('places', () => {
   it('continents returns 9 buckets in order', () => {
     const r = continents([f(DEL, DXB), f(DEL, LHR)]);
     expect(r.map((x) => x.bucket)).toEqual(['asia', 'europe', 'north_america', 'middle_east', 'oceania', 'africa', 'central_america', 'caribbean', 'south_america']);
-    expect(r[0]).toEqual({ bucket: 'asia', countryCount: 1, flightShare: 1 });
-    expect(r[1]).toEqual({ bucket: 'europe', countryCount: 1, flightShare: 0.5 });
-    expect(r[3]).toEqual({ bucket: 'middle_east', countryCount: 1, flightShare: 0.5 });
+    expect(r[0]).toEqual({ bucket: 'asia', countryCount: 1, flightShare: 1, flightCount: 2 });
+    expect(r[1]).toEqual({ bucket: 'europe', countryCount: 1, flightShare: 0.5, flightCount: 1 });
+    expect(r[3]).toEqual({ bucket: 'middle_east', countryCount: 1, flightShare: 0.5, flightCount: 1 });
     expect(continents([]).every((x) => x.flightShare === 0)).toBe(true);
   });
 

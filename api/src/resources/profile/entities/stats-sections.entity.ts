@@ -104,6 +104,7 @@ export class ContinentEntity {
   @ApiProperty({ enum: CONTINENT_BUCKETS, enumName: 'ContinentBucket' }) bucket: ContinentBucket;
   @ApiProperty() countryCount: number;
   @ApiProperty({ description: 'Share of flights touching this continent, 0..1' }) flightShare: number;
+  @ApiProperty({ type: Number, description: 'Flights touching this continent, each counted once' }) flightCount: number;
 }
 
 export class DelaySummaryEntity {

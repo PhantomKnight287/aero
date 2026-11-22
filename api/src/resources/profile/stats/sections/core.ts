@@ -53,6 +53,7 @@ export function records(fs: StatsFlight[]) {
   const pick = (get: (f: StatsFlight) => number, max: boolean): StatsRecord | null => {
     let best: StatsRecord | null = null;
     for (const f of fs) {
+      if (f.dep.key && f.dep.key === f.arr.key) continue; // return-to-origin is not a record
       const value = get(f);
       if (value <= 0) continue; // unknown distance/duration is not a record
       if (!best || (max ? value > best.value : value < best.value)) best = { flight: f, value };

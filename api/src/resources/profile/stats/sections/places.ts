@@ -69,6 +69,7 @@ export function continents(fs: StatsFlight[]) {
     bucket,
     countryCount: ctry.get(bucket)?.size ?? 0,
     flightShare: fs.length ? (flights.get(bucket) ?? 0) / fs.length : 0,
+    flightCount: flights.get(bucket) ?? 0,
   }));
 }
 

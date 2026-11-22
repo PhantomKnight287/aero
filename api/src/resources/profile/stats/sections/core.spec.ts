@@ -62,6 +62,13 @@ describe('core stats', () => {
     expect(p.weekday[3]).toBe(2);
   });
 
+  it('records skip same-airport flights', () => {
+    const cgp = ap('VGEG', 'BD'), dac = ap('VGHS', 'BD');
+    const r = records([mk({ dep: cgp, arr: cgp, distanceKm: 228, blockMinutes: 50 }), mk({ dep: cgp, arr: dac, distanceKm: 250, blockMinutes: 60 })]);
+    expect(r.shortestDistance!.value).toBe(250);
+    expect(r.shortestDuration!.value).toBe(60);
+  });
+
   it('records pick extremes', () => {
     const r = records([mk({ distanceKm: 228, blockMinutes: 50 }), mk({ distanceKm: 15594, blockMinutes: 900 })]);
     expect(r.shortestDistance!.value).toBe(228);
