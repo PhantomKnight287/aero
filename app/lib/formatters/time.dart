@@ -5,7 +5,8 @@ String formatTime(
   DateTime date, {
   bool use24HourFormat = true,
 }) {
-  return DateFormat(use24HourFormat ? "HH:mm" : "h:mm a", Intl.systemLocale).format(date);
+  return DateFormat(use24HourFormat ? "HH:mm" : "h:mm a", Intl.systemLocale)
+      .format(date);
 }
 
 String formatDayAndMonth(
@@ -25,7 +26,7 @@ String getTimeMessage(DateTime departureTime, DateTime arrivalTime) {
   if (now.isBefore(departureTime)) {
     final difference = departureTime.difference(now);
     final minutes = difference.inMinutes;
-    
+
     if (minutes < 1) {
       return 'Departing now';
     } else if (minutes < 60) {
@@ -42,12 +43,12 @@ String getTimeMessage(DateTime departureTime, DateTime arrivalTime) {
       return 'Departs in $days ${days == 1 ? 'day' : 'days'}';
     }
   }
-  
+
   // Flight has departed - check if it has landed
   if (now.isAfter(arrivalTime)) {
     final difference = now.difference(arrivalTime);
     final minutes = difference.inMinutes;
-    
+
     if (minutes < 1) {
       return 'Just landed';
     } else if (minutes < 60) {
@@ -64,11 +65,11 @@ String getTimeMessage(DateTime departureTime, DateTime arrivalTime) {
       return 'Landed $days ${days == 1 ? 'day' : 'days'} ago';
     }
   }
-  
+
   // Flight is in the air
   final difference = arrivalTime.difference(now);
   final minutes = difference.inMinutes;
-  
+
   if (minutes < 1) {
     return 'Landing now';
   } else if (minutes < 60) {
@@ -110,8 +111,10 @@ String formatDate(DateTime date) {
   return '${MONTHS[date.month - 1]} ${date.day}, ${date.year}';
 }
 
-/// Long totals: >= 1 day -> '17d 11h' (rounded to nearest hour), else '7h 34m'.
+/// Long totals: >= 1 day -> '17d 11h' (rounded to nearest hour), else
+/// '7h 34m', or '38m' under an hour.
 String formatLongDuration(int minutes) {
+  if (minutes < 60) return '${minutes}m';
   if (minutes >= 1440) {
     final totalHours = (minutes / 60).round();
     return '${totalHours ~/ 24}d ${totalHours % 24}h';

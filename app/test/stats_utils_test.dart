@@ -26,6 +26,7 @@ void main() {
   test('formatLongDuration', () {
     expect(formatLongDuration(25139), '17d 11h');
     expect(formatLongDuration(454), '7h 34m');
-    expect(formatLongDuration(0), '0h 0m');
+    expect(formatLongDuration(38), '38m');
+    expect(formatLongDuration(0), '0m');
   });
 }

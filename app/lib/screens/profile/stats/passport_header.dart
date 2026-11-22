@@ -53,30 +53,31 @@ class PassportHeader extends StatelessWidget {
           ],
         ),
         const SizedBox(height: AeroSpace.lg),
-        Row(children: [
-          _stat(count(p.totalFlights), 'flights'),
-          _stat(formatDistance(p.totalDistanceKm, unit), 'distance'),
-          _stat(formatLongDuration(p.blockMinutes.round()), 'time'),
-          _stat(count(p.totalAirports), 'airports'),
-          _stat(count(p.totalAirlines), 'airlines'),
-        ]),
+        // Natural widths spread edge to edge; wraps to a second run instead
+        // of squeezing labels when the numbers get long.
+        Wrap(
+          alignment: WrapAlignment.spaceBetween,
+          spacing: AeroSpace.sm,
+          runSpacing: AeroSpace.md,
+          children: [
+            _stat(count(p.totalFlights), 'flights'),
+            _stat(formatDistance(p.totalDistanceKm, unit), 'distance'),
+            _stat(formatLongDuration(p.blockMinutes.round()), 'time'),
+            _stat(count(p.totalAirports), 'airports'),
+            _stat(count(p.totalAirlines), 'airlines'),
+          ],
+        ),
       ],
     );
   }
 
-  Widget _stat(String value, String label) => Expanded(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            FittedBox(
-              fit: BoxFit.scaleDown,
-              child: Text(value,
-                  style: AeroText.heading
-                      .copyWith(fontFeatures: AeroText.tabular)),
-            ),
-            Text(label.toUpperCase(), style: AeroText.label),
-          ],
-        ),
+  Widget _stat(String value, String label) => Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(value,
+              style: AeroText.heading.copyWith(fontFeatures: AeroText.tabular)),
+          Text(label.toUpperCase(), style: AeroText.label),
+        ],
       );
 }
 

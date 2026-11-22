@@ -195,7 +195,7 @@ void main() {
     expect(find.text('60 total airports'), findsOneWidget);
     expect(find.text('3 runways used'), findsOneWidget);
     expect(find.text('418h 59m'), findsOneWidget);
-    expect(find.text('A01 · taxi-out 22m avg (9 flights)'), findsOneWidget);
+    expect(find.text('taxi-out 22m avg (9 flights)'), findsOneWidget);
   });
 
   testWidgets('map placeholder when no coordinates', (t) async {

@@ -1,4 +1,5 @@
 import 'package:aero/screens/profile/stats/open_flight_request.dart';
+import 'package:aero/screens/profile/stats/widgets/past_flight_row.dart';
 import 'package:aero/screens/profile/stats/widgets/record_row.dart';
 import 'package:aero/ui/components/aero_sheet.dart';
 import 'package:aero/ui/tokens.dart';
@@ -42,15 +43,19 @@ Widget recordRow(
 ) {
   if (r == null) return const SizedBox.shrink();
   final f = r.flight;
+  // Same departure-local day the hub's flight log opens with.
+  final date = flightDay(f);
   return RecordRow(
     caption: caption,
     flight: f,
     value: format(r.value),
-    onTap: () => context.pop(OpenFlightRequest(
-      flightNo: f.flightNo,
-      date: DateTime.parse(f.date),
-      faFlightId: f.faFlightId,
-    )),
+    onTap: date == null
+        ? null
+        : () => context.pop(OpenFlightRequest(
+              flightNo: f.flightNo,
+              date: date,
+              faFlightId: f.faFlightId,
+            )),
   );
 }
 

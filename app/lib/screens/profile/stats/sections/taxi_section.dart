@@ -64,11 +64,11 @@ class TaxiSection extends StatelessWidget {
     );
   }
 
-  /// 'DEL · taxi-out 22m avg (9 flights)', then taxi-in on its own line.
+  /// Code as the title (like the other airport rows), then
+  /// 'taxi-out 22m avg (9 flights)', taxi-in, and the airport name.
   Widget _row(TaxiAirportEntity e) {
     String line(String kind, num? avg, num n) =>
         '$kind ${avg!.round()}m avg (${count(n)} ${n == 1 ? 'flight' : 'flights'})';
-    final code = airportCode(e.airport);
     final lines = [
       if (_hasOut(e)) line('taxi-out', e.avgTaxiOutMin, e.taxiOutCount),
       if (_hasIn(e)) line('taxi-in', e.avgTaxiInMin, e.taxiInCount),
@@ -76,8 +76,9 @@ class TaxiSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        Text(airportCode(e.airport), style: AeroText.heading),
         for (final l in lines)
-          Text('$code · $l',
+          Text(l,
               style: AeroText.body.copyWith(
                   color: AeroColors.ink, fontFeatures: AeroText.tabular)),
         Text(e.airport.name,
