@@ -1,7 +1,12 @@
+import 'package:aero/formatters/units.dart';
 import 'package:aero/screens/profile/stats/widgets/bar_chart.dart';
+import 'package:aero/screens/profile/stats/widgets/comparison_pill.dart';
 import 'package:aero/screens/profile/stats/widgets/past_flight_row.dart';
+import 'package:aero/screens/profile/stats/widgets/stat_bar_list.dart';
 import 'package:aero/screens/profile/stats/widgets/stat_section.dart';
 import 'package:aero/screens/profile/stats/widgets/summary_card.dart';
+import 'package:aero/screens/profile/stats/widgets/unit_text.dart';
+import 'package:aero/ui/tokens.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:openapi/openapi.dart';
@@ -56,5 +61,75 @@ void main() {
     await t.pumpWidget(wrap(const BarChart(
         values: [0, 0, 0], labels: ['a', 'b', 'c'], color: Colors.blue)));
     expect(t.takeException(), isNull);
+  });
+
+  testWidgets('UnitText marks units grey', (t) async {
+    await t.pumpWidget(
+        wrap(UnitText.duration(37404, style: const TextStyle(fontSize: 20))));
+    final root = t.widget<RichText>(find.descendant(
+        of: find.byType(UnitText), matching: find.byType(RichText)));
+    final spans = <TextSpan>[];
+    root.text.visitChildren((s) {
+      if (s is TextSpan && s.text != null) spans.add(s);
+      return true;
+    });
+    expect(spans.map((s) => s.text), ['623', 'h', ' 24', 'm']);
+    expect(spans[1].style!.color, AeroColors.muted);
+    expect(spans[3].style!.color, AeroColors.muted);
+    expect(spans[0].style!.color, isNot(AeroColors.muted));
+  });
+
+  testWidgets('UnitText under an hour, days and distance', (t) async {
+    String text(UnitText u) => u.parts.map((p) => p.$1).join();
+    const s = TextStyle(fontSize: 20);
+    expect(text(UnitText.duration(38, style: s)), '38m');
+    expect(text(UnitText.days(25 * 1440 + 23 * 60, style: s)), '25d 23h');
+    expect(text(UnitText.distance(496500, DistanceUnit.km, style: s)),
+        '496,500 km');
+  });
+
+  testWidgets('ranking bar has no track', (t) async {
+    await t
+        .pumpWidget(wrap(const StatBarList(color: AeroAccent.passport, rows: [
+      StatBar(label: Text('DEL'), value: 29, valueLabel: '29'),
+      StatBar(label: Text('DXB'), value: 14, valueLabel: '14'),
+    ])));
+    bool isTrack(Widget w) =>
+        (w is ColoredBox && w.color == AeroColors.surfaceAlt) ||
+        (w is Container &&
+            (w.color == AeroColors.surfaceAlt ||
+                (w.decoration as BoxDecoration?)?.color ==
+                    AeroColors.surfaceAlt));
+    expect(
+        find.descendant(
+            of: find.byType(StatBarList),
+            matching: find.byWidgetPredicate(isTrack)),
+        findsNothing);
+    expect(find.text('29'), findsOneWidget);
+  });
+
+  test('axis ticks are nice', () {
+    expect(niceTicks(13), [0, 4, 8, 12, 16]);
+    expect(niceTicks(0), [0, 1]);
+    expect(niceTicks(17), [0, 5, 10, 15, 20]);
+    expect(niceTicks(90), [0, 25, 50, 75, 100]);
+  });
+
+  testWidgets('axis for all-zero values', (t) async {
+    await t.pumpWidget(wrap(const BarChart(
+        values: [0, 0], labels: ['a', 'b'], color: AeroAccent.passport)));
+    expect(t.takeException(), isNull);
+    expect(find.text('1'), findsOneWidget);
+  });
+
+  testWidgets('comparison pill fills and caps', (t) async {
+    await t.pumpWidget(wrap(const ComparisonPill(
+        icon: ComparisonIcon.earth,
+        fraction: 3.0,
+        value: '3.0×',
+        label: 'Around Earth')));
+    final pill = t.getSize(find.byType(ComparisonPill));
+    expect(t.getSize(find.byKey(ComparisonPill.fillKey)).width, pill.width);
+    expect(pill.height, 48);
   });
 }

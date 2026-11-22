@@ -46,14 +46,16 @@ class DistanceSection extends StatelessWidget {
               style: tabularBody),
           const SizedBox(height: AeroSpace.lg),
           ComparisonPill(
-              icon: '🌍',
+              icon: ComparisonIcon.earth,
               fraction: earth,
-              label: '${earth.toStringAsFixed(1)}× around Earth'),
+              value: '${earth.toStringAsFixed(1)}×',
+              label: 'Around Earth'),
           const SizedBox(height: AeroSpace.sm),
           ComparisonPill(
-              icon: '🌕',
+              icon: ComparisonIcon.moon,
               fraction: moon,
-              label: '${moon.toStringAsFixed(1)}× to the Moon'),
+              value: '${moon.toStringAsFixed(1)}×',
+              label: 'To the Moon'),
           const SizedBox(height: AeroSpace.sm),
           recordRow(
               context, 'Shortest flight', stats.records.shortestDistance, dist),

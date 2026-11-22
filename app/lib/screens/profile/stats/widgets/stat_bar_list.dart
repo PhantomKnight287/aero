@@ -14,7 +14,9 @@ class StatBar {
   });
 }
 
-/// Ranked rows: label + value, with a bar scaled to the largest value.
+/// Ranked rows: a fixed label column, then a bar scaled to the largest
+/// value with its count right at the bar's end. No track: a ranking, not
+/// a progress meter.
 class StatBarList extends StatefulWidget {
   final List<StatBar> rows;
   final List<StatBar>? _byDistance;
@@ -36,6 +38,14 @@ class StatBarList extends StatefulWidget {
   State<StatBarList> createState() => _StatBarListState();
 }
 
+const _labelWidth = 44.0;
+const _barHeight = 22.0;
+
+final _countStyle = AeroText.body.copyWith(
+    color: AeroColors.muted,
+    fontWeight: FontWeight.w600,
+    fontFeatures: AeroText.tabular);
+
 class _StatBarListState extends State<StatBarList> {
   bool _distance = false;
 
@@ -44,6 +54,18 @@ class _StatBarListState extends State<StatBarList> {
     final byDistance = widget._byDistance;
     final rows = _distance && byDistance != null ? byDistance : widget.rows;
     final max = rows.fold<num>(0, (m, r) => r.value > m ? r.value : m);
+    // The widest count is reserved so every bar shares one scale.
+    final scaler = MediaQuery.textScalerOf(context);
+    final countWidth = rows.fold<double>(0, (w, r) {
+      final tp = TextPainter(
+          text: TextSpan(text: r.valueLabel, style: _countStyle),
+          textDirection: TextDirection.ltr,
+          textScaler: scaler)
+        ..layout();
+      final width = tp.width.ceilToDouble() + 1;
+      tp.dispose();
+      return width > w ? width : w;
+    });
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -57,50 +79,31 @@ class _StatBarListState extends State<StatBarList> {
           const SizedBox(height: AeroSpace.md),
         ],
         for (var i = 0; i < rows.length; i++) ...[
-          if (i > 0) const SizedBox(height: AeroSpace.md),
-          _Row(bar: rows[i], max: max, color: widget.color),
-        ],
-      ],
-    );
-  }
-}
-
-class _Row extends StatelessWidget {
-  final StatBar bar;
-  final num max;
-  final Color color;
-
-  const _Row({required this.bar, required this.max, required this.color});
-
-  @override
-  Widget build(BuildContext context) {
-    final fraction = max <= 0 ? 0.0 : (bar.value / max).clamp(0.0, 1.0);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Row(children: [
-          Expanded(child: bar.label),
-          const SizedBox(width: AeroSpace.sm),
-          Text(bar.valueLabel,
-              style: AeroText.body.copyWith(
-                  color: AeroColors.ink,
-                  fontWeight: FontWeight.w600,
-                  fontFeatures: AeroText.tabular)),
-        ]),
-        const SizedBox(height: AeroSpace.xs),
-        ClipRRect(
-          borderRadius: AeroRadius.pillAll,
-          child: Stack(children: [
-            const SizedBox(
-                height: 6,
-                width: double.infinity,
-                child: ColoredBox(color: AeroColors.surfaceAlt)),
-            FractionallySizedBox(
-              widthFactor: fraction,
-              child: SizedBox(height: 6, child: ColoredBox(color: color)),
+          if (i > 0) const SizedBox(height: AeroSpace.sm),
+          Row(children: [
+            SizedBox(width: _labelWidth, child: rows[i].label),
+            const SizedBox(width: AeroSpace.sm),
+            Expanded(
+              child: LayoutBuilder(builder: (context, c) {
+                final room = c.maxWidth - countWidth - AeroSpace.sm;
+                final f = max <= 0 ? 0.0 : (rows[i].value / max).clamp(0, 1);
+                return Row(children: [
+                  Container(
+                    width: room > 0 ? room * f : 0,
+                    height: _barHeight,
+                    decoration: BoxDecoration(
+                        color: widget.color, borderRadius: AeroRadius.smAll),
+                  ),
+                  const SizedBox(width: AeroSpace.sm),
+                  Flexible(
+                    child: Text(rows[i].valueLabel,
+                        style: _countStyle, maxLines: 1, softWrap: false),
+                  ),
+                ]);
+              }),
             ),
           ]),
-        ),
+        ],
       ],
     );
   }

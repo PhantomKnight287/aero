@@ -1,8 +1,30 @@
 import 'package:aero/ui/tokens.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
-/// Vertical bars, one per value. The plot is a painter with no text; the
-/// [labels] sit below it in a row, one per bar.
+/// 4-5 evenly spaced integer ticks from 0 up to at least [max], stepping
+/// by 1, 2, 4, 5, 10, 20, 25, 50, 100, 200, 250, 500, ... (13 -> 0..16 by
+/// 4). [max] <= 0 gives [0, 1].
+List<int> niceTicks(int max) {
+  if (max <= 0) return const [0, 1];
+  int spans(int step) => (max + step - 1) ~/ step;
+  final step = _steps().firstWhere((s) => spans(s) <= 4);
+  final n = spans(step);
+  return [for (var k = 0; k <= n; k++) k * step];
+}
+
+Iterable<int> _steps() sync* {
+  yield* const [1, 2, 4, 5];
+  for (var m = 10;; m *= 10) {
+    yield* [m, 2 * m, m * 5 ~/ 2, 5 * m];
+  }
+}
+
+const _axisWidth = 28.0;
+
+/// Vertical bars, one per value, over light gridlines. Tick labels sit in
+/// a y-axis column to the left and [labels] in a row below: the plot itself
+/// has no text.
 class BarChart extends StatelessWidget {
   final List<int> values;
   final List<String> labels;
@@ -14,29 +36,57 @@ class BarChart extends StatelessWidget {
     required this.values,
     required this.labels,
     required this.color,
-    this.height = 120,
+    this.height = 140,
   });
 
   @override
   Widget build(BuildContext context) {
+    final ticks = niceTicks(values.fold<int>(0, (m, v) => v > m ? v : m));
+    final top = ticks.last;
+    final fmt = NumberFormat.decimalPattern();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         SizedBox(
           height: height,
-          child: CustomPaint(painter: _BarPainter(values, color)),
+          child: Row(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            SizedBox(
+              width: _axisWidth,
+              child: Stack(clipBehavior: Clip.none, children: [
+                for (final t in ticks)
+                  Positioned(
+                    right: 0,
+                    top: height * (1 - t / top),
+                    child: FractionalTranslation(
+                      translation: const Offset(0, -0.5),
+                      child: Text(fmt.format(t),
+                          maxLines: 1,
+                          style: AeroText.micro
+                              .copyWith(fontFeatures: AeroText.tabular)),
+                    ),
+                  ),
+              ]),
+            ),
+            const SizedBox(width: AeroSpace.sm),
+            Expanded(
+              child: CustomPaint(painter: _BarPainter(values, ticks, color)),
+            ),
+          ]),
         ),
         const SizedBox(height: AeroSpace.xs),
-        Row(children: [
-          for (final l in labels)
-            Expanded(
-              child: Text(l,
-                  textAlign: TextAlign.center,
-                  maxLines: 1,
-                  overflow: TextOverflow.clip,
-                  style: AeroText.micro),
-            ),
-        ]),
+        Padding(
+          padding: const EdgeInsets.only(left: _axisWidth + AeroSpace.sm),
+          child: Row(children: [
+            for (final l in labels)
+              Expanded(
+                child: Text(l,
+                    textAlign: TextAlign.center,
+                    maxLines: 1,
+                    overflow: TextOverflow.clip,
+                    style: AeroText.micro),
+              ),
+          ]),
+        ),
       ],
     );
   }
@@ -44,31 +94,37 @@ class BarChart extends StatelessWidget {
 
 class _BarPainter extends CustomPainter {
   final List<int> values;
+  final List<int> ticks;
   final Color color;
 
-  _BarPainter(this.values, this.color);
+  _BarPainter(this.values, this.ticks, this.color);
 
   @override
   void paint(Canvas canvas, Size size) {
+    final top = ticks.last;
+    final grid = Paint()
+      ..color = AeroColors.line
+      ..strokeWidth = 1;
+    for (final t in ticks) {
+      final y = size.height * (1 - t / top);
+      canvas.drawLine(Offset(0, y), Offset(size.width, y), grid);
+    }
     if (values.isEmpty) return;
-    final max = values.fold<int>(1, (m, v) => v > m ? v : m);
     final slot = size.width / values.length;
     final barW = slot * 0.6;
-    const minH = 2.0;
     final paint = Paint()..color = color;
-    const r = Radius.circular(AeroRadius.sm / 4);
     for (var i = 0; i < values.length; i++) {
-      final h = values[i] <= 0
-          ? minH
-          : (values[i] / max * size.height).clamp(minH, size.height);
-      final x = i * slot + (slot - barW) / 2;
+      if (values[i] <= 0) continue;
+      final h = values[i] / top * size.height;
+      final r = Radius.circular(
+          [AeroRadius.sm * 0.75, barW / 2, h].reduce((a, b) => a < b ? a : b));
       canvas.drawRRect(
         RRect.fromRectAndCorners(
-          Rect.fromLTWH(x, size.height - h, barW, h),
+          Rect.fromLTWH(i * slot + (slot - barW) / 2, size.height - h, barW, h),
           topLeft: r,
           topRight: r,
         ),
-        values[i] <= 0 ? (Paint()..color = AeroColors.surfaceAlt) : paint,
+        paint,
       );
     }
   }

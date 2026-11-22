@@ -8,6 +8,9 @@ class StatSection extends StatelessWidget {
   final String title;
   final String? hero;
   final String? heroUnit;
+
+  /// Alternative to [hero]/[heroUnit], e.g. a [UnitText].
+  final Widget? heroWidget;
   final Widget child;
   final VoidCallback? onShowMore;
   final String showMoreLabel;
@@ -17,6 +20,7 @@ class StatSection extends StatelessWidget {
     required this.title,
     this.hero,
     this.heroUnit,
+    this.heroWidget,
     required this.child,
     this.onShowMore,
     this.showMoreLabel = 'Show more',
@@ -28,7 +32,10 @@ class StatSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(title, style: AeroText.sectionTitle),
-        if (hero != null) ...[
+        if (heroWidget != null) ...[
+          const SizedBox(height: AeroSpace.sm),
+          heroWidget!,
+        ] else if (hero != null) ...[
           const SizedBox(height: AeroSpace.sm),
           // One paragraph: number and unit share a baseline, and a long
           // unit wraps instead of overflowing.

@@ -36,6 +36,15 @@ abstract final class AeroAccent {
   static const aircraftInk = Color(0xff1b2a55);
   static const onPassportMuted = Color(0xffc9c2ff);
   static const onDelayMuted = Color(0xffffb4a8);
+  static const passportTint = Color(0xfff2f0fb); // comparison bar track
+  // Painted comparison icons, radial from centre to edge.
+  static const earthGradient = [
+    Color(0xff7ec8ff),
+    Color(0xff1b6fd1),
+    Color(0xff0b3d7a),
+  ];
+  static const moonGradient = [Color(0xffeeeeee), Color(0xff9a9a9a)];
+  static const sunGradient = [Color(0xffffd24a), Color(0xfff39a1e)];
 }
 
 abstract final class AeroRadius {
