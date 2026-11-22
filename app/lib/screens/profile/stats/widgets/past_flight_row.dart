@@ -15,7 +15,10 @@ String flightIdents(StatsFlightSummaryEntity f) {
       : code != null && iata.startsWith(code) && iata.length > code.length
           ? '$code ${iata.substring(code.length)}'
           : iata;
-  return [spaced, f.identIcao].whereType<String>().join(' · ');
+  return [spaced, f.identIcao]
+      .whereType<String>()
+      .where((s) => s.isNotEmpty)
+      .join(' · ');
 }
 
 String _code(StatsAirportEntity a) => a.iata ?? a.icao ?? '';

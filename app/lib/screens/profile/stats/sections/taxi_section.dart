@@ -1,3 +1,4 @@
+import 'package:aero/formatters/time.dart';
 import 'package:aero/screens/profile/stats/widgets/stat_section.dart';
 import 'package:aero/ui/tokens.dart';
 import 'package:flutter/material.dart';
@@ -44,8 +45,8 @@ class TaxiSection extends StatelessWidget {
     }
     return StatSection(
       title: 'Taxi by airport',
-      hero: outN > 0 ? '${(outMin / outN).round()}m' : null,
-      heroUnit: outN > 0 ? 'avg taxi-out' : null,
+      hero: outN > 0 ? '${(outMin / outN).round()}' : null,
+      heroUnit: outN > 0 ? 'min avg taxi-out' : null,
       onShowMore: sorted.length > _top
           ? () => showListSheet(
               context, 'Taxi by airport', [for (final e in sorted) _row(e)])
@@ -58,7 +59,8 @@ class TaxiSection extends StatelessWidget {
             const SizedBox(height: AeroSpace.md),
             _row(e),
           ],
-          recordRow(context, 'Longest taxi', t.longest, (v) => '${v.round()}m'),
+          recordRow(context, 'Longest taxi', t.longest,
+              (v) => formatLongDuration(v.round())),
         ],
       ),
     );

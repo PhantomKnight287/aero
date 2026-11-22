@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:openapi/openapi.dart';
 
 import 'past_flight_row.dart';
+import 'unit_text.dart';
 
 /// A record line: caption ('Longest flight'), the flight, and its value.
 class RecordRow extends StatelessWidget {
@@ -34,7 +35,10 @@ class RecordRow extends StatelessWidget {
             children: [
               Text(caption.toUpperCase(), style: AeroText.label),
               Text(flightAirports(flight), style: AeroText.heading),
-              Text('${flightIdents(flight)} · ${flightDate(flight)}',
+              Text(
+                  [flightIdents(flight), flightDate(flight)]
+                      .where((s) => s.isNotEmpty)
+                      .join(' · '),
                   style: AeroText.caption,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis),
@@ -42,7 +46,8 @@ class RecordRow extends StatelessWidget {
           ),
         ),
         const SizedBox(width: AeroSpace.sm),
-        Text(value,
+        UnitText.parse(value,
+            unitScale: 0.85,
             style: AeroText.body.copyWith(
                 color: AeroColors.ink,
                 fontWeight: FontWeight.w600,

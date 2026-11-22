@@ -89,6 +89,23 @@ void main() {
         '496,500 km');
   });
 
+  test('UnitText.parse greys only unit letters after digits', () {
+    List<(String, bool)> p(String s) =>
+        UnitText.parse(s, style: const TextStyle(fontSize: 20)).parts;
+    expect(p('15h 47m'),
+        [('15', false), ('h', true), (' 47', false), ('m', true)]);
+    expect(p('7,369 ft'), [('7,369', false), (' ft', true)]);
+    expect(p('61.2°N'), [('61.2°N', false)]);
+    expect(p('4 flights'), [('4 flights', false)]);
+  });
+
+  test('flightIdents skips empty idents', () {
+    final f = flight.rebuild((b) => b
+      ..identIata = ''
+      ..identIcao = '');
+    expect(flightIdents(f), '');
+  });
+
   testWidgets('ranking bar has no track', (t) async {
     await t
         .pumpWidget(wrap(const StatBarList(color: AeroAccent.passport, rows: [
