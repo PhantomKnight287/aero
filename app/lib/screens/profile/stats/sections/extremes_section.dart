@@ -1,6 +1,7 @@
 import 'package:aero/formatters/units.dart';
 import 'package:aero/notifiers/units.dart';
 import 'package:aero/screens/profile/stats/widgets/stat_section.dart';
+import 'package:aero/screens/profile/stats/widgets/unit_text.dart';
 import 'package:aero/ui/tokens.dart';
 import 'package:aero/ui/components/country_flag.dart';
 import 'package:flutter/material.dart';
@@ -96,7 +97,8 @@ class ExtremesSection extends StatelessWidget {
         ),
       ),
       const SizedBox(width: AeroSpace.sm),
-      Text(value,
+      UnitText.parse(value,
+          unitScale: 0.85,
           style: AeroText.body.copyWith(
               color: AeroColors.ink,
               fontWeight: FontWeight.w600,
