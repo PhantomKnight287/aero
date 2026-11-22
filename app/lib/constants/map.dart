@@ -17,6 +17,8 @@ TileLayer _mapboxTileLayer(String style) => TileLayer(
       },
       tileDimension: 512,
       zoomOffset: -1,
+      // With the -1 offset, zoom 0 would request z=-1 (404): upscale z=0.
+      minNativeZoom: 1,
     );
 
 TileLayer get openStreetMapTileLayer => _mapboxTileLayer('streets-v12');
