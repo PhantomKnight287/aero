@@ -321,6 +321,8 @@ void main() {
     expect(find.textContaining('Around Earth'), findsWidgets);
     expect(find.textContaining('To the Moon'), findsWidgets);
     expect(find.textContaining('Around the Sun'), findsWidgets);
+    // Sun's circumference 4,370,000 km: 508,005 km → 0.12×.
+    expect(find.textContaining('0.12×'), findsWidgets);
   });
 
   testWidgets('regions list replaces grid', (t) async {

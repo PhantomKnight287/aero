@@ -1,5 +1,3 @@
-import 'dart:math' as math;
-
 import 'package:aero/formatters/units.dart';
 import 'package:aero/notifiers/units.dart';
 import 'package:aero/screens/profile/stats/widgets/comparison_pill.dart';
@@ -14,13 +12,11 @@ import 'shared.dart';
 
 const _earthKm = 40075;
 const _moonKm = 384400;
-// Earth's orbit circumference, rounded.
-const _sunKm = 940000000;
+// The Sun's circumference, rounded (Flighty's "Around the Sun").
+const _sunKm = 4370000;
 
-/// '12.4', '0.04', '0.00053': one decimal from 1 up, otherwise two
-/// significant digits so tiny ratios don't read as zero.
-String _times(double v) => formatDecimal(v,
-    digits: v >= 1 ? 1 : (1 - (math.log(v) / math.ln10).floor()).clamp(2, 6));
+/// '12.4' from 1 up, '0.11' below.
+String _times(double v) => formatDecimal(v, digits: v >= 1 ? 1 : 2);
 
 /// Total distance in the user's unit, the other unit, the average, Earth,
 /// Moon and Sun comparisons, and the shortest/longest flights.
