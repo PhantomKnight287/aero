@@ -13,12 +13,10 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 import 'package:openapi/openapi.dart';
 import 'package:provider/provider.dart';
 
 const _earthKm = 40075;
-final _count = NumberFormat.decimalPattern();
 
 /// Passport hub: summary cards plus the paged flight log. Tapping a flight
 /// pops an [OpenFlightRequest] back to whoever pushed this screen.
@@ -186,7 +184,7 @@ class _FlightStatsScreenState extends State<FlightStatsScreen> {
           const SizedBox(height: AeroSpace.md),
           Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Expanded(
-                child: _Tile('Flights', _count.format(p.totalFlights),
+                child: _Tile('Flights', formatCount(p.totalFlights),
                     sub: '$longHaul long haul')),
             Expanded(
                 flex: 2,
@@ -199,8 +197,8 @@ class _FlightStatsScreenState extends State<FlightStatsScreen> {
             Expanded(
                 child:
                     _Tile('Time', formatLongDuration(p.blockMinutes.toInt()))),
-            Expanded(child: _Tile('Airports', _count.format(p.totalAirports))),
-            Expanded(child: _Tile('Airlines', _count.format(p.totalAirlines))),
+            Expanded(child: _Tile('Airports', formatCount(p.totalAirports))),
+            Expanded(child: _Tile('Airlines', formatCount(p.totalAirlines))),
           ]),
         ],
       ),
@@ -217,7 +215,7 @@ class _FlightStatsScreenState extends State<FlightStatsScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(_count.format(n),
+          Text(formatCount(n),
               style: AeroText.hero.copyWith(color: AeroColors.onInk)),
           const SizedBox(height: AeroSpace.xs),
           Text('$unit lost to delays',

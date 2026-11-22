@@ -1,3 +1,4 @@
+import 'package:aero/formatters/units.dart';
 import 'package:aero/screens/profile/stats/open_flight_request.dart';
 import 'package:aero/screens/profile/stats/widgets/past_flight_row.dart';
 import 'package:aero/screens/profile/stats/widgets/record_row.dart';
@@ -5,13 +6,10 @@ import 'package:aero/ui/components/aero_sheet.dart';
 import 'package:aero/ui/tokens.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 import 'package:openapi/openapi.dart';
 
-final _grouped = NumberFormat.decimalPattern('en_US');
-
-/// '1,234'
-String count(num n) => _grouped.format(n.round());
+/// '1,234' (locale-aware)
+String count(num n) => formatCount(n);
 
 /// 'DEL', falling back to the ICAO code.
 String airportCode(StatsAirportEntity a) => a.iata ?? a.icao ?? '';

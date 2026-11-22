@@ -3,6 +3,8 @@ import 'package:aero/notifiers/user.dart';
 import 'package:aero/routes/main.dart';
 import 'package:aero/services/widget_update_service.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:intl/intl_standalone.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:toastification/toastification.dart';
@@ -50,6 +52,15 @@ void main() async {
       networkType: NetworkType.connected,
     ),
   );
+
+  // Device locale for number grouping; fall back if intl lacks its symbols.
+  final locale = await findSystemLocale();
+  try {
+    NumberFormat.decimalPattern(locale);
+    Intl.defaultLocale = locale;
+  } catch (_) {
+    Intl.defaultLocale = 'en_US';
+  }
 
   // Loaded before the first frame so non-default units never flash.
   final units = UnitsNotifier();

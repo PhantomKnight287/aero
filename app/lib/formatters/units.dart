@@ -71,8 +71,16 @@ num convertTemp(num c, TempUnit u) => switch (u) {
       TempUnit.f => c * 9 / 5 + 32,
     };
 
-final _grouped = NumberFormat.decimalPattern('en_US');
-String _n(num v) => _grouped.format(v.round());
+/// Grouped integer in the current [Intl] locale ('4,96,500' in en_IN).
+String formatCount(num v) => NumberFormat.decimalPattern().format(v.round());
+
+/// Grouped fixed-decimal number in the current [Intl] locale.
+String formatDecimal(num v, {int digits = 1}) => (NumberFormat.decimalPattern()
+      ..minimumFractionDigits = digits
+      ..maximumFractionDigits = digits)
+    .format(v);
+
+String _n(num v) => formatCount(v);
 
 String formatDistance(num km, DistanceUnit u) =>
     '${_n(convertDistance(km, u))} ${unitLabel(u)}';
