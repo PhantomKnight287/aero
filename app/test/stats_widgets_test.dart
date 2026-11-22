@@ -11,7 +11,8 @@ final flight = StatsFlightSummaryEntity((b) => b
   ..flightNo = 'EK215'
   ..identIata = 'EK215'
   ..identIcao = 'UAE215'
-  ..date = '2026-03-14T08:00:00.000Z'
+  ..date = '2026-03-14T23:30:00.000Z'
+  ..localDate = '2026-03-15'
   ..airline.name = 'Emirates'
   ..airline.iata = 'EK'
   ..airline.icao = 'UAE'
@@ -33,7 +34,7 @@ void main() {
     expect(find.text('EK 215 · UAE215'), findsOneWidget);
     expect(find.text('DXB → LAX'), findsOneWidget);
     expect(find.text('Dubai to Los Angeles'), findsOneWidget);
-    expect(find.text('14 Mar 2026'), findsOneWidget);
+    expect(find.text('15 Mar 2026'), findsOneWidget);
     expect(find.byIcon(Icons.chevron_right), findsOneWidget);
   });
 

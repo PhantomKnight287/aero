@@ -24,9 +24,15 @@ String _code(StatsAirportEntity a) => a.iata ?? a.icao ?? '';
 String flightAirports(StatsFlightSummaryEntity f) =>
     '${_code(f.departure)} → ${_code(f.arrival)}';
 
-/// '14 Mar 2026' (UTC date: the entity has no local date).
+/// Departure-local calendar day ('YYYY-MM-DD' parsed as local midnight);
+/// the UTC day of `date` only when `localDate` is empty.
+DateTime? flightDay(StatsFlightSummaryEntity f) => f.localDate.isNotEmpty
+    ? DateTime.tryParse(f.localDate)
+    : DateTime.tryParse(f.date)?.toUtc();
+
+/// '14 Mar 2026', departure-local.
 String flightDate(StatsFlightSummaryEntity f) {
-  final d = DateTime.tryParse(f.date)?.toUtc();
+  final d = flightDay(f);
   return d == null ? '' : DateFormat('d MMM y').format(d);
 }
 

@@ -342,7 +342,11 @@ class _HomeScreenState extends State<HomeScreen>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SearchHeader(),
+        SearchHeader(
+          onOpenFlight: (r) => controller.loadFlightInfo(
+              r.flightNo, r.flightNo, r.date,
+              forceUpdate: true, faFlightId: r.faFlightId),
+        ),
         Row(
           children: [
             SelectedFilters(

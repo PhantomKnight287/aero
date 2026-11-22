@@ -52,9 +52,6 @@
     "material_color": 5,
     "raw_font_size": 2
   },
-  "lib/screens/home/widgets/search_header.dart": {
-    "raw_font_size": 1
-  },
   "lib/screens/home/widgets/search_results_list.dart": {
     "material_color": 2
   },
@@ -73,11 +70,6 @@
     "material_color": 9,
     "raw_font_size": 2,
     "raw_radius": 2
-  },
-  "lib/screens/profile/stats/main.dart": {
-    "raw_font_size": 47,
-    "raw_radius": 29,
-    "material_color": 22
   },
   "lib/screens/wearables/list/main.dart": {
     "material_color": 2

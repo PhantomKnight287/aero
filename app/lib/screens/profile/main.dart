@@ -1,6 +1,7 @@
 import 'package:aero/formatters/units.dart';
 import 'package:aero/notifiers/units.dart';
 import 'package:aero/notifiers/user.dart';
+import 'package:aero/screens/profile/stats/open_flight_request.dart';
 import 'package:aero/ui/components/aero_button.dart';
 import 'package:aero/ui/components/aero_pressable.dart';
 import 'package:aero/ui/components/aero_segmented.dart';
@@ -48,7 +49,11 @@ class ProfileScreen extends StatelessWidget {
               _ProfileMenuItem(
                 icon: Icons.flight_takeoff_outlined,
                 title: 'Flight Stats',
-                onTap: () => GoRouter.of(context).push('/profile/stats'),
+                onTap: () async {
+                  final r =
+                      await context.push<OpenFlightRequest>('/profile/stats');
+                  if (r != null && context.mounted) context.pop(r);
+                },
               ),
               const SizedBox(height: AeroSpace.sm),
               _ProfileMenuItem(

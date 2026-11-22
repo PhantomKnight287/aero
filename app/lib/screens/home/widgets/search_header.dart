@@ -3,9 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:aero/notifiers/user.dart';
+import 'package:aero/screens/profile/stats/open_flight_request.dart';
+import 'package:aero/ui/tokens.dart';
 
 class SearchHeader extends StatelessWidget {
-  const SearchHeader({super.key});
+  /// Receives a flight picked in Profile → Passport.
+  final ValueChanged<OpenFlightRequest>? onOpenFlight;
+
+  const SearchHeader({super.key, this.onOpenFlight});
 
   @override
   Widget build(BuildContext context) {
@@ -16,18 +21,16 @@ class SearchHeader extends StatelessWidget {
         children: [
           Text(
             "Search",
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
+            style: AeroText.title,
           ),
           Spacer(),
           Builder(
             builder: (context) {
               final user = Provider.of<UserNotifier>(context);
               return GestureDetector(
-                onTap: () {
-                  GoRouter.of(context).push("/profile");
+                onTap: () async {
+                  final r = await context.push<OpenFlightRequest>('/profile');
+                  if (r != null) onOpenFlight?.call(r);
                 },
                 child: Hero(
                   tag: "avatar",
@@ -45,4 +48,3 @@ class SearchHeader extends StatelessWidget {
     );
   }
 }
-
