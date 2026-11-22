@@ -8,6 +8,7 @@ Interaction and motion rules come from Emil Kowalski's design-engineering skills
 
 Everything comes from `lib/ui/tokens.dart`:
 - `AeroColors`: ink, inkSoft, muted, line, surface, surfaceAlt, danger, success, warn and their tints.
+- `AeroAccent`: report accents (passport purple, delay red, aircraft tint and their gradients). Report accent colours are allowed only on stats cards and stats charts.
 - `AeroRadius`: sm 8 (chips, small tiles), md 12 (cards, buttons, inputs, panels), lg 20 (sheets), pill.
 - `AeroSpace`: xs 4, sm 8, md 12, lg 16, xl 24, xxl 32.
 - `AeroText`: display (CalSans 32), title (CalSans 20), heading (Inter 16 w600), body (Inter 14), caption (Inter 12, muted), micro (Inter 11, muted).

@@ -7,9 +7,9 @@ import 'package:aero/constants/main.dart';
 /// without flooding the DB and the client.
 const double kAirportQueryMinZoom = 4.0;
 
-TileLayer get openStreetMapTileLayer => TileLayer(
+TileLayer _mapboxTileLayer(String style) => TileLayer(
       urlTemplate:
-          'https://api.mapbox.com/styles/v1/mapbox/streets-v12/tiles/{z}/{x}/{y}?access_token={accessToken}',
+          'https://api.mapbox.com/styles/v1/mapbox/$style/tiles/{z}/{x}/{y}?access_token={accessToken}',
       userAgentPackageName: 'com.phantomknight287.aero',
       tileProvider: CancellableNetworkTileProvider(),
       additionalOptions: const {
@@ -18,3 +18,7 @@ TileLayer get openStreetMapTileLayer => TileLayer(
       tileDimension: 512,
       zoomOffset: -1,
     );
+
+TileLayer get openStreetMapTileLayer => _mapboxTileLayer('streets-v12');
+
+TileLayer get lightMapTileLayer => _mapboxTileLayer('light-v11');

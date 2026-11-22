@@ -109,3 +109,12 @@ String formatAge(double age) {
 String formatDate(DateTime date) {
   return '${MONTHS[date.month - 1]} ${date.day}, ${date.year}';
 }
+
+/// Long totals: >= 1 day -> '17d 11h' (rounded to nearest hour), else '7h 34m'.
+String formatLongDuration(int minutes) {
+  if (minutes >= 1440) {
+    final totalHours = (minutes / 60).round();
+    return '${totalHours ~/ 24}d ${totalHours % 24}h';
+  }
+  return '${minutes ~/ 60}h ${minutes % 60}m';
+}

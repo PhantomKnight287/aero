@@ -27,6 +27,17 @@ abstract final class AeroColors {
   static const onInkMuted = Color(0xccffffff);
 }
 
+/// Report accents: allowed only on stats cards and stats charts.
+abstract final class AeroAccent {
+  static const passport = Color(0xff5b3fe0); // bars, links, arcs
+  static const passportGradient = [Color(0xff2b1f86), Color(0xff14093f)];
+  static const delayGradient = [Color(0xffb3261e), Color(0xff4a0d08)];
+  static const aircraftGradient = [Color(0xffe4defa), Color(0xffc5d7f5)];
+  static const aircraftInk = Color(0xff1b2a55);
+  static const onPassportMuted = Color(0xffc9c2ff);
+  static const onDelayMuted = Color(0xffffb4a8);
+}
+
 abstract final class AeroRadius {
   static const double sm = 8; // chips inside cards, small tiles
   static const double md = 12; // cards, buttons, inputs
@@ -95,6 +106,34 @@ abstract final class AeroText {
       fontFamily: AeroFonts.inter,
       fontSize: 11,
       letterSpacing: 0.2,
+      color: AeroColors.muted);
+
+  /// Stats hero number.
+  static final hero = TextStyle(
+      fontFamily: AeroFonts.inter,
+      fontSize: 52,
+      fontWeight: FontWeight.w800,
+      height: 1,
+      letterSpacing: -1.2,
+      color: AeroColors.ink,
+      fontFeatures: tabular);
+  static final heroUnit = TextStyle(
+      fontFamily: AeroFonts.inter,
+      fontSize: 26,
+      fontWeight: FontWeight.w500,
+      color: AeroColors.muted);
+  static final sectionTitle = TextStyle(
+      fontFamily: AeroFonts.calSans,
+      fontSize: 22,
+      letterSpacing: -0.4,
+      color: AeroColors.ink);
+
+  /// Uppercase applied by the caller.
+  static final label = TextStyle(
+      fontFamily: AeroFonts.inter,
+      fontSize: 11,
+      fontWeight: FontWeight.w600,
+      letterSpacing: 0.6,
       color: AeroColors.muted);
 
   /// Tabular figures for times, codes and counts so digits don't jitter.
