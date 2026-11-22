@@ -243,3 +243,58 @@ They want it to work like Flighty's Passport (23 reference screenshots reviewed 
 - Exact gradient stops and the accent shades, within the mockup's look (`.superpowers/brainstorm/.../stats-look-v2.html`).
 - The paging page size (about 30).
 - How the year switch animates (keep it subtle; DESIGN.md motion rules apply).
+
+## v3 visual revision (2026-11-22, after the first device review)
+
+The user reviewed part 1 on the device, with Flighty as the benchmark. Mockup: `.superpowers/brainstorm/893-1795343443/content/stats-v3.html`. Everything below replaces the matching part-1 behaviour.
+
+### Fixed already
+- **All-time selector:** the request failed with 400 "numeric string is expected". The global `ValidationPipe` turns a missing number query into `NaN`, which `ParseIntPipe({optional})` rejects. `OptionalIntPipe` fixes this (commit 6eb08de).
+
+### Changes (numbers match the user's list)
+1. **No flag grid anywhere.**
+   - The passport card shows one row of overlapping round flags, about 11 visible, then "+N · N countries".
+   - The report's countries section is a list of rows: round flag, name, "N flights". The top 3 show, and "Show more" opens a sheet.
+2. **Stat strips no longer squeeze.**
+   - The passport card shows flights and distance large in a 2-column row, then time, airports and airlines in a 3-column row.
+   - Values are sized to fit 7-digit localised numbers; for example "4,96,500 km" must fit at 360 dp.
+   - The report header drops its own summary strip, because the passport card carries it.
+3. **Flights section:** the hero number, then Flighty's stacked lines ("**38** domestic", "**63** international", "**44** long haul"), each on its own line at about 20 pt with the number bold and the label grey.
+4. **The flights-per chart gets a y-axis:**
+   - 4–5 rounded ticks with light gridlines.
+   - Tick labels in a column left of the plot and x labels below it, so there is still no text on the plot area.
+5. **Localised numbers, app-wide.**
+   - Every number formatter (`formatDistance`, counts, stats) uses `NumberFormat.decimalPattern` with the device locale, so en_IN gives "3,84,576 km".
+   - Set `Intl.defaultLocale` from the system locale at startup (`findSystemLocale`).
+6. **Comparison bars (Earth / Moon / Sun):**
+   - full width, 48 dp tall, pill-shaped;
+   - a fill proportional to the value, capped at 100%;
+   - a painted circle icon at the left (globe / moon / sun as `CustomPainter` gradients), with no emoji;
+   - the label inside on the right ("12.4× Around Earth").
+   - Add "Around the Sun" (about 940 million km).
+7. **Units in grey.**
+   - In every hero and grid value, the unit letters (h, m, d, km) are grey and smaller than the digits.
+   - The flight time section becomes a 2-column grid: Days, Avg flight, In the air ("N flights with data"), Taxiing.
+   - Weeks and years are dropped.
+8. **Top lists are rankings, not progress bars.**
+   - The bar has no grey track, is about 22 dp thick, and has rounded ends. The count sits immediately right of the bar end, in grey.
+   - The label sits left: an IATA code, or an airline logo for airlines.
+   - This applies to airports, airlines, routes and runways.
+9. **Round flags** from the `circle_flags` pub package (MIT, SVG, offline), replacing emoji in the passport row, the country rows and extremes. This is a new dependency, approved implicitly by the user's request for "circle flags like Flighty". Use the latest stable version that builds with the app's Flutter SDK.
+10. *(Fixed, see above.)*
+11. **Most flown aircraft:** the existing photo bleeds to the card's left, right and bottom edges at a fixed 16:9 with `BoxFit.cover` (a consistent centre crop). When there is no photo, the card has no image band. *(The user chose A: no openly licensed side-profile SVG set exists.)*
+12. **The passport looks like a passport.** The hub's passport card has:
+    - "AERO PASSPORT" in CalSans with letter spacing;
+    - the subtitle "PASSPORT · PASSEPORT · पासपोर्ट";
+    - a small emblem tile, top right;
+    - the flag row;
+    - the stats;
+    - a machine-readable strip at the bottom, monospace on a translucent band. The strip is generated from the user's stats, never their name, e.g. `P<AERO<ALLTIME<<102<FLT<<36<CTRY<<<…` and `DEL<<FIRST<FLT<2024<<ISSUED<22NOV26<<<…`, padded to a fixed width with `<`.
+
+    Then the "All flight stats ›" row. No Flighty wording or logo.
+
+- **Regions (replaces the continent tile grid):** a plain list in the same row style as countries, "Asia · 14 countries · 82 flights", showing only regions with flights, sorted by flights. The API's `continents[]` gains `flightCount` (flights touching the region, counted once per flight). `flightShare` stays for compatibility.
+
+### Data checks included in this round
+- **87 vs 60 airports:** verify against the database whether the same airport is keyed twice (IATA-only vs ICAO). If so, key each airport through the index row (`row.ident`) when one is found.
+- **"CGP → CGP" shortest flight with no flight number:** find the row and decide whether it is bad data (a return-to-gate or diversion) that should be excluded from records, or a normaliser bug.
