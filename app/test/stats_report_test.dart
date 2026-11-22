@@ -1,0 +1,231 @@
+import 'package:aero/notifiers/units.dart';
+import 'package:aero/screens/profile/stats/flight_stats_report.dart';
+import 'package:aero/screens/profile/stats/stats_controller.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:openapi/openapi.dart';
+import 'package:provider/provider.dart';
+
+Map<String, dynamic> airport(int i) => {
+      'iata': 'A${i.toString().padLeft(2, '0')}',
+      'icao': 'XA${i.toString().padLeft(2, '0')}',
+      'name': 'Airport number $i',
+      'city': 'City $i',
+      'isoCountry': 'IN',
+      'lat': 10 + i,
+      'lon': 70 + i,
+      'elevationFt': 100 * i,
+    };
+
+const hnl = {
+  'iata': 'HNL',
+  'icao': 'PHNL',
+  'name': 'Daniel K. Inouye Intl',
+  'city': 'Honolulu',
+  'isoCountry': 'US',
+  'lat': 21.32,
+  'lon': -157.92,
+  'elevationFt': 13,
+};
+
+Map<String, dynamic> summary() => {
+      'id': 'f1',
+      'flightNo': 'EK215',
+      'identIata': 'EK215',
+      'identIcao': 'UAE215',
+      'airline': {'name': 'Emirates', 'iata': 'EK', 'icao': 'UAE'},
+      'departure': airport(1),
+      'arrival': hnl,
+      'date': '2026-03-14T08:00:00.000Z',
+      'localDate': '2026-03-14',
+    };
+
+ProfileStatsResponseEntity fixture({bool withMap = false}) {
+  final json = {
+    'availableYears': [2025, 2026],
+    'year': null,
+    'passport': {
+      'totalFlights': 104,
+      'totalDistanceKm': 508005,
+      'blockMinutes': 25139,
+      'airMinutes': 20000,
+      'airBasedOn': 61,
+      'taxiMinutes': 1500,
+      'taxiBasedOn': 61,
+      'totalAirports': 60,
+      'totalAirlines': 40,
+      'totalCountries': 2,
+      'domestic': 41,
+      'international': 63,
+      'longHaul': 38,
+    },
+    'flightsPer': {
+      'year': [
+        {'year': 2025, 'count': 50},
+        {'year': 2026, 'count': 54},
+      ],
+      'month': List.filled(12, 8),
+      'weekday': List.filled(7, 14),
+    },
+    'records': {
+      'shortestDistance': {'flight': summary(), 'value': 300},
+      'longestDistance': {'flight': summary(), 'value': 13000},
+    },
+    'topAirports': [
+      for (var i = 1; i <= 12; i++)
+        {
+          'airport': airport(i),
+          'departures': 20 - i,
+          'arrivals': 19 - i,
+          'flightCount': 39 - 2 * i,
+          'distanceKm': 1000.0 * (20 - i),
+        },
+    ],
+    'topAirlines': [
+      {
+        'airline': {'name': 'Emirates', 'iata': 'EK', 'icao': 'UAE'},
+        'flightCount': 10,
+        'distanceKm': 50000,
+      },
+    ],
+    'topRoutes': [
+      {
+        'from': airport(1),
+        'to': hnl,
+        'flightCount': 3,
+        'distanceKm': 30000,
+      },
+    ],
+    'countries': [
+      {'isoCountry': 'IN', 'name': 'India', 'flightCount': 90},
+      {'isoCountry': 'US', 'name': 'United States', 'flightCount': 4},
+    ],
+    'continents': [
+      {'bucket': 'asia', 'countryCount': 1, 'flightShare': 0.9},
+      {'bucket': 'north_america', 'countryCount': 1, 'flightShare': 0.1},
+    ],
+    'delays': {
+      'basedOn': 0,
+      'arrivedCount': 0,
+      'delayedCount': 0,
+      'minutesLost': 0,
+      'avgDelayMinutes': 0,
+    },
+    'runways': {
+      'basedOn': 9,
+      'items': [
+        {
+          'airport': airport(1),
+          'runway': '29R',
+          'departures': 6,
+          'arrivals': 1
+        },
+        {'airport': airport(1), 'runway': '28', 'departures': 0, 'arrivals': 2},
+        {'airport': hnl, 'runway': '8L', 'departures': 1, 'arrivals': 0},
+      ],
+    },
+    'taxiByAirport': {
+      'basedOn': 9,
+      'items': [
+        {
+          'airport': airport(1),
+          'avgTaxiOutMin': 22,
+          'taxiOutCount': 9,
+          'avgTaxiInMin': null,
+          'taxiInCount': 0,
+        },
+      ],
+      'longest': {'flight': summary(), 'value': 45},
+    },
+    'extremes': {'north': airport(5), 'east': hnl, 'highest': airport(3)},
+    'map': {
+      'airports': withMap
+          ? [
+              {'iata': 'A01', 'icao': 'XA01', 'lat': 11, 'lon': 71},
+              {'iata': 'HNL', 'icao': 'PHNL', 'lat': 21.32, 'lon': -157.92},
+            ]
+          : [],
+      'routes': withMap
+          ? [
+              {
+                'fromLat': 11,
+                'fromLon': 71,
+                'toLat': 21.32,
+                'toLon': -157.92,
+                'count': 3,
+              },
+            ]
+          : [],
+    },
+    'mostFlownAircraft': {'aircraftName': 'Boeing 777', 'flightCount': 12},
+  };
+  return standardSerializers.deserializeWith(
+      ProfileStatsResponseEntity.serializer, json)!;
+}
+
+Future<void> pumpReport(WidgetTester t, ProfileStatsResponseEntity s) async {
+  t.view.physicalSize = const Size(400, 2400);
+  t.view.devicePixelRatio = 1;
+  addTearDown(t.view.reset);
+  final c = StatsController(
+    fetchStats: (_) async => s,
+    fetchHistory: (_, __) async => null,
+  );
+  await t.pumpWidget(ChangeNotifierProvider(
+    create: (_) => UnitsNotifier(),
+    child: MaterialApp(home: FlightStatsReport(controller: c)),
+  ));
+  await t.pump();
+}
+
+void main() {
+  testWidgets('report shows hero numbers', (t) async {
+    await pumpReport(t, fixture());
+    expect(find.text('60'), findsWidgets);
+    expect(find.text('total airports'), findsOneWidget);
+    expect(find.text('3'), findsWidgets);
+    expect(find.text('runways used'), findsOneWidget);
+    expect(find.text('418h 59m'), findsOneWidget);
+    expect(find.text('A01 · taxi-out 22m avg (9 flights)'), findsOneWidget);
+  });
+
+  testWidgets('map placeholder when no coordinates', (t) async {
+    await pumpReport(t, fixture());
+    expect(find.byType(FlutterMap), findsNothing);
+  });
+
+  testWidgets('map renders when airports have coordinates', (t) async {
+    await pumpReport(t, fixture(withMap: true));
+    expect(find.byType(FlutterMap), findsOneWidget);
+    // Let flutter_map's tile timers run out before the tree is torn down.
+    await t.pumpWidget(const SizedBox());
+    await t.pump(const Duration(seconds: 1));
+  });
+
+  testWidgets('show more opens sheet', (t) async {
+    await pumpReport(t, fixture());
+    expect(find.text('Airport number 9'), findsNothing);
+    final more = find.text('Show more').first;
+    await t.ensureVisible(more);
+    await t.tap(more);
+    await t.pumpAndSettle();
+    expect(find.text('Airport number 9'), findsOneWidget);
+  });
+
+  testWidgets('extremes rows list both codes', (t) async {
+    await pumpReport(t, fixture());
+    expect(find.text('HNL · PHNL'), findsOneWidget);
+    expect(find.text('157.9°W'), findsOneWidget);
+  });
+
+  testWidgets('runway sheet groups by airport', (t) async {
+    await pumpReport(t, fixture());
+    final more = find.text('Show all runways');
+    await t.ensureVisible(more);
+    await t.tap(more);
+    await t.pumpAndSettle();
+    expect(find.text('A01 · XA01 · Airport number 1'), findsOneWidget);
+    expect(find.text('Runway 29R · 6 off · 1 on'), findsOneWidget);
+  });
+}

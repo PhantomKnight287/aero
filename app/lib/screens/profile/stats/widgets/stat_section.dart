@@ -2,11 +2,11 @@ import 'package:aero/ui/components/aero_pressable.dart';
 import 'package:aero/ui/tokens.dart';
 import 'package:flutter/material.dart';
 
-/// A stats block: title, big hero number (+ unit), content, and an optional
-/// 'Show more' link row.
+/// A stats block: title, optional big hero number (+ unit), content, and an
+/// optional 'Show more' link row.
 class StatSection extends StatelessWidget {
   final String title;
-  final String hero;
+  final String? hero;
   final String? heroUnit;
   final Widget child;
   final VoidCallback? onShowMore;
@@ -15,7 +15,7 @@ class StatSection extends StatelessWidget {
   const StatSection({
     super.key,
     required this.title,
-    required this.hero,
+    this.hero,
     this.heroUnit,
     required this.child,
     this.onShowMore,
@@ -28,18 +28,18 @@ class StatSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(title, style: AeroText.sectionTitle),
-        const SizedBox(height: AeroSpace.sm),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.baseline,
-          textBaseline: TextBaseline.alphabetic,
-          children: [
-            Text(hero, style: AeroText.hero),
-            if (heroUnit != null) ...[
-              const SizedBox(width: AeroSpace.xs),
-              Text(heroUnit!, style: AeroText.heroUnit),
+        if (hero != null) ...[
+          const SizedBox(height: AeroSpace.sm),
+          // Wrap so a long unit drops below the number instead of overflowing.
+          Wrap(
+            crossAxisAlignment: WrapCrossAlignment.end,
+            spacing: AeroSpace.xs,
+            children: [
+              Text(hero!, style: AeroText.hero),
+              if (heroUnit != null) Text(heroUnit!, style: AeroText.heroUnit),
             ],
-          ],
-        ),
+          ),
+        ],
         const SizedBox(height: AeroSpace.lg),
         child,
         if (onShowMore != null) ...[
