@@ -1,10 +1,11 @@
 import 'package:aero/formatters/time.dart';
 import 'package:aero/formatters/units.dart';
-import 'package:aero/notifiers/units.dart';
 import 'package:aero/screens/profile/stats/open_flight_request.dart';
 import 'package:aero/screens/profile/stats/stats_controller.dart';
+import 'package:aero/screens/profile/stats/widgets/passport_card.dart';
 import 'package:aero/screens/profile/stats/widgets/past_flight_row.dart';
 import 'package:aero/screens/profile/stats/widgets/summary_card.dart';
+import 'package:aero/screens/profile/stats/widgets/unit_text.dart';
 import 'package:aero/screens/profile/stats/widgets/year_filter.dart';
 import 'package:aero/services/profile.dart';
 import 'package:aero/ui/components/aero_pill_button.dart';
@@ -14,9 +15,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:openapi/openapi.dart';
-import 'package:provider/provider.dart';
-
-const _earthKm = 40075;
 
 /// Passport hub: summary cards plus the paged flight log. Tapping a flight
 /// pops an [OpenFlightRequest] back to whoever pushed this screen.
@@ -98,7 +96,7 @@ class _FlightStatsScreenState extends State<FlightStatsScreen> {
           (stats?.passport.totalFlights ?? 0) == 0)
         const _Empty(),
       if (stats != null && stats.passport.totalFlights > 0) ...[
-        _passportCard(stats.passport, stats.year),
+        PassportCard(stats: stats, onOpen: _openReport),
         if (stats.delays.basedOn > 0 && stats.delays.minutesLost > 0) ...[
           const SizedBox(height: AeroSpace.md),
           _delayCard(stats.delays),
@@ -165,60 +163,21 @@ class _FlightStatsScreenState extends State<FlightStatsScreen> {
     return out;
   }
 
-  Widget _passportCard(PassportEntity p, num? statsYear) {
-    final unit = context.watch<UnitsNotifier>().distance;
-    final laps = (p.totalDistanceKm / _earthKm).toStringAsFixed(1);
-    final longHaul = p.longHaul.toInt();
-    return SummaryCard(
-      gradient: AeroAccent.passportGradient,
-      ctaLabel: 'All flight stats',
-      onCta: _openReport,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-              '${statsYear == null ? 'All-time' : statsYear.toInt()} passport'
-                  .toUpperCase(),
-              style:
-                  AeroText.label.copyWith(color: AeroAccent.onPassportMuted)),
-          const SizedBox(height: AeroSpace.md),
-          Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Expanded(
-                child: _Tile('Flights', formatCount(p.totalFlights),
-                    sub: '$longHaul long haul')),
-            Expanded(
-                flex: 2,
-                child: _Tile(
-                    'Distance', formatDistance(p.totalDistanceKm, unit),
-                    sub: '$laps× around Earth')),
-          ]),
-          const SizedBox(height: AeroSpace.md),
-          Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Expanded(
-                child:
-                    _Tile('Time', formatLongDuration(p.blockMinutes.toInt()))),
-            Expanded(child: _Tile('Airports', formatCount(p.totalAirports))),
-            Expanded(child: _Tile('Airlines', formatCount(p.totalAirlines))),
-          ]),
-        ],
-      ),
-    );
-  }
-
   Widget _delayCard(DelaySummaryEntity d) {
     final mins = d.minutesLost.round();
-    final (n, unit) = mins < 60
-        ? (mins, mins == 1 ? 'minute' : 'minutes')
-        : ((mins / 60).round(), (mins / 60).round() == 1 ? 'hour' : 'hours');
+    final hero = AeroText.hero.copyWith(color: AeroColors.onInk);
     return SummaryCard(
       gradient: AeroAccent.delayGradient,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(formatCount(n),
-              style: AeroText.hero.copyWith(color: AeroColors.onInk)),
+          UnitText(
+              mins < 60
+                  ? [(formatCount(mins), false), (' m', true)]
+                  : [(formatCount(mins / 60), false), (' h', true)],
+              style: hero),
           const SizedBox(height: AeroSpace.xs),
-          Text('$unit lost to delays',
+          Text('lost to delays',
               style: AeroText.heading.copyWith(color: AeroColors.onInk)),
           if (d.delayedCount > 0)
             Text(
@@ -235,72 +194,60 @@ class _FlightStatsScreenState extends State<FlightStatsScreen> {
   Widget _aircraftCard(AircraftStatsEntity a) {
     final image = a.mostFlownAircraftImage;
     final n = a.mostFlownAircraftFlightCount.toInt();
-    return SummaryCard(
-      gradient: AeroAccent.aircraftGradient,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('Most flown aircraft',
-              style: AeroText.heading.copyWith(color: AeroAccent.aircraftInk)),
-          const SizedBox(height: AeroSpace.xs),
-          Text(a.mostFlownAircraftName,
-              style: AeroText.display.copyWith(color: AeroAccent.aircraftInk)),
-          Text('$n ${n == 1 ? 'flight' : 'flights'}',
-              style: AeroText.body.copyWith(
-                  color: AeroAccent.aircraftInk,
-                  fontFeatures: AeroText.tabular)),
-          if (image != null && image.isNotEmpty) ...[
-            const SizedBox(height: AeroSpace.md),
-            image.endsWith('.svg')
-                ? AspectRatio(
-                    aspectRatio: 16 / 6,
-                    child: SvgPicture.network(image,
-                        fit: BoxFit.contain,
-                        errorBuilder: (_, __, ___) => const SizedBox.shrink()))
-                // The band is sized only once the image loads, so a failed
-                // load collapses to nothing instead of an empty 16:6 hole.
-                : CachedNetworkImage(
-                    imageUrl: image,
-                    imageBuilder: (_, provider) => AspectRatio(
-                        aspectRatio: 16 / 6,
-                        child: Image(image: provider, fit: BoxFit.contain)),
-                    errorWidget: (_, __, ___) => const SizedBox.shrink()),
-          ],
-        ],
+    final hasImage = image != null && image.isNotEmpty;
+    return Container(
+      clipBehavior: Clip.antiAlias,
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: AeroAccent.aircraftGradient,
+        ),
+        borderRadius: AeroRadius.mdAll,
       ),
-    );
-  }
-}
-
-/// Label over a big white figure, with an optional muted line below.
-class _Tile extends StatelessWidget {
-  final String label;
-  final String value;
-  final String? sub;
-
-  const _Tile(this.label, this.value, {this.sub});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(right: AeroSpace.sm),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(label.toUpperCase(),
-              style:
-                  AeroText.label.copyWith(color: AeroAccent.onPassportMuted)),
-          FittedBox(
-            fit: BoxFit.scaleDown,
-            alignment: Alignment.centerLeft,
-            child: Text(value,
-                style: AeroText.figure.copyWith(color: AeroColors.onInk)),
+          Padding(
+            padding: EdgeInsets.fromLTRB(AeroSpace.lg, AeroSpace.lg,
+                AeroSpace.lg, hasImage ? AeroSpace.md : AeroSpace.lg),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Most flown aircraft',
+                    style: AeroText.heading
+                        .copyWith(color: AeroAccent.aircraftInk)),
+                const SizedBox(height: AeroSpace.xs),
+                Text(a.mostFlownAircraftName,
+                    style: AeroText.display
+                        .copyWith(color: AeroAccent.aircraftInk)),
+                Text('${formatCount(n)} ${n == 1 ? 'flight' : 'flights'}',
+                    style: AeroText.body.copyWith(
+                        color: AeroAccent.aircraftInk,
+                        fontFeatures: AeroText.tabular)),
+              ],
+            ),
           ),
-          if (sub != null)
-            Text(sub!,
-                style: AeroText.caption.copyWith(
-                    color: AeroAccent.onPassportMuted,
-                    fontFeatures: AeroText.tabular)),
+          if (hasImage)
+            ClipRRect(
+              borderRadius: AeroRadius.mdBottom,
+              // Fixed 16:9 centre crop, flush to the card's left, right and
+              // bottom. Raster bands are sized only once the image loads, so
+              // a failed load collapses instead of leaving an empty hole.
+              child: image.endsWith('.svg')
+                  ? AspectRatio(
+                      aspectRatio: 16 / 9,
+                      child: SvgPicture.network(image,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) =>
+                              const SizedBox.shrink()))
+                  : CachedNetworkImage(
+                      imageUrl: image,
+                      imageBuilder: (_, provider) => AspectRatio(
+                          aspectRatio: 16 / 9,
+                          child: Image(image: provider, fit: BoxFit.cover)),
+                      errorWidget: (_, __, ___) => const SizedBox.shrink()),
+            ),
         ],
       ),
     );

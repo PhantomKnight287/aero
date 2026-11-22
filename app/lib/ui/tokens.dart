@@ -37,6 +37,12 @@ abstract final class AeroAccent {
   static const onPassportMuted = Color(0xffc9c2ff);
   static const onDelayMuted = Color(0xffffb4a8);
   static const passportTint = Color(0xfff2f0fb); // comparison bar track
+  // Passport card: flag ring (mid-gradient), machine-readable band, CTA rule.
+  static const passportRing = Color(0xff1d1260);
+  static const passportBand = Color(0x10ffffff);
+  static const onPassportMrz = Color(0xb3ffffff);
+  static const passportRule = Color(0x1fffffff);
+  static const passportEmblem = [Color(0xffffffff), Color(0xffc9c2ff)];
   // Painted comparison icons, radial from centre to edge.
   static const earthGradient = [
     Color(0xff7ec8ff),
@@ -55,6 +61,7 @@ abstract final class AeroRadius {
 
   static const smAll = BorderRadius.all(Radius.circular(sm));
   static const mdAll = BorderRadius.all(Radius.circular(md));
+  static const mdBottom = BorderRadius.vertical(bottom: Radius.circular(md));
   static const lgTop = BorderRadius.vertical(top: Radius.circular(lg));
   static const pillAll = BorderRadius.all(Radius.circular(pill));
 }
@@ -107,6 +114,25 @@ abstract final class AeroText {
       letterSpacing: -0.3,
       color: AeroColors.ink,
       fontFeatures: tabular);
+
+  /// Passport card headline figures (flights, distance).
+  static final figureLg = TextStyle(
+      fontFamily: AeroFonts.inter,
+      fontSize: 30,
+      fontWeight: FontWeight.w800,
+      height: 1.05,
+      letterSpacing: -0.5,
+      color: AeroColors.ink,
+      fontFeatures: tabular);
+
+  /// Machine-readable passport strip. No bundled mono font: platform mono.
+  static const mono = TextStyle(
+      fontFamily: 'monospace',
+      fontFamilyFallback: ['Menlo', 'Courier New'],
+      fontSize: 10.5,
+      height: 1.5,
+      letterSpacing: 1.2,
+      color: AeroColors.ink);
   static final body = TextStyle(
       fontFamily: AeroFonts.inter, fontSize: 14, color: AeroColors.inkSoft);
   static final caption = TextStyle(
