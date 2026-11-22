@@ -22,6 +22,20 @@ class StatsController extends ChangeNotifier {
 
   String? _cursor;
   int _requestId = 0;
+  bool _disposed = false;
+
+  @override
+  void dispose() {
+    _disposed = true;
+    _requestId++;
+    super.dispose();
+  }
+
+  @override
+  void notifyListeners() {
+    if (_disposed) return;
+    super.notifyListeners();
+  }
 
   /// Stats plus first history page for the current [year].
   Future<void> load() async {
@@ -62,7 +76,7 @@ class StatsController extends ChangeNotifier {
   }
 
   Future<void> loadMoreHistory() async {
-    if (loading || historyLoading || historyDone) return;
+    if (loading || historyLoading || historyDone || error != null) return;
     final id = _requestId;
     historyLoading = true;
     notifyListeners();

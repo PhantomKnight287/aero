@@ -109,4 +109,73 @@ void main() {
     expect(c.error, contains('boom'));
     expect(c.loading, false);
   });
+
+  test('no throw when response arrives after dispose', () async {
+    final gate = Completer<void>();
+    final c = StatsController(
+      fetchStats: (y) async {
+        await gate.future;
+        return FakeStats(y);
+      },
+      fetchHistory: (cur, y) async => page(['a'], null),
+    );
+    final f = c.load();
+    c.dispose();
+    gate.complete();
+    await f;
+  });
+
+  test('loadMoreHistory does not retry while error is set', () async {
+    var calls = 0;
+    final c = StatsController(
+      fetchStats: (y) async => FakeStats(y),
+      fetchHistory: (cur, y) async {
+        calls++;
+        if (cur != null) throw Exception('boom');
+        return page(['a'], 'n1');
+      },
+    );
+    await c.load();
+    await c.loadMoreHistory();
+    expect(c.error, isNotNull);
+    expect(calls, 2);
+    await c.loadMoreHistory();
+    expect(calls, 2);
+  });
+
+  test('loadMoreHistory is skipped after a failed first load', () async {
+    var calls = 0;
+    final c = StatsController(
+      fetchStats: (y) async => throw Exception('boom'),
+      fetchHistory: (cur, y) async {
+        calls++;
+        return page(['a'], 'n1');
+      },
+    );
+    await c.load();
+    final before = calls;
+    await c.loadMoreHistory();
+    expect(calls, before);
+  });
+
+  test('stale loadMoreHistory response is dropped', () async {
+    final gate = Completer<void>();
+    final c = StatsController(
+      fetchStats: (y) async => FakeStats(y),
+      fetchHistory: (cur, y) async {
+        if (cur != null) {
+          await gate.future;
+          return page(['old'], null);
+        }
+        return page(['p$y'], 'n1');
+      },
+    );
+    await c.load();
+    final more = c.loadMoreHistory();
+    await c.setYear(2024);
+    gate.complete();
+    await more;
+    expect(c.history.map((e) => e.id), ['p2024']);
+    expect(c.historyDone, false);
+  });
 }
