@@ -225,7 +225,7 @@ void main() {
         passport: makePassport(102).rebuild((b) => b..totalCountries = 36));
     final (l1, l2) = passportMrz(s, now: DateTime(2026, 11, 22));
     expect(l1, startsWith('P<AERO<ALLTIME<<102<FLT<<36<CTRY<'));
-    expect(l2, startsWith('XXX<<FIRST<FLT<2024<<ISSUED<22NOV26<'));
+    expect(l2, startsWith('FIRST<FLT<2024<<ISSUED<22NOV26<'));
     for (final l in [l1, l2]) {
       expect(l, hasLength(44));
       expect(l, matches(RegExp(r'^[A-Z0-9<]{44}$')));

@@ -9,10 +9,15 @@ class UnitText extends StatelessWidget {
   final List<(String, bool)> parts;
   final TextStyle style;
 
-  const UnitText(this.parts, {super.key, required this.style});
+  /// Unit letter colour; pass a tinted muted colour on gradient cards.
+  final Color unitColor;
+
+  const UnitText(this.parts,
+      {super.key, required this.style, this.unitColor = AeroColors.muted});
 
   /// '623h 24m'; '38m' under an hour.
-  UnitText.duration(int minutes, {super.key, required this.style})
+  UnitText.duration(int minutes,
+      {super.key, required this.style, this.unitColor = AeroColors.muted})
       : parts = [
           if (minutes >= 60) ...[(_n(minutes ~/ 60), false), ('h', true)],
           ('${minutes >= 60 ? ' ' : ''}${minutes % 60}', false),
@@ -20,7 +25,8 @@ class UnitText extends StatelessWidget {
         ];
 
   /// '25d 23h'.
-  UnitText.days(int minutes, {super.key, required this.style})
+  UnitText.days(int minutes,
+      {super.key, required this.style, this.unitColor = AeroColors.muted})
       : parts = [
           (_n(minutes ~/ 1440), false),
           ('d', true),
@@ -29,7 +35,8 @@ class UnitText extends StatelessWidget {
         ];
 
   /// '4,96,500 km' in the user's unit.
-  UnitText.distance(num km, DistanceUnit u, {super.key, required this.style})
+  UnitText.distance(num km, DistanceUnit u,
+      {super.key, required this.style, this.unitColor = AeroColors.muted})
       : parts = [
           (_n(convertDistance(km, u)), false),
           (' ${unitLabel(u)}', true),
@@ -41,7 +48,7 @@ class UnitText extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final unit = style.copyWith(
-        color: AeroColors.muted,
+        color: unitColor,
         fontSize: style.fontSize! * 0.55,
         fontWeight: FontWeight.w500);
     return Text.rich(TextSpan(children: [

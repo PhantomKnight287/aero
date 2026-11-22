@@ -175,7 +175,8 @@ class _FlightStatsScreenState extends State<FlightStatsScreen> {
               mins < 60
                   ? [(formatCount(mins), false), (' m', true)]
                   : [(formatCount(mins / 60), false), (' h', true)],
-              style: hero),
+              style: hero,
+              unitColor: AeroAccent.onDelayMuted),
           const SizedBox(height: AeroSpace.xs),
           Text('lost to delays',
               style: AeroText.heading.copyWith(color: AeroColors.onInk)),
@@ -232,13 +233,16 @@ class _FlightStatsScreenState extends State<FlightStatsScreen> {
             ClipRRect(
               borderRadius: AeroRadius.mdBottom,
               // Fixed 16:9 centre crop, flush to the card's left, right and
-              // bottom. Raster bands are sized only once the image loads, so
-              // a failed load collapses instead of leaving an empty hole.
+              // bottom. The band is sized only once the image loads (the SVG
+              // error/placeholder builders are unsized), so a failed load
+              // collapses instead of leaving an empty hole.
               child: image.endsWith('.svg')
-                  ? AspectRatio(
-                      aspectRatio: 16 / 9,
-                      child: SvgPicture.network(image,
+                  ? LayoutBuilder(
+                      builder: (_, box) => SvgPicture.network(image,
+                          width: box.maxWidth,
+                          height: box.maxWidth * 9 / 16,
                           fit: BoxFit.cover,
+                          placeholderBuilder: (_) => const SizedBox.shrink(),
                           errorBuilder: (_, __, ___) =>
                               const SizedBox.shrink()))
                   : CachedNetworkImage(

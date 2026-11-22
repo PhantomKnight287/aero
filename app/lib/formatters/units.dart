@@ -1,4 +1,6 @@
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
+import 'package:intl/intl_standalone.dart';
 import 'package:timezone/data/latest.dart' as tzdata;
 import 'package:timezone/timezone.dart' as tz;
 
@@ -80,6 +82,15 @@ String resolveLocale(String raw) {
   } catch (_) {
     return 'en_US';
   }
+}
+
+/// Sets [Intl.defaultLocale] from the device (or [raw]) and loads its date
+/// symbols, so locale-less DateFormat calls don't throw. Falls back to en_US
+/// when intl has no number or date data for the locale.
+Future<void> initLocale([String? raw]) async {
+  final l = resolveLocale(raw ?? await findSystemLocale());
+  await initializeDateFormatting();
+  Intl.defaultLocale = DateFormat.localeExists(l) ? l : 'en_US';
 }
 
 /// Grouped integer in the current [Intl] locale ('4,96,500' in en_IN).

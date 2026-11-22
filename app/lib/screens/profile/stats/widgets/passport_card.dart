@@ -16,8 +16,7 @@ const _flagStep = 18.0; // ringed flag is 28 dp, so 10 dp overlap
 const _flagLabelWidth = 120.0; // room kept for "+25 · 36 countries"
 
 /// The two machine-readable lines, 44 chars each, built only from stats
-/// (never the user's name). The API doesn't expose the earliest flight's
-/// airport, so its IATA slot is 'XXX'.
+/// (never the user's name).
 (String, String) passportMrz(ProfileStatsResponseEntity s, {DateTime? now}) {
   final p = s.passport;
   final years = s.availableYears.map((y) => y.toInt()).toList()..sort();
@@ -26,7 +25,7 @@ const _flagLabelWidth = 120.0; // room kept for "+25 · 36 countries"
   final issued = DateFormat('ddMMMyy', 'en_US').format(today).toUpperCase();
   final l1 = 'P<AERO<${s.year?.toInt() ?? 'ALLTIME'}<<${p.totalFlights.toInt()}'
       '<FLT<<${p.totalCountries.toInt()}<CTRY';
-  final l2 = 'XXX<<FIRST<FLT<$first<<ISSUED<$issued';
+  final l2 = 'FIRST<FLT<$first<<ISSUED<$issued';
   return (l1.padRight(44, '<'), l2.padRight(44, '<'));
 }
 
@@ -104,8 +103,10 @@ class PassportCard extends StatelessWidget {
                 ),
                 Expanded(
                   flex: 7,
-                  child: _Stat('Distance',
-                      UnitText.distance(p.totalDistanceKm, unit, style: value),
+                  child: _Stat(
+                      'Distance',
+                      UnitText.distance(p.totalDistanceKm, unit,
+                          style: value, unitColor: AeroAccent.onPassportMuted),
                       sub: '${formatDecimal(p.totalDistanceKm / _earthKm)}× '
                           'around Earth'),
                 ),
@@ -118,8 +119,11 @@ class PassportCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Expanded(
-                    child: _Stat('Time',
-                        UnitText.days(p.blockMinutes.toInt(), style: small))),
+                    child: _Stat(
+                        'Time',
+                        UnitText.days(p.blockMinutes.toInt(),
+                            style: small,
+                            unitColor: AeroAccent.onPassportMuted))),
                 Expanded(
                     child: _Stat('Airports',
                         Text(formatCount(p.totalAirports), style: small))),
