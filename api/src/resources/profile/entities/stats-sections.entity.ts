@@ -1,4 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { CONTINENT_BUCKETS, ContinentBucket } from '../stats/regions';
 
 const opt = { nullable: true } as const;
 
@@ -99,7 +100,7 @@ export class CountryEntity {
 }
 
 export class ContinentEntity {
-  @ApiProperty() bucket: string;
+  @ApiProperty({ enum: CONTINENT_BUCKETS, enumName: 'ContinentBucket' }) bucket: ContinentBucket;
   @ApiProperty() countryCount: number;
   @ApiProperty({ description: 'Share of flights touching this continent, 0..1' }) flightShare: number;
 }

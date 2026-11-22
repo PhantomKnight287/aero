@@ -18,7 +18,8 @@ export class ProfileService {
     userId: string,
     year?: number,
   ): Promise<ProfileStatsResponseEntity> {
-    const counted = await loadCountedFlights(userId, new Date());
+    const now = new Date();
+    const counted = await loadCountedFlights(userId, now);
     const availableYears = [...new Set(counted.map((x) => x.f.local.year))].sort(
       (a, b) => b - a,
     );
@@ -106,8 +107,6 @@ export class ProfileService {
     const typeNameToImage = new Map<string, string>();
     const regToAge = new Map<string, number>();
     const regToImage = new Map<string, string>();
-
-    const now = new Date();
 
     aircraftRows.forEach((a) => {
       if (a.modelCode && a.typeName) {
@@ -350,9 +349,12 @@ export class ProfileService {
       year: year ?? null,
       passport: passport(fs),
       flightsPer: flightsPer(fs),
-      records: Object.fromEntries(
-        Object.entries(records(fs)).map(([k, v]) => [k, toRecord(v)]),
-      ) as any,
+      records: (({ shortestDistance, longestDistance, shortestDuration, longestDuration }) => ({
+        shortestDistance: toRecord(shortestDistance),
+        longestDistance: toRecord(longestDistance),
+        shortestDuration: toRecord(shortestDuration),
+        longestDuration: toRecord(longestDuration),
+      }))(records(fs)),
       topAirports: topAirports(fs).map((r) => ({ ...r, airport: toAirport(r.airport) })),
       topAirlines: topAirlines(fs).map((r) => ({ ...r, airline: toAirline(r.airline) })),
       topRoutes: topRoutes(fs).map((r) => ({ ...r, from: toAirport(r.from), to: toAirport(r.to) })),
@@ -371,9 +373,13 @@ export class ProfileService {
           longest: toRecord(t.longest),
         };
       })(),
-      extremes: Object.fromEntries(
-        Object.entries(extremes(fs)).map(([k, v]) => [k, v && toAirport(v)]),
-      ) as any,
+      extremes: (({ north, south, east, west, highest }) => ({
+        north: north && toAirport(north),
+        south: south && toAirport(south),
+        east: east && toAirport(east),
+        west: west && toAirport(west),
+        highest: highest && toAirport(highest),
+      }))(extremes(fs)),
       map: mapData(fs),
     };
   }
