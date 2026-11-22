@@ -31,6 +31,13 @@ describe('FlightService.getFlightHistory', () => {
     expect(p3.nextCursor).toBeNull();
   });
 
+  it('no nextCursor when remaining equals limit', async () => {
+    findMany.mockResolvedValue([row('a', '2025-01-01T10:00:00Z'), row('b', '2025-02-01T10:00:00Z')]);
+    const r = await service.getFlightHistory('u1', { limit: 2 });
+    expect(ids(r)).toEqual(['b', 'a']);
+    expect(r.nextCursor).toBeNull();
+  });
+
   it('stable cursor on equal dates', async () => {
     findMany.mockResolvedValue(['x1', 'x3', 'x2'].map((id) => row(id, '2025-06-01T10:00:00Z')));
     const seen: string[] = [];

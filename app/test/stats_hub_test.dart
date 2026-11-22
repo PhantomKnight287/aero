@@ -32,6 +32,8 @@ class FakeStats extends Fake implements ProfileStatsResponseEntity {
   @override
   final PassportEntity passport;
   @override
+  num? get year => null;
+  @override
   BuiltList<num> get availableYears => BuiltList<num>();
   @override
   DelaySummaryEntity get delays => DelaySummaryEntity((b) => b

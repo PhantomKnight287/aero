@@ -2,6 +2,7 @@ import 'package:aero/screens/profile/stats/stats_controller.dart';
 import 'package:aero/screens/profile/stats/widgets/year_filter.dart';
 import 'package:aero/services/profile.dart';
 import 'package:aero/ui/tokens.dart';
+import 'package:aero/ui/components/aero_pill_button.dart';
 import 'package:flutter/material.dart';
 
 import 'passport_header.dart';
@@ -87,8 +88,20 @@ class _FlightStatsReportState extends State<FlightStatsReport> {
                     ),
                     const SizedBox(height: AeroSpace.lg),
                   ],
+                  if (_c.error != null) ...[
+                    Text(_c.error!,
+                        style: AeroText.caption
+                            .copyWith(color: AeroColors.danger)),
+                    const SizedBox(height: AeroSpace.sm),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: AeroPillButton(
+                          icon: Icons.refresh, label: 'Retry', onTap: _c.load),
+                    ),
+                    const SizedBox(height: AeroSpace.lg),
+                  ],
                   if (s == null && _c.error != null)
-                    Text(_c.error!, style: AeroText.body)
+                    const SizedBox.shrink()
                   else if (s == null)
                     const Padding(
                       padding: EdgeInsets.all(AeroSpace.xxl),

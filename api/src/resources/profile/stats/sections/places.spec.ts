@@ -15,6 +15,12 @@ describe('places', () => {
     expect(dxb).toMatchObject({ departures: 1, arrivals: 1, flightCount: 2, distanceKm: 200 });
   });
 
+  it('top airports and routes skip empty-key airports', () => {
+    const blank = ap('');
+    expect(topAirports([f(DEL, blank)]).map((x) => x.airport.key)).toEqual(['VIDP']);
+    expect(topRoutes([f(DEL, blank)])).toEqual([]);
+  });
+
   it('top airlines', () => {
     const r = topAirlines([f(DEL, DXB), f(DXB, DEL)]);
     expect(r).toHaveLength(1);

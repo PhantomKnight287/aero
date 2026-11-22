@@ -51,3 +51,14 @@ describe('extremes', () => {
   it('empty -> nulls', () =>
     expect(extremes([])).toEqual({ north: null, south: null, east: null, west: null, highest: null }));
 });
+
+describe('empty-key airports', () => {
+  const blank = ap('');
+  it('are not listed', () => {
+    const f = mk({ arr: blank, runwayOn: '09', taxiInMin: 5 });
+    expect(runways([f]).items.map((i) => i.airport.key)).not.toContain('');
+    expect(taxiByAirport([f]).items.map((i) => i.airport.key)).not.toContain('');
+    const e = extremes([mk({ dep: blank, arr: blank })]);
+    expect(e.north).toBeNull();
+  });
+});

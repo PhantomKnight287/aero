@@ -279,4 +279,25 @@ void main() {
     expect(parts[1].first.latitude, closeTo(15, 1e-9));
     expect(parts[1].last.longitude, closeTo(-174, 1e-9));
   });
+
+  testWidgets('report shows error with Retry that refetches', (t) async {
+    var calls = 0;
+    final c = StatsController(
+      fetchStats: (_) async {
+        calls++;
+        throw Exception('boom');
+      },
+      fetchHistory: (_, __) async => null,
+    );
+    await t.pumpWidget(ChangeNotifierProvider(
+      create: (_) => UnitsNotifier(),
+      child: MaterialApp(home: FlightStatsReport(controller: c)),
+    ));
+    await t.pump();
+    expect(find.text('Retry'), findsOneWidget);
+    final before = calls;
+    await t.tap(find.text('Retry'));
+    await t.pump();
+    expect(calls, before + 1);
+  });
 }

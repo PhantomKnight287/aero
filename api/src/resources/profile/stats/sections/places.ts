@@ -12,9 +12,8 @@ export function topAirports(fs: StatsFlight[]) {
     return r;
   };
   for (const f of fs) {
-    const d = row(f.dep), a = row(f.arr);
-    d.departures++; a.arrivals++;
-    for (const r of [d, a]) { r.flightCount++; r.distanceKm += f.distanceKm; }
+    if (f.dep.key) { const d = row(f.dep); d.departures++; d.flightCount++; d.distanceKm += f.distanceKm; }
+    if (f.arr.key) { const a = row(f.arr); a.arrivals++; a.flightCount++; a.distanceKm += f.distanceKm; }
   }
   return [...m.values()].sort((a, b) => byCountDesc(a, b, a.airport.key, b.airport.key));
 }
@@ -32,6 +31,7 @@ export function topAirlines(fs: StatsFlight[]) {
 export function topRoutes(fs: StatsFlight[]) {
   const m = new Map<string, { from: StatsAirport; to: StatsAirport; flightCount: number; distanceKm: number }>();
   for (const f of fs) {
+    if (!f.dep.key || !f.arr.key) continue;
     const k = `${f.dep.key}>${f.arr.key}`;
     let r = m.get(k);
     if (!r) m.set(k, (r = { from: f.dep, to: f.arr, flightCount: 0, distanceKm: 0 }));

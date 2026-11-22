@@ -345,7 +345,7 @@ class _HomeScreenState extends State<HomeScreen>
         SearchHeader(
           onOpenFlight: (r) => controller.loadFlightInfo(
               r.flightNo, r.flightNo, r.date,
-              forceUpdate: true, faFlightId: r.faFlightId),
+              faFlightId: r.faFlightId),
         ),
         Row(
           children: [

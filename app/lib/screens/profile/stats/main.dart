@@ -100,7 +100,7 @@ class _FlightStatsScreenState extends State<FlightStatsScreen> {
           (stats?.passport.totalFlights ?? 0) == 0)
         const _Empty(),
       if (stats != null && stats.passport.totalFlights > 0) ...[
-        _passportCard(stats.passport),
+        _passportCard(stats.passport, stats.year),
         if (stats.delays.basedOn > 0 && stats.delays.minutesLost > 0) ...[
           const SizedBox(height: AeroSpace.md),
           _delayCard(stats.delays),
@@ -167,7 +167,7 @@ class _FlightStatsScreenState extends State<FlightStatsScreen> {
     return out;
   }
 
-  Widget _passportCard(PassportEntity p) {
+  Widget _passportCard(PassportEntity p, num? statsYear) {
     final unit = context.watch<UnitsNotifier>().distance;
     final laps = (p.totalDistanceKm / _earthKm).toStringAsFixed(1);
     final longHaul = p.longHaul.toInt();
@@ -178,7 +178,9 @@ class _FlightStatsScreenState extends State<FlightStatsScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('${c.year ?? 'All-time'} passport'.toUpperCase(),
+          Text(
+              '${statsYear == null ? 'All-time' : statsYear.toInt()} passport'
+                  .toUpperCase(),
               style:
                   AeroText.label.copyWith(color: AeroAccent.onPassportMuted)),
           const SizedBox(height: AeroSpace.md),
