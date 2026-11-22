@@ -50,6 +50,7 @@ dependencies:
   workmanager: ^0.9.0+3
   material_symbols_icons: ^4.2928.1
   onesignal_flutter: ^5.5.4
+  circle_flags: ^5.0.1
 
 dev_dependencies:
   flutter_test:
