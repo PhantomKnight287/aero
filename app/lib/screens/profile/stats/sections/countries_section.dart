@@ -28,11 +28,13 @@ class CountriesSection extends StatelessWidget {
 
   const CountriesSection({super.key, required this.stats});
 
+  static bool shows(ProfileStatsResponseEntity s) => s.countries.isNotEmpty;
+
   @override
   Widget build(BuildContext context) {
     final countries = [...stats.countries]
       ..sort((a, b) => b.flightCount.compareTo(a.flightCount));
-    if (countries.isEmpty) return const SizedBox.shrink();
+    if (!shows(stats)) return const SizedBox.shrink();
     final continents = stats.continents.toList();
     return StatSection(
       title: 'Countries & territories',

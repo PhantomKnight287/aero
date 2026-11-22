@@ -15,10 +15,12 @@ class RunwaysSection extends StatelessWidget {
 
   const RunwaysSection({super.key, required this.stats});
 
+  static bool shows(ProfileStatsResponseEntity s) => s.runways.items.isNotEmpty;
+
   @override
   Widget build(BuildContext context) {
     final r = stats.runways;
-    if (r.items.isEmpty) return const SizedBox.shrink();
+    if (!shows(stats)) return const SizedBox.shrink();
     num uses(RunwayUseEntity u) => u.departures + u.arrivals;
     final sorted = [...r.items]..sort((a, b) => uses(b).compareTo(uses(a)));
     return StatSection(

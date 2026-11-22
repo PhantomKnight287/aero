@@ -13,10 +13,13 @@ class TimeSection extends StatelessWidget {
 
   const TimeSection({super.key, required this.stats});
 
+  static bool shows(ProfileStatsResponseEntity s) =>
+      s.passport.blockMinutes > 0;
+
   @override
   Widget build(BuildContext context) {
     final p = stats.passport;
-    if (p.blockMinutes <= 0) return const SizedBox.shrink();
+    if (!shows(stats)) return const SizedBox.shrink();
     final block = p.blockMinutes;
     String dur(num m) => formatLongDuration(m.round());
     return StatSection(

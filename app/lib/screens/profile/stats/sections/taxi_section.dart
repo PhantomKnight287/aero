@@ -14,12 +14,26 @@ class TaxiSection extends StatelessWidget {
 
   const TaxiSection({super.key, required this.stats});
 
+  static bool _hasOut(TaxiAirportEntity e) =>
+      e.avgTaxiOutMin != null && e.taxiOutCount > 0;
+  static bool _hasIn(TaxiAirportEntity e) =>
+      e.avgTaxiInMin != null && e.taxiInCount > 0;
+
+  /// Airports with at least one average to show.
+  static List<TaxiAirportEntity> _rows(ProfileStatsResponseEntity s) => [
+        for (final e in s.taxiByAirport.items)
+          if (_hasOut(e) || _hasIn(e)) e
+      ];
+
+  static bool shows(ProfileStatsResponseEntity s) =>
+      _rows(s).isNotEmpty || s.taxiByAirport.longest != null;
+
   @override
   Widget build(BuildContext context) {
     final t = stats.taxiByAirport;
-    if (t.items.isEmpty && t.longest == null) return const SizedBox.shrink();
+    if (!shows(stats)) return const SizedBox.shrink();
     num samples(TaxiAirportEntity e) => e.taxiOutCount + e.taxiInCount;
-    final sorted = [...t.items]
+    final sorted = _rows(stats)
       ..sort((a, b) => samples(b).compareTo(samples(a)));
     // Overall average taxi-out = sample-weighted mean of the airport averages.
     num outMin = 0, outN = 0;
@@ -56,10 +70,8 @@ class TaxiSection extends StatelessWidget {
         '$kind ${avg!.round()}m avg (${count(n)} ${n == 1 ? 'flight' : 'flights'})';
     final code = airportCode(e.airport);
     final lines = [
-      if (e.avgTaxiOutMin != null && e.taxiOutCount > 0)
-        line('taxi-out', e.avgTaxiOutMin, e.taxiOutCount),
-      if (e.avgTaxiInMin != null && e.taxiInCount > 0)
-        line('taxi-in', e.avgTaxiInMin, e.taxiInCount),
+      if (_hasOut(e)) line('taxi-out', e.avgTaxiOutMin, e.taxiOutCount),
+      if (_hasIn(e)) line('taxi-in', e.avgTaxiInMin, e.taxiInCount),
     ];
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

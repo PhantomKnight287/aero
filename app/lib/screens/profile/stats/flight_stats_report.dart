@@ -97,18 +97,21 @@ class _FlightStatsReportState extends State<FlightStatsReport> {
                               CircularProgressIndicator(color: AeroColors.ink)),
                     )
                   else
+                    // Only sections with data, so hidden ones leave no gap.
                     for (final w in [
                       PassportHeader(stats: s),
-                      FlightsSection(stats: s),
-                      DistanceSection(stats: s),
-                      TimeSection(stats: s),
-                      TopAirportsSection(stats: s),
-                      TopAirlinesSection(stats: s),
-                      TopRoutesSection(stats: s),
-                      RunwaysSection(stats: s),
-                      TaxiSection(stats: s),
-                      ExtremesSection(stats: s),
-                      CountriesSection(stats: s),
+                      if (FlightsSection.shows(s)) FlightsSection(stats: s),
+                      if (DistanceSection.shows(s)) DistanceSection(stats: s),
+                      if (TimeSection.shows(s)) TimeSection(stats: s),
+                      if (TopAirportsSection.shows(s))
+                        TopAirportsSection(stats: s),
+                      if (TopAirlinesSection.shows(s))
+                        TopAirlinesSection(stats: s),
+                      if (TopRoutesSection.shows(s)) TopRoutesSection(stats: s),
+                      if (RunwaysSection.shows(s)) RunwaysSection(stats: s),
+                      if (TaxiSection.shows(s)) TaxiSection(stats: s),
+                      if (ExtremesSection.shows(s)) ExtremesSection(stats: s),
+                      if (CountriesSection.shows(s)) CountriesSection(stats: s),
                     ]) ...[
                       w,
                       const SizedBox(height: AeroSpace.xxl),

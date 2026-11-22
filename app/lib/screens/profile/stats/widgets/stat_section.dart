@@ -30,15 +30,13 @@ class StatSection extends StatelessWidget {
         Text(title, style: AeroText.sectionTitle),
         if (hero != null) ...[
           const SizedBox(height: AeroSpace.sm),
-          // Wrap so a long unit drops below the number instead of overflowing.
-          Wrap(
-            crossAxisAlignment: WrapCrossAlignment.end,
-            spacing: AeroSpace.xs,
-            children: [
-              Text(hero!, style: AeroText.hero),
-              if (heroUnit != null) Text(heroUnit!, style: AeroText.heroUnit),
-            ],
-          ),
+          // One paragraph: number and unit share a baseline, and a long
+          // unit wraps instead of overflowing.
+          Text.rich(TextSpan(children: [
+            TextSpan(text: hero, style: AeroText.hero),
+            if (heroUnit != null)
+              TextSpan(text: ' $heroUnit', style: AeroText.heroUnit),
+          ])),
         ],
         const SizedBox(height: AeroSpace.lg),
         child,

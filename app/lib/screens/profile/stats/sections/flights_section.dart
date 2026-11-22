@@ -19,6 +19,9 @@ class FlightsSection extends StatefulWidget {
 
   const FlightsSection({super.key, required this.stats});
 
+  static bool shows(ProfileStatsResponseEntity s) =>
+      s.passport.totalFlights > 0;
+
   @override
   State<FlightsSection> createState() => _FlightsSectionState();
 }
@@ -30,7 +33,7 @@ class _FlightsSectionState extends State<FlightsSection> {
   Widget build(BuildContext context) {
     final s = widget.stats;
     final p = s.passport;
-    if (p.totalFlights == 0) return const SizedBox.shrink();
+    if (!FlightsSection.shows(s)) return const SizedBox.shrink();
     final options = [if (s.year == null) _Per.year, _Per.month, _Per.weekday];
     final per = options.contains(_per) ? _per! : options.first;
     final (values, labels) = switch (per) {

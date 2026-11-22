@@ -19,10 +19,13 @@ class DistanceSection extends StatelessWidget {
 
   const DistanceSection({super.key, required this.stats});
 
+  static bool shows(ProfileStatsResponseEntity s) =>
+      s.passport.totalDistanceKm > 0;
+
   @override
   Widget build(BuildContext context) {
     final p = stats.passport;
-    if (p.totalDistanceKm <= 0) return const SizedBox.shrink();
+    if (!shows(stats)) return const SizedBox.shrink();
     final unit = context.watch<UnitsNotifier>().distance;
     final other = unit == DistanceUnit.km ? DistanceUnit.mi : DistanceUnit.km;
     final km = p.totalDistanceKm;

@@ -90,10 +90,16 @@ class _RouteMap extends StatelessWidget {
     final points = [
       for (final a in map.airports) LatLng(a.lat.toDouble(), a.lon.toDouble())
     ];
+    final lons = fitLongitudes([for (final p in points) p.longitude]);
     return FlutterMap(
       options: MapOptions(
-        initialCameraFit: CameraFit.bounds(
-          bounds: LatLngBounds.fromPoints(points),
+        // Unwrapped longitudes: a transpacific log fits across the Pacific
+        // instead of spanning the whole world the other way.
+        initialCameraFit: CameraFit.coordinates(
+          coordinates: [
+            for (var i = 0; i < points.length; i++)
+              LatLng(points[i].latitude, lons[i])
+          ],
           padding: const EdgeInsets.all(AeroSpace.xl),
           maxZoom: 6,
         ),
@@ -104,7 +110,7 @@ class _RouteMap extends StatelessWidget {
         lightMapTileLayer,
         PolylineLayer(polylines: [
           for (final r in map.routes)
-            for (final part in _splitAtAntimeridian(greatCirclePoints(
+            for (final part in splitAtAntimeridian(greatCirclePoints(
               LatLng(r.fromLat.toDouble(), r.fromLon.toDouble()),
               LatLng(r.toLat.toDouble(), r.toLon.toDouble()),
             )))
@@ -123,16 +129,46 @@ class _RouteMap extends StatelessWidget {
   }
 }
 
+/// [lons] (in -180..180) shifted so they cover the narrowest arc: when the
+/// widest gap between neighbours isn't the one across ±180, everything west
+/// of it moves east by 360. Same order as [lons].
+List<double> fitLongitudes(List<double> lons) {
+  if (lons.length < 2) return lons;
+  final sorted = [...lons]..sort();
+  var gap = sorted.first + 360 - sorted.last; // across ±180
+  double? cut;
+  for (var i = 0; i + 1 < sorted.length; i++) {
+    final g = sorted[i + 1] - sorted[i];
+    if (g > gap) {
+      gap = g;
+      cut = sorted[i];
+    }
+  }
+  if (cut == null) return lons;
+  return [for (final l in lons) l <= cut ? l + 360 : l];
+}
+
 /// flutter_map wants longitudes in [-180, 180]; greatCirclePoints unwraps
-/// past them, so wrap back and break the line where it crosses.
-List<List<LatLng>> _splitAtAntimeridian(List<LatLng> points) {
+/// past them, so wrap back and break the line at ±180, adding the crossing
+/// point to both pieces so each reaches the edge.
+List<List<LatLng>> splitAtAntimeridian(List<LatLng> points) {
+  double wrap(double lon) => (lon + 180) % 360 - 180;
   final parts = <List<LatLng>>[[]];
-  double? prev;
+  LatLng? prev;
   for (final p in points) {
-    final lon = (p.longitude + 180) % 360 - 180;
-    if (prev != null && (lon - prev).abs() > 180) parts.add([]);
-    parts.last.add(LatLng(p.latitude, lon));
-    prev = lon;
+    final lon = wrap(p.longitude);
+    if (prev != null && (lon - prev.longitude).abs() > 180) {
+      // Going east crosses +180 (lon jumps negative), west crosses -180.
+      final edge = prev.longitude > 0 ? 180.0 : -180.0;
+      final next = lon + 2 * edge; // lon on prev's side of the line
+      final t = (edge - prev.longitude) / (next - prev.longitude);
+      final lat = prev.latitude + t * (p.latitude - prev.latitude);
+      parts.last.add(LatLng(lat, edge));
+      parts.add([LatLng(lat, -edge)]);
+    }
+    final w = LatLng(p.latitude, lon);
+    parts.last.add(w);
+    prev = w;
   }
   return parts;
 }

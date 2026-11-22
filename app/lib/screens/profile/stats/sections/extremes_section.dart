@@ -19,6 +19,11 @@ class ExtremesSection extends StatelessWidget {
 
   const ExtremesSection({super.key, required this.stats});
 
+  static bool shows(ProfileStatsResponseEntity s) {
+    final x = s.extremes;
+    return [x.north, x.south, x.east, x.west, x.highest].any((a) => a != null);
+  }
+
   @override
   Widget build(BuildContext context) {
     final x = stats.extremes;

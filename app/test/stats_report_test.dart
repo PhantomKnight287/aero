@@ -1,9 +1,14 @@
 import 'package:aero/notifiers/units.dart';
 import 'package:aero/screens/profile/stats/flight_stats_report.dart';
+import 'package:aero/screens/profile/stats/passport_header.dart';
+import 'package:aero/screens/profile/stats/sections/extremes_section.dart';
+import 'package:aero/screens/profile/stats/sections/top_lists_section.dart';
+import 'package:aero/ui/tokens.dart';
 import 'package:aero/screens/profile/stats/stats_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:openapi/openapi.dart';
 import 'package:provider/provider.dart';
 
@@ -41,7 +46,8 @@ Map<String, dynamic> summary() => {
       'localDate': '2026-03-14',
     };
 
-ProfileStatsResponseEntity fixture({bool withMap = false}) {
+ProfileStatsResponseEntity fixture(
+    {bool withMap = false, bool noRunwaysOrTaxi = false}) {
   final json = {
     'availableYears': [2025, 2026],
     'year': null,
@@ -160,6 +166,10 @@ ProfileStatsResponseEntity fixture({bool withMap = false}) {
     },
     'mostFlownAircraft': {'aircraftName': 'Boeing 777', 'flightCount': 12},
   };
+  if (noRunwaysOrTaxi) {
+    json['runways'] = {'basedOn': 0, 'items': []};
+    json['taxiByAirport'] = {'basedOn': 0, 'items': [], 'longest': null};
+  }
   return standardSerializers.deserializeWith(
       ProfileStatsResponseEntity.serializer, json)!;
 }
@@ -182,10 +192,8 @@ Future<void> pumpReport(WidgetTester t, ProfileStatsResponseEntity s) async {
 void main() {
   testWidgets('report shows hero numbers', (t) async {
     await pumpReport(t, fixture());
-    expect(find.text('60'), findsWidgets);
-    expect(find.text('total airports'), findsOneWidget);
-    expect(find.text('3'), findsWidgets);
-    expect(find.text('runways used'), findsOneWidget);
+    expect(find.text('60 total airports'), findsOneWidget);
+    expect(find.text('3 runways used'), findsOneWidget);
     expect(find.text('418h 59m'), findsOneWidget);
     expect(find.text('A01 · taxi-out 22m avg (9 flights)'), findsOneWidget);
   });
@@ -227,5 +235,36 @@ void main() {
     await t.pumpAndSettle();
     expect(find.text('A01 · XA01 · Airport number 1'), findsOneWidget);
     expect(find.text('Runway 29R · 6 off · 1 on'), findsOneWidget);
+  });
+
+  testWidgets('hidden sections leave one gap', (t) async {
+    await pumpReport(t, fixture(noRunwaysOrTaxi: true));
+    expect(find.text('Runway log'), findsNothing);
+    expect(find.text('Taxi by airport'), findsNothing);
+    final gap = t.getTopLeft(find.byType(ExtremesSection)).dy -
+        t.getBottomLeft(find.byType(TopRoutesSection)).dy;
+    expect(gap, AeroSpace.xxl);
+  });
+
+  test('fitLongitudes crosses the Pacific when that is narrower', () {
+    // HNL, NRT, DEL
+    final lons = fitLongitudes([-158, 140, 77]);
+    expect(lons, [202, 140, 77]);
+    final span = lons.reduce((a, b) => a > b ? a : b) -
+        lons.reduce((a, b) => a < b ? a : b);
+    expect(span, closeTo(125, 1));
+    // Europe-only stays put.
+    expect(fitLongitudes([-0.5, 2.5, 13.4]), [-0.5, 2.5, 13.4]);
+  });
+
+  test('splitAtAntimeridian ends both pieces on the edge', () {
+    final parts = splitAtAntimeridian(
+        [const LatLng(10, 178), const LatLng(20, 182), const LatLng(30, 186)]);
+    expect(parts, hasLength(2));
+    expect(parts[0].last.longitude, 180);
+    expect(parts[1].first.longitude, -180);
+    expect(parts[0].last.latitude, closeTo(15, 1e-9));
+    expect(parts[1].first.latitude, closeTo(15, 1e-9));
+    expect(parts[1].last.longitude, closeTo(-174, 1e-9));
   });
 }

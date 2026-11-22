@@ -74,6 +74,8 @@ class TopAirportsSection extends StatelessWidget {
 
   const TopAirportsSection({super.key, required this.stats});
 
+  static bool shows(ProfileStatsResponseEntity s) => s.topAirports.isNotEmpty;
+
   @override
   Widget build(BuildContext context) {
     return _TopSection<TopAirportEntity>(
@@ -91,7 +93,7 @@ class TopAirportsSection extends StatelessWidget {
           e.airport.city,
           '${count(e.departures)} dep · ${count(e.arrivals)} arr',
         ],
-        value: count(e.flightCount),
+        value: _flights(e.flightCount),
       ),
     );
   }
@@ -101,6 +103,8 @@ class TopAirlinesSection extends StatelessWidget {
   final ProfileStatsResponseEntity stats;
 
   const TopAirlinesSection({super.key, required this.stats});
+
+  static bool shows(ProfileStatsResponseEntity s) => s.topAirlines.isNotEmpty;
 
   @override
   Widget build(BuildContext context) {
@@ -139,6 +143,8 @@ class TopRoutesSection extends StatelessWidget {
   final ProfileStatsResponseEntity stats;
 
   const TopRoutesSection({super.key, required this.stats});
+
+  static bool shows(ProfileStatsResponseEntity s) => s.topRoutes.isNotEmpty;
 
   @override
   Widget build(BuildContext context) {
