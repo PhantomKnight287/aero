@@ -7,6 +7,7 @@ import 'package:aero/utils/error.dart';
 class ProfileService {
   final Dio _dio;
   final _profileApi = openapi.getProfileApi();
+  final _flightApi = openapi.getFlightApi();
 
   ProfileService() : _dio = Dio() {
     // Add interceptors for logging
@@ -17,9 +18,10 @@ class ProfileService {
     ));
   }
 
-  Future<ProfileStatsResponseEntity?> getProfileStats() async {
+  Future<ProfileStatsResponseEntity?> getProfileStats({int? year}) async {
     try {
-      final response = await _profileApi.profileControllerGetProfileStatsV1();
+      final response =
+          await _profileApi.profileControllerGetProfileStatsV1(year: year);
       return response.data;
     } catch (e) {
       if (e is DioException) {
@@ -30,5 +32,18 @@ class ProfileService {
       );
     }
   }
-}
 
+  Future<FlightHistoryResponseEntity?> getFlightHistory(
+      {String? cursor, int? year}) async {
+    try {
+      final response = await _flightApi.flightControllerGetFlightHistoryV1(
+          cursor: cursor, year: year);
+      return response.data;
+    } catch (e) {
+      if (e is DioException) {
+        throw ApiException(message: getErrorMessage(e.response?.data));
+      }
+      throw ApiException(message: 'Failed to fetch flight history: $e');
+    }
+  }
+}
