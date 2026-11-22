@@ -257,6 +257,18 @@ void main() {
     expect(fitLongitudes([-0.5, 2.5, 13.4]), [-0.5, 2.5, 13.4]);
   });
 
+  test('airport dots use the fitted longitude frame', () {
+    MapAirportEntity a(String iata, num lat, num lon) =>
+        MapAirportEntity((b) => b
+          ..iata = iata
+          ..lat = lat
+          ..lon = lon);
+    final pts = airportPoints(
+        [a('HNL', 21.3, -158), a('NRT', 35.8, 140), a('DEL', 28.6, 77)]);
+    expect(pts.map((p) => p.longitude), [202, 140, 77]);
+    expect(pts.first.latitude, 21.3);
+  });
+
   test('splitAtAntimeridian ends both pieces on the edge', () {
     final parts = splitAtAntimeridian(
         [const LatLng(10, 178), const LatLng(20, 182), const LatLng(30, 186)]);

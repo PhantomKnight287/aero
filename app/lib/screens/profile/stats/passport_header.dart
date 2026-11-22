@@ -87,19 +87,13 @@ class _RouteMap extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final points = [
-      for (final a in map.airports) LatLng(a.lat.toDouble(), a.lon.toDouble())
-    ];
-    final lons = fitLongitudes([for (final p in points) p.longitude]);
+    // One frame for the camera fit and the dots: CircleLayer doesn't repeat
+    // worlds, so a dot left at -158 is off-screen when the fit is at 202.
+    final points = airportPoints(map.airports);
     return FlutterMap(
       options: MapOptions(
-        // Unwrapped longitudes: a transpacific log fits across the Pacific
-        // instead of spanning the whole world the other way.
         initialCameraFit: CameraFit.coordinates(
-          coordinates: [
-            for (var i = 0; i < points.length; i++)
-              LatLng(points[i].latitude, lons[i])
-          ],
+          coordinates: points,
           padding: const EdgeInsets.all(AeroSpace.xl),
           maxZoom: 6,
         ),
@@ -127,6 +121,17 @@ class _RouteMap extends StatelessWidget {
       ],
     );
   }
+}
+
+/// Airport positions with longitudes unwrapped by [fitLongitudes], so a
+/// transpacific log fits across the Pacific instead of the other way round.
+List<LatLng> airportPoints(Iterable<MapAirportEntity> airports) {
+  final list = airports.toList();
+  final lons = fitLongitudes([for (final a in list) a.lon.toDouble()]);
+  return [
+    for (var i = 0; i < list.length; i++)
+      LatLng(list[i].lat.toDouble(), lons[i])
+  ];
 }
 
 /// [lons] (in -180..180) shifted so they cover the narrowest arc: when the
