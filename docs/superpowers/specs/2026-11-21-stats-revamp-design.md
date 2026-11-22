@@ -1,4 +1,6 @@
-# Stats screen revamp — design (draft)
+# Stats screen revamp — design (superseded)
+
+Superseded on 2026-11-22 by `2026-11-22-stats-passport-design.md`, which absorbs everything below.
 
 Covers the stats screen improvement, idea 10 (type collection), runway log (5), delay stats, taxi stats (4).
 

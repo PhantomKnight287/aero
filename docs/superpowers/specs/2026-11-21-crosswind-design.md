@@ -1,4 +1,6 @@
-# Crosswind + METAR decode — design (draft)
+# Crosswind + METAR decode — design (parked)
+
+Parked on 2026-11-22 at the user's request. Open question when it returns: weather at landing time (Iowa State archive) vs recent-only vs current weather.
 
 Covers idea 12.
 

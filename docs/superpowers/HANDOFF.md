@@ -9,7 +9,7 @@ Read this first, then `docs/superpowers/specs/2026-11-21-roadmap.md` (the source
   - aircraft history (rotation timeline, own-flights sheet, recent legs);
   - flight timing (collapsible OOOI timetable, runways, DST-correct timezone shift);
   - flight profile charts.
-- **Next:** #6 **sun side** (`specs/2026-11-21-sun-side-design.md`, still a draft). After that: #7 crosswind (needs the OurAirports `runways.csv` imported), #8 stats revamp, #9 home widgets, #10 exports, #11 alerts.
+- **Parked:** #6 sun side (the user did not like it; it may return later). #7 crosswind is parked too (needs the OurAirports `runways.csv` imported). **Next:** design improvements, starting with #8 the stats "Passport" redesign (`specs/2026-11-22-stats-passport-design.md`, approved), #9 home widgets, #10 exports, #11 alerts.
 - **Profiles:** dropped by the user. Deleting flights from the log covers that need.
 
 ## How the user likes to work
