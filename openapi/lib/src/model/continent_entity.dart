@@ -15,6 +15,7 @@ part 'continent_entity.g.dart';
 /// * [bucket] 
 /// * [countryCount] 
 /// * [flightShare] - Share of flights touching this continent, 0..1
+/// * [flightCount] - Flights touching this continent, each counted once
 @BuiltValue()
 abstract class ContinentEntity implements Built<ContinentEntity, ContinentEntityBuilder> {
   @BuiltValueField(wireName: r'bucket')
@@ -27,6 +28,10 @@ abstract class ContinentEntity implements Built<ContinentEntity, ContinentEntity
   /// Share of flights touching this continent, 0..1
   @BuiltValueField(wireName: r'flightShare')
   num get flightShare;
+
+  /// Flights touching this continent, each counted once
+  @BuiltValueField(wireName: r'flightCount')
+  num get flightCount;
 
   ContinentEntity._();
 
@@ -64,6 +69,11 @@ class _$ContinentEntitySerializer implements PrimitiveSerializer<ContinentEntity
     yield r'flightShare';
     yield serializers.serialize(
       object.flightShare,
+      specifiedType: const FullType(num),
+    );
+    yield r'flightCount';
+    yield serializers.serialize(
+      object.flightCount,
       specifiedType: const FullType(num),
     );
   }
@@ -109,6 +119,13 @@ class _$ContinentEntitySerializer implements PrimitiveSerializer<ContinentEntity
             specifiedType: const FullType(num),
           ) as num;
           result.flightShare = valueDes;
+          break;
+        case r'flightCount':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType(num),
+          ) as num;
+          result.flightCount = valueDes;
           break;
         default:
           unhandled.add(key);

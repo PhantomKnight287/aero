@@ -13,6 +13,8 @@ class _$ContinentEntity extends ContinentEntity {
   final num countryCount;
   @override
   final num flightShare;
+  @override
+  final num flightCount;
 
   factory _$ContinentEntity([void Function(ContinentEntityBuilder)? updates]) =>
       (ContinentEntityBuilder()..update(updates))._build();
@@ -20,7 +22,8 @@ class _$ContinentEntity extends ContinentEntity {
   _$ContinentEntity._(
       {required this.bucket,
       required this.countryCount,
-      required this.flightShare})
+      required this.flightShare,
+      required this.flightCount})
       : super._();
   @override
   ContinentEntity rebuild(void Function(ContinentEntityBuilder) updates) =>
@@ -35,7 +38,8 @@ class _$ContinentEntity extends ContinentEntity {
     return other is ContinentEntity &&
         bucket == other.bucket &&
         countryCount == other.countryCount &&
-        flightShare == other.flightShare;
+        flightShare == other.flightShare &&
+        flightCount == other.flightCount;
   }
 
   @override
@@ -44,6 +48,7 @@ class _$ContinentEntity extends ContinentEntity {
     _$hash = $jc(_$hash, bucket.hashCode);
     _$hash = $jc(_$hash, countryCount.hashCode);
     _$hash = $jc(_$hash, flightShare.hashCode);
+    _$hash = $jc(_$hash, flightCount.hashCode);
     _$hash = $jf(_$hash);
     return _$hash;
   }
@@ -53,7 +58,8 @@ class _$ContinentEntity extends ContinentEntity {
     return (newBuiltValueToStringHelper(r'ContinentEntity')
           ..add('bucket', bucket)
           ..add('countryCount', countryCount)
-          ..add('flightShare', flightShare))
+          ..add('flightShare', flightShare)
+          ..add('flightCount', flightCount))
         .toString();
   }
 }
@@ -74,6 +80,10 @@ class ContinentEntityBuilder
   num? get flightShare => _$this._flightShare;
   set flightShare(num? flightShare) => _$this._flightShare = flightShare;
 
+  num? _flightCount;
+  num? get flightCount => _$this._flightCount;
+  set flightCount(num? flightCount) => _$this._flightCount = flightCount;
+
   ContinentEntityBuilder() {
     ContinentEntity._defaults(this);
   }
@@ -84,6 +94,7 @@ class ContinentEntityBuilder
       _bucket = $v.bucket;
       _countryCount = $v.countryCount;
       _flightShare = $v.flightShare;
+      _flightCount = $v.flightCount;
       _$v = null;
     }
     return this;
@@ -111,6 +122,8 @@ class ContinentEntityBuilder
               countryCount, r'ContinentEntity', 'countryCount'),
           flightShare: BuiltValueNullFieldError.checkNotNull(
               flightShare, r'ContinentEntity', 'flightShare'),
+          flightCount: BuiltValueNullFieldError.checkNotNull(
+              flightCount, r'ContinentEntity', 'flightCount'),
         );
     replace(_$result);
     return _$result;

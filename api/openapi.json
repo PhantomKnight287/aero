@@ -4493,12 +4493,17 @@
           "flightShare": {
             "type": "number",
             "description": "Share of flights touching this continent, 0..1"
+          },
+          "flightCount": {
+            "type": "number",
+            "description": "Flights touching this continent, each counted once"
           }
         },
         "required": [
           "bucket",
           "countryCount",
-          "flightShare"
+          "flightShare",
+          "flightCount"
         ]
       },
       "DelaySummaryEntity": {
