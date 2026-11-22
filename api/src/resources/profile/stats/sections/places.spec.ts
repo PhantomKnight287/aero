@@ -31,6 +31,20 @@ describe('places', () => {
     expect(r).toEqual([{ isoCountry: 'IN', name: 'India', flightCount: 1 }]);
   });
 
+  it('country flightCount counts flights once', () => {
+    const BOM = ap('VABB', { iata: 'BOM' });
+    const r = countries([f(DEL, BOM), f(DEL, DXB)]);
+    expect(r).toEqual([
+      { isoCountry: 'IN', name: 'India', flightCount: 2 },
+      { isoCountry: 'AE', name: 'United Arab Emirates', flightCount: 1 },
+    ]);
+  });
+
+  it('continents single domestic asia flight', () => {
+    const BOM = ap('VABB', { iata: 'BOM' });
+    expect(continents([f(DEL, BOM)])[0]).toEqual({ bucket: 'asia', countryCount: 1, flightShare: 1 });
+  });
+
   it('continent buckets', () => {
     expect(continentBucket('AE', 'AS')).toBe('middle_east');
     expect(continentBucket('MX', 'NA')).toBe('central_america');

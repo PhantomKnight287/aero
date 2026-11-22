@@ -45,7 +45,8 @@ const regionNames = new Intl.DisplayNames(['en'], { type: 'region' });
 export function countries(fs: StatsFlight[]) {
   const m = new Map<string, number>();
   for (const f of fs)
-    for (const a of [f.dep, f.arr]) if (a.isoCountry) m.set(a.isoCountry, (m.get(a.isoCountry) ?? 0) + 1);
+    for (const c of new Set([f.dep.isoCountry, f.arr.isoCountry]))
+      if (c) m.set(c, (m.get(c) ?? 0) + 1);
   return [...m.entries()]
     .map(([isoCountry, flightCount]) => ({ isoCountry, name: regionNames.of(isoCountry) ?? isoCountry, flightCount }))
     .sort((a, b) => byCountDesc(a, b, a.isoCountry, b.isoCountry));
