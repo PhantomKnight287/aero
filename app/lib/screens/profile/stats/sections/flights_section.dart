@@ -12,6 +12,15 @@ enum _Per { year, month, weekday }
 const _months = ['J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'];
 const _weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
+// "38 domestic" lines: bold number, grey label, title size (20).
+final _stackNumber = AeroText.heading.copyWith(
+    fontSize: AeroText.title.fontSize,
+    fontWeight: FontWeight.w700,
+    height: 1.45,
+    fontFeatures: AeroText.tabular);
+final _stackLabel =
+    _stackNumber.copyWith(fontWeight: FontWeight.w500, color: AeroColors.muted);
+
 /// Totals split domestic/international/long haul, plus flights per
 /// year, month or weekday. Year is hidden when a year is selected.
 class FlightsSection extends StatefulWidget {
@@ -54,11 +63,16 @@ class _FlightsSectionState extends State<FlightsSection> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(
-              '${count(p.domestic)} domestic · ${count(p.international)} '
-              'international · ${count(p.longHaul)} long haul',
-              style: tabularBody),
-          const SizedBox(height: AeroSpace.lg),
+          for (final (n, label) in [
+            (p.domestic, 'domestic'),
+            (p.international, 'international'),
+            (p.longHaul, 'long haul'),
+          ])
+            Text.rich(TextSpan(children: [
+              TextSpan(text: count(n), style: _stackNumber),
+              TextSpan(text: ' $label', style: _stackLabel),
+            ])),
+          const SizedBox(height: AeroSpace.xl),
           Text('FLIGHTS PER', style: AeroText.label),
           const SizedBox(height: AeroSpace.sm),
           AeroSegmented<_Per>(

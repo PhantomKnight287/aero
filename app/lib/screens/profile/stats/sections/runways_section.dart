@@ -40,14 +40,15 @@ class RunwaysSection extends StatelessWidget {
             rows: [
               for (final u in sorted.take(_top))
                 StatBar(
-                  label: Text.rich(
-                    TextSpan(children: [
-                      TextSpan(
-                          text: '${airportCode(u.airport)} ${u.runway}',
-                          style: AeroText.heading),
-                      TextSpan(text: '  ${_offOn(u)}', style: AeroText.caption),
-                    ]),
-                    style: const TextStyle(fontFeatures: AeroText.tabular),
+                  // Code + runway only: the off/on split didn't fit 84 dp
+                  // and lives in the "Show all runways" sheet.
+                  label: Text(
+                    '${airportCode(u.airport)} ${u.runway}',
+                    style: AeroText.heading
+                        .copyWith(fontFeatures: AeroText.tabular),
+                    maxLines: 1,
+                    softWrap: false,
+                    overflow: TextOverflow.ellipsis,
                   ),
                   value: uses(u),
                   valueLabel: count(uses(u)),

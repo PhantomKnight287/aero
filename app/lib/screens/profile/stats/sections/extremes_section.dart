@@ -2,7 +2,7 @@ import 'package:aero/formatters/units.dart';
 import 'package:aero/notifiers/units.dart';
 import 'package:aero/screens/profile/stats/widgets/stat_section.dart';
 import 'package:aero/ui/tokens.dart';
-import 'package:aero/utils/flag.dart';
+import 'package:aero/ui/components/country_flag.dart';
 import 'package:flutter/material.dart';
 import 'package:openapi/openapi.dart';
 import 'package:provider/provider.dart';
@@ -11,7 +11,7 @@ import 'shared.dart';
 
 /// '21.3°N' / '157.9°W'
 String _deg(num? v, String pos, String neg) =>
-    v == null ? '' : '${v.abs().toStringAsFixed(1)}°${v >= 0 ? pos : neg}';
+    v == null ? '' : '${formatDecimal(v.abs())}°${v >= 0 ? pos : neg}';
 
 /// The farthest airports in each direction, plus the highest.
 class ExtremesSection extends StatelessWidget {
@@ -65,10 +65,7 @@ class ExtremesSection extends StatelessWidget {
 
   Widget _row(String label, StatsAirportEntity a, String value) {
     final iso = a.isoCountry;
-    final place = [
-      if (iso != null && iso.length == 2) flagEmoji(iso),
-      [a.city, if (iso != null) iso].join(', '),
-    ].join(' ');
+    final place = [a.city, if (iso != null) iso].join(', ');
     return Row(children: [
       Expanded(
         child: Column(
@@ -82,7 +79,19 @@ class ExtremesSection extends StatelessWidget {
                 style: AeroText.body,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis),
-            Text(place, style: AeroText.caption),
+            const SizedBox(height: AeroSpace.xs),
+            Row(children: [
+              if (iso != null && iso.length == 2) ...[
+                CountryFlag(iso2: iso, size: 20),
+                const SizedBox(width: AeroSpace.sm),
+              ],
+              Expanded(
+                child: Text(place,
+                    style: AeroText.caption,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis),
+              ),
+            ]),
           ],
         ),
       ),

@@ -1,7 +1,10 @@
+import 'dart:math' as math;
+
 import 'package:aero/formatters/units.dart';
 import 'package:aero/notifiers/units.dart';
 import 'package:aero/screens/profile/stats/widgets/comparison_pill.dart';
 import 'package:aero/screens/profile/stats/widgets/stat_section.dart';
+import 'package:aero/screens/profile/stats/widgets/unit_text.dart';
 import 'package:aero/ui/tokens.dart';
 import 'package:flutter/material.dart';
 import 'package:openapi/openapi.dart';
@@ -11,9 +14,16 @@ import 'shared.dart';
 
 const _earthKm = 40075;
 const _moonKm = 384400;
+// Earth's orbit circumference, rounded.
+const _sunKm = 940000000;
 
-/// Total distance in the user's unit, the other unit, the average, Earth
-/// and Moon comparisons, and the shortest/longest flights.
+/// '12.4', '0.04', '0.00053': one decimal from 1 up, otherwise two
+/// significant digits so tiny ratios don't read as zero.
+String _times(double v) => formatDecimal(v,
+    digits: v >= 1 ? 1 : (1 - (math.log(v) / math.ln10).floor()).clamp(2, 6));
+
+/// Total distance in the user's unit, the other unit, the average, Earth,
+/// Moon and Sun comparisons, and the shortest/longest flights.
 class DistanceSection extends StatelessWidget {
   final ProfileStatsResponseEntity stats;
 
@@ -29,34 +39,33 @@ class DistanceSection extends StatelessWidget {
     final unit = context.watch<UnitsNotifier>().distance;
     final other = unit == DistanceUnit.km ? DistanceUnit.mi : DistanceUnit.km;
     final km = p.totalDistanceKm;
-    final earth = km / _earthKm, moon = km / _moonKm;
     String dist(num v) => formatDistance(v, unit);
+    Widget pill(ComparisonIcon icon, int ref, String label) {
+      final f = km / ref;
+      return Padding(
+        padding: const EdgeInsets.only(bottom: AeroSpace.sm),
+        child: ComparisonPill(
+            icon: icon, fraction: f, value: '${_times(f)}×', label: label),
+      );
+    }
+
     return StatSection(
       title: 'Distance',
-      hero: count(convertDistance(km, unit)),
-      heroUnit: unitLabel(unit),
+      heroWidget: UnitText.distance(km, unit, style: AeroText.hero),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(
-              [
-                formatDistance(km, other),
-                if (p.totalFlights > 0) 'avg ${dist(km / p.totalFlights)}',
-              ].join(' · '),
-              style: tabularBody),
+          Text(formatDistance(km, other),
+              style: AeroText.heroUnit.copyWith(
+                  fontSize: AeroText.title.fontSize! - 2,
+                  fontFeatures: AeroText.tabular)),
+          if (p.totalFlights > 0)
+            Text('Average distance: ${dist(km / p.totalFlights)}',
+                style: tabularBody),
           const SizedBox(height: AeroSpace.lg),
-          ComparisonPill(
-              icon: ComparisonIcon.earth,
-              fraction: earth,
-              value: '${earth.toStringAsFixed(1)}×',
-              label: 'Around Earth'),
-          const SizedBox(height: AeroSpace.sm),
-          ComparisonPill(
-              icon: ComparisonIcon.moon,
-              fraction: moon,
-              value: '${moon.toStringAsFixed(1)}×',
-              label: 'To the Moon'),
-          const SizedBox(height: AeroSpace.sm),
+          pill(ComparisonIcon.earth, _earthKm, 'Around Earth'),
+          pill(ComparisonIcon.moon, _moonKm, 'To the Moon'),
+          pill(ComparisonIcon.sun, _sunKm, 'Around the Sun'),
           recordRow(
               context, 'Shortest flight', stats.records.shortestDistance, dist),
           recordRow(

@@ -18,12 +18,6 @@ String airportCode(StatsAirportEntity a) => a.iata ?? a.icao ?? '';
 String airportCodes(StatsAirportEntity a) =>
     [a.iata, a.icao].whereType<String>().join(' · ');
 
-/// '418h 59m'
-String hoursMinutes(num minutes) {
-  final m = minutes.round();
-  return '${m ~/ 60}h ${m % 60}m';
-}
-
 final tabularBody = AeroText.body.copyWith(fontFeatures: AeroText.tabular);
 final tabularCaption =
     AeroText.caption.copyWith(fontFeatures: AeroText.tabular);

@@ -47,14 +47,17 @@ Map<String, dynamic> summary() => {
     };
 
 ProfileStatsResponseEntity fixture(
-    {bool withMap = false, bool noRunwaysOrTaxi = false}) {
+    {bool withMap = false,
+    bool noRunwaysOrTaxi = false,
+    bool noCountries = false,
+    num blockMinutes = 25139}) {
   final json = {
     'availableYears': [2025, 2026],
     'year': null,
     'passport': {
       'totalFlights': 104,
       'totalDistanceKm': 508005,
-      'blockMinutes': 25139,
+      'blockMinutes': blockMinutes,
       'airMinutes': 20000,
       'airBasedOn': 61,
       'taxiMinutes': 1500,
@@ -108,8 +111,24 @@ ProfileStatsResponseEntity fixture(
       {'isoCountry': 'US', 'name': 'United States', 'flightCount': 4},
     ],
     'continents': [
-      {'bucket': 'asia', 'countryCount': 1, 'flightShare': 0.9},
-      {'bucket': 'north_america', 'countryCount': 1, 'flightShare': 0.1},
+      {
+        'bucket': 'europe',
+        'countryCount': 0,
+        'flightShare': 0,
+        'flightCount': 0
+      },
+      {
+        'bucket': 'north_america',
+        'countryCount': 1,
+        'flightShare': 0.1,
+        'flightCount': 4
+      },
+      {
+        'bucket': 'asia',
+        'countryCount': 14,
+        'flightShare': 0.9,
+        'flightCount': 82
+      },
     ],
     'delays': {
       'basedOn': 0,
@@ -166,6 +185,10 @@ ProfileStatsResponseEntity fixture(
     },
     'mostFlownAircraft': {'aircraftName': 'Boeing 777', 'flightCount': 12},
   };
+  if (noCountries) {
+    json['countries'] = [];
+    json['continents'] = [];
+  }
   if (noRunwaysOrTaxi) {
     json['runways'] = {'basedOn': 0, 'items': []};
     json['taxiByAirport'] = {'basedOn': 0, 'items': [], 'longest': null};
@@ -174,8 +197,9 @@ ProfileStatsResponseEntity fixture(
       ProfileStatsResponseEntity.serializer, json)!;
 }
 
-Future<void> pumpReport(WidgetTester t, ProfileStatsResponseEntity s) async {
-  t.view.physicalSize = const Size(400, 2400);
+Future<void> pumpReport(WidgetTester t, ProfileStatsResponseEntity s,
+    {double width = 400}) async {
+  t.view.physicalSize = Size(width, 2400);
   t.view.devicePixelRatio = 1;
   addTearDown(t.view.reset);
   final c = StatsController(
@@ -194,7 +218,7 @@ void main() {
     await pumpReport(t, fixture());
     expect(find.text('60 total airports'), findsOneWidget);
     expect(find.text('3 runways used'), findsOneWidget);
-    expect(find.text('418h 59m'), findsOneWidget);
+    expect(find.text('418h 59m', findRichText: true), findsOneWidget);
     expect(find.text('taxi-out 22m avg (9 flights)'), findsOneWidget);
   });
 
@@ -278,6 +302,71 @@ void main() {
     expect(parts[0].last.latitude, closeTo(15, 1e-9));
     expect(parts[1].first.latitude, closeTo(15, 1e-9));
     expect(parts[1].last.longitude, closeTo(-174, 1e-9));
+  });
+
+  testWidgets('flights shows stacked lines', (t) async {
+    await pumpReport(t, fixture());
+    final dom = find.textContaining('domestic', findRichText: true);
+    final intl = find.textContaining('international', findRichText: true);
+    expect(dom, findsOneWidget);
+    expect(intl, findsOneWidget);
+    expect(t.widget(dom), isNot(same(t.widget(intl))));
+    expect(find.text('41 domestic', findRichText: true), findsOneWidget);
+    expect(find.text('38 long haul', findRichText: true), findsOneWidget);
+  });
+
+  testWidgets('distance shows average and three comparisons', (t) async {
+    await pumpReport(t, fixture());
+    expect(find.text('Average distance: 4,885 km'), findsOneWidget);
+    expect(find.textContaining('Around Earth'), findsWidgets);
+    expect(find.textContaining('To the Moon'), findsWidgets);
+    expect(find.textContaining('Around the Sun'), findsWidgets);
+  });
+
+  testWidgets('regions list replaces grid', (t) async {
+    await pumpReport(t, fixture());
+    expect(find.text('14 countries · 82 flights'), findsOneWidget);
+    expect(find.text('1 country · 4 flights'), findsOneWidget);
+    expect(find.text('Europe'), findsNothing);
+    expect(find.byType(GridView), findsNothing);
+    expect(find.text('90%'), findsNothing);
+    // Sorted by flights: Asia above N. America.
+    expect(t.getTopLeft(find.text('Asia')).dy,
+        lessThan(t.getTopLeft(find.text('N. America')).dy));
+    expect(find.text('90 flights'), findsOneWidget);
+  });
+
+  testWidgets('empty year hides lists', (t) async {
+    await pumpReport(t, fixture(noCountries: true));
+    expect(find.text('Countries & territories'), findsNothing);
+    expect(find.text('REGIONS'), findsNothing);
+    expect(find.text('Asia'), findsNothing);
+  });
+
+  testWidgets('time grid fits large values', (t) async {
+    await pumpReport(t, fixture(blockMinutes: 7404960), width: 360);
+    expect(t.takeException(), isNull);
+    expect(find.text('Days'), findsOneWidget);
+    expect(find.text('Taxiing'), findsOneWidget);
+    expect(find.textContaining('WEEKS'), findsNothing);
+    expect(find.text('61 flights with data'), findsNWidgets(2));
+  });
+
+  testWidgets('no emoji in report', (t) async {
+    await pumpReport(t, fixture());
+    final emoji =
+        RegExp('[\u{1F1E6}-\u{1F1FF}\u{1F30D}\u{1F315}☀]', unicode: true);
+    for (final r in t.widgetList<RichText>(find.byType(RichText))) {
+      expect(emoji.hasMatch(r.text.toPlainText()), isFalse,
+          reason: r.text.toPlainText());
+    }
+  });
+
+  testWidgets('runway label stays on one line', (t) async {
+    await pumpReport(t, fixture());
+    final label = find.textContaining('A01 29R', findRichText: true);
+    expect(label, findsOneWidget);
+    expect(t.getSize(label).height, lessThan(30));
   });
 
   testWidgets('report shows error with Retry that refetches', (t) async {

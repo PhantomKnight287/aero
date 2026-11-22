@@ -1,19 +1,12 @@
 import 'package:aero/constants/map.dart';
-import 'package:aero/formatters/time.dart';
-import 'package:aero/formatters/units.dart';
-import 'package:aero/notifiers/units.dart';
 import 'package:aero/ui/tokens.dart';
-import 'package:aero/utils/flag.dart';
 import 'package:aero/utils/great_circle.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:openapi/openapi.dart';
-import 'package:provider/provider.dart';
 
-import 'sections/shared.dart';
-
-/// Still route map, flag row and the summary strip.
+/// Still route map. Flags and totals live on the hub's passport card.
 class PassportHeader extends StatelessWidget {
   final ProfileStatsResponseEntity stats;
 
@@ -21,64 +14,16 @@ class PassportHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final p = stats.passport;
-    final unit = context.watch<UnitsNotifier>().distance;
-    final flags = stats.countries
-        .where((c) => c.isoCountry.length == 2)
-        .map((c) => flagEmoji(c.isoCountry));
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        SizedBox(
-          height: 220,
-          child: ClipRRect(
-            borderRadius: AeroRadius.mdAll,
-            child: stats.map.airports.isEmpty
-                ? const ColoredBox(color: AeroColors.surfaceAlt)
-                : _RouteMap(map: stats.map),
-          ),
-        ),
-        const SizedBox(height: AeroSpace.lg),
-        Wrap(
-          spacing: AeroSpace.xs,
-          runSpacing: AeroSpace.xs,
-          crossAxisAlignment: WrapCrossAlignment.center,
-          children: [
-            for (final f in flags) Text(f, style: AeroText.title),
-            const SizedBox(width: AeroSpace.xs),
-            Text(
-                '${count(p.totalCountries)} '
-                '${p.totalCountries == 1 ? 'country' : 'countries'}',
-                style: tabularBody),
-          ],
-        ),
-        const SizedBox(height: AeroSpace.lg),
-        // Natural widths spread edge to edge; wraps to a second run instead
-        // of squeezing labels when the numbers get long.
-        Wrap(
-          alignment: WrapAlignment.spaceBetween,
-          spacing: AeroSpace.sm,
-          runSpacing: AeroSpace.md,
-          children: [
-            _stat(count(p.totalFlights), 'flights'),
-            _stat(formatDistance(p.totalDistanceKm, unit), 'distance'),
-            _stat(formatLongDuration(p.blockMinutes.round()), 'time'),
-            _stat(count(p.totalAirports), 'airports'),
-            _stat(count(p.totalAirlines), 'airlines'),
-          ],
-        ),
-      ],
+    return SizedBox(
+      height: 220,
+      child: ClipRRect(
+        borderRadius: AeroRadius.mdAll,
+        child: stats.map.airports.isEmpty
+            ? const ColoredBox(color: AeroColors.surfaceAlt)
+            : _RouteMap(map: stats.map),
+      ),
     );
   }
-
-  Widget _stat(String value, String label) => Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(value,
-              style: AeroText.heading.copyWith(fontFeatures: AeroText.tabular)),
-          Text(label.toUpperCase(), style: AeroText.label),
-        ],
-      );
 }
 
 class _RouteMap extends StatelessWidget {

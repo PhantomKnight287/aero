@@ -1,6 +1,6 @@
 import 'package:aero/screens/profile/stats/widgets/stat_section.dart';
+import 'package:aero/ui/components/country_flag.dart';
 import 'package:aero/ui/tokens.dart';
-import 'package:aero/utils/flag.dart';
 import 'package:flutter/material.dart';
 import 'package:openapi/openapi.dart';
 
@@ -21,8 +21,11 @@ String _continent(ContinentBucket b) => switch (b) {
       _ => b.name,
     };
 
-/// Countries & territories: top 3 with flight counts, a sheet of all, and
-/// a 3-column continent grid (country count + share of flights).
+String _plural(num n, String one, String many) =>
+    '${count(n)} ${n == 1 ? one : many}';
+
+/// Countries & territories: top 3 rows (flag, name, flights), a sheet of
+/// all, then the regions with flights in the same row style.
 class CountriesSection extends StatelessWidget {
   final ProfileStatsResponseEntity stats;
 
@@ -35,67 +38,93 @@ class CountriesSection extends StatelessWidget {
     final countries = [...stats.countries]
       ..sort((a, b) => b.flightCount.compareTo(a.flightCount));
     if (!shows(stats)) return const SizedBox.shrink();
-    final continents = stats.continents.toList();
-    return StatSection(
-      title: 'Countries & territories',
-      hero: count(stats.passport.totalCountries),
-      heroUnit: 'total',
-      onShowMore: countries.length > _top
-          ? () => showListSheet(context, 'Countries & territories',
-              [for (final c in countries) _row(c)])
-          : null,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          for (final c in countries.take(_top)) ...[
-            _row(c),
-            const SizedBox(height: AeroSpace.md),
-          ],
-          for (var i = 0; i < continents.length; i += 3) ...[
-            if (i > 0) const SizedBox(height: AeroSpace.sm),
-            Row(children: [
-              for (var j = i; j < i + 3; j++) ...[
-                if (j > i) const SizedBox(width: AeroSpace.sm),
-                Expanded(
-                  child: j < continents.length
-                      ? _tile(continents[j])
-                      : const SizedBox.shrink(),
-                ),
-              ],
-            ]),
-          ],
+    final regions = [
+      for (final c in stats.continents)
+        if (c.flightCount > 0) c
+    ]..sort((a, b) => b.flightCount.compareTo(a.flightCount));
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        StatSection(
+          title: 'Countries & territories',
+          hero: count(stats.passport.totalCountries),
+          heroUnit: 'total',
+          onShowMore: countries.length > _top
+              ? () => showListSheet(context, 'Countries & territories',
+                  [for (final c in countries) _country(c)])
+              : null,
+          child: _rows([for (final c in countries.take(_top)) _country(c)]),
+        ),
+        if (regions.isNotEmpty) ...[
+          const SizedBox(height: AeroSpace.xl),
+          Text('REGIONS', style: AeroText.label),
+          const SizedBox(height: AeroSpace.xs),
+          _rows([
+            for (final r in regions)
+              _PlaceRow(
+                name: _continent(r.bucket),
+                value: '${_plural(r.countryCount, 'country', 'countries')}'
+                    ' · ${_plural(r.flightCount, 'flight', 'flights')}',
+              ),
+          ]),
         ],
-      ),
+      ],
     );
   }
 
-  Widget _row(CountryEntity c) => SheetRow(
-        leading: c.isoCountry.length == 2
-            ? Text(flagEmoji(c.isoCountry), style: AeroText.title)
-            : null,
-        title: c.name,
-        value: '${count(c.flightCount)} '
-            '${c.flightCount == 1 ? 'flight' : 'flights'}',
+  Widget _country(CountryEntity c) => _PlaceRow(
+        flag: c.isoCountry,
+        name: c.name,
+        value: _plural(c.flightCount, 'flight', 'flights'),
       );
 
-  Widget _tile(ContinentEntity c) => Container(
-        padding: const EdgeInsets.all(AeroSpace.md),
-        decoration: const BoxDecoration(
-          color: AeroColors.surfaceAlt,
-          borderRadius: AeroRadius.mdAll,
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(_continent(c.bucket).toUpperCase(),
-                style: AeroText.label,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis),
-            Text(count(c.countryCount),
-                style:
-                    AeroText.heading.copyWith(fontFeatures: AeroText.tabular)),
-            Text('${(c.flightShare * 100).round()}%', style: tabularCaption),
+  /// Rows separated by hairlines.
+  Widget _rows(List<Widget> rows) => Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          for (var i = 0; i < rows.length; i++) ...[
+            if (i > 0) const Divider(height: 1, color: AeroColors.line),
+            rows[i],
           ],
-        ),
+        ],
       );
+}
+
+/// Optional round flag, name (w600) and a muted count on the right.
+class _PlaceRow extends StatelessWidget {
+  final String? flag;
+  final String name;
+  final String value;
+
+  const _PlaceRow({this.flag, required this.name, required this.value});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: AeroSpace.md),
+      child: Row(children: [
+        if (flag != null) ...[
+          CountryFlag(iso2: flag!, size: 30),
+          const SizedBox(width: AeroSpace.md),
+        ],
+        Expanded(
+          child: Text(name,
+              style: AeroText.heading,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis),
+        ),
+        const SizedBox(width: AeroSpace.sm),
+        // ponytail: fixed cap so a huge text scale ellipsizes instead of
+        // overflowing; "36 countries · 1,234 flights" is ~180 dp in Inter.
+        ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 220),
+          child: Text(value,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: AeroText.body.copyWith(
+                  color: AeroColors.muted, fontFeatures: AeroText.tabular)),
+        ),
+      ]),
+    );
+  }
 }
