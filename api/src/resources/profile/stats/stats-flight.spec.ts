@@ -1,5 +1,6 @@
 import { makeAirport, makeFlightRow } from './fixtures';
 import { AirportIndex, isCounted, normalizeFlight } from './stats-flight';
+import { toFlightSummary } from './summary';
 
 const none: AirportIndex = new Map();
 const side = (o: any) => ({ airport: { icao: 'VIDP', iata: 'DEL', timeZone: 'Asia/Kolkata' }, ...o });
@@ -107,7 +108,8 @@ describe('normalizeFlight', () => {
 
   it('local new year', () => {
     const f = normalizeFlight(makeFlightRow({ date: t('2025-12-31T19:00:00Z') }), none);
-    expect(f.local).toEqual({ year: 2026, month: 1, weekday: 4 });
+    expect(f.local).toEqual({ year: 2026, month: 1, day: 1, weekday: 4 });
+    expect(toFlightSummary(f).localDate).toBe('2026-01-01');
   });
 });
 

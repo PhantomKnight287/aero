@@ -19,6 +19,7 @@ export const toFlightSummary = (f: StatsFlight): StatsFlightSummaryEntity => ({
   departure: toAirport(f.dep),
   arrival: toAirport(f.arr),
   date: f.date.toISOString(),
+  localDate: `${f.local.year}-${String(f.local.month).padStart(2, '0')}-${String(f.local.day).padStart(2, '0')}`,
 });
 
 export const toRecord = (r: { flight: StatsFlight; value: number } | null): StatsRecordEntity | null =>

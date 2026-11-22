@@ -31,6 +31,7 @@ export class StatsFlightSummaryEntity {
   @ApiProperty({ type: StatsAirportEntity }) departure: StatsAirportEntity;
   @ApiProperty({ type: StatsAirportEntity }) arrival: StatsAirportEntity;
   @ApiProperty({ description: 'Flight date (ISO string)' }) date: string;
+  @ApiProperty({ description: 'Departure-local date (YYYY-MM-DD)' }) localDate: string;
 }
 
 export class StatsRecordEntity {

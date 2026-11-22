@@ -22,6 +22,7 @@ part 'stats_flight_summary_entity.g.dart';
 /// * [departure] 
 /// * [arrival] 
 /// * [date] - Flight date (ISO string)
+/// * [localDate] - Departure-local date (YYYY-MM-DD)
 @BuiltValue()
 abstract class StatsFlightSummaryEntity implements Built<StatsFlightSummaryEntity, StatsFlightSummaryEntityBuilder> {
   @BuiltValueField(wireName: r'id')
@@ -51,6 +52,10 @@ abstract class StatsFlightSummaryEntity implements Built<StatsFlightSummaryEntit
   /// Flight date (ISO string)
   @BuiltValueField(wireName: r'date')
   String get date;
+
+  /// Departure-local date (YYYY-MM-DD)
+  @BuiltValueField(wireName: r'localDate')
+  String get localDate;
 
   StatsFlightSummaryEntity._();
 
@@ -124,6 +129,11 @@ class _$StatsFlightSummaryEntitySerializer implements PrimitiveSerializer<StatsF
     yield r'date';
     yield serializers.serialize(
       object.date,
+      specifiedType: const FullType(String),
+    );
+    yield r'localDate';
+    yield serializers.serialize(
+      object.localDate,
       specifiedType: const FullType(String),
     );
   }
@@ -214,6 +224,13 @@ class _$StatsFlightSummaryEntitySerializer implements PrimitiveSerializer<StatsF
             specifiedType: const FullType(String),
           ) as String;
           result.date = valueDes;
+          break;
+        case r'localDate':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType(String),
+          ) as String;
+          result.localDate = valueDes;
           break;
         default:
           unhandled.add(key);

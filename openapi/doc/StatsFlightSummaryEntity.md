@@ -17,6 +17,7 @@ Name | Type | Description | Notes
 **departure** | [**StatsAirportEntity**](StatsAirportEntity.md) |  | 
 **arrival** | [**StatsAirportEntity**](StatsAirportEntity.md) |  | 
 **date** | **String** | Flight date (ISO string) | 
+**localDate** | **String** | Departure-local date (YYYY-MM-DD) | 
 
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
 

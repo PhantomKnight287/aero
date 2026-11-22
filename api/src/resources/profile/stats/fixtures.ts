@@ -59,7 +59,7 @@ export function makeStatsFlight(o: Partial<StatsFlight> = {}): StatsFlight {
     dep: { key: 'VIDP', icao: 'VIDP', iata: 'DEL', name: 'Indira Gandhi International', city: 'New Delhi', isoCountry: 'IN', continent: 'AS', lat: 28.5665, lon: 77.1031 },
     arr: dxbAirport,
     date: new Date('2025-06-01T10:00:00Z'),
-    local: { year: 2025, month: 6, weekday: 0 },
+    local: { year: 2025, month: 6, day: 1, weekday: 0 },
     distanceKm: 2190,
     blockMinutes: 200,
     hasFa: false,

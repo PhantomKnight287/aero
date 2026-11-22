@@ -16,7 +16,7 @@ export interface StatsAirline { key: string; name: string; iata?: string; icao?:
 export interface StatsFlight {
   id: string; flightNo: string; identIata?: string; identIcao?: string; faFlightId?: string;
   airline: StatsAirline; dep: StatsAirport; arr: StatsAirport; date: Date;
-  local: { year: number; month: number; weekday: number };
+  local: { year: number; month: number; day: number; weekday: number };
   distanceKm: number; blockMinutes: number; airMinutes?: number;
   taxiOutMin?: number; taxiInMin?: number; arrivalDelayMin?: number; departureDelayMin?: number;
   hasFa: boolean; cancelled: boolean; diverted: boolean; runwayOff?: string; runwayOn?: string;
@@ -72,12 +72,12 @@ function haversineKm(a: StatsAirport, b: StatsAirport) {
 const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 function localParts(date: Date, timeZone: string) {
   const fmt = (tz: string) =>
-    new Intl.DateTimeFormat('en-US', { timeZone: tz, year: 'numeric', month: 'numeric', weekday: 'short' })
+    new Intl.DateTimeFormat('en-US', { timeZone: tz, year: 'numeric', month: 'numeric', day: 'numeric', weekday: 'short' })
       .formatToParts(date);
   let parts;
   try { parts = fmt(timeZone); } catch { parts = fmt('UTC'); }
   const get = (t: string) => parts.find((p) => p.type === t)!.value;
-  return { year: +get('year'), month: +get('month'), weekday: WEEKDAYS.indexOf(get('weekday')) };
+  return { year: +get('year'), month: +get('month'), day: +get('day'), weekday: WEEKDAYS.indexOf(get('weekday')) };
 }
 
 export function normalizeFlight(row: FlightRow, airports: AirportIndex): StatsFlight {

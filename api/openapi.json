@@ -3864,6 +3864,10 @@
           "date": {
             "type": "string",
             "description": "Flight date (ISO string)"
+          },
+          "localDate": {
+            "type": "string",
+            "description": "Departure-local date (YYYY-MM-DD)"
           }
         },
         "required": [
@@ -3872,7 +3876,8 @@
           "airline",
           "departure",
           "arrival",
-          "date"
+          "date",
+          "localDate"
         ]
       },
       "YearCountEntity": {

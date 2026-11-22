@@ -52,9 +52,9 @@ describe('core stats', () => {
 
   it('flightsPer buckets', () => {
     const p = flightsPer([
-      mk({ local: { year: 2025, month: 6, weekday: 0 } }),
-      mk({ local: { year: 2024, month: 1, weekday: 3 } }),
-      mk({ local: { year: 2025, month: 6, weekday: 3 } }),
+      mk({ local: { year: 2025, month: 6, day: 1, weekday: 0 } }),
+      mk({ local: { year: 2024, month: 1, day: 1, weekday: 3 } }),
+      mk({ local: { year: 2025, month: 6, day: 1, weekday: 3 } }),
     ]);
     expect(p.year).toEqual([{ year: 2024, count: 1 }, { year: 2025, count: 2 }]);
     expect(p.month[5]).toBe(2);

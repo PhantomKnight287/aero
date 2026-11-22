@@ -25,6 +25,8 @@ class _$StatsFlightSummaryEntity extends StatsFlightSummaryEntity {
   final StatsAirportEntity arrival;
   @override
   final String date;
+  @override
+  final String localDate;
 
   factory _$StatsFlightSummaryEntity(
           [void Function(StatsFlightSummaryEntityBuilder)? updates]) =>
@@ -39,7 +41,8 @@ class _$StatsFlightSummaryEntity extends StatsFlightSummaryEntity {
       required this.airline,
       required this.departure,
       required this.arrival,
-      required this.date})
+      required this.date,
+      required this.localDate})
       : super._();
   @override
   StatsFlightSummaryEntity rebuild(
@@ -62,7 +65,8 @@ class _$StatsFlightSummaryEntity extends StatsFlightSummaryEntity {
         airline == other.airline &&
         departure == other.departure &&
         arrival == other.arrival &&
-        date == other.date;
+        date == other.date &&
+        localDate == other.localDate;
   }
 
   @override
@@ -77,6 +81,7 @@ class _$StatsFlightSummaryEntity extends StatsFlightSummaryEntity {
     _$hash = $jc(_$hash, departure.hashCode);
     _$hash = $jc(_$hash, arrival.hashCode);
     _$hash = $jc(_$hash, date.hashCode);
+    _$hash = $jc(_$hash, localDate.hashCode);
     _$hash = $jf(_$hash);
     return _$hash;
   }
@@ -92,7 +97,8 @@ class _$StatsFlightSummaryEntity extends StatsFlightSummaryEntity {
           ..add('airline', airline)
           ..add('departure', departure)
           ..add('arrival', arrival)
-          ..add('date', date))
+          ..add('date', date)
+          ..add('localDate', localDate))
         .toString();
   }
 }
@@ -142,6 +148,10 @@ class StatsFlightSummaryEntityBuilder
   String? get date => _$this._date;
   set date(String? date) => _$this._date = date;
 
+  String? _localDate;
+  String? get localDate => _$this._localDate;
+  set localDate(String? localDate) => _$this._localDate = localDate;
+
   StatsFlightSummaryEntityBuilder() {
     StatsFlightSummaryEntity._defaults(this);
   }
@@ -158,6 +168,7 @@ class StatsFlightSummaryEntityBuilder
       _departure = $v.departure.toBuilder();
       _arrival = $v.arrival.toBuilder();
       _date = $v.date;
+      _localDate = $v.localDate;
       _$v = null;
     }
     return this;
@@ -193,6 +204,8 @@ class StatsFlightSummaryEntityBuilder
             arrival: arrival.build(),
             date: BuiltValueNullFieldError.checkNotNull(
                 date, r'StatsFlightSummaryEntity', 'date'),
+            localDate: BuiltValueNullFieldError.checkNotNull(
+                localDate, r'StatsFlightSummaryEntity', 'localDate'),
           );
     } catch (_) {
       late String _$failedField;
