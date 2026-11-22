@@ -63,11 +63,12 @@ class _FlightStatsScreenState extends State<FlightStatsScreen> {
     if (r != null && mounted) context.pop(r);
   }
 
-  void _openFlight(StatsFlightSummaryEntity f) => context.pop(OpenFlightRequest(
-        flightNo: f.flightNo,
-        date: flightDay(f) ?? DateTime.parse(f.date),
-        faFlightId: f.faFlightId,
-      ));
+  void _openFlight(StatsFlightSummaryEntity f) {
+    final date = flightDay(f);
+    if (date == null) return;
+    context.pop(OpenFlightRequest(
+        flightNo: f.flightNo, date: date, faFlightId: f.faFlightId));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -100,7 +101,7 @@ class _FlightStatsScreenState extends State<FlightStatsScreen> {
         const _Empty(),
       if (stats != null && stats.passport.totalFlights > 0) ...[
         _passportCard(stats.passport),
-        if (stats.delays.basedOn > 0) ...[
+        if (stats.delays.basedOn > 0 && stats.delays.minutesLost > 0) ...[
           const SizedBox(height: AeroSpace.md),
           _delayCard(stats.delays),
         ],
@@ -205,16 +206,19 @@ class _FlightStatsScreenState extends State<FlightStatsScreen> {
   }
 
   Widget _delayCard(DelaySummaryEntity d) {
-    final hours = (d.minutesLost / 60).round();
+    final mins = d.minutesLost.round();
+    final (n, unit) = mins < 60
+        ? (mins, mins == 1 ? 'minute' : 'minutes')
+        : ((mins / 60).round(), (mins / 60).round() == 1 ? 'hour' : 'hours');
     return SummaryCard(
       gradient: AeroAccent.delayGradient,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(_count.format(hours),
+          Text(_count.format(n),
               style: AeroText.hero.copyWith(color: AeroColors.onInk)),
           const SizedBox(height: AeroSpace.xs),
-          Text('${hours == 1 ? 'hour' : 'hours'} lost to delays',
+          Text('$unit lost to delays',
               style: AeroText.heading.copyWith(color: AeroColors.onInk)),
           if (d.delayedCount > 0)
             Text(
@@ -247,15 +251,20 @@ class _FlightStatsScreenState extends State<FlightStatsScreen> {
                   fontFeatures: AeroText.tabular)),
           if (image != null && image.isNotEmpty) ...[
             const SizedBox(height: AeroSpace.md),
-            AspectRatio(
-              aspectRatio: 16 / 6,
-              child: image.endsWith('.svg')
-                  ? SvgPicture.network(image, fit: BoxFit.contain)
-                  : CachedNetworkImage(
-                      imageUrl: image,
-                      fit: BoxFit.contain,
-                      errorWidget: (_, __, ___) => const SizedBox.shrink()),
-            ),
+            image.endsWith('.svg')
+                ? AspectRatio(
+                    aspectRatio: 16 / 6,
+                    child: SvgPicture.network(image,
+                        fit: BoxFit.contain,
+                        errorBuilder: (_, __, ___) => const SizedBox.shrink()))
+                // The band is sized only once the image loads, so a failed
+                // load collapses to nothing instead of an empty 16:6 hole.
+                : CachedNetworkImage(
+                    imageUrl: image,
+                    imageBuilder: (_, provider) => AspectRatio(
+                        aspectRatio: 16 / 6,
+                        child: Image(image: provider, fit: BoxFit.contain)),
+                    errorWidget: (_, __, ___) => const SizedBox.shrink()),
           ],
         ],
       ),

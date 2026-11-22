@@ -25,10 +25,9 @@ String flightAirports(StatsFlightSummaryEntity f) =>
     '${_code(f.departure)} → ${_code(f.arrival)}';
 
 /// Departure-local calendar day ('YYYY-MM-DD' parsed as local midnight);
-/// the UTC day of `date` only when `localDate` is empty.
-DateTime? flightDay(StatsFlightSummaryEntity f) => f.localDate.isNotEmpty
-    ? DateTime.tryParse(f.localDate)
-    : DateTime.tryParse(f.date)?.toUtc();
+/// the UTC day of `date` when `localDate` is missing or unparseable.
+DateTime? flightDay(StatsFlightSummaryEntity f) =>
+    DateTime.tryParse(f.localDate) ?? DateTime.tryParse(f.date)?.toUtc();
 
 /// '14 Mar 2026', departure-local.
 String flightDate(StatsFlightSummaryEntity f) {

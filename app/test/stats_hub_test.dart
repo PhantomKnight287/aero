@@ -25,17 +25,20 @@ PassportEntity makePassport(int flights) => PassportEntity((b) => b
   ..longHaul = 0);
 
 class FakeStats extends Fake implements ProfileStatsResponseEntity {
-  FakeStats(int flights) : passport = makePassport(flights);
+  FakeStats(int flights, {this.minutesLost = 0, this.basedOn = 0})
+      : passport = makePassport(flights);
+  final int minutesLost;
+  final int basedOn;
   @override
   final PassportEntity passport;
   @override
   BuiltList<num> get availableYears => BuiltList<num>();
   @override
   DelaySummaryEntity get delays => DelaySummaryEntity((b) => b
-    ..basedOn = 0
-    ..arrivedCount = 0
+    ..basedOn = basedOn
+    ..arrivedCount = basedOn
     ..delayedCount = 0
-    ..minutesLost = 0
+    ..minutesLost = minutesLost
     ..avgDelayMinutes = 0);
   @override
   AircraftStatsEntity? get aircraftStats => null;
@@ -59,9 +62,11 @@ final flight = StatsFlightSummaryEntity((b) => b
   ..arrival.city = 'Los Angeles'
   ..arrival.iata = 'LAX');
 
-StatsController controller(int flights, List<StatsFlightSummaryEntity> items) =>
+StatsController controller(int flights, List<StatsFlightSummaryEntity> items,
+        {int minutesLost = 0, int basedOn = 0}) =>
     StatsController(
-      fetchStats: (y) async => FakeStats(flights),
+      fetchStats: (y) async =>
+          FakeStats(flights, minutesLost: minutesLost, basedOn: basedOn),
       fetchHistory: (cur, y) async => FlightHistoryResponseEntity((b) => b
         ..items = ListBuilder<StatsFlightSummaryEntity>(items)
         ..yearCounts = ListBuilder<YearCountEntity>(items.isEmpty
@@ -86,11 +91,42 @@ void main() {
   });
 
   testWidgets('hub hides delay CTA in part 1', (t) async {
-    await t.pumpWidget(
-        app(FlightStatsScreen(controller: controller(3, [flight]))));
+    await t.pumpWidget(app(FlightStatsScreen(
+        controller: controller(3, [flight], minutesLost: 600, basedOn: 3))));
     await t.pumpAndSettle();
     expect(find.text('All flight stats'), findsOneWidget);
+    expect(find.text('hours lost to delays'), findsOneWidget);
     expect(find.text('All delay stats'), findsNothing);
+  });
+
+  testWidgets('delay card shows minutes under an hour', (t) async {
+    await t.pumpWidget(app(FlightStatsScreen(
+        controller: controller(3, [flight], minutesLost: 42, basedOn: 3))));
+    await t.pumpAndSettle();
+    expect(find.text('42'), findsOneWidget);
+    expect(find.text('minutes lost to delays'), findsOneWidget);
+  });
+
+  testWidgets('delay card hidden when nothing was lost', (t) async {
+    await t.pumpWidget(app(FlightStatsScreen(
+        controller: controller(3, [flight], minutesLost: 0, basedOn: 3))));
+    await t.pumpAndSettle();
+    expect(find.textContaining('lost to delays'), findsNothing);
+  });
+
+  testWidgets('tapping a flight with no parseable date does nothing',
+      (t) async {
+    final bad = flight.rebuild((b) => b
+      ..localDate = 'garbage'
+      ..date = 'garbage');
+    await t
+        .pumpWidget(app(FlightStatsScreen(controller: controller(1, [bad]))));
+    await t.pumpAndSettle();
+    await t.scrollUntilVisible(find.text('Dubai to Los Angeles'), 200,
+        scrollable: find.byType(Scrollable).first);
+    await t.tap(find.text('Dubai to Los Angeles'));
+    await t.pumpAndSettle();
+    expect(t.takeException(), isNull);
   });
 
   testWidgets('tapping a past flight pops an OpenFlightRequest', (t) async {
