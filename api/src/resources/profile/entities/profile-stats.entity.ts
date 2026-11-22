@@ -1,28 +1,16 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import {
+  ContinentEntity, CountryEntity, DelaySummaryEntity, ExtremesEntity, FlightsPerEntity,
+  MapDataEntity, PassportEntity, RecordsEntity, RunwaysEntity, TaxiByAirportEntity,
+  TopAirlineEntity, TopAirportEntity, TopRouteEntity,
+} from './stats-sections.entity';
 
-class MostFlownAircraftEntity {
+export class MostFlownAircraftEntity {
   @ApiProperty()
   aircraftName: string;
 
   @ApiProperty()
   flightCount: number;
-}
-
-class PassportEntity {
-  @ApiProperty({ description: 'Total number of flights taken' })
-  totalFlights: number;
-
-  @ApiProperty({ description: 'Total distance in kilometers' })
-  totalDistanceKm: number;
-
-  @ApiProperty({ description: 'Total flight duration in minutes (including delays)' })
-  totalDurationMinutes: number;
-
-  @ApiProperty({ description: 'Number of unique airports' })
-  totalAirports: number;
-
-  @ApiProperty({ description: 'Number of unique airlines' })
-  totalAirlines: number;
 }
 
 class FlightSummaryAirlineEntity {
@@ -68,62 +56,7 @@ export class FlightSummaryEntity {
   date: string;
 }
 
-class FlightDistanceEntity {
-  @ApiProperty({ type: FlightSummaryEntity })
-  flight: FlightSummaryEntity;
-
-  @ApiProperty({ description: 'Distance in kilometers' })
-  distanceKm: number;
-}
-
-class FlightDurationEntity {
-  @ApiProperty({ type: FlightSummaryEntity })
-  flight: FlightSummaryEntity;
-
-  @ApiProperty({ description: 'Duration in minutes' })
-  durationMinutes: number;
-}
-
-class AirlineStatsEntity {
-  @ApiProperty()
-  airlineName: string;
-
-  @ApiProperty()
-  airlineIata: string;
-
-  @ApiPropertyOptional()
-  airlineIcao?: string;
-
-  @ApiPropertyOptional({ description: 'Airline image URL from DB, when available' })
-  image?: string;
-
-  @ApiProperty()
-  flightCount: number;
-}
-
-class AirportStatsEntity {
-  @ApiProperty()
-  airportCode: string;
-
-  @ApiProperty()
-  airportName: string;
-
-  @ApiProperty({ description: 'Number of flights departing from this airport' })
-  departureCount: number;
-}
-
-class TopRouteEntity {
-  @ApiProperty()
-  origin: string;
-
-  @ApiProperty()
-  destination: string;
-
-  @ApiProperty()
-  flightCount: number;
-}
-
-class AircraftWithAge {
+export class AircraftWithAge {
   @ApiProperty()
   aircraftName: string;
 
@@ -137,7 +70,7 @@ class AircraftWithAge {
   image?: string;
 }
 
-class AircraftStatsEntity {
+export class AircraftStatsEntity {
   @ApiProperty()
   mostFlownAircraftName: string;
 
@@ -167,34 +100,29 @@ class AircraftStatsEntity {
 }
 
 export class ProfileStatsResponseEntity {
-  @ApiProperty({ type: MostFlownAircraftEntity })
-  mostFlownAircraft: MostFlownAircraftEntity;
+  @ApiProperty({ type: [Number], description: 'Years with counted flights, descending' })
+  availableYears: number[];
 
-  @ApiPropertyOptional({ type: AircraftStatsEntity })
-  aircraftStats?: AircraftStatsEntity;
+  @ApiPropertyOptional({ nullable: true, type: Number })
+  year?: number | null;
 
-  @ApiProperty({ type: PassportEntity })
-  passport: PassportEntity;
-
-  @ApiProperty({ type: FlightDistanceEntity })
-  shortestDistanceFlight: FlightDistanceEntity;
-
-  @ApiProperty({ type: FlightDistanceEntity })
-  longestDistanceFlight: FlightDistanceEntity;
-
-  @ApiProperty({ type: FlightDurationEntity })
-  shortestDurationFlight: FlightDurationEntity;
-
-  @ApiProperty({ type: FlightDurationEntity })
-  longestDurationFlight: FlightDurationEntity;
-
-  @ApiProperty({ type: [AirlineStatsEntity] })
-  airlines: AirlineStatsEntity[];
-
-  @ApiProperty({ type: [AirportStatsEntity] })
-  airports: AirportStatsEntity[];
-
-  @ApiProperty({ type: [TopRouteEntity] })
-  topRoutes: TopRouteEntity[];
+  @ApiProperty({ type: PassportEntity }) passport: PassportEntity;
+  @ApiProperty({ type: FlightsPerEntity }) flightsPer: FlightsPerEntity;
+  @ApiProperty({ type: RecordsEntity }) records: RecordsEntity;
+  @ApiProperty({ type: [TopAirportEntity] }) topAirports: TopAirportEntity[];
+  @ApiProperty({ type: [TopAirlineEntity] }) topAirlines: TopAirlineEntity[];
+  @ApiProperty({ type: [TopRouteEntity] }) topRoutes: TopRouteEntity[];
+  @ApiProperty({ type: [CountryEntity] }) countries: CountryEntity[];
+  @ApiProperty({ type: [ContinentEntity] }) continents: ContinentEntity[];
+  @ApiProperty({ type: DelaySummaryEntity }) delays: DelaySummaryEntity;
+  @ApiProperty({ type: RunwaysEntity }) runways: RunwaysEntity;
+  @ApiProperty({ type: TaxiByAirportEntity }) taxiByAirport: TaxiByAirportEntity;
+  @ApiProperty({ type: ExtremesEntity }) extremes: ExtremesEntity;
+  @ApiProperty({ type: MapDataEntity }) map: MapDataEntity;
+  @ApiProperty({ type: MostFlownAircraftEntity }) mostFlownAircraft: MostFlownAircraftEntity;
+  @ApiPropertyOptional({ type: AircraftStatsEntity }) aircraftStats?: AircraftStatsEntity;
 }
 
+export {
+  StatsAirportEntity, StatsFlightSummaryEntity, StatsRecordEntity, YearCountEntity,
+} from './stats-sections.entity';

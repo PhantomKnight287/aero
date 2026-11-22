@@ -1,5 +1,5 @@
 import { Airport, Flight, FlightAwareData, GreatCircleDistance } from '@prisma/client';
-import { AirportIndex } from './airport-index';
+import type { AirportIndex } from './airport-index';
 
 export type { AirportIndex };
 
@@ -104,7 +104,7 @@ export function normalizeFlight(row: FlightRow, airports: AirportIndex): StatsFl
     faFlightId: fa?.faFlightId,
     airline: {
       key: al.icao || al.iata || al.name || '',
-      name: al.name ?? '', iata: str(al.iata), icao: str(al.icao), image: str(al.image),
+      name: al.name || '', iata: str(al.iata), icao: str(al.icao), image: str(al.image),
     },
     dep, arr,
     date: row.date,

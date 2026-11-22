@@ -1,8 +1,9 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, ParseIntPipe, Query } from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiOkResponse,
   ApiOperation,
+  ApiQuery,
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
@@ -27,8 +28,12 @@ export class ProfileController {
     type: ProfileStatsResponseEntity,
     description: 'Profile statistics including passport data and flight analytics',
   })
+  @ApiQuery({ name: 'year', required: false, type: Number })
   @ApiUnauthorizedResponse({ type: GenericErrorEntity })
-  async getProfileStats(@Auth() auth: User) {
-    return await this.profileService.getProfileStats(auth.id);
+  async getProfileStats(
+    @Auth() auth: User,
+    @Query('year', new ParseIntPipe({ optional: true })) year?: number,
+  ) {
+    return await this.profileService.getProfileStats(auth.id, year);
   }
 }
