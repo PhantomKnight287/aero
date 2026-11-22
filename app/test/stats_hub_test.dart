@@ -42,7 +42,7 @@ class FakeStats extends Fake implements ProfileStatsResponseEntity {
       : passport = passport ?? makePassport(flights),
         availableYears = BuiltList.of(years),
         countries = BuiltList.of(List.generate(countryCount, makeCountry));
-  final int minutesLost;
+  final num minutesLost;
   final int basedOn;
   @override
   final PassportEntity passport;
@@ -82,7 +82,7 @@ final flight = StatsFlightSummaryEntity((b) => b
   ..arrival.iata = 'LAX');
 
 StatsController controller(int flights, List<StatsFlightSummaryEntity> items,
-        {int minutesLost = 0, int basedOn = 0, FakeStats? stats}) =>
+        {num minutesLost = 0, int basedOn = 0, FakeStats? stats}) =>
     StatsController(
       fetchStats: (y) async =>
           stats ??
@@ -131,6 +131,13 @@ void main() {
   testWidgets('delay card hidden when nothing was lost', (t) async {
     await t.pumpWidget(app(FlightStatsScreen(
         controller: controller(3, [flight], minutesLost: 0, basedOn: 3))));
+    await t.pumpAndSettle();
+    expect(find.textContaining('lost to delays'), findsNothing);
+  });
+
+  testWidgets('delay card hidden when the loss rounds to 0 m', (t) async {
+    await t.pumpWidget(app(FlightStatsScreen(
+        controller: controller(3, [flight], minutesLost: 0.4, basedOn: 3))));
     await t.pumpAndSettle();
     expect(find.textContaining('lost to delays'), findsNothing);
   });

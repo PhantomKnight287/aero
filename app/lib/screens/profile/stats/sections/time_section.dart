@@ -30,8 +30,10 @@ class TimeSection extends StatelessWidget {
     String dur(num m) => formatLongDuration(m.round());
     UnitText minutes(num m) => UnitText.duration(m.round(), style: _cellValue);
     final cells = [
-      _cell('Days',
-          UnitText([(formatDecimal(block / 1440), false)], style: _cellValue)),
+      _cell(
+          'Days',
+          UnitText([(formatDecimal(block / 1440), false), ('d', true)],
+              style: _cellValue)),
       if (p.totalFlights > 0)
         _cell('Avg flight', minutes(block / p.totalFlights)),
       if (p.airBasedOn > 0)

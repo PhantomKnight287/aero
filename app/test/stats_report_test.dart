@@ -349,6 +349,7 @@ void main() {
     await pumpReport(t, fixture(blockMinutes: 7404960), width: 360);
     expect(t.takeException(), isNull);
     expect(find.text('Days'), findsOneWidget);
+    expect(find.text('5,142.3d'), findsOneWidget);
     expect(find.text('Taxiing'), findsOneWidget);
     expect(find.textContaining('WEEKS'), findsNothing);
     expect(find.text('61 flights with data'), findsNWidgets(2));

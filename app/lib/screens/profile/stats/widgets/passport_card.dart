@@ -74,7 +74,13 @@ class PassportCard extends StatelessWidget {
                           style: AeroText.title.copyWith(
                               color: AeroColors.onInk, letterSpacing: 0.5)),
                       const SizedBox(height: 2),
-                      Text('PASSPORT · PASSEPORT · पासपोर्ट',
+                      // Tracking breaks Devanagari's top line.
+                      Text.rich(
+                          TextSpan(text: 'PASSPORT · PASSEPORT · ', children: [
+                            TextSpan(
+                                text: 'पासपोर्ट',
+                                style: TextStyle(letterSpacing: 0)),
+                          ]),
                           style: AeroText.label.copyWith(
                               color: AeroAccent.onPassportMuted,
                               letterSpacing: 1.4)),

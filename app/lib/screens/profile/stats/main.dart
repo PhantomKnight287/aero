@@ -97,7 +97,8 @@ class _FlightStatsScreenState extends State<FlightStatsScreen> {
         const _Empty(),
       if (stats != null && stats.passport.totalFlights > 0) ...[
         PassportCard(stats: stats, onOpen: _openReport),
-        if (stats.delays.basedOn > 0 && stats.delays.minutesLost > 0) ...[
+        if (stats.delays.basedOn > 0 &&
+            stats.delays.minutesLost.round() > 0) ...[
           const SizedBox(height: AeroSpace.md),
           _delayCard(stats.delays),
         ],
