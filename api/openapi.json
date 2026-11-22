@@ -4571,14 +4571,14 @@
             "$ref": "#/components/schemas/StatsAirportEntity"
           },
           "avgTaxiOutMin": {
-            "type": "object",
+            "type": "number",
             "nullable": true
           },
           "taxiOutCount": {
             "type": "number"
           },
           "avgTaxiInMin": {
-            "type": "object",
+            "type": "number",
             "nullable": true
           },
           "taxiInCount": {

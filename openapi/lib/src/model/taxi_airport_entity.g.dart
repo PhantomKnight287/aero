@@ -10,11 +10,11 @@ class _$TaxiAirportEntity extends TaxiAirportEntity {
   @override
   final StatsAirportEntity airport;
   @override
-  final JsonObject? avgTaxiOutMin;
+  final num? avgTaxiOutMin;
   @override
   final num taxiOutCount;
   @override
-  final JsonObject? avgTaxiInMin;
+  final num? avgTaxiInMin;
   @override
   final num taxiInCount;
 
@@ -81,19 +81,18 @@ class TaxiAirportEntityBuilder
       _$this._airport ??= StatsAirportEntityBuilder();
   set airport(StatsAirportEntityBuilder? airport) => _$this._airport = airport;
 
-  JsonObject? _avgTaxiOutMin;
-  JsonObject? get avgTaxiOutMin => _$this._avgTaxiOutMin;
-  set avgTaxiOutMin(JsonObject? avgTaxiOutMin) =>
+  num? _avgTaxiOutMin;
+  num? get avgTaxiOutMin => _$this._avgTaxiOutMin;
+  set avgTaxiOutMin(num? avgTaxiOutMin) =>
       _$this._avgTaxiOutMin = avgTaxiOutMin;
 
   num? _taxiOutCount;
   num? get taxiOutCount => _$this._taxiOutCount;
   set taxiOutCount(num? taxiOutCount) => _$this._taxiOutCount = taxiOutCount;
 
-  JsonObject? _avgTaxiInMin;
-  JsonObject? get avgTaxiInMin => _$this._avgTaxiInMin;
-  set avgTaxiInMin(JsonObject? avgTaxiInMin) =>
-      _$this._avgTaxiInMin = avgTaxiInMin;
+  num? _avgTaxiInMin;
+  num? get avgTaxiInMin => _$this._avgTaxiInMin;
+  set avgTaxiInMin(num? avgTaxiInMin) => _$this._avgTaxiInMin = avgTaxiInMin;
 
   num? _taxiInCount;
   num? get taxiInCount => _$this._taxiInCount;

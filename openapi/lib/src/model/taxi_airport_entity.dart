@@ -4,7 +4,6 @@
 
 // ignore_for_file: unused_element
 import 'package:openapi/src/model/stats_airport_entity.dart';
-import 'package:built_value/json_object.dart';
 import 'package:built_value/built_value.dart';
 import 'package:built_value/serializer.dart';
 
@@ -24,13 +23,13 @@ abstract class TaxiAirportEntity implements Built<TaxiAirportEntity, TaxiAirport
   StatsAirportEntity get airport;
 
   @BuiltValueField(wireName: r'avgTaxiOutMin')
-  JsonObject? get avgTaxiOutMin;
+  num? get avgTaxiOutMin;
 
   @BuiltValueField(wireName: r'taxiOutCount')
   num get taxiOutCount;
 
   @BuiltValueField(wireName: r'avgTaxiInMin')
-  JsonObject? get avgTaxiInMin;
+  num? get avgTaxiInMin;
 
   @BuiltValueField(wireName: r'taxiInCount')
   num get taxiInCount;
@@ -67,7 +66,7 @@ class _$TaxiAirportEntitySerializer implements PrimitiveSerializer<TaxiAirportEn
       yield r'avgTaxiOutMin';
       yield serializers.serialize(
         object.avgTaxiOutMin,
-        specifiedType: const FullType.nullable(JsonObject),
+        specifiedType: const FullType.nullable(num),
       );
     }
     yield r'taxiOutCount';
@@ -79,7 +78,7 @@ class _$TaxiAirportEntitySerializer implements PrimitiveSerializer<TaxiAirportEn
       yield r'avgTaxiInMin';
       yield serializers.serialize(
         object.avgTaxiInMin,
-        specifiedType: const FullType.nullable(JsonObject),
+        specifiedType: const FullType.nullable(num),
       );
     }
     yield r'taxiInCount';
@@ -120,8 +119,8 @@ class _$TaxiAirportEntitySerializer implements PrimitiveSerializer<TaxiAirportEn
         case r'avgTaxiOutMin':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType.nullable(JsonObject),
-          ) as JsonObject?;
+            specifiedType: const FullType.nullable(num),
+          ) as num?;
           if (valueDes == null) continue;
           result.avgTaxiOutMin = valueDes;
           break;
@@ -135,8 +134,8 @@ class _$TaxiAirportEntitySerializer implements PrimitiveSerializer<TaxiAirportEn
         case r'avgTaxiInMin':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType.nullable(JsonObject),
-          ) as JsonObject?;
+            specifiedType: const FullType.nullable(num),
+          ) as num?;
           if (valueDes == null) continue;
           result.avgTaxiInMin = valueDes;
           break;

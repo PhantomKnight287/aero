@@ -127,9 +127,9 @@ export class RunwaysEntity {
 
 export class TaxiAirportEntity {
   @ApiProperty({ type: StatsAirportEntity }) airport: StatsAirportEntity;
-  @ApiPropertyOptional(opt) avgTaxiOutMin?: number | null;
+  @ApiPropertyOptional({ ...opt, type: Number }) avgTaxiOutMin?: number | null;
   @ApiProperty() taxiOutCount: number;
-  @ApiPropertyOptional(opt) avgTaxiInMin?: number | null;
+  @ApiPropertyOptional({ ...opt, type: Number }) avgTaxiInMin?: number | null;
   @ApiProperty() taxiInCount: number;
 }
 
