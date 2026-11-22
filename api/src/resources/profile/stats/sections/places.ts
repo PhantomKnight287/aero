@@ -78,7 +78,7 @@ export function mapData(fs: StatsFlight[]) {
   const routes = new Map<string, { fromLat: number; fromLon: number; toLat: number; toLon: number; count: number }>();
   for (const f of fs) {
     for (const a of [f.dep, f.arr])
-      if (a.lat != null && a.lon != null && !airports.has(a.key))
+      if (a.key && a.lat != null && a.lon != null && !airports.has(a.key))
         airports.set(a.key, { iata: a.iata, icao: a.icao, lat: a.lat, lon: a.lon });
     if (f.dep.lat == null || f.dep.lon == null || f.arr.lat == null || f.arr.lon == null) continue;
     const [x, y] = f.dep.key <= f.arr.key ? [f.dep, f.arr] : [f.arr, f.dep];

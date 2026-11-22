@@ -48,14 +48,16 @@ function airportOf(side: any, idx: AirportIndex): StatsAirport {
   const icao = str(ap.icao), iata = str(ap.iata);
   const row: Airport | undefined =
     (icao && idx.get(`C:${icao}`)) || (iata && idx.get(`I:${iata}`)) || undefined;
+  const raw = (icao ?? iata ?? '').trim();
+  const junk = /[\s.]/.test(raw) || raw.length > 4; // e.g. 'L 23.89 43.44' stored for unknown strips
   return {
-    key: icao ?? iata ?? '',
+    key: junk ? '' : raw,
     iata, icao,
     name: ap.name || row?.name || '',
     city: ap.municipalityName || row?.municipality || '',
     isoCountry: row?.isoCountry,
     continent: row?.continent,
-    ...coords(row, ap.location),
+    ...(junk ? {} : coords(row, ap.location)),
     elevationFt: num(row?.elevation),
   };
 }

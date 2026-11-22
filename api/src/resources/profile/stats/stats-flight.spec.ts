@@ -1,5 +1,7 @@
 import { makeAirport, makeFlightRow } from './fixtures';
 import { AirportIndex, isCounted, normalizeFlight } from './stats-flight';
+import { passport } from './sections/core';
+import { mapData, topAirports } from './sections/places';
 import { toFlightSummary } from './summary';
 
 const none: AirportIndex = new Map();
@@ -110,6 +112,19 @@ describe('normalizeFlight', () => {
     const f = normalizeFlight(makeFlightRow({ date: t('2025-12-31T19:00:00Z') }), none);
     expect(f.local).toEqual({ year: 2026, month: 1, day: 1, weekday: 4 });
     expect(toFlightSummary(f).localDate).toBe('2026-01-01');
+  });
+});
+
+describe('junk airport codes', () => {
+  const junk = { airport: { icao: 'L 23.89517 43.44968', name: 'Unknown', location: { lat: 23.9, lon: 43.4 } } };
+  it('are unknown: empty key, no coords, excluded from stats', () => {
+    const f = normalizeFlight(makeFlightRow({ departure: { ...junk, scheduledTime: { utc: '2025-06-01 10:00Z' } } }), none);
+    expect(f.dep.key).toBe('');
+    expect(f.dep.lat).toBeUndefined();
+    expect(f.arr.key).toBe('OMDB');
+    expect(passport([f]).totalAirports).toBe(1);
+    expect(topAirports([f]).map((x) => x.airport.key)).toEqual(['OMDB']);
+    expect(mapData([f]).airports.map((a) => a.icao)).toEqual(['OMDB']);
   });
 });
 
