@@ -62,10 +62,38 @@ describe('normalizeFlight', () => {
   });
 
   it('unknown airport', () => {
-    const f = normalizeFlight(makeFlightRow(), none);
+    const zero = { airport: { icao: 'VIDP', iata: 'DEL', location: { lat: 0, lon: 0 } } };
+    const f = normalizeFlight(makeFlightRow({ departure: zero }), none);
     expect(f.dep.isoCountry).toBeUndefined();
     expect(f.dep.lat).toBeUndefined();
     expect(f.dep.key).toBe('VIDP');
+  });
+
+  it('unknown airport falls back to stored location', () => {
+    const f = normalizeFlight(makeFlightRow(), none);
+    expect(f.dep.lat).toBeCloseTo(28.5665);
+    expect(f.dep.lon).toBeCloseTo(77.1031);
+  });
+
+  it('taxi-in, departure delay, negative taxi', () => {
+    const f = normalizeFlight(
+      makeFlightRow({
+        flightAwareData: {
+          actualOn: t('2025-06-01T12:00:00Z'), actualIn: t('2025-06-01T12:07:00Z'),
+          actualOut: t('2025-06-01T10:10:00Z'), actualOff: t('2025-06-01T10:00:00Z'),
+          departureDelay: 600,
+        },
+      }),
+      none,
+    );
+    expect(f.taxiInMin).toBe(7);
+    expect(f.taxiOutMin).toBeUndefined();
+    expect(f.departureDelayMin).toBe(10);
+    const g = normalizeFlight(
+      makeFlightRow({ flightAwareData: { scheduledOut: t('2025-06-01T10:00:00Z'), actualOut: t('2025-06-01T10:25:00Z') } }),
+      none,
+    );
+    expect(g.departureDelayMin).toBe(25);
   });
 
   it('distance falls back to haversine', () => {

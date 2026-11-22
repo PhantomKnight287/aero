@@ -2,7 +2,6 @@ import { Airport, Flight, FlightAwareData, GreatCircleDistance } from '@prisma/c
 import { AirportIndex } from './airport-index';
 
 export type { AirportIndex };
-export { loadAirportIndex } from './airport-index';
 
 export type FlightRow = Flight & {
   greatCircleDistance: GreatCircleDistance | null;
@@ -27,6 +26,7 @@ const num = (v: unknown) => (v == null ? undefined : Number(v));
 const str = (v: unknown) => (typeof v === 'string' && v ? v : undefined);
 const mins = (a?: Date | null, b?: Date | null) =>
   a && b ? Math.round((b.getTime() - a.getTime()) / 60000) : undefined;
+const nonNeg = (n?: number) => (n != null && n >= 0 ? n : undefined);
 const utc = (t: any) => (t?.utc ? new Date(String(t.utc).replace(' ', 'T')) : undefined);
 const jsonTime = (side: any) => {
   for (const k of ['actualTime', 'revisedTime', 'scheduledTime']) {
@@ -34,6 +34,14 @@ const jsonTime = (side: any) => {
     if (d && !isNaN(d.getTime())) return d;
   }
 };
+
+// stored JSON uses 0,0 when its DB lookup failed, so treat that as unknown
+function coords(row: Airport | undefined, loc: any) {
+  if (row) return { lat: num(row.lat), lon: num(row.long) };
+  const lat = num(loc?.lat), lon = num(loc?.lon);
+  if (lat == null || lon == null || (lat === 0 && lon === 0)) return {};
+  return { lat, lon };
+}
 
 function airportOf(side: any, idx: AirportIndex): StatsAirport {
   const ap = side?.airport ?? {};
@@ -43,12 +51,11 @@ function airportOf(side: any, idx: AirportIndex): StatsAirport {
   return {
     key: icao ?? iata ?? '',
     iata, icao,
-    name: ap.name ?? row?.name ?? '',
-    city: ap.municipalityName ?? row?.municipality ?? '',
+    name: ap.name || row?.name || '',
+    city: ap.municipalityName || row?.municipality || '',
     isoCountry: row?.isoCountry,
     continent: row?.continent,
-    lat: num(row?.lat),
-    lon: num(row?.long),
+    ...coords(row, ap.location),
     elevationFt: num(row?.elevation),
   };
 }
@@ -105,8 +112,8 @@ export function normalizeFlight(row: FlightRow, airports: AirportIndex): StatsFl
     distanceKm,
     blockMinutes,
     airMinutes: mins(fa?.actualOff, fa?.actualOn),
-    taxiOutMin: mins(fa?.actualOut, fa?.actualOff),
-    taxiInMin: mins(fa?.actualOn, fa?.actualIn),
+    taxiOutMin: nonNeg(mins(fa?.actualOut, fa?.actualOff)),
+    taxiInMin: nonNeg(mins(fa?.actualOn, fa?.actualIn)),
     arrivalDelayMin: delay(fa?.arrivalDelay, fa?.scheduledIn, fa?.actualIn),
     departureDelayMin: delay(fa?.departureDelay, fa?.scheduledOut, fa?.actualOut),
     hasFa: !!fa,
