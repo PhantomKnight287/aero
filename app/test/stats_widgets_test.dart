@@ -8,6 +8,7 @@ import 'package:aero/screens/profile/stats/widgets/summary_card.dart';
 import 'package:aero/screens/profile/stats/widgets/unit_text.dart';
 import 'package:aero/ui/tokens.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:openapi/openapi.dart';
 
@@ -131,5 +132,44 @@ void main() {
     final pill = t.getSize(find.byType(ComparisonPill));
     expect(t.getSize(find.byKey(ComparisonPill.fillKey)).width, pill.width);
     expect(pill.height, 48);
+  });
+
+  testWidgets('comparison pill text is white only over the fill', (t) async {
+    await t.pumpWidget(wrap(const ComparisonPill(
+        icon: ComparisonIcon.moon,
+        fraction: 0.7,
+        value: '0.7×',
+        label: 'To the Moon')));
+    final pill = t.getSize(find.byType(ComparisonPill)).width;
+    final fill = t.getSize(find.byKey(ComparisonPill.fillKey)).width;
+    expect(fill, closeTo(pill * 0.7, 0.5));
+    // Both copies of the text exist; the white one is clipped to the fill.
+    final texts = t
+        .widgetList<RichText>(find.descendant(
+            of: find.byType(ComparisonPill), matching: find.byType(RichText)))
+        .map((r) {
+      Color? color;
+      r.text.visitChildren((s) {
+        if (s is TextSpan && s.text != null) color ??= s.style?.color;
+        return color == null;
+      });
+      return color;
+    }).toList();
+    expect(texts, unorderedEquals([AeroColors.ink, AeroColors.onInk]));
+    expect(t.getSize(find.byKey(ComparisonPill.onFillTextKey)).width,
+        closeTo(fill, 0.5));
+  });
+
+  testWidgets('bar label stays on one line at a custom width', (t) async {
+    await t.pumpWidget(
+        wrap(StatBarList(color: AeroAccent.passport, labelWidth: 84, rows: [
+      StatBar(
+          label: Text('DEL-DXB', style: AeroText.heading),
+          value: 3,
+          valueLabel: '3'),
+    ])));
+    final p = t.renderObject<RenderParagraph>(find.text('DEL-DXB'));
+    expect(p.size.height, closeTo(p.preferredLineHeight, 1));
+    expect(t.getSize(find.text('DEL-DXB')).width, lessThanOrEqualTo(84));
   });
 }

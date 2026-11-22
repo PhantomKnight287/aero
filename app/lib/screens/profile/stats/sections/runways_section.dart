@@ -36,6 +36,7 @@ class RunwaysSection extends StatelessWidget {
           const SizedBox(height: AeroSpace.md),
           StatBarList(
             color: AeroAccent.passport,
+            labelWidth: 84,
             rows: [
               for (final u in sorted.take(_top))
                 StatBar(

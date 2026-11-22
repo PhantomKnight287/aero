@@ -23,8 +23,10 @@ class _TopSection<T> extends StatelessWidget {
   final num Function(T) distanceKm;
   final Widget Function(T) label;
   final Widget Function(T) sheetRow;
+  final double labelWidth;
 
   const _TopSection({
+    this.labelWidth = 44,
     super.key,
     required this.title,
     required this.hero,
@@ -59,6 +61,7 @@ class _TopSection<T> extends StatelessWidget {
         byDistance:
             bars(distanceKm, (e) => formatDistance(distanceKm(e), unit)),
         color: AeroAccent.passport,
+        labelWidth: labelWidth,
       ),
     );
   }
@@ -114,6 +117,7 @@ class TopAirlinesSection extends StatelessWidget {
       hero: count(stats.passport.totalAirlines),
       heroUnit: 'total airlines',
       items: stats.topAirlines.toList(),
+      labelWidth: 140,
       flights: (e) => e.flightCount,
       distanceKm: (e) => e.distanceKm,
       label: (e) => Row(children: [
@@ -156,6 +160,7 @@ class TopRoutesSection extends StatelessWidget {
       hero: count(stats.topRoutes.length),
       heroUnit: stats.topRoutes.length == 1 ? 'route' : 'routes',
       items: stats.topRoutes.toList(),
+      labelWidth: 84,
       flights: (e) => e.flightCount,
       distanceKm: (e) => e.distanceKm,
       label: (e) => _code(route(e)),

@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:aero/ui/tokens.dart';
 import 'package:flutter/material.dart';
 
@@ -18,6 +20,7 @@ enum ComparisonIcon {
 /// icon at the left and '12.4× Around Earth' inside on the right.
 class ComparisonPill extends StatelessWidget {
   static const fillKey = ValueKey('comparison-fill');
+  static const onFillTextKey = ValueKey('comparison-on-fill-text');
   static const _height = 48.0;
   static const _icon = 40.0;
 
@@ -47,61 +50,80 @@ class ComparisonPill extends StatelessWidget {
             color: AeroAccent.passportTint, borderRadius: AeroRadius.pillAll),
         child: LayoutBuilder(
           builder: (context, c) {
-            final fill = (c.maxWidth * f).clamp(_height, c.maxWidth);
-            // The text is right-aligned: white only when the fill runs
-            // under all of it, ink otherwise.
-            TextSpan text(Color color) {
+            final width = c.hasBoundedWidth ? c.maxWidth : 0.0;
+            // Never narrower than the icon's circle (unless the pill is),
+            // so the icon always sits on the fill.
+            final fill = math.min(width, math.max(_height, width * f));
+            Widget text(Color color) {
               final style = AeroText.body
                   .copyWith(color: color, fontFeatures: AeroText.tabular);
-              return TextSpan(children: [
-                TextSpan(
-                    text: value,
-                    style: style.copyWith(fontWeight: FontWeight.w700)),
-                TextSpan(
-                    text: ' $label',
-                    style: style.copyWith(fontWeight: FontWeight.w500)),
-              ]);
-            }
-
-            final onFill = fill >= c.maxWidth - AeroSpace.lg;
-            return Stack(children: [
-              // Never narrower than the icon's circle, so it always sits on
-              // the fill.
-              Container(
-                key: fillKey,
-                width: fill,
-                decoration: const BoxDecoration(
-                    color: AeroAccent.passport,
-                    borderRadius: AeroRadius.pillAll),
-              ),
-              Positioned(
-                left: (_height - _icon) / 2,
-                top: (_height - _icon) / 2,
-                child: Container(
-                  width: _icon,
-                  height: _icon,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    gradient: RadialGradient(
-                        center: icon.center,
-                        colors: icon.colors,
-                        stops: icon.stops),
-                  ),
-                ),
-              ),
-              Positioned.fill(
-                left: _height + AeroSpace.sm,
-                right: AeroSpace.lg,
+              return Padding(
+                padding: const EdgeInsets.only(
+                    left: _height + AeroSpace.sm, right: AeroSpace.lg),
                 child: Align(
                   alignment: Alignment.centerRight,
                   child: Text.rich(
-                    text(onFill ? AeroColors.onInk : AeroColors.ink),
+                    TextSpan(children: [
+                      TextSpan(
+                          text: value,
+                          style: style.copyWith(fontWeight: FontWeight.w700)),
+                      TextSpan(
+                          text: ' $label',
+                          style: style.copyWith(fontWeight: FontWeight.w500)),
+                    ]),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
-              ),
-            ]);
+              );
+            }
+
+            // Full width even under loose constraints, where the Stack
+            // would otherwise shrink to the fill.
+            return SizedBox(
+                width: width,
+                child: Stack(children: [
+                  Container(
+                    key: fillKey,
+                    width: fill,
+                    decoration: const BoxDecoration(
+                        color: AeroAccent.passport,
+                        borderRadius: AeroRadius.pillAll),
+                  ),
+                  Positioned(
+                    left: (_height - _icon) / 2,
+                    top: (_height - _icon) / 2,
+                    child: Container(
+                      width: _icon,
+                      height: _icon,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: RadialGradient(
+                            center: icon.center,
+                            colors: icon.colors,
+                            stops: icon.stops),
+                      ),
+                    ),
+                  ),
+                  // Ink text over the track, and a white copy clipped to the
+                  // fill, so each glyph contrasts with what's under it.
+                  Positioned.fill(child: text(AeroColors.ink)),
+                  Positioned(
+                    left: 0,
+                    top: 0,
+                    bottom: 0,
+                    width: fill,
+                    child: ClipRect(
+                      key: onFillTextKey,
+                      child: OverflowBox(
+                        alignment: Alignment.centerLeft,
+                        minWidth: width,
+                        maxWidth: width,
+                        child: text(AeroColors.onInk),
+                      ),
+                    ),
+                  ),
+                ]));
           },
         ),
       ),

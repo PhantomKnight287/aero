@@ -22,8 +22,15 @@ class StatBarList extends StatefulWidget {
   final List<StatBar>? _byDistance;
   final Color color;
 
-  const StatBarList({super.key, required this.rows, required this.color})
-      : _byDistance = null;
+  /// Leading label column; 44 fits a 3-letter code.
+  final double labelWidth;
+
+  const StatBarList({
+    super.key,
+    required this.rows,
+    required this.color,
+    this.labelWidth = 44,
+  }) : _byDistance = null;
 
   /// Flights / Distance toggle over two orderings of the same data.
   const StatBarList.switchable({
@@ -31,6 +38,7 @@ class StatBarList extends StatefulWidget {
     required List<StatBar> byFlights,
     required List<StatBar> byDistance,
     required this.color,
+    this.labelWidth = 44,
   })  : rows = byFlights,
         _byDistance = byDistance;
 
@@ -38,7 +46,6 @@ class StatBarList extends StatefulWidget {
   State<StatBarList> createState() => _StatBarListState();
 }
 
-const _labelWidth = 44.0;
 const _barHeight = 22.0;
 
 final _countStyle = AeroText.body.copyWith(
@@ -81,7 +88,16 @@ class _StatBarListState extends State<StatBarList> {
         for (var i = 0; i < rows.length; i++) ...[
           if (i > 0) const SizedBox(height: AeroSpace.sm),
           Row(children: [
-            SizedBox(width: _labelWidth, child: rows[i].label),
+            SizedBox(
+              width: widget.labelWidth,
+              // One line: a long label ellipsizes instead of wrapping.
+              child: DefaultTextStyle.merge(
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                softWrap: false,
+                child: rows[i].label,
+              ),
+            ),
             const SizedBox(width: AeroSpace.sm),
             Expanded(
               child: LayoutBuilder(builder: (context, c) {

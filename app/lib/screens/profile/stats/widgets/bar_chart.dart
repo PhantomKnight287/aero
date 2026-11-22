@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:aero/ui/tokens.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -20,7 +22,7 @@ Iterable<int> _steps() sync* {
   }
 }
 
-const _axisWidth = 28.0;
+const _minAxisWidth = 28.0;
 
 /// Vertical bars, one per value, over light gridlines. Tick labels sit in
 /// a y-axis column to the left and [labels] in a row below: the plot itself
@@ -44,6 +46,15 @@ class BarChart extends StatelessWidget {
     final ticks = niceTicks(values.fold<int>(0, (m, v) => v > m ? v : m));
     final top = ticks.last;
     final fmt = NumberFormat.decimalPattern();
+    final tickStyle = AeroText.micro.copyWith(fontFeatures: AeroText.tabular);
+    // Wide enough for the widest tick label ('1,000'), never under 28.
+    final tp = TextPainter(
+        text: TextSpan(text: fmt.format(top), style: tickStyle),
+        textDirection: Directionality.of(context),
+        textScaler: MediaQuery.textScalerOf(context))
+      ..layout();
+    final axisWidth = math.max(_minAxisWidth, tp.width.ceilToDouble());
+    tp.dispose();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -51,7 +62,7 @@ class BarChart extends StatelessWidget {
           height: height,
           child: Row(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
             SizedBox(
-              width: _axisWidth,
+              width: axisWidth,
               child: Stack(clipBehavior: Clip.none, children: [
                 for (final t in ticks)
                   Positioned(
@@ -59,10 +70,7 @@ class BarChart extends StatelessWidget {
                     top: height * (1 - t / top),
                     child: FractionalTranslation(
                       translation: const Offset(0, -0.5),
-                      child: Text(fmt.format(t),
-                          maxLines: 1,
-                          style: AeroText.micro
-                              .copyWith(fontFeatures: AeroText.tabular)),
+                      child: Text(fmt.format(t), maxLines: 1, style: tickStyle),
                     ),
                   ),
               ]),
@@ -75,7 +83,7 @@ class BarChart extends StatelessWidget {
         ),
         const SizedBox(height: AeroSpace.xs),
         Padding(
-          padding: const EdgeInsets.only(left: _axisWidth + AeroSpace.sm),
+          padding: EdgeInsets.only(left: axisWidth + AeroSpace.sm),
           child: Row(children: [
             for (final l in labels)
               Expanded(
