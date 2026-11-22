@@ -1,4 +1,4 @@
-import { Controller, Get, ParseIntPipe, Query } from '@nestjs/common';
+import { Controller, Get, Query } from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiOkResponse,
@@ -12,6 +12,7 @@ import { ProfileStatsResponseEntity } from './entities/profile-stats.entity';
 import { GenericErrorEntity } from 'src/common/entites/generic-error.entity';
 import { Auth } from 'src/decorators/auth/auth.decorator';
 import { User } from '@prisma/client';
+import { OptionalIntPipe } from 'src/common/pipes/optional-int.pipe';
 
 @Controller('profile')
 @ApiTags('Profile')
@@ -32,7 +33,7 @@ export class ProfileController {
   @ApiUnauthorizedResponse({ type: GenericErrorEntity })
   async getProfileStats(
     @Auth() auth: User,
-    @Query('year', new ParseIntPipe({ optional: true })) year?: number,
+    @Query('year', OptionalIntPipe) year?: number,
   ) {
     return await this.profileService.getProfileStats(auth.id, year);
   }

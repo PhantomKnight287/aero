@@ -9,7 +9,6 @@ import {
   Get,
   InternalServerErrorException,
   Param,
-  ParseIntPipe,
   Post,
   Put,
   Query,
@@ -29,6 +28,7 @@ import {
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { User } from '@prisma/client';
+import { OptionalIntPipe } from 'src/common/pipes/optional-int.pipe';
 
 import { GetFlightTrackDTO } from './dto/get-flight-track.dto';
 import { GetFlightDTO } from './dto/get-flight.dto';
@@ -180,8 +180,8 @@ export class FlightController {
   async getFlightHistory(
     @Auth() auth: User,
     @Query('cursor') cursor?: string,
-    @Query('limit', new ParseIntPipe({ optional: true })) limit?: number,
-    @Query('year', new ParseIntPipe({ optional: true })) year?: number,
+    @Query('limit', OptionalIntPipe) limit?: number,
+    @Query('year', OptionalIntPipe) year?: number,
   ) {
     return await this.flightService.getFlightHistory(auth.id, { cursor, limit, year });
   }
