@@ -9,6 +9,7 @@ import {
   Get,
   InternalServerErrorException,
   Param,
+  ParseIntPipe,
   Post,
   Put,
   Query,
@@ -19,6 +20,7 @@ import {
   ApiBearerAuth,
   ApiInternalServerErrorResponse,
   ApiNotFoundResponse,
+  ApiOkResponse,
   ApiOperation,
   ApiParam,
   ApiQuery,
@@ -43,6 +45,7 @@ import {
   AircraftHistoryEntity,
   AircraftLegEntity,
 } from './entities/aircraft-history.entity';
+import { FlightHistoryResponseEntity } from './entities/flight-history.entity';
 import { FlightService } from './flight.service';
 
 @Controller('flight')
@@ -162,6 +165,25 @@ export class FlightController {
     @Auth() auth: User,
   ) {
     return await this.flightService.searchFlights(query, auth.id);
+  }
+
+  @Get('history')
+  @ApiOperation({
+    summary: 'Paged flight history',
+    description:
+      'Counted flights, newest first. Cursor is the last item id of the previous page.',
+  })
+  @ApiQuery({ name: 'cursor', required: false, type: String })
+  @ApiQuery({ name: 'limit', required: false, type: Number, description: 'Default 30, clamped to 1..100' })
+  @ApiQuery({ name: 'year', required: false, type: Number })
+  @ApiOkResponse({ type: FlightHistoryResponseEntity })
+  async getFlightHistory(
+    @Auth() auth: User,
+    @Query('cursor') cursor?: string,
+    @Query('limit', new ParseIntPipe({ optional: true })) limit?: number,
+    @Query('year', new ParseIntPipe({ optional: true })) year?: number,
+  ) {
+    return await this.flightService.getFlightHistory(auth.id, { cursor, limit, year });
   }
 
   @Get()

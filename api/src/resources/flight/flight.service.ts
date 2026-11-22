@@ -1,3 +1,6 @@
+import { loadCountedFlights } from 'src/resources/profile/stats/load';
+import { toFlightSummary as toStatsSummary } from 'src/resources/profile/stats/summary';
+import { FlightHistoryResponseEntity } from './entities/flight-history.entity';
 import { DateTime, IANAZone } from 'luxon';
 import { prisma } from 'src/db';
 import { FlightAwareService } from 'src/services/flightaware/flightaware.service';
@@ -1466,5 +1469,30 @@ export class FlightService {
       prisma.flight.delete({ where: { id: flightId } }),
     ]);
     return { message: 'Flight deleted successfully' };
+  }
+
+  async getFlightHistory(
+    userId: string,
+    opts: { cursor?: string; limit?: number; year?: number },
+  ): Promise<FlightHistoryResponseEntity> {
+    const limit = Math.min(100, Math.max(1, opts.limit ?? 30));
+    // ponytail: in-memory paging, move to a keyset query when logs reach thousands
+    const counted = (await loadCountedFlights(userId, new Date()))
+      .map((x) => x.f)
+      .sort((a, b) => b.date.getTime() - a.date.getTime() || (a.id < b.id ? 1 : -1));
+    const years = new Map<number, number>();
+    for (const f of counted) years.set(f.local.year, (years.get(f.local.year) ?? 0) + 1);
+    const yearCounts = [...years]
+      .map(([year, count]) => ({ year, count }))
+      .sort((a, b) => b.year - a.year);
+    const list = opts.year == null ? counted : counted.filter((f) => f.local.year === opts.year);
+    const at = opts.cursor ? list.findIndex((f) => f.id === opts.cursor) : -1;
+    const rest = list.slice(at + 1);
+    const page = rest.slice(0, limit);
+    return {
+      items: page.map(toStatsSummary),
+      nextCursor: rest.length > limit ? page[page.length - 1].id : null,
+      yearCounts,
+    };
   }
 }

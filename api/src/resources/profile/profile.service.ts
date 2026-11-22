@@ -6,8 +6,7 @@ import {
   FlightSummaryEntity,
   ProfileStatsResponseEntity,
 } from './entities/profile-stats.entity';
-import { loadAirportIndex } from './stats/airport-index';
-import { isCounted, normalizeFlight } from './stats/stats-flight';
+import { loadCountedFlights } from './stats/load';
 import { continents, countries, topAirlines, topAirports, topRoutes, mapData } from './stats/sections/places';
 import { delaySummary, flightsPer, passport, records } from './stats/sections/core';
 import { extremes, runways, taxiByAirport } from './stats/sections/ops';
@@ -19,21 +18,7 @@ export class ProfileService {
     userId: string,
     year?: number,
   ): Promise<ProfileStatsResponseEntity> {
-    const rows = await prisma.flight.findMany({
-      include: {
-        greatCircleDistance: true,
-        flightAwareData: true,
-      },
-      where: { userId },
-    });
-
-    const codes = rows.flatMap((r) =>
-      [r.departure, r.arrival].map((s: any) => s?.airport ?? {}),
-    );
-    const index = await loadAirportIndex(codes);
-    const counted = rows
-      .map((row) => ({ row, f: normalizeFlight(row, index) }))
-      .filter((x) => isCounted(x.f, new Date()));
+    const counted = await loadCountedFlights(userId, new Date());
     const availableYears = [...new Set(counted.map((x) => x.f.local.year))].sort(
       (a, b) => b - a,
     );
