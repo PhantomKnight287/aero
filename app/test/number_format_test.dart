@@ -16,4 +16,14 @@ void main() {
     expect(formatCount(496500), '496.500');
     expect(formatDecimal(1234.56, digits: 2), '1.234,56');
   });
+
+  test('en_IN decimals', () {
+    Intl.defaultLocale = 'en_IN';
+    expect(formatDecimal(123456.7), '1,23,456.7');
+  });
+
+  test('resolveLocale', () {
+    expect(resolveLocale('en-IN'), 'en_IN');
+    expect(resolveLocale('zz_ZZ'), 'en_US');
+  });
 }

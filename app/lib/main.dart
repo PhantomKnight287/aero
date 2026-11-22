@@ -1,4 +1,5 @@
 import 'package:aero/constants/main.dart';
+import 'package:aero/formatters/units.dart';
 import 'package:aero/notifiers/user.dart';
 import 'package:aero/routes/main.dart';
 import 'package:aero/services/widget_update_service.dart';
@@ -54,13 +55,7 @@ void main() async {
   );
 
   // Device locale for number grouping; fall back if intl lacks its symbols.
-  final locale = await findSystemLocale();
-  try {
-    NumberFormat.decimalPattern(locale);
-    Intl.defaultLocale = locale;
-  } catch (_) {
-    Intl.defaultLocale = 'en_US';
-  }
+  Intl.defaultLocale = resolveLocale(await findSystemLocale());
 
   // Loaded before the first frame so non-default units never flash.
   final units = UnitsNotifier();

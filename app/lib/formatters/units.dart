@@ -71,6 +71,17 @@ num convertTemp(num c, TempUnit u) => switch (u) {
       TempUnit.f => c * 9 / 5 + 32,
     };
 
+/// [raw] canonicalised ('en-IN' -> 'en_IN'); 'en_US' if intl can't format it.
+String resolveLocale(String raw) {
+  try {
+    final l = Intl.canonicalizedLocale(raw);
+    NumberFormat.decimalPattern(l);
+    return l;
+  } catch (_) {
+    return 'en_US';
+  }
+}
+
 /// Grouped integer in the current [Intl] locale ('4,96,500' in en_IN).
 String formatCount(num v) => NumberFormat.decimalPattern().format(v.round());
 

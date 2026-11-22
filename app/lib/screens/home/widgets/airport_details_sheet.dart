@@ -217,9 +217,8 @@ class _AirportDetailsSheetState extends State<AirportDetailsSheet> {
     final metarDecoded = _asMap(metar?.decoded?.value);
     final tafDecoded = _asMap(taf?.decoded?.value);
 
-    final hasAnything = delays != null ||
-        (metar?.raw != null) ||
-        (taf?.raw != null);
+    final hasAnything =
+        delays != null || (metar?.raw != null) || (taf?.raw != null);
 
     if (!hasAnything) {
       return _buildUnavailable(
@@ -396,7 +395,7 @@ class _AirportDetailsSheetState extends State<AirportDetailsSheet> {
                   'QNH',
                   [
                     if (hPa != null) '${_fmtNum(hPa)} hPa',
-                    if (inHg != null) '${inHg.toStringAsFixed(2)} inHg',
+                    if (inHg != null) '${formatDecimal(inHg, digits: 2)} inHg',
                   ].join('  '),
                 ),
             ],
@@ -802,7 +801,7 @@ class _AirportDetailsSheetState extends State<AirportDetailsSheet> {
 
   String _fmtCoord(String value) {
     final d = double.tryParse(value);
-    return d == null ? value : d.toStringAsFixed(4);
+    return d == null ? value : formatDecimal(d, digits: 4);
   }
 
   String _fmtDhm(Map<dynamic, dynamic> t) {
@@ -859,8 +858,8 @@ class _AirportDetailsSheetState extends State<AirportDetailsSheet> {
     if (m != null) {
       final smCalc = (m / 1609.344);
       final smStr = smCalc >= 1
-          ? smCalc.toStringAsFixed(1)
-          : smCalc.toStringAsFixed(2);
+          ? formatDecimal(smCalc)
+          : formatDecimal(smCalc, digits: 2);
       return '$prefix${_fmtNum(m)} m  ($smStr SM)';
     }
     if (sm != null) return '$prefix${_fmtNum(sm)} SM';
@@ -915,9 +914,8 @@ class _AirportDetailsSheetState extends State<AirportDetailsSheet> {
     final coverage = _coverageName(l['coverage']?.toString());
     final alt = _numOrNull(l['altitudeFtAgl']);
     final type = l['type']?.toString();
-    final typeStr = (type != null && type.isNotEmpty)
-        ? ' ${_cloudType(type)}'
-        : '';
+    final typeStr =
+        (type != null && type.isNotEmpty) ? ' ${_cloudType(type)}' : '';
     if (alt == null) return '$coverage$typeStr';
     return '$coverage @ ${_fmtNum(alt)}ft$typeStr';
   }
@@ -961,14 +959,36 @@ class _AirportDetailsSheetState extends State<AirportDetailsSheet> {
 
   String _wxCode(String code) {
     const map = {
-      'MI': 'Shallow', 'PR': 'Partial', 'BC': 'Patches', 'DR': 'Drifting',
-      'BL': 'Blowing', 'SH': 'Showers', 'TS': 'Thunderstorm', 'FZ': 'Freezing',
-      'DZ': 'Drizzle', 'RA': 'Rain', 'SN': 'Snow', 'SG': 'Snow grains',
-      'IC': 'Ice crystals', 'PL': 'Ice pellets', 'GR': 'Hail',
-      'GS': 'Small hail', 'UP': 'Unknown precip', 'BR': 'Mist', 'FG': 'Fog',
-      'FU': 'Smoke', 'VA': 'Volcanic ash', 'DU': 'Dust', 'SA': 'Sand',
-      'HZ': 'Haze', 'PY': 'Spray', 'PO': 'Dust whirls', 'SQ': 'Squalls',
-      'FC': 'Funnel cloud', 'SS': 'Sandstorm', 'DS': 'Duststorm',
+      'MI': 'Shallow',
+      'PR': 'Partial',
+      'BC': 'Patches',
+      'DR': 'Drifting',
+      'BL': 'Blowing',
+      'SH': 'Showers',
+      'TS': 'Thunderstorm',
+      'FZ': 'Freezing',
+      'DZ': 'Drizzle',
+      'RA': 'Rain',
+      'SN': 'Snow',
+      'SG': 'Snow grains',
+      'IC': 'Ice crystals',
+      'PL': 'Ice pellets',
+      'GR': 'Hail',
+      'GS': 'Small hail',
+      'UP': 'Unknown precip',
+      'BR': 'Mist',
+      'FG': 'Fog',
+      'FU': 'Smoke',
+      'VA': 'Volcanic ash',
+      'DU': 'Dust',
+      'SA': 'Sand',
+      'HZ': 'Haze',
+      'PY': 'Spray',
+      'PO': 'Dust whirls',
+      'SQ': 'Squalls',
+      'FC': 'Funnel cloud',
+      'SS': 'Sandstorm',
+      'DS': 'Duststorm',
     };
     return map[code.toUpperCase()] ?? code;
   }
