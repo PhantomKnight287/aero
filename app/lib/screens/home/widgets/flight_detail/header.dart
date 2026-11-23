@@ -1,3 +1,4 @@
+import 'package:aero/formatters/units.dart';
 import 'package:aero/ui/components/aero_pressable.dart';
 import 'package:aero/ui/components/aero_sheet.dart';
 import 'package:aero/ui/components/airline_logo.dart';
@@ -49,8 +50,11 @@ class FlightHeader extends StatelessWidget {
       if (fa?.identIcao != null) fa!.identIcao!,
       if (fa?.identIcao == null && info.callSign.isNotEmpty) info.callSign,
     }.where((s) => s.isNotEmpty);
-    final local =
-        DateTime.tryParse(info.departure.scheduledTime.local) ?? info.date;
+    // `local` strings carry an offset that DateTime.parse folds into UTC,
+    // so zone the UTC instant at the departure airport instead.
+    final utc =
+        DateTime.tryParse(info.departure.scheduledTime.utc) ?? info.date;
+    final local = airportTime(utc, info.departure.airport.timeZone);
     return [...idents, DateFormat('EEE d MMM').format(local)]
         .join(' · ')
         .toUpperCase();

@@ -2,6 +2,8 @@ import 'package:aero/formatters/units.dart';
 import 'package:aero/notifiers/units.dart';
 import 'package:aero/ui/components/aero_pill_button.dart';
 import 'package:aero/ui/components/unit_cycle.dart';
+import 'package:aero/screens/home/widgets/flight_detail/flight_status.dart'
+    show lateCutoffMinutes;
 import 'package:aero/ui/tokens.dart';
 import 'package:aero/utils/flight_timing.dart';
 import 'package:flutter/material.dart';
@@ -165,10 +167,10 @@ class _Phase {
     final resolved = actual ?? estimated;
     if (scheduled == null || resolved == null) return null;
     final mins = resolved.difference(scheduled!).inMinutes;
-    // Colour marks lateness only; on time and early stay quiet.
-    if (mins < 2) return null;
-    final text = formatDurationShort(Duration(minutes: mins.abs()));
-    return ('$text late', mins <= 15 ? AeroColors.warn : AeroColors.danger);
+    // Colour marks lateness only (> 15 min, as everywhere else).
+    if (mins <= lateCutoffMinutes) return null;
+    final text = formatDurationShort(Duration(minutes: mins));
+    return ('$text late', AeroColors.warn);
   }
 }
 

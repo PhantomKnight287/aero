@@ -168,6 +168,10 @@ String formatClock(
   return DateFormat(use24 ? 'H:mm' : 'hh:mm a').format(zoned);
 }
 
+/// [utc] as a wall-clock time at the airport (UTC when the zone is unknown).
+DateTime airportTime(DateTime utc, String? airportTz) =>
+    _zoned(utc, airportTz, TimeMode.airport) ?? utc.toUtc();
+
 /// "Nov 15, 10:40" — date taken from the same zone as the time.
 String formatDateClock(
   DateTime utc, {

@@ -49,7 +49,8 @@ void main() {
     ));
 
     expect(find.text('06:40Z'), findsOneWidget);
-    expect(find.text('4 min late'), findsWidgets);
+    // 15 minutes or less late stays quiet; colour marks real lateness only.
+    expect(find.text('4 min late'), findsNothing);
     expect(find.textContaining('Block 7 h 29 min'), findsOneWidget);
     expect(find.textContaining('2 min longer than scheduled'), findsOneWidget);
     expect(find.textContaining('Taxi'), findsNothing);

@@ -260,4 +260,14 @@ void main() {
     expect(find.text('Diverted to TUS'), findsOneWidget);
     expect(find.text('planned PHX'), findsOneWidget);
   });
+
+  testWidgets('header date is the departure airport day', (t) async {
+    // 20:00 in Chicago on the 23rd is 02:00Z on the 24th.
+    final f = inFlight().rebuild((b) => b
+      ..departure.airport.timeZone = 'America/Chicago'
+      ..departure.scheduledTime.utc = '2026-11-24T02:00:00Z'
+      ..departure.scheduledTime.local = '2026-11-23 20:00-06:00');
+    await pump(t, f);
+    expect(find.textContaining('MON 23 NOV'), findsOneWidget);
+  });
 }
