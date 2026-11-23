@@ -20,6 +20,7 @@ export interface StatsFlight {
   distanceKm: number; blockMinutes: number; airMinutes?: number;
   taxiOutMin?: number; taxiInMin?: number; arrivalDelayMin?: number; departureDelayMin?: number;
   hasFa: boolean; cancelled: boolean; diverted: boolean; runwayOff?: string; runwayOn?: string;
+  reg?: string; typeCode?: string; typeName?: string;
 }
 
 const num = (v: unknown) => (v == null ? undefined : Number(v));
@@ -87,6 +88,7 @@ export function normalizeFlight(row: FlightRow, airports: AirportIndex): StatsFl
   const dep = airportOf(row.departure, airports);
   const arr = airportOf(row.arrival, airports);
   const al: any = row.airline ?? {};
+  const ac: any = row.aircraft ?? {};
   const distanceKm = num(row.greatCircleDistance?.km) ?? haversineKm(dep, arr);
 
   let blockMinutes = mins(fa?.actualOut, fa?.actualIn);
@@ -123,6 +125,10 @@ export function normalizeFlight(row: FlightRow, airports: AirportIndex): StatsFl
     diverted: !!fa?.diverted,
     runwayOff: fa?.actualRunwayOff ?? undefined,
     runwayOn: fa?.actualRunwayOn ?? undefined,
+    reg: str(ac.reg) ?? str(ac.registration) ?? str(fa?.registration),
+    // FlightAware's ICAO designator; stored/registry model codes are manufacturer models.
+    typeCode: str(fa?.aircraftType),
+    typeName: str(ac.typeName),
   };
 }
 

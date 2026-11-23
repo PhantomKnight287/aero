@@ -198,3 +198,47 @@ export class MapDataEntity {
   @ApiProperty({ type: [MapAirportEntity] }) airports: MapAirportEntity[];
   @ApiProperty({ type: [MapRouteEntity] }) routes: MapRouteEntity[];
 }
+
+export class AircraftTypeEntity {
+  @ApiPropertyOptional({ description: 'ICAO type code, e.g. B77W' }) typeCode?: string;
+  @ApiProperty() typeName: string;
+  @ApiPropertyOptional() image?: string;
+  @ApiProperty() flightCount: number;
+  @ApiProperty({ type: [StatsFlightSummaryEntity], description: 'Newest first' }) flights: StatsFlightSummaryEntity[];
+}
+
+export class AircraftFamilyEntity {
+  @ApiProperty() family: string;
+  @ApiProperty({ type: [String] }) typeCodes: string[];
+  @ApiProperty() flightCount: number;
+  @ApiPropertyOptional({ ...opt, type: String, description: 'Departure-local date (YYYY-MM-DD)' }) firstFlown?: string | null;
+}
+
+export class AirframeEntity {
+  @ApiProperty() reg: string;
+  @ApiPropertyOptional() typeCode?: string;
+  @ApiPropertyOptional() typeName?: string;
+  @ApiProperty() ageYears: number;
+  @ApiPropertyOptional() image?: string;
+  @ApiProperty({ type: StatsFlightSummaryEntity, description: 'Most recent flight on this airframe' }) flight: StatsFlightSummaryEntity;
+}
+
+export class MostFlownTailEntity {
+  @ApiProperty() reg: string;
+  @ApiPropertyOptional() typeName?: string;
+  @ApiProperty() count: number;
+}
+
+export class AirframesEntity {
+  @ApiPropertyOptional({ ...opt, type: Number }) medianAgeYears?: number | null;
+  @ApiPropertyOptional({ ...opt, type: AirframeEntity }) oldest?: AirframeEntity | null;
+  @ApiPropertyOptional({ ...opt, type: AirframeEntity }) newest?: AirframeEntity | null;
+  @ApiPropertyOptional({ ...opt, type: MostFlownTailEntity }) mostFlownTail?: MostFlownTailEntity | null;
+}
+
+export class AircraftSectionEntity {
+  @ApiProperty() basedOn: number;
+  @ApiProperty({ type: [AircraftTypeEntity] }) types: AircraftTypeEntity[];
+  @ApiProperty({ type: [AircraftFamilyEntity] }) families: AircraftFamilyEntity[];
+  @ApiProperty({ type: AirframesEntity }) airframes: AirframesEntity;
+}

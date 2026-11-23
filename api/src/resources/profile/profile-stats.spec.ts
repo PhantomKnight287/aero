@@ -66,6 +66,6 @@ describe('ProfileService.getProfileStats', () => {
     const r = await service.getProfileStats('u1');
     expect(r.availableYears).toEqual([]);
     expect(r.passport.totalFlights).toBe(0);
-    expect(r.mostFlownAircraft.flightCount).toBe(0);
+    expect(r.aircraft.types).toEqual([]);
   });
 });

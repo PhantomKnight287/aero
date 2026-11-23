@@ -1,17 +1,9 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
-  ContinentEntity, CountryEntity, DelaySummaryEntity, ExtremesEntity, FlightsPerEntity,
+  AircraftSectionEntity, ContinentEntity, CountryEntity, DelaySummaryEntity, ExtremesEntity, FlightsPerEntity,
   MapDataEntity, PassportEntity, RecordsEntity, RunwaysEntity, TaxiByAirportEntity,
   TopAirlineEntity, TopAirportEntity, TopRouteEntity,
 } from './stats-sections.entity';
-
-export class MostFlownAircraftEntity {
-  @ApiProperty()
-  aircraftName: string;
-
-  @ApiProperty()
-  flightCount: number;
-}
 
 class FlightSummaryAirlineEntity {
   @ApiProperty()
@@ -56,49 +48,6 @@ export class FlightSummaryEntity {
   date: string;
 }
 
-export class AircraftWithAge {
-  @ApiProperty()
-  aircraftName: string;
-
-  @ApiProperty()
-  tailNumber: string;
-
-  @ApiPropertyOptional()
-  age?: number;
-
-  @ApiPropertyOptional()
-  image?: string;
-}
-
-export class AircraftStatsEntity {
-  @ApiProperty()
-  mostFlownAircraftName: string;
-
-  @ApiProperty()
-  mostFlownAircraftFlightCount: number;
-
-  @ApiPropertyOptional()
-  mostFlownAircraftImage?: string;
-
-  @ApiProperty({ type: [FlightSummaryEntity] })
-  mostFlownAircraftFlights: FlightSummaryEntity[];
-
-  @ApiProperty()
-  mostCommonTailNumber: string;
-
-  @ApiProperty()
-  mostCommonTailNumberCount: number;
-
-  @ApiPropertyOptional()
-  medianAge?: number;
-
-  @ApiPropertyOptional({ type: AircraftWithAge })
-  youngestAircraft?: AircraftWithAge;
-
-  @ApiPropertyOptional({ type: AircraftWithAge })
-  oldestAircraft?: AircraftWithAge;
-}
-
 export class ProfileStatsResponseEntity {
   @ApiProperty({ type: [Number], description: 'Years with counted flights, descending' })
   availableYears: number[];
@@ -119,8 +68,7 @@ export class ProfileStatsResponseEntity {
   @ApiProperty({ type: TaxiByAirportEntity }) taxiByAirport: TaxiByAirportEntity;
   @ApiProperty({ type: ExtremesEntity }) extremes: ExtremesEntity;
   @ApiProperty({ type: MapDataEntity }) map: MapDataEntity;
-  @ApiProperty({ type: MostFlownAircraftEntity }) mostFlownAircraft: MostFlownAircraftEntity;
-  @ApiPropertyOptional({ type: AircraftStatsEntity }) aircraftStats?: AircraftStatsEntity;
+  @ApiProperty({ type: AircraftSectionEntity }) aircraft: AircraftSectionEntity;
 }
 
 export {
