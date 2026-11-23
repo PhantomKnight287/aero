@@ -38,7 +38,7 @@ Read this first, then `docs/superpowers/specs/2026-11-21-roadmap.md` (the source
 - **Skills:** Emil Kowalski's design skills are installed in `.claude/skills/` (`emil-design-eng`, `apple-design`, `gestures`, …). Use them.
 
 ## Gotchas
-- **Run the app with** `flutter run --dart-define-from-file=.env` (without it the app can't reach the API). Flutter's configured JDK 25 is too new for Gradle 8.14; a local, uncommitted `org.gradle.java.home=<zulu-17>` line in `app/android/gradle.properties` fixes it for this project only (the user's other projects need the global JDK).
+- **Run the app with** `flutter run --dart-define-from-file=.env` (without it the app can't reach the API). Flutter's configured JDK 25 is too new for Gradle 8.14; `org.gradle.java.home` (Zulu 17) in `app/android/gradle.properties` fixes it for this project only (the user's other projects need the global JDK). The path is machine-specific.
 - **Aircraft types:** registry `modelCode` is a manufacturer model ('777-31HER'), not an ICAO designator. Type codes come from FlightAware `aircraftType`; `stats/families.ts` holds the ICAO→name table. The debug package is `fyi.procrastinator.aero.debug`. The phone is a foldable: `adb exec-out screencap -p -d 4633128672291735937`.
 - **Optional int query params:** use `OptionalIntPipe` (`api/src/common/pipes`), not `ParseIntPipe({optional})`: the global ValidationPipe turns a missing number query into NaN.
 - **Locale:** `initLocale()` runs before `runApp`; display numbers via `formatCount`/`formatDecimal`, never `toStringAsFixed`.
