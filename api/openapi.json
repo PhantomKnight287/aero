@@ -4863,82 +4863,174 @@
           "routes"
         ]
       },
-      "MostFlownAircraftEntity": {
+      "AircraftTypeEntity": {
         "type": "object",
         "properties": {
-          "aircraftName": {
+          "typeCode": {
+            "type": "string",
+            "description": "ICAO type code, e.g. B77W"
+          },
+          "typeName": {
+            "type": "string"
+          },
+          "image": {
             "type": "string"
           },
           "flightCount": {
             "type": "number"
+          },
+          "flights": {
+            "description": "Newest first",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StatsFlightSummaryEntity"
+            }
           }
         },
         "required": [
-          "aircraftName",
+          "typeName",
+          "flightCount",
+          "flights"
+        ]
+      },
+      "AircraftFamilyEntity": {
+        "type": "object",
+        "properties": {
+          "family": {
+            "type": "string"
+          },
+          "typeCodes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "flightCount": {
+            "type": "number"
+          },
+          "firstFlown": {
+            "type": "string",
+            "nullable": true,
+            "description": "Departure-local date (YYYY-MM-DD)"
+          }
+        },
+        "required": [
+          "family",
+          "typeCodes",
           "flightCount"
         ]
       },
-      "AircraftWithAge": {
+      "AirframeEntity": {
         "type": "object",
         "properties": {
-          "aircraftName": {
+          "reg": {
             "type": "string"
           },
-          "tailNumber": {
+          "typeCode": {
             "type": "string"
           },
-          "age": {
+          "typeName": {
+            "type": "string"
+          },
+          "ageYears": {
             "type": "number"
           },
           "image": {
             "type": "string"
+          },
+          "flight": {
+            "description": "Most recent flight on this airframe",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/StatsFlightSummaryEntity"
+              }
+            ]
           }
         },
         "required": [
-          "aircraftName",
-          "tailNumber"
+          "reg",
+          "ageYears",
+          "flight"
         ]
       },
-      "AircraftStatsEntity": {
+      "MostFlownTailEntity": {
         "type": "object",
         "properties": {
-          "mostFlownAircraftName": {
+          "reg": {
             "type": "string"
           },
-          "mostFlownAircraftFlightCount": {
-            "type": "number"
-          },
-          "mostFlownAircraftImage": {
+          "typeName": {
             "type": "string"
           },
-          "mostFlownAircraftFlights": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/FlightSummaryEntity"
-            }
-          },
-          "mostCommonTailNumber": {
-            "type": "string"
-          },
-          "mostCommonTailNumberCount": {
+          "count": {
             "type": "number"
-          },
-          "medianAge": {
-            "type": "number"
-          },
-          "youngestAircraft": {
-            "$ref": "#/components/schemas/AircraftWithAge"
-          },
-          "oldestAircraft": {
-            "$ref": "#/components/schemas/AircraftWithAge"
           }
         },
         "required": [
-          "mostFlownAircraftName",
-          "mostFlownAircraftFlightCount",
-          "mostFlownAircraftFlights",
-          "mostCommonTailNumber",
-          "mostCommonTailNumberCount"
+          "reg",
+          "count"
+        ]
+      },
+      "AirframesEntity": {
+        "type": "object",
+        "properties": {
+          "medianAgeYears": {
+            "type": "number",
+            "nullable": true
+          },
+          "oldest": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/AirframeEntity"
+              }
+            ]
+          },
+          "newest": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/AirframeEntity"
+              }
+            ]
+          },
+          "mostFlownTail": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/MostFlownTailEntity"
+              }
+            ]
+          }
+        }
+      },
+      "AircraftSectionEntity": {
+        "type": "object",
+        "properties": {
+          "basedOn": {
+            "type": "number"
+          },
+          "types": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AircraftTypeEntity"
+            }
+          },
+          "families": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AircraftFamilyEntity"
+            }
+          },
+          "airframes": {
+            "$ref": "#/components/schemas/AirframesEntity"
+          }
+        },
+        "required": [
+          "basedOn",
+          "types",
+          "families",
+          "airframes"
         ]
       },
       "ProfileStatsResponseEntity": {
@@ -5009,11 +5101,8 @@
           "map": {
             "$ref": "#/components/schemas/MapDataEntity"
           },
-          "mostFlownAircraft": {
-            "$ref": "#/components/schemas/MostFlownAircraftEntity"
-          },
-          "aircraftStats": {
-            "$ref": "#/components/schemas/AircraftStatsEntity"
+          "aircraft": {
+            "$ref": "#/components/schemas/AircraftSectionEntity"
           }
         },
         "required": [
@@ -5031,7 +5120,7 @@
           "taxiByAirport",
           "extremes",
           "map",
-          "mostFlownAircraft"
+          "aircraft"
         ]
       }
     }

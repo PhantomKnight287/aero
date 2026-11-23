@@ -4,10 +4,8 @@
 
 // ignore_for_file: unused_element
 import 'package:openapi/src/model/country_entity.dart';
-import 'package:openapi/src/model/aircraft_stats_entity.dart';
 import 'package:openapi/src/model/flights_per_entity.dart';
 import 'package:openapi/src/model/runways_entity.dart';
-import 'package:openapi/src/model/most_flown_aircraft_entity.dart';
 import 'package:openapi/src/model/extremes_entity.dart';
 import 'package:openapi/src/model/records_entity.dart';
 import 'package:openapi/src/model/delay_summary_entity.dart';
@@ -17,6 +15,7 @@ import 'package:openapi/src/model/top_airline_entity.dart';
 import 'package:openapi/src/model/top_route_entity.dart';
 import 'package:openapi/src/model/map_data_entity.dart';
 import 'package:openapi/src/model/passport_entity.dart';
+import 'package:openapi/src/model/aircraft_section_entity.dart';
 import 'package:openapi/src/model/continent_entity.dart';
 import 'package:openapi/src/model/taxi_by_airport_entity.dart';
 import 'package:built_value/built_value.dart';
@@ -42,8 +41,7 @@ part 'profile_stats_response_entity.g.dart';
 /// * [taxiByAirport] 
 /// * [extremes] 
 /// * [map] 
-/// * [mostFlownAircraft] 
-/// * [aircraftStats] 
+/// * [aircraft] 
 @BuiltValue()
 abstract class ProfileStatsResponseEntity implements Built<ProfileStatsResponseEntity, ProfileStatsResponseEntityBuilder> {
   /// Years with counted flights, descending
@@ -92,11 +90,8 @@ abstract class ProfileStatsResponseEntity implements Built<ProfileStatsResponseE
   @BuiltValueField(wireName: r'map')
   MapDataEntity get map;
 
-  @BuiltValueField(wireName: r'mostFlownAircraft')
-  MostFlownAircraftEntity get mostFlownAircraft;
-
-  @BuiltValueField(wireName: r'aircraftStats')
-  AircraftStatsEntity? get aircraftStats;
+  @BuiltValueField(wireName: r'aircraft')
+  AircraftSectionEntity get aircraft;
 
   ProfileStatsResponseEntity._();
 
@@ -198,18 +193,11 @@ class _$ProfileStatsResponseEntitySerializer implements PrimitiveSerializer<Prof
       object.map,
       specifiedType: const FullType(MapDataEntity),
     );
-    yield r'mostFlownAircraft';
+    yield r'aircraft';
     yield serializers.serialize(
-      object.mostFlownAircraft,
-      specifiedType: const FullType(MostFlownAircraftEntity),
+      object.aircraft,
+      specifiedType: const FullType(AircraftSectionEntity),
     );
-    if (object.aircraftStats != null) {
-      yield r'aircraftStats';
-      yield serializers.serialize(
-        object.aircraftStats,
-        specifiedType: const FullType(AircraftStatsEntity),
-      );
-    }
   }
 
   @override
@@ -339,20 +327,12 @@ class _$ProfileStatsResponseEntitySerializer implements PrimitiveSerializer<Prof
           ) as MapDataEntity;
           result.map.replace(valueDes);
           break;
-        case r'mostFlownAircraft':
+        case r'aircraft':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(MostFlownAircraftEntity),
-          ) as MostFlownAircraftEntity;
-          result.mostFlownAircraft.replace(valueDes);
-          break;
-        case r'aircraftStats':
-          final valueDes = serializers.deserialize(
-            value,
-            specifiedType: const FullType.nullable(AircraftStatsEntity),
-          ) as AircraftStatsEntity?;
-          if (valueDes == null) continue;
-          result.aircraftStats.replace(valueDes);
+            specifiedType: const FullType(AircraftSectionEntity),
+          ) as AircraftSectionEntity;
+          result.aircraft.replace(valueDes);
           break;
         default:
           unhandled.add(key);

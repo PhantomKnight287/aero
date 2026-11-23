@@ -15,12 +15,15 @@ import 'package:openapi/src/date_serializer.dart';
 import 'package:openapi/src/model/date.dart';
 
 import 'package:openapi/src/model/aircraft_entity.dart';
+import 'package:openapi/src/model/aircraft_family_entity.dart';
 import 'package:openapi/src/model/aircraft_flight_entity.dart';
 import 'package:openapi/src/model/aircraft_history_entity.dart';
 import 'package:openapi/src/model/aircraft_leg_entity.dart';
 import 'package:openapi/src/model/aircraft_registration_entity.dart';
-import 'package:openapi/src/model/aircraft_stats_entity.dart';
-import 'package:openapi/src/model/aircraft_with_age.dart';
+import 'package:openapi/src/model/aircraft_section_entity.dart';
+import 'package:openapi/src/model/aircraft_type_entity.dart';
+import 'package:openapi/src/model/airframe_entity.dart';
+import 'package:openapi/src/model/airframes_entity.dart';
 import 'package:openapi/src/model/airline_entity.dart';
 import 'package:openapi/src/model/airline_info.dart';
 import 'package:openapi/src/model/airport_conditions_entity.dart';
@@ -74,7 +77,7 @@ import 'package:openapi/src/model/login_entity.dart';
 import 'package:openapi/src/model/map_airport_entity.dart';
 import 'package:openapi/src/model/map_data_entity.dart';
 import 'package:openapi/src/model/map_route_entity.dart';
-import 'package:openapi/src/model/most_flown_aircraft_entity.dart';
+import 'package:openapi/src/model/most_flown_tail_entity.dart';
 import 'package:openapi/src/model/partial_airline_entity.dart';
 import 'package:openapi/src/model/passport_entity.dart';
 import 'package:openapi/src/model/profile_stats_response_entity.dart';
@@ -112,12 +115,15 @@ part 'serializers.g.dart';
 
 @SerializersFor([
   AircraftEntity,
+  AircraftFamilyEntity,
   AircraftFlightEntity,
   AircraftHistoryEntity,
   AircraftLegEntity,
   AircraftRegistrationEntity,
-  AircraftStatsEntity,
-  AircraftWithAge,
+  AircraftSectionEntity,
+  AircraftTypeEntity,
+  AirframeEntity,
+  AirframesEntity,
   AirlineEntity,
   AirlineInfo,
   AirportConditionsEntity,
@@ -171,7 +177,7 @@ part 'serializers.g.dart';
   MapAirportEntity,
   MapDataEntity,
   MapRouteEntity,
-  MostFlownAircraftEntity,
+  MostFlownTailEntity,
   PartialAirlineEntity,
   PassportEntity,
   ProfileStatsResponseEntity,
@@ -221,6 +227,14 @@ Serializers serializers = (_$serializers.toBuilder()
       ..addBuilderFactory(
         const FullType(BuiltList, [FullType(AirportDelayReasonEntity)]),
         () => ListBuilder<AirportDelayReasonEntity>(),
+      )
+      ..addBuilderFactory(
+        const FullType(BuiltList, [FullType(AircraftTypeEntity)]),
+        () => ListBuilder<AircraftTypeEntity>(),
+      )
+      ..addBuilderFactory(
+        const FullType(BuiltList, [FullType(AircraftFamilyEntity)]),
+        () => ListBuilder<AircraftFamilyEntity>(),
       )
       ..addBuilderFactory(
         const FullType(BuiltList, [FullType(FlightsControllerGetFlightsInBoundsV1200ResponseFlightsInner)]),

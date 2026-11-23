@@ -38,9 +38,7 @@ class _$ProfileStatsResponseEntity extends ProfileStatsResponseEntity {
   @override
   final MapDataEntity map;
   @override
-  final MostFlownAircraftEntity mostFlownAircraft;
-  @override
-  final AircraftStatsEntity? aircraftStats;
+  final AircraftSectionEntity aircraft;
 
   factory _$ProfileStatsResponseEntity(
           [void Function(ProfileStatsResponseEntityBuilder)? updates]) =>
@@ -62,8 +60,7 @@ class _$ProfileStatsResponseEntity extends ProfileStatsResponseEntity {
       required this.taxiByAirport,
       required this.extremes,
       required this.map,
-      required this.mostFlownAircraft,
-      this.aircraftStats})
+      required this.aircraft})
       : super._();
   @override
   ProfileStatsResponseEntity rebuild(
@@ -93,8 +90,7 @@ class _$ProfileStatsResponseEntity extends ProfileStatsResponseEntity {
         taxiByAirport == other.taxiByAirport &&
         extremes == other.extremes &&
         map == other.map &&
-        mostFlownAircraft == other.mostFlownAircraft &&
-        aircraftStats == other.aircraftStats;
+        aircraft == other.aircraft;
   }
 
   @override
@@ -115,8 +111,7 @@ class _$ProfileStatsResponseEntity extends ProfileStatsResponseEntity {
     _$hash = $jc(_$hash, taxiByAirport.hashCode);
     _$hash = $jc(_$hash, extremes.hashCode);
     _$hash = $jc(_$hash, map.hashCode);
-    _$hash = $jc(_$hash, mostFlownAircraft.hashCode);
-    _$hash = $jc(_$hash, aircraftStats.hashCode);
+    _$hash = $jc(_$hash, aircraft.hashCode);
     _$hash = $jf(_$hash);
     return _$hash;
   }
@@ -139,8 +134,7 @@ class _$ProfileStatsResponseEntity extends ProfileStatsResponseEntity {
           ..add('taxiByAirport', taxiByAirport)
           ..add('extremes', extremes)
           ..add('map', map)
-          ..add('mostFlownAircraft', mostFlownAircraft)
-          ..add('aircraftStats', aircraftStats))
+          ..add('aircraft', aircraft))
         .toString();
   }
 }
@@ -231,17 +225,11 @@ class ProfileStatsResponseEntityBuilder
   MapDataEntityBuilder get map => _$this._map ??= MapDataEntityBuilder();
   set map(MapDataEntityBuilder? map) => _$this._map = map;
 
-  MostFlownAircraftEntityBuilder? _mostFlownAircraft;
-  MostFlownAircraftEntityBuilder get mostFlownAircraft =>
-      _$this._mostFlownAircraft ??= MostFlownAircraftEntityBuilder();
-  set mostFlownAircraft(MostFlownAircraftEntityBuilder? mostFlownAircraft) =>
-      _$this._mostFlownAircraft = mostFlownAircraft;
-
-  AircraftStatsEntityBuilder? _aircraftStats;
-  AircraftStatsEntityBuilder get aircraftStats =>
-      _$this._aircraftStats ??= AircraftStatsEntityBuilder();
-  set aircraftStats(AircraftStatsEntityBuilder? aircraftStats) =>
-      _$this._aircraftStats = aircraftStats;
+  AircraftSectionEntityBuilder? _aircraft;
+  AircraftSectionEntityBuilder get aircraft =>
+      _$this._aircraft ??= AircraftSectionEntityBuilder();
+  set aircraft(AircraftSectionEntityBuilder? aircraft) =>
+      _$this._aircraft = aircraft;
 
   ProfileStatsResponseEntityBuilder() {
     ProfileStatsResponseEntity._defaults(this);
@@ -265,8 +253,7 @@ class ProfileStatsResponseEntityBuilder
       _taxiByAirport = $v.taxiByAirport.toBuilder();
       _extremes = $v.extremes.toBuilder();
       _map = $v.map.toBuilder();
-      _mostFlownAircraft = $v.mostFlownAircraft.toBuilder();
-      _aircraftStats = $v.aircraftStats?.toBuilder();
+      _aircraft = $v.aircraft.toBuilder();
       _$v = null;
     }
     return this;
@@ -305,8 +292,7 @@ class ProfileStatsResponseEntityBuilder
             taxiByAirport: taxiByAirport.build(),
             extremes: extremes.build(),
             map: map.build(),
-            mostFlownAircraft: mostFlownAircraft.build(),
-            aircraftStats: _aircraftStats?.build(),
+            aircraft: aircraft.build(),
           );
     } catch (_) {
       late String _$failedField;
@@ -340,10 +326,8 @@ class ProfileStatsResponseEntityBuilder
         extremes.build();
         _$failedField = 'map';
         map.build();
-        _$failedField = 'mostFlownAircraft';
-        mostFlownAircraft.build();
-        _$failedField = 'aircraftStats';
-        _aircraftStats?.build();
+        _$failedField = 'aircraft';
+        aircraft.build();
       } catch (e) {
         throw BuiltValueNestedFieldError(
             r'ProfileStatsResponseEntity', _$failedField, e.toString());

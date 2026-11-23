@@ -8,12 +8,15 @@ part of 'serializers.dart';
 
 Serializers _$serializers = (Serializers().toBuilder()
       ..add(AircraftEntity.serializer)
+      ..add(AircraftFamilyEntity.serializer)
       ..add(AircraftFlightEntity.serializer)
       ..add(AircraftHistoryEntity.serializer)
       ..add(AircraftLegEntity.serializer)
       ..add(AircraftRegistrationEntity.serializer)
-      ..add(AircraftStatsEntity.serializer)
-      ..add(AircraftWithAge.serializer)
+      ..add(AircraftSectionEntity.serializer)
+      ..add(AircraftTypeEntity.serializer)
+      ..add(AirframeEntity.serializer)
+      ..add(AirframesEntity.serializer)
       ..add(AirlineEntity.serializer)
       ..add(AirlineInfo.serializer)
       ..add(AirportConditionsEntity.serializer)
@@ -82,7 +85,7 @@ Serializers _$serializers = (Serializers().toBuilder()
       ..add(MapAirportEntity.serializer)
       ..add(MapDataEntity.serializer)
       ..add(MapRouteEntity.serializer)
-      ..add(MostFlownAircraftEntity.serializer)
+      ..add(MostFlownTailEntity.serializer)
       ..add(PartialAirlineEntity.serializer)
       ..add(PassportEntity.serializer)
       ..add(ProfileStatsResponseEntity.serializer)
@@ -124,6 +127,13 @@ Serializers _$serializers = (Serializers().toBuilder()
               BuiltList, const [const FullType(AircraftRegistrationEntity)]),
           () => ListBuilder<AircraftRegistrationEntity>())
       ..addBuilderFactory(
+          const FullType(BuiltList, const [const FullType(AircraftTypeEntity)]),
+          () => ListBuilder<AircraftTypeEntity>())
+      ..addBuilderFactory(
+          const FullType(
+              BuiltList, const [const FullType(AircraftFamilyEntity)]),
+          () => ListBuilder<AircraftFamilyEntity>())
+      ..addBuilderFactory(
           const FullType(
               BuiltList, const [const FullType(AirportDelayReasonEntity)]),
           () => ListBuilder<AirportDelayReasonEntity>())
@@ -160,10 +170,6 @@ Serializers _$serializers = (Serializers().toBuilder()
               BuiltList, const [const FullType(FlightSummaryEntity)]),
           () => ListBuilder<FlightSummaryEntity>())
       ..addBuilderFactory(
-          const FullType(
-              BuiltList, const [const FullType(FlightSummaryEntity)]),
-          () => ListBuilder<FlightSummaryEntity>())
-      ..addBuilderFactory(
           const FullType(BuiltList, const [
             const FullType(
                 FlightsControllerGetFlightsInBoundsV1200ResponseFlightsInner)
@@ -184,8 +190,15 @@ Serializers _$serializers = (Serializers().toBuilder()
               BuiltList, const [const FullType(StatsFlightSummaryEntity)]),
           () => ListBuilder<StatsFlightSummaryEntity>())
       ..addBuilderFactory(
+          const FullType(
+              BuiltList, const [const FullType(StatsFlightSummaryEntity)]),
+          () => ListBuilder<StatsFlightSummaryEntity>())
+      ..addBuilderFactory(
           const FullType(BuiltList, const [const FullType(YearCountEntity)]),
           () => ListBuilder<YearCountEntity>())
+      ..addBuilderFactory(
+          const FullType(BuiltList, const [const FullType(String)]),
+          () => ListBuilder<String>())
       ..addBuilderFactory(
           const FullType(BuiltList, const [const FullType(String)]),
           () => ListBuilder<String>())
