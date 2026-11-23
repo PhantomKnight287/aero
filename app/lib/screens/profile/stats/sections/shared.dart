@@ -32,8 +32,12 @@ VoidCallback? popFlight(BuildContext context, StatsFlightSummaryEntity f) {
   // Same departure-local day the hub's flight log opens with.
   final date = flightDay(f);
   if (date == null) return null;
-  return () => context.pop(OpenFlightRequest(
-      flightNo: f.flightNo, date: date, faFlightId: f.faFlightId));
+  return () {
+    // From a sheet, close it first so the request reaches the hub.
+    Navigator.of(context).popUntil((r) => r is! PopupRoute);
+    context.pop(OpenFlightRequest(
+        flightNo: f.flightNo, date: date, faFlightId: f.faFlightId));
+  };
 }
 
 /// A record row that pops an [OpenFlightRequest] up to the hub.

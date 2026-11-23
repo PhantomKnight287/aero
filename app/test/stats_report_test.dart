@@ -197,7 +197,12 @@ ProfileStatsResponseEntity fixture(
             ]
           : [],
     },
-    'mostFlownAircraft': {'aircraftName': 'Boeing 777', 'flightCount': 12},
+    'aircraft': {
+      'basedOn': 0,
+      'types': [],
+      'families': [],
+      'airframes': {},
+    },
   };
   if (noCountries) {
     json['countries'] = [];

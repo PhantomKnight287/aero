@@ -1,3 +1,4 @@
+import 'package:aero/ui/components/aero_pressable.dart';
 import 'package:aero/ui/components/aero_segmented.dart';
 import 'package:aero/ui/tokens.dart';
 import 'package:flutter/material.dart';
@@ -7,10 +8,14 @@ class StatBar {
   final num value;
   final String valueLabel;
 
+  /// Makes the row tappable, with a trailing chevron.
+  final VoidCallback? onTap;
+
   const StatBar({
     required this.label,
     required this.value,
     required this.valueLabel,
+    this.onTap,
   });
 }
 
@@ -87,40 +92,58 @@ class _StatBarListState extends State<StatBarList> {
         ],
         for (var i = 0; i < rows.length; i++) ...[
           if (i > 0) const SizedBox(height: AeroSpace.sm),
-          Row(children: [
-            SizedBox(
-              width: widget.labelWidth,
-              // One line: a long label ellipsizes instead of wrapping.
-              child: DefaultTextStyle.merge(
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                softWrap: false,
-                child: rows[i].label,
-              ),
-            ),
-            const SizedBox(width: AeroSpace.sm),
-            Expanded(
-              child: LayoutBuilder(builder: (context, c) {
-                final room = c.maxWidth - countWidth - AeroSpace.sm;
-                final f = max <= 0 ? 0.0 : (rows[i].value / max).clamp(0, 1);
-                return Row(children: [
-                  Container(
-                    width: room > 0 ? room * f : 0,
-                    height: _barHeight,
-                    decoration: BoxDecoration(
-                        color: widget.color, borderRadius: AeroRadius.smAll),
+          _tappable(
+              rows[i].onTap,
+              Row(children: [
+                SizedBox(
+                  width: widget.labelWidth,
+                  // One line: a long label ellipsizes instead of wrapping.
+                  child: DefaultTextStyle.merge(
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    softWrap: false,
+                    child: rows[i].label,
                   ),
-                  const SizedBox(width: AeroSpace.sm),
-                  Flexible(
-                    child: Text(rows[i].valueLabel,
-                        style: _countStyle, maxLines: 1, softWrap: false),
-                  ),
-                ]);
-              }),
-            ),
-          ]),
+                ),
+                const SizedBox(width: AeroSpace.sm),
+                Expanded(
+                  child: LayoutBuilder(builder: (context, c) {
+                    final room = c.maxWidth - countWidth - AeroSpace.sm;
+                    final f =
+                        max <= 0 ? 0.0 : (rows[i].value / max).clamp(0, 1);
+                    return Row(children: [
+                      Container(
+                        width: room > 0 ? room * f : 0,
+                        height: _barHeight,
+                        decoration: BoxDecoration(
+                            color: widget.color,
+                            borderRadius: AeroRadius.smAll),
+                      ),
+                      const SizedBox(width: AeroSpace.sm),
+                      Flexible(
+                        child: Text(rows[i].valueLabel,
+                            style: _countStyle, maxLines: 1, softWrap: false),
+                      ),
+                    ]);
+                  }),
+                ),
+                if (rows[i].onTap != null)
+                  const Icon(Icons.chevron_right,
+                      size: 18, color: AeroColors.muted),
+              ])),
         ],
       ],
     );
   }
 }
+
+Widget _tappable(VoidCallback? onTap, Widget row) => onTap == null
+    ? row
+    : Semantics(
+        button: true,
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: onTap,
+          child: AeroPressable(child: row),
+        ),
+      );

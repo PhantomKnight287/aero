@@ -29,6 +29,7 @@ ProfileStatsResponseEntity delayFixture(
     {int airlines = 3,
     int basedOn = 29,
     int cancelled = 0,
+    int delayedExtra = 0,
     String firstAirline = 'Air India'}) {
   final json = {
     'basedOn': basedOn,
@@ -65,6 +66,8 @@ ProfileStatsResponseEntity delayFixture(
         : [
             {'flight': flight('AI185', 'AI'), 'value': 392},
             {'flight': flight('TG316', 'TG'), 'value': 167},
+            for (var i = 0; i < delayedExtra; i++)
+              {'flight': flight('6E${100 + i}', '6E'), 'value': 30 - i},
           ],
   };
   final d =
@@ -140,9 +143,35 @@ void main() {
   });
 
   testWidgets('worst delay pops an OpenFlightRequest', (t) async {
+    expect(
+        await openFrom(t, delayFixture(), (t) async {
+          await t.tap(find.text('WORST DELAY'));
+        }),
+        'AI185');
+  });
+
+  testWidgets('a flight in the Show more sheet pops through the sheet',
+      (t) async {
+    expect(
+        await openFrom(t, delayFixture(delayedExtra: 5), (t) async {
+          final more = find.text('Show more').last;
+          await t.ensureVisible(more);
+          await t.tap(more);
+          await t.pumpAndSettle();
+          await t.tap(find.textContaining('6E 104 · 6E104').last);
+        }),
+        '6E104');
+  });
+}
+
+/// Pushes the report from a stub page, runs [act], returns the popped
+/// request's flight number.
+Future<String?> openFrom(WidgetTester t, ProfileStatsResponseEntity s,
+    Future<void> Function(WidgetTester) act) async {
+  {
     OpenFlightRequest? result;
     final c = StatsController(
-      fetchStats: (_) async => delayFixture(),
+      fetchStats: (_) async => s,
       fetchHistory: (_, __) async => null,
     );
     final router = GoRouter(routes: [
@@ -165,8 +194,8 @@ void main() {
         child: MaterialApp.router(routerConfig: router)));
     await t.tap(find.text('open'));
     await t.pumpAndSettle();
-    await t.tap(find.text('WORST DELAY'));
+    await act(t);
     await t.pumpAndSettle();
-    expect(result?.flightNo, 'AI185');
-  });
+    return result?.flightNo;
+  }
 }

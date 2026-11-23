@@ -11,6 +11,8 @@ import 'package:go_router/go_router.dart';
 import 'package:openapi/openapi.dart';
 import 'package:provider/provider.dart';
 
+import 'stats_aircraft_report_test.dart' show aircraftEntity;
+
 PassportEntity makePassport(int flights) => PassportEntity((b) => b
   ..totalFlights = flights
   ..totalDistanceKm = flights * 1000
@@ -37,9 +39,10 @@ class FakeStats extends Fake implements ProfileStatsResponseEntity {
       this.basedOn = 0,
       int countryCount = 0,
       PassportEntity? passport,
-      this.aircraftStats,
+      AircraftSectionEntity? aircraft,
       List<num> years = const []})
       : passport = passport ?? makePassport(flights),
+        aircraft = aircraft ?? aircraftEntity(empty: true),
         availableYears = BuiltList.of(years),
         countries = BuiltList.of(List.generate(countryCount, makeCountry));
   final num minutesLost;
@@ -49,7 +52,7 @@ class FakeStats extends Fake implements ProfileStatsResponseEntity {
   @override
   final BuiltList<CountryEntity> countries;
   @override
-  final AircraftStatsEntity? aircraftStats;
+  final AircraftSectionEntity aircraft;
   @override
   num? get year => null;
   @override
@@ -260,14 +263,10 @@ void main() {
   });
 
   testWidgets('aircraft photo is 16:9 cover', (t) async {
-    final a = AircraftStatsEntity((b) => b
-      ..mostFlownAircraftName = 'Boeing 777'
-      ..mostFlownAircraftFlightCount = 12
-      ..mostFlownAircraftImage = 'https://example.com/777.jpg'
-      ..mostCommonTailNumber = 'A6-EOF'
-      ..mostCommonTailNumberCount = 2);
+    final a = aircraftEntity().rebuild((b) => b.types[0] =
+        b.types[0].rebuild((t) => t.image = 'https://example.com/777.jpg'));
     await t.pumpWidget(app(FlightStatsScreen(
-        controller: controller(3, [], stats: FakeStats(3, aircraftStats: a)))));
+        controller: controller(3, [], stats: FakeStats(3, aircraft: a)))));
     await t.pumpAndSettle();
     final img = t.widget<CachedNetworkImage>(find.byType(CachedNetworkImage));
     final built = img.imageBuilder!(t.element(find.byType(CachedNetworkImage)),
@@ -275,5 +274,22 @@ void main() {
     expect(built, isA<AspectRatio>());
     expect((built as AspectRatio).aspectRatio, 16 / 9);
     expect((built.child! as Image).fit, BoxFit.cover);
+  });
+
+  testWidgets('aircraft card opens the report', (t) async {
+    await t.pumpWidget(app(FlightStatsScreen(
+        controller: controller(3, [],
+            stats: FakeStats(3, aircraft: aircraftEntity())))));
+    await t.pumpAndSettle();
+    expect(find.text('Airbus A380-800'), findsOneWidget);
+    expect(find.text('2 flights · A388'), findsOneWidget);
+    expect(find.text('All aircraft stats'), findsOneWidget);
+  });
+
+  testWidgets('no aircraft card without types', (t) async {
+    await t.pumpWidget(app(
+        FlightStatsScreen(controller: controller(3, [], stats: FakeStats(3)))));
+    await t.pumpAndSettle();
+    expect(find.text('All aircraft stats'), findsNothing);
   });
 }

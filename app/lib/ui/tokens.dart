@@ -32,8 +32,9 @@ abstract final class AeroAccent {
   static const passport = Color(0xff5b3fe0); // bars, links, arcs
   static const passportGradient = [Color(0xff2b1f86), Color(0xff14093f)];
   static const delayGradient = [Color(0xffb3261e), Color(0xff4a0d08)];
-  static const aircraftGradient = [Color(0xffe4defa), Color(0xffc5d7f5)];
-  static const aircraftInk = Color(0xff1b2a55);
+  static const aircraftGradient = [Color(0xff0f4c6e), Color(0xff082a3d)];
+  static const onAircraftMuted = Color(0xffa9d4e8);
+  static const aircraftTile = Color(0xffe7f1f6); // flown family tile
   static const onPassportMuted = Color(0xffc9c2ff);
   static const onDelayMuted = Color(0xffffb4a8);
   static const late = Color(0xffe5483b); // late-rate bars, delay figures

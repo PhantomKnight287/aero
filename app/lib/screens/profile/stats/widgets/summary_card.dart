@@ -35,26 +35,37 @@ class SummaryCard extends StatelessWidget {
           child,
           if (onCta != null && ctaLabel != null) ...[
             const SizedBox(height: AeroSpace.md),
-            Semantics(
-              button: true,
-              child: GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onTap: onCta,
-                child: AeroPressable(
-                  child: Row(children: [
-                    Text(ctaLabel!,
-                        style: AeroText.body.copyWith(
-                            color: AeroColors.onInk,
-                            fontWeight: FontWeight.w600)),
-                    const Spacer(),
-                    const Icon(Icons.chevron_right,
-                        size: 20, color: AeroColors.onInk),
-                  ]),
-                ),
-              ),
-            ),
+            SummaryCta(label: ctaLabel!, onTap: onCta!),
           ],
         ],
+      ),
+    );
+  }
+}
+
+/// 'All … stats  ›' row at the foot of a gradient card.
+class SummaryCta extends StatelessWidget {
+  final String label;
+  final VoidCallback onTap;
+
+  const SummaryCta({super.key, required this.label, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      button: true,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: onTap,
+        child: AeroPressable(
+          child: Row(children: [
+            Text(label,
+                style: AeroText.body.copyWith(
+                    color: AeroColors.onInk, fontWeight: FontWeight.w600)),
+            const Spacer(),
+            const Icon(Icons.chevron_right, size: 20, color: AeroColors.onInk),
+          ]),
+        ),
       ),
     );
   }

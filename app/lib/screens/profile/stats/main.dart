@@ -99,9 +99,9 @@ class _FlightStatsScreenState extends State<FlightStatsScreen> {
           const SizedBox(height: AeroSpace.md),
           _delayCard(stats.delays),
         ],
-        if (stats.aircraftStats?.mostFlownAircraftName.isNotEmpty ?? false) ...[
+        if (stats.aircraft.types.isNotEmpty) ...[
           const SizedBox(height: AeroSpace.md),
-          _aircraftCard(stats.aircraftStats!),
+          _aircraftCard(stats.aircraft.types.first),
         ],
         const SizedBox(height: AeroSpace.xl),
         Text('Past flights', style: AeroText.sectionTitle),
@@ -168,9 +168,9 @@ class _FlightStatsScreenState extends State<FlightStatsScreen> {
         child: DelayLost(d: d),
       );
 
-  Widget _aircraftCard(AircraftStatsEntity a) {
-    final image = a.mostFlownAircraftImage;
-    final n = a.mostFlownAircraftFlightCount.toInt();
+  Widget _aircraftCard(AircraftTypeEntity a) {
+    final image = a.image;
+    final n = a.flightCount.toInt();
     final hasImage = image != null && image.isNotEmpty;
     return Container(
       clipBehavior: Clip.antiAlias,
@@ -186,48 +186,52 @@ class _FlightStatsScreenState extends State<FlightStatsScreen> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Padding(
-            padding: EdgeInsets.fromLTRB(AeroSpace.lg, AeroSpace.lg,
-                AeroSpace.lg, hasImage ? AeroSpace.md : AeroSpace.lg),
+            padding: const EdgeInsets.fromLTRB(
+                AeroSpace.lg, AeroSpace.lg, AeroSpace.lg, AeroSpace.md),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text('Most flown aircraft',
                     style: AeroText.heading
-                        .copyWith(color: AeroAccent.aircraftInk)),
+                        .copyWith(color: AeroAccent.onAircraftMuted)),
                 const SizedBox(height: AeroSpace.xs),
-                Text(a.mostFlownAircraftName,
-                    style: AeroText.display
-                        .copyWith(color: AeroAccent.aircraftInk)),
-                Text('${formatCount(n)} ${n == 1 ? 'flight' : 'flights'}',
+                Text(a.typeName,
+                    style: AeroText.display.copyWith(color: AeroColors.onInk)),
+                Text(
+                    [
+                      '${formatCount(n)} ${n == 1 ? 'flight' : 'flights'}',
+                      if (a.typeCode != null) a.typeCode!,
+                    ].join(' · '),
                     style: AeroText.body.copyWith(
-                        color: AeroAccent.aircraftInk,
+                        color: AeroAccent.onAircraftMuted,
                         fontFeatures: AeroText.tabular)),
               ],
             ),
           ),
           if (hasImage)
-            ClipRRect(
-              borderRadius: AeroRadius.mdBottom,
-              // Fixed 16:9 centre crop, flush to the card's left, right and
-              // bottom. The band is sized only once the image loads (the SVG
-              // error/placeholder builders are unsized), so a failed load
-              // collapses instead of leaving an empty hole.
-              child: image.endsWith('.svg')
-                  ? LayoutBuilder(
-                      builder: (_, box) => SvgPicture.network(image,
-                          width: box.maxWidth,
-                          height: box.maxWidth * 9 / 16,
-                          fit: BoxFit.cover,
-                          placeholderBuilder: (_) => const SizedBox.shrink(),
-                          errorBuilder: (_, __, ___) =>
-                              const SizedBox.shrink()))
-                  : CachedNetworkImage(
-                      imageUrl: image,
-                      imageBuilder: (_, provider) => AspectRatio(
-                          aspectRatio: 16 / 9,
-                          child: Image(image: provider, fit: BoxFit.cover)),
-                      errorWidget: (_, __, ___) => const SizedBox.shrink()),
-            ),
+            // Fixed 16:9 centre crop, flush to the card's sides. The band is
+            // sized only once the image loads (the SVG error/placeholder
+            // builders are unsized), so a failed load collapses.
+            image.endsWith('.svg')
+                ? LayoutBuilder(
+                    builder: (_, box) => SvgPicture.network(image,
+                        width: box.maxWidth,
+                        height: box.maxWidth * 9 / 16,
+                        fit: BoxFit.cover,
+                        placeholderBuilder: (_) => const SizedBox.shrink(),
+                        errorBuilder: (_, __, ___) => const SizedBox.shrink()))
+                : CachedNetworkImage(
+                    imageUrl: image,
+                    imageBuilder: (_, provider) => AspectRatio(
+                        aspectRatio: 16 / 9,
+                        child: Image(image: provider, fit: BoxFit.cover)),
+                    errorWidget: (_, __, ___) => const SizedBox.shrink()),
+          Padding(
+            padding: const EdgeInsets.all(AeroSpace.lg),
+            child: SummaryCta(
+                label: 'All aircraft stats',
+                onTap: () => _openReport('/profile/stats/aircraft')),
+          ),
         ],
       ),
     );
