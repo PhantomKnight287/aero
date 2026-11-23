@@ -482,6 +482,9 @@ export class FlightResponseEntity {
   @ApiProperty()
   id: string;
 
+  @ApiPropertyOptional({ description: 'Model name for flightAwareData.aircraftType, e.g. Boeing 737 MAX 8' })
+  aircraftTypeName?: string;
+
   @ApiProperty()
   flightNo: string;
 

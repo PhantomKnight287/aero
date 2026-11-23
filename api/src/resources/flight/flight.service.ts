@@ -1,6 +1,6 @@
 import { loadCountedFlights } from 'src/resources/profile/stats/load';
 import { toFlightSummary as toStatsSummary } from 'src/resources/profile/stats/summary';
-import { FlightHistoryResponseEntity } from './entities/flight-history.entity';
+import { FlightHistoryResponseEntity, RouteHistoryEntity } from './entities/flight-history.entity';
 import { DateTime, IANAZone } from 'luxon';
 import { prisma } from 'src/db';
 import { FlightAwareService } from 'src/services/flightaware/flightaware.service';
@@ -1493,6 +1493,27 @@ export class FlightService {
       items: page.map(toStatsSummary),
       nextCursor: rest.length > limit ? page[page.length - 1].id : null,
       yearCounts,
+    };
+  }
+
+  /** The user's counted flights on one directed route; `dep`/`arr` take IATA or ICAO. */
+  async getRouteHistory(
+    userId: string,
+    dep: string,
+    arr: string,
+    exclude?: string,
+  ): Promise<RouteHistoryEntity> {
+    const is = (a: { key: string; iata?: string; icao?: string }, code: string) =>
+      !!code && (a.key === code || a.iata === code || a.icao === code);
+    const fs = (await loadCountedFlights(userId, new Date()))
+      .map((x) => x.f)
+      .filter((f) => f.id !== exclude && is(f.dep, dep) && is(f.arr, arr))
+      .sort((a, b) => b.date.getTime() - a.date.getTime());
+    return {
+      flightCount: fs.length,
+      distanceKm: fs.reduce((s, f) => s + f.distanceKm, 0),
+      blockMinutes: fs.reduce((s, f) => s + f.blockMinutes, 0),
+      recent: fs.slice(0, 3).map(toStatsSummary),
     };
   }
 }

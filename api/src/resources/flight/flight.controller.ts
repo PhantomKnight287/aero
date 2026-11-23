@@ -45,7 +45,8 @@ import {
   AircraftHistoryEntity,
   AircraftLegEntity,
 } from './entities/aircraft-history.entity';
-import { FlightHistoryResponseEntity } from './entities/flight-history.entity';
+import { FlightHistoryResponseEntity, RouteHistoryEntity } from './entities/flight-history.entity';
+import { TYPE_NAMES } from 'src/resources/profile/stats/families';
 import { FlightService } from './flight.service';
 
 @Controller('flight')
@@ -186,6 +187,24 @@ export class FlightController {
     return await this.flightService.getFlightHistory(auth.id, { cursor, limit, year });
   }
 
+  @Get('route-history')
+  @ApiOperation({
+    summary: 'My flights on one route',
+    description: 'Counted flights from dep to arr (this direction only), optionally excluding one flight.',
+  })
+  @ApiQuery({ name: 'dep', required: true, type: String, description: 'IATA or ICAO' })
+  @ApiQuery({ name: 'arr', required: true, type: String, description: 'IATA or ICAO' })
+  @ApiQuery({ name: 'exclude', required: false, type: String, description: 'Flight id to leave out' })
+  @ApiOkResponse({ type: RouteHistoryEntity })
+  async getRouteHistory(
+    @Auth() auth: User,
+    @Query('dep') dep: string,
+    @Query('arr') arr: string,
+    @Query('exclude') exclude?: string,
+  ) {
+    return await this.flightService.getRouteHistory(auth.id, dep, arr, exclude);
+  }
+
   @Get()
   @ApiOperation({
     summary: 'Get flight details',
@@ -253,7 +272,9 @@ export class FlightController {
     type: GenericErrorEntity,
   })
   async getFlight(@Query() query: GetFlightDTO, @Auth() auth: User) {
-    return await this.flightService.getFlight(query, auth.id);
+    const flight: any = await this.flightService.getFlight(query, auth.id);
+    const code = flight?.flightAwareData?.aircraftType;
+    return { ...flight, aircraftTypeName: code ? TYPE_NAMES[code] : undefined };
   }
 
   @Post('booking')
