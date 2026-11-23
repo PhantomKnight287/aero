@@ -129,3 +129,13 @@ The flight detail sheet (`app/lib/screens/home/widgets/flight_info.dart`) is out
 - The exact big-time size token, and the tint values (built from the existing success, warn and danger tints).
 - The section file split under `screens/home/widgets/flight_detail/`.
 - Whether the weather row is one combined line or two lines.
+
+## Revision after the first device pass (2026-11-24, approved by the user)
+The first build copied Flighty's visuals one-for-one: a green status band, big coloured times and yellow gate chips. That cost Aero its identity, and several elements competed for attention. Flighty's **order** stays. Aero's **look** comes back:
+- **Status in one place:** a single line under the title with a small coloured dot. The tinted band is gone.
+- **Times are ink.** Colour only marks lateness: "26m late" in warn, cancelled in danger. "On time", early, and late by 15 minutes or less stay muted. The timetable drops its on-time and early pills.
+- **One route card:** both sides sit on the same grid. Airport codes, name and time on the left; Gate, Terminal, Belt and the delay text on the right as plain labelled facts. No chips.
+- **One grouped "Good to know" card,** with rows split by hairlines.
+- **One title style** (CalSans `sectionTitle`) for every section, including Flight profile. Sub-headings such as Registration history use the small-caps label.
+- **No airline section:** the airline is already in the header (logo, idents). The ATC callsign moves to the timetable footer.
+- **Codeshares** show 2 numbers, then "+N".
