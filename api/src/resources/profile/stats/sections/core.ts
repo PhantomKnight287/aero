@@ -67,16 +67,3 @@ export function records(fs: StatsFlight[]) {
     longestDuration: pick((f) => f.blockMinutes, true),
   };
 }
-
-export function delaySummary(fs: StatsFlight[]) {
-  const delays = fs.map((f) => f.arrivalDelayMin).filter(defined);
-  const late = delays.filter((d) => d > 15);
-  const minutesLost = sum(late);
-  return {
-    basedOn: delays.length,
-    arrivedCount: delays.length,
-    delayedCount: late.length,
-    minutesLost,
-    avgDelayMinutes: late.length ? minutesLost / late.length : 0,
-  };
-}

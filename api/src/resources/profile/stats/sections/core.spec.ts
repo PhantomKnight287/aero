@@ -1,5 +1,6 @@
 import { makeStatsFlight as mk } from '../fixtures';
-import { delaySummary, flightsPer, passport, records } from './core';
+import { flightsPer, passport, records } from './core';
+import { delayReport } from './delays';
 
 const ap = (key: string, isoCountry?: string) => ({ key, icao: key, name: key, city: key, isoCountry });
 
@@ -15,7 +16,6 @@ describe('core stats', () => {
     expect(p.month).toEqual(new Array(12).fill(0));
     expect(p.weekday).toEqual(new Array(7).fill(0));
     expect(records([])).toEqual({ shortestDistance: null, longestDistance: null, shortestDuration: null, longestDuration: null });
-    expect(delaySummary([])).toEqual({ basedOn: 0, arrivedCount: 0, delayedCount: 0, minutesLost: 0, avgDelayMinutes: 0 });
   });
 
   it('counts unique by one key', () => {
@@ -78,17 +78,17 @@ describe('core stats', () => {
   });
 
   it('delay summary', () => {
-    const d = delaySummary([
+    const d = delayReport([
       ...[-10, 5, 20, 90].map((m) => mk({ hasFa: true, arrivalDelayMin: m })),
       mk(),
-    ]);
-    expect(d).toEqual({ basedOn: 4, arrivedCount: 4, delayedCount: 2, minutesLost: 110, avgDelayMinutes: 55 });
+    ], 0);
+    expect(d).toMatchObject({ basedOn: 4, arrivedCount: 4, delayedCount: 2, minutesLost: 110, avgDelayMinutes: 55 });
   });
 
   it('boundaries', () => {
     expect(passport([mk({ blockMinutes: 360 })]).longHaul).toBe(0);
     expect(passport([mk({ blockMinutes: 361 })]).longHaul).toBe(1);
-    expect(delaySummary([mk({ arrivalDelayMin: 15 })])).toMatchObject({ basedOn: 1, delayedCount: 0, minutesLost: 0 });
+    expect(delayReport([mk({ arrivalDelayMin: 15 })], 0)).toMatchObject({ basedOn: 1, delayedCount: 0, minutesLost: 0 });
     const r = records([mk({ distanceKm: 0 }), mk({ distanceKm: 500 })]);
     expect(r.shortestDistance!.value).toBe(500);
     const p = passport([mk({ taxiOutMin: 10 }), mk({ taxiOutMin: 5, taxiInMin: 4 }), mk()]);

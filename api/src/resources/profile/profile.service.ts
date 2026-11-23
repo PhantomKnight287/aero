@@ -6,9 +6,11 @@ import {
   FlightSummaryEntity,
   ProfileStatsResponseEntity,
 } from './entities/profile-stats.entity';
-import { loadCountedFlights } from './stats/load';
+import { loadFlights } from './stats/load';
+import { isCounted } from './stats/stats-flight';
 import { continents, countries, topAirlines, topAirports, topRoutes, mapData } from './stats/sections/places';
-import { delaySummary, flightsPer, passport, records } from './stats/sections/core';
+import { flightsPer, passport, records } from './stats/sections/core';
+import { delayReport } from './stats/sections/delays';
 import { extremes, runways, taxiByAirport } from './stats/sections/ops';
 import { toAirline, toAirport, toRecord } from './stats/summary';
 
@@ -19,7 +21,13 @@ export class ProfileService {
     year?: number,
   ): Promise<ProfileStatsResponseEntity> {
     const now = new Date();
-    const counted = await loadCountedFlights(userId, now);
+    const all = await loadFlights(userId);
+    const counted = all.filter((x) => isCounted(x.f, now));
+    const inYear = (y: number) => year == null || y === year;
+    // Cancelled flights are left out of `counted`; they only fill the delay bucket.
+    const cancelled = all.filter(
+      (x) => x.f.cancelled && x.f.date <= now && inYear(x.f.local.year),
+    ).length;
     const availableYears = [...new Set(counted.map((x) => x.f.local.year))].sort(
       (a, b) => b - a,
     );
@@ -360,7 +368,16 @@ export class ProfileService {
       topRoutes: topRoutes(fs).map((r) => ({ ...r, from: toAirport(r.from), to: toAirport(r.to) })),
       countries: countries(fs),
       continents: continents(fs),
-      delays: delaySummary(fs),
+      delays: (() => {
+        const d = delayReport(fs, cancelled);
+        return {
+          ...d,
+          worst: toRecord(d.worst),
+          airlines: d.airlines.map((a) => ({ ...a, airline: toAirline(a.airline) })),
+          airports: d.airports.map((a) => ({ ...a, airport: toAirport(a.airport) })),
+          flights: d.flights.map((r) => toRecord(r)!),
+        };
+      })(),
       runways: (() => {
         const r = runways(fs);
         return { ...r, items: r.items.map((i) => ({ ...i, airport: toAirport(i.airport) })) };

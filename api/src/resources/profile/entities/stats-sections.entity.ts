@@ -107,12 +107,42 @@ export class ContinentEntity {
   @ApiProperty({ type: Number, description: 'Flights touching this continent, each counted once' }) flightCount: number;
 }
 
+export class DelayBucketsEntity {
+  @ApiProperty() early: number;
+  @ApiProperty() onTime: number;
+  @ApiProperty() late15: number;
+  @ApiProperty() late30: number;
+  @ApiProperty() late45: number;
+  @ApiProperty() cancelled: number;
+  @ApiProperty() diverted: number;
+  @ApiProperty() total: number;
+}
+
+export class DelayAirlineEntity {
+  @ApiProperty({ type: StatsAirlineEntity }) airline: StatsAirlineEntity;
+  @ApiProperty() late: number;
+  @ApiProperty() total: number;
+  @ApiProperty() minutesLate: number;
+}
+
+export class DelayAirportEntity {
+  @ApiProperty({ type: StatsAirportEntity }) airport: StatsAirportEntity;
+  @ApiProperty() lateDepartures: number;
+  @ApiProperty() total: number;
+}
+
 export class DelaySummaryEntity {
   @ApiProperty() basedOn: number;
   @ApiProperty() arrivedCount: number;
   @ApiProperty() delayedCount: number;
   @ApiProperty() minutesLost: number;
   @ApiProperty() avgDelayMinutes: number;
+  @ApiProperty({ description: 'Signed sum of arrival delays (negative = early)' }) netMinutes: number;
+  @ApiProperty({ type: DelayBucketsEntity }) buckets: DelayBucketsEntity;
+  @ApiPropertyOptional({ ...opt, type: StatsRecordEntity }) worst?: StatsRecordEntity | null;
+  @ApiProperty({ type: [DelayAirlineEntity] }) airlines: DelayAirlineEntity[];
+  @ApiProperty({ type: [DelayAirportEntity] }) airports: DelayAirportEntity[];
+  @ApiProperty({ type: [StatsRecordEntity], description: 'Delayed flights, worst first' }) flights: StatsRecordEntity[];
 }
 
 export class RunwayUseEntity {

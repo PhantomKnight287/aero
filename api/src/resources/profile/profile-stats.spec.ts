@@ -48,6 +48,19 @@ describe('ProfileService.getProfileStats', () => {
     expect((await service.getProfileStats('u1')).passport.totalFlights).toBe(1);
   });
 
+  it('counts past cancelled flights per year in the delay buckets', async () => {
+    const cx = { flightAwareData: { cancelled: true } };
+    db.flight.findMany.mockResolvedValue([
+      at('a', '2024-03-01T10:00:00Z'),
+      at('b', '2025-03-02T10:00:00Z', cx),
+      at('c', '2099-03-02T10:00:00Z', cx),
+    ]);
+    expect((await service.getProfileStats('u1', 2025)).delays.buckets.cancelled).toBe(1);
+    expect((await service.getProfileStats('u1', 2024)).delays.buckets.cancelled).toBe(0);
+    expect((await service.getProfileStats('u1')).delays.buckets.cancelled).toBe(1);
+    expect((await service.getProfileStats('u1', 2099)).delays.buckets.cancelled).toBe(0);
+  });
+
   it('handles an empty log', async () => {
     db.flight.findMany.mockResolvedValue([]);
     const r = await service.getProfileStats('u1');
