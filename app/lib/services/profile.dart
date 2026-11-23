@@ -46,4 +46,19 @@ class ProfileService {
       throw ApiException(message: 'Failed to fetch flight history: $e');
     }
   }
+
+  /// The user's flights from [dep] to [arr] (IATA or ICAO), minus [exclude].
+  Future<RouteHistoryEntity?> getRouteHistory(
+      {required String dep, required String arr, String? exclude}) async {
+    try {
+      final response = await _flightApi.flightControllerGetRouteHistoryV1(
+          dep: dep, arr: arr, exclude: exclude);
+      return response.data;
+    } catch (e) {
+      if (e is DioException) {
+        throw ApiException(message: getErrorMessage(e.response?.data));
+      }
+      throw ApiException(message: 'Failed to fetch route history: $e');
+    }
+  }
 }

@@ -78,7 +78,7 @@ class _FlightTimetableState extends State<FlightTimetable> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text('Flight timetable', style: AeroText.heading),
+        Text('Timetable', style: AeroText.sectionTitle),
         const SizedBox(height: AeroSpace.sm),
         Container(
           padding: const EdgeInsets.all(AeroSpace.md),
@@ -93,6 +93,16 @@ class _FlightTimetableState extends State<FlightTimetable> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                Row(children: [
+                  const Expanded(child: SizedBox.shrink()),
+                  SizedBox(
+                      width: _schedWidth,
+                      child: Text('Scheduled',
+                          textAlign: TextAlign.right, style: AeroText.label)),
+                  const SizedBox(width: AeroSpace.md),
+                  Text('Actual', style: AeroText.label),
+                  const SizedBox(width: _chipWidth + AeroSpace.sm),
+                ]),
                 for (var i = 0; i < phases.length; i++) ...[
                   _PhaseRow(phase: phases[i], expanded: _expanded),
                   if (_expanded && i < gaps.length && gaps[i] != null)
@@ -149,6 +159,9 @@ class _Phase {
   }
 }
 
+const _schedWidth = 72.0;
+const _chipWidth = 92.0;
+
 class _PhaseRow extends StatelessWidget {
   final _Phase phase;
   final bool expanded;
@@ -192,6 +205,20 @@ class _PhaseRow extends StatelessWidget {
                       style: AeroText.body.copyWith(color: AeroColors.ink),
                     ),
                   ),
+                  SizedBox(
+                    width: _schedWidth,
+                    child: phase.scheduled == null
+                        ? null
+                        : UnitCycle(
+                            dimension: UnitDimension.time,
+                            builder: (_, u) => Text(
+                                fmt(phase.scheduled!, u.time),
+                                textAlign: TextAlign.right,
+                                style: AeroText.body
+                                    .copyWith(fontFeatures: AeroText.tabular)),
+                          ),
+                  ),
+                  const SizedBox(width: AeroSpace.md),
                   if (best != null)
                     UnitCycle(
                       dimension: UnitDimension.time,
@@ -201,7 +228,7 @@ class _PhaseRow extends StatelessWidget {
                   // Fixed-width chip column keeps the times aligned.
                   const SizedBox(width: AeroSpace.sm),
                   SizedBox(
-                    width: 92,
+                    width: _chipWidth,
                     child: Align(
                       alignment: Alignment.centerRight,
                       child: delta == null

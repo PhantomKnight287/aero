@@ -161,6 +161,10 @@ void main() {
   });
 
   testWidgets('own flights: one row, sheet with the full list', (tester) async {
+    // Tall view: the 16:9 photo slot pushes the row below 600 px.
+    tester.view.physicalSize = const Size(800, 2000);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
     String? opened;
     await pump(
       tester,

@@ -40,7 +40,7 @@ class SideTimes {
   }
 }
 
-class FlightStatus {
+class LiveStatus {
   final FlightPhase phase;
   final SideTimes departure;
   final SideTimes arrival;
@@ -49,7 +49,7 @@ class FlightStatus {
   final String? divertedToIata;
   final DateTime? landedAt;
 
-  const FlightStatus({
+  const LiveStatus({
     required this.phase,
     required this.departure,
     required this.arrival,
@@ -110,7 +110,7 @@ String _span(Duration d) => formatLongDuration(d.inMinutes.abs());
 
 DateTime _utc(TimeEntity t) => DateTime.parse(t.utc).toUtc();
 
-FlightStatus flightStatus(FlightResponseEntity f, DateTime now) {
+LiveStatus flightStatus(FlightResponseEntity f, DateTime now) {
   final fa = f.flightAwareData;
   final cancelled = fa?.cancelled ?? false;
 
@@ -155,7 +155,7 @@ FlightStatus flightStatus(FlightResponseEntity f, DateTime now) {
     phase = FlightPhase.arrived;
   }
 
-  return FlightStatus(
+  return LiveStatus(
     phase: phase,
     departure: dep,
     arrival: arr,

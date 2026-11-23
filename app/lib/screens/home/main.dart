@@ -146,7 +146,25 @@ class _HomeScreenState extends State<HomeScreen>
     );
   }
 
-  void _showBookingDetailsSheet() {
+  /// The airport sheet only reads `ident`; the rest is filled so the
+  /// built_value is complete.
+  void _showRouteAirportSheet(RouteAirportEntity a) {
+    _showAirportDetailsSheet(AirportEntity((b) => b
+      ..id = a.icao
+      ..ident = a.icao.isNotEmpty ? a.icao : a.iata
+      ..type = AirportType.largeAirport
+      ..continent = ''
+      ..isoCountry = a.countryCode
+      ..isoRegion = ''
+      ..municipality = a.municipalityName
+      ..iataCode = a.iata
+      ..gpsCode = a.icao
+      ..name = a.name
+      ..lat = a.location.lat.toString()
+      ..long = a.location.lon.toString()));
+  }
+
+    void _showBookingDetailsSheet() {
     final info = _homeController.flightInfo;
     if (info == null) return;
 
@@ -317,6 +335,7 @@ class _HomeScreenState extends State<HomeScreen>
         );
       },
       onBookingDetails: _showBookingDetailsSheet,
+      onAirportTap: _showRouteAirportSheet,
     );
   }
 

@@ -19,6 +19,8 @@ abstract final class AeroColors {
   static const success = Color(0xff2e7d32);
   static const successTint = Color(0xffe8f5e9);
   static const warn = Color(0xffef6c00);
+  static const warnTint = Color(0xfffff3e0);
+  static const gate = Color(0xfff6c343); // gate / belt chips (ink text)
   static const onInk = Color(0xffffffff); // text on ink/danger buttons
   static const shadow = Color(0x1f000000); // soft elevation (12% black)
   // Dark translucent overlay chrome over the map.
@@ -117,6 +119,16 @@ abstract final class AeroText {
       fontWeight: FontWeight.w600,
       letterSpacing: -0.1,
       color: AeroColors.ink);
+
+  /// Flight detail big clock times (route block).
+  static final clock = TextStyle(
+      fontFamily: AeroFonts.inter,
+      fontSize: 40,
+      fontWeight: FontWeight.w700,
+      height: 1.05,
+      letterSpacing: -1,
+      color: AeroColors.ink,
+      fontFeatures: tabular);
 
   /// Big numeric readouts (scheduled times on the route card).
   static final figure = TextStyle(

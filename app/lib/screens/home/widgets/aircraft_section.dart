@@ -51,6 +51,16 @@ class _AircraftSectionState extends State<AircraftSection> {
 
   AircraftEntity? get _aircraft => widget.info.aircraft;
 
+  /// Model name from the FlightAware type ('Boeing 737 MAX 8'), else the
+  /// registry's model.
+  String? get _title => widget.info.aircraftTypeName ?? _aircraft?.model;
+
+  /// ICAO type and the registry model when it adds something.
+  String get _subtitle => [
+        widget.info.flightAwareData?.aircraftType,
+        if (_aircraft?.model != _title) _aircraft?.model,
+      ].whereType<String>().where((s) => s.isNotEmpty).join(' · ');
+
   /// Age in years at [at], from first flight (or delivery) date. Null
   /// when neither is known or [at] is before it.
   double? _ageAt(DateTime at) {
@@ -70,8 +80,9 @@ class _AircraftSectionState extends State<AircraftSection> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        if (aircraft?.model != null) ...[
-          Text(aircraft!.model!, style: AeroText.heading),
+        if (_title != null) ...[
+          Text(_title!, style: AeroText.sectionTitle),
+          if (_subtitle.isNotEmpty) Text(_subtitle, style: AeroText.caption),
           const SizedBox(height: AeroSpace.sm),
         ],
         if (widget.history?.registration != null) ...[
@@ -107,7 +118,10 @@ class _AircraftSectionState extends State<AircraftSection> {
         registryCountry(hex: aircraft.modeS, reg: aircraft.registration);
     // One base for both ages so they agree; stored age is a stale
     // snapshot, used only when no dates are known.
-    final age = _ageAt(DateTime.now()) ?? double.tryParse(aircraft.age ?? '');
+    // Registry age 0 means unknown.
+    final stored = double.tryParse(aircraft.age ?? '');
+    final age = _ageAt(DateTime.now()) ??
+        (stored != null && stored > 0 ? stored : null);
     final onDay = _ageAt(widget.info.date);
     final showOnDay =
         onDay != null && age != null && (age - onDay).abs() >= 1 / 12;
@@ -121,24 +135,25 @@ class _AircraftSectionState extends State<AircraftSection> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          if (aircraft.image != null) ...[
-            ClipRRect(
-              borderRadius: AeroRadius.smAll,
-              child: CachedNetworkImage(imageUrl: aircraft.image!),
-            ),
-            const SizedBox(height: AeroSpace.md),
-          ],
+          ClipRRect(
+            borderRadius: AeroRadius.smAll,
+            child: aircraft.image == null || aircraft.image!.isEmpty
+                ? const _NoPhoto()
+                : CachedNetworkImage(
+                    imageUrl: aircraft.image!,
+                    errorWidget: (_, __, ___) => const _NoPhoto()),
+          ),
+          const SizedBox(height: AeroSpace.md),
           Wrap(
             spacing: AeroSpace.md,
             runSpacing: AeroSpace.md,
             alignment: WrapAlignment.spaceBetween,
             children: [
-              if (age != null)
-                _Fact(
-                  label: 'Age',
-                  value: formatAge(age),
-                  note: showOnDay ? '${formatAge(onDay)} on this flight' : null,
-                ),
+              _Fact(
+                label: 'Age',
+                value: age == null ? 'Unknown' : formatAge(age),
+                note: showOnDay ? '${formatAge(onDay)} on this flight' : null,
+              ),
               if (aircraft.deliveryDate != null)
                 _Fact(
                   label: 'Delivery Date',
@@ -964,4 +979,19 @@ class _OwnFlightsRow extends StatelessWidget {
       ),
     );
   }
+}
+
+/// 16:9 slot kept when the registry has no photo.
+class _NoPhoto extends StatelessWidget {
+  const _NoPhoto();
+
+  @override
+  Widget build(BuildContext context) => AspectRatio(
+        aspectRatio: 16 / 9,
+        child: Container(
+          color: AeroColors.line,
+          alignment: Alignment.center,
+          child: Text('No photo yet', style: AeroText.caption),
+        ),
+      );
 }
