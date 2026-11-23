@@ -152,7 +152,7 @@ class _FamilyTile extends StatelessWidget {
           if (flown) ...[
             Text(_flights(f.flightCount), style: tabularBody),
             if (first != null)
-              Text('first ${DateFormat('d MMM y').format(first)}',
+              Text('first ${DateFormat('MMM y').format(first)}',
                   style: tabularCaption,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis),
