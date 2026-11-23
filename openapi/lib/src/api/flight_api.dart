@@ -21,6 +21,7 @@ import 'package:openapi/src/model/flight_response_entity.dart';
 import 'package:openapi/src/model/flight_search_response_entity.dart';
 import 'package:openapi/src/model/flight_track_response_entity.dart';
 import 'package:openapi/src/model/generic_error_entity.dart';
+import 'package:openapi/src/model/route_history_entity.dart';
 import 'package:openapi/src/model/update_flight_booking_dto.dart';
 
 class FlightApi {
@@ -895,6 +896,98 @@ class FlightApi {
     }
 
     return Response<FlightResponseEntity>(
+      data: _responseData,
+      headers: _response.headers,
+      isRedirect: _response.isRedirect,
+      requestOptions: _response.requestOptions,
+      redirects: _response.redirects,
+      statusCode: _response.statusCode,
+      statusMessage: _response.statusMessage,
+      extra: _response.extra,
+    );
+  }
+
+  /// My flights on one route
+  /// Counted flights from dep to arr (this direction only), optionally excluding one flight.
+  ///
+  /// Parameters:
+  /// * [dep] - IATA or ICAO
+  /// * [arr] - IATA or ICAO
+  /// * [exclude] - Flight id to leave out
+  /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
+  /// * [headers] - Can be used to add additional headers to the request
+  /// * [extras] - Can be used to add flags to the request
+  /// * [validateStatus] - A [ValidateStatus] callback that can be used to determine request success based on the HTTP status of the response
+  /// * [onSendProgress] - A [ProgressCallback] that can be used to get the send progress
+  /// * [onReceiveProgress] - A [ProgressCallback] that can be used to get the receive progress
+  ///
+  /// Returns a [Future] containing a [Response] with a [RouteHistoryEntity] as data
+  /// Throws [DioException] if API call or serialization fails
+  Future<Response<RouteHistoryEntity>> flightControllerGetRouteHistoryV1({ 
+    required String dep,
+    required String arr,
+    String? exclude,
+    CancelToken? cancelToken,
+    Map<String, dynamic>? headers,
+    Map<String, dynamic>? extra,
+    ValidateStatus? validateStatus,
+    ProgressCallback? onSendProgress,
+    ProgressCallback? onReceiveProgress,
+  }) async {
+    final _path = r'/v1/flight/route-history';
+    final _options = Options(
+      method: r'GET',
+      headers: <String, dynamic>{
+        ...?headers,
+      },
+      extra: <String, dynamic>{
+        'secure': <Map<String, String>>[
+          {
+            'type': 'http',
+            'scheme': 'bearer',
+            'name': 'JWT-auth',
+          },
+        ],
+        ...?extra,
+      },
+      validateStatus: validateStatus,
+    );
+
+    final _queryParameters = <String, dynamic>{
+      r'dep': encodeQueryParameter(_serializers, dep, const FullType(String)),
+      r'arr': encodeQueryParameter(_serializers, arr, const FullType(String)),
+      if (exclude != null) r'exclude': encodeQueryParameter(_serializers, exclude, const FullType(String)),
+    };
+
+    final _response = await _dio.request<Object>(
+      _path,
+      options: _options,
+      queryParameters: _queryParameters,
+      cancelToken: cancelToken,
+      onSendProgress: onSendProgress,
+      onReceiveProgress: onReceiveProgress,
+    );
+
+    RouteHistoryEntity? _responseData;
+
+    try {
+      final rawResponse = _response.data;
+      _responseData = rawResponse == null ? null : _serializers.deserialize(
+        rawResponse,
+        specifiedType: const FullType(RouteHistoryEntity),
+      ) as RouteHistoryEntity;
+
+    } catch (error, stackTrace) {
+      throw DioException(
+        requestOptions: _response.requestOptions,
+        response: _response,
+        type: DioExceptionType.unknown,
+        error: error,
+        stackTrace: stackTrace,
+      );
+    }
+
+    return Response<RouteHistoryEntity>(
       data: _responseData,
       headers: _response.headers,
       isRedirect: _response.isRedirect,

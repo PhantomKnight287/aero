@@ -10,6 +10,8 @@ class _$FlightResponseEntity extends FlightResponseEntity {
   @override
   final String id;
   @override
+  final String? aircraftTypeName;
+  @override
   final String flightNo;
   @override
   final String callSign;
@@ -40,6 +42,7 @@ class _$FlightResponseEntity extends FlightResponseEntity {
 
   _$FlightResponseEntity._(
       {required this.id,
+      this.aircraftTypeName,
       required this.flightNo,
       required this.callSign,
       this.aircraft,
@@ -67,6 +70,7 @@ class _$FlightResponseEntity extends FlightResponseEntity {
     if (identical(other, this)) return true;
     return other is FlightResponseEntity &&
         id == other.id &&
+        aircraftTypeName == other.aircraftTypeName &&
         flightNo == other.flightNo &&
         callSign == other.callSign &&
         aircraft == other.aircraft &&
@@ -85,6 +89,7 @@ class _$FlightResponseEntity extends FlightResponseEntity {
   int get hashCode {
     var _$hash = 0;
     _$hash = $jc(_$hash, id.hashCode);
+    _$hash = $jc(_$hash, aircraftTypeName.hashCode);
     _$hash = $jc(_$hash, flightNo.hashCode);
     _$hash = $jc(_$hash, callSign.hashCode);
     _$hash = $jc(_$hash, aircraft.hashCode);
@@ -105,6 +110,7 @@ class _$FlightResponseEntity extends FlightResponseEntity {
   String toString() {
     return (newBuiltValueToStringHelper(r'FlightResponseEntity')
           ..add('id', id)
+          ..add('aircraftTypeName', aircraftTypeName)
           ..add('flightNo', flightNo)
           ..add('callSign', callSign)
           ..add('aircraft', aircraft)
@@ -128,6 +134,11 @@ class FlightResponseEntityBuilder
   String? _id;
   String? get id => _$this._id;
   set id(String? id) => _$this._id = id;
+
+  String? _aircraftTypeName;
+  String? get aircraftTypeName => _$this._aircraftTypeName;
+  set aircraftTypeName(String? aircraftTypeName) =>
+      _$this._aircraftTypeName = aircraftTypeName;
 
   String? _flightNo;
   String? get flightNo => _$this._flightNo;
@@ -199,6 +210,7 @@ class FlightResponseEntityBuilder
     final $v = _$v;
     if ($v != null) {
       _id = $v.id;
+      _aircraftTypeName = $v.aircraftTypeName;
       _flightNo = $v.flightNo;
       _callSign = $v.callSign;
       _aircraft = $v.aircraft?.toBuilder();
@@ -236,6 +248,7 @@ class FlightResponseEntityBuilder
           _$FlightResponseEntity._(
             id: BuiltValueNullFieldError.checkNotNull(
                 id, r'FlightResponseEntity', 'id'),
+            aircraftTypeName: aircraftTypeName,
             flightNo: BuiltValueNullFieldError.checkNotNull(
                 flightNo, r'FlightResponseEntity', 'flightNo'),
             callSign: BuiltValueNullFieldError.checkNotNull(

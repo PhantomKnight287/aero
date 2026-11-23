@@ -1280,6 +1280,72 @@
         ]
       }
     },
+    "/v1/flight/route-history": {
+      "get": {
+        "description": "Counted flights from dep to arr (this direction only), optionally excluding one flight.",
+        "operationId": "FlightController_getRouteHistory_v1",
+        "parameters": [
+          {
+            "name": "dep",
+            "required": true,
+            "in": "query",
+            "description": "IATA or ICAO",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "arr",
+            "required": true,
+            "in": "query",
+            "description": "IATA or ICAO",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "exclude",
+            "required": false,
+            "in": "query",
+            "description": "Flight id to leave out",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RouteHistoryEntity"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericErrorEntity"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ],
+        "summary": "My flights on one route",
+        "tags": [
+          "Flight"
+        ]
+      }
+    },
     "/v1/flight": {
       "get": {
         "description": "Get detailed information about a specific flight including real-time tracking data. Use faFlightId to fetch a specific flight after searching.",
@@ -3471,6 +3537,10 @@
           "id": {
             "type": "string"
           },
+          "aircraftTypeName": {
+            "type": "string",
+            "description": "Model name for flightAwareData.aircraftType, e.g. Boeing 737 MAX 8"
+          },
           "flightNo": {
             "type": "string"
           },
@@ -3920,6 +3990,33 @@
           "items",
           "nextCursor",
           "yearCounts"
+        ]
+      },
+      "RouteHistoryEntity": {
+        "type": "object",
+        "properties": {
+          "flightCount": {
+            "type": "number"
+          },
+          "distanceKm": {
+            "type": "number"
+          },
+          "blockMinutes": {
+            "type": "number"
+          },
+          "recent": {
+            "description": "Up to 3, newest first",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StatsFlightSummaryEntity"
+            }
+          }
+        },
+        "required": [
+          "flightCount",
+          "distanceKm",
+          "blockMinutes",
+          "recent"
         ]
       },
       "CreateFlightBookingDTO": {

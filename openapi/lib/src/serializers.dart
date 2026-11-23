@@ -85,6 +85,7 @@ import 'package:openapi/src/model/records_entity.dart';
 import 'package:openapi/src/model/register_dto.dart';
 import 'package:openapi/src/model/register_entity.dart';
 import 'package:openapi/src/model/route_airport_entity.dart';
+import 'package:openapi/src/model/route_history_entity.dart';
 import 'package:openapi/src/model/route_info_entity.dart';
 import 'package:openapi/src/model/runway_use_entity.dart';
 import 'package:openapi/src/model/runways_entity.dart';
@@ -185,6 +186,7 @@ part 'serializers.g.dart';
   RegisterDTO,
   RegisterEntity,
   RouteAirportEntity,
+  RouteHistoryEntity,
   RouteInfoEntity,
   RunwayUseEntity,
   RunwaysEntity,

@@ -79,6 +79,7 @@ doc/RecordsEntity.md
 doc/RegisterDTO.md
 doc/RegisterEntity.md
 doc/RouteAirportEntity.md
+doc/RouteHistoryEntity.md
 doc/RouteInfoEntity.md
 doc/RunwayUseEntity.md
 doc/RunwaysEntity.md
@@ -192,6 +193,7 @@ lib/src/model/records_entity.dart
 lib/src/model/register_dto.dart
 lib/src/model/register_entity.dart
 lib/src/model/route_airport_entity.dart
+lib/src/model/route_history_entity.dart
 lib/src/model/route_info_entity.dart
 lib/src/model/runway_use_entity.dart
 lib/src/model/runways_entity.dart
@@ -219,9 +221,4 @@ lib/src/model/weather_observation_cloud_entity.dart
 lib/src/model/year_count_entity.dart
 lib/src/serializers.dart
 pubspec.yaml
-test/aircraft_family_entity_test.dart
-test/aircraft_section_entity_test.dart
-test/aircraft_type_entity_test.dart
-test/airframe_entity_test.dart
-test/airframes_entity_test.dart
-test/most_flown_tail_entity_test.dart
+test/route_history_entity_test.dart

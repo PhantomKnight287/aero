@@ -19,6 +19,7 @@ part 'flight_response_entity.g.dart';
 ///
 /// Properties:
 /// * [id] 
+/// * [aircraftTypeName] - Model name for flightAwareData.aircraftType, e.g. Boeing 737 MAX 8
 /// * [flightNo] 
 /// * [callSign] 
 /// * [aircraft] 
@@ -35,6 +36,10 @@ part 'flight_response_entity.g.dart';
 abstract class FlightResponseEntity implements Built<FlightResponseEntity, FlightResponseEntityBuilder> {
   @BuiltValueField(wireName: r'id')
   String get id;
+
+  /// Model name for flightAwareData.aircraftType, e.g. Boeing 737 MAX 8
+  @BuiltValueField(wireName: r'aircraftTypeName')
+  String? get aircraftTypeName;
 
   @BuiltValueField(wireName: r'flightNo')
   String get flightNo;
@@ -101,6 +106,13 @@ class _$FlightResponseEntitySerializer implements PrimitiveSerializer<FlightResp
       object.id,
       specifiedType: const FullType(String),
     );
+    if (object.aircraftTypeName != null) {
+      yield r'aircraftTypeName';
+      yield serializers.serialize(
+        object.aircraftTypeName,
+        specifiedType: const FullType(String),
+      );
+    }
     yield r'flightNo';
     yield serializers.serialize(
       object.flightNo,
@@ -198,6 +210,14 @@ class _$FlightResponseEntitySerializer implements PrimitiveSerializer<FlightResp
             specifiedType: const FullType(String),
           ) as String;
           result.id = valueDes;
+          break;
+        case r'aircraftTypeName':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType.nullable(String),
+          ) as String?;
+          if (valueDes == null) continue;
+          result.aircraftTypeName = valueDes;
           break;
         case r'flightNo':
           final valueDes = serializers.deserialize(

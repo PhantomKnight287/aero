@@ -9,6 +9,7 @@ import 'package:openapi/api.dart';
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **id** | **String** |  | 
+**aircraftTypeName** | **String** | Model name for flightAwareData.aircraftType, e.g. Boeing 737 MAX 8 | [optional] 
 **flightNo** | **String** |  | 
 **callSign** | **String** |  | 
 **aircraft** | [**AircraftEntity**](AircraftEntity.md) |  | [optional] 

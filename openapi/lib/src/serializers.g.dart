@@ -93,6 +93,7 @@ Serializers _$serializers = (Serializers().toBuilder()
       ..add(RegisterDTO.serializer)
       ..add(RegisterEntity.serializer)
       ..add(RouteAirportEntity.serializer)
+      ..add(RouteHistoryEntity.serializer)
       ..add(RouteInfoEntity.serializer)
       ..add(RunwayUseEntity.serializer)
       ..add(RunwaysEntity.serializer)
@@ -185,6 +186,10 @@ Serializers _$serializers = (Serializers().toBuilder()
       ..addBuilderFactory(
           const FullType(BuiltList, const [const FullType(RunwayUseEntity)]),
           () => ListBuilder<RunwayUseEntity>())
+      ..addBuilderFactory(
+          const FullType(
+              BuiltList, const [const FullType(StatsFlightSummaryEntity)]),
+          () => ListBuilder<StatsFlightSummaryEntity>())
       ..addBuilderFactory(
           const FullType(
               BuiltList, const [const FullType(StatsFlightSummaryEntity)]),

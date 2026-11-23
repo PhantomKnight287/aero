@@ -19,6 +19,7 @@ Method | HTTP request | Description
 [**flightControllerGetFlightHistoryV1**](FlightApi.md#flightcontrollergetflighthistoryv1) | **GET** /v1/flight/history | Paged flight history
 [**flightControllerGetFlightTrackV1**](FlightApi.md#flightcontrollergetflighttrackv1) | **GET** /v1/flight/track | Get flight track/path
 [**flightControllerGetFlightV1**](FlightApi.md#flightcontrollergetflightv1) | **GET** /v1/flight | Get flight details
+[**flightControllerGetRouteHistoryV1**](FlightApi.md#flightcontrollergetroutehistoryv1) | **GET** /v1/flight/route-history | My flights on one route
 [**flightControllerSearchFlightsV1**](FlightApi.md#flightcontrollersearchflightsv1) | **GET** /v1/flight/search | Search flights
 [**flightControllerUpdateFlightBookingV1**](FlightApi.md#flightcontrollerupdateflightbookingv1) | **PUT** /v1/flight/booking/{bookingId} | Update a flight booking
 
@@ -461,6 +462,53 @@ Name | Type | Description  | Notes
 ### Return type
 
 [**FlightResponseEntity**](FlightResponseEntity.md)
+
+### Authorization
+
+[JWT-auth](../README.md#JWT-auth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **flightControllerGetRouteHistoryV1**
+> RouteHistoryEntity flightControllerGetRouteHistoryV1(dep, arr, exclude)
+
+My flights on one route
+
+Counted flights from dep to arr (this direction only), optionally excluding one flight.
+
+### Example
+```dart
+import 'package:openapi/api.dart';
+
+final api = Openapi().getFlightApi();
+final String dep = dep_example; // String | IATA or ICAO
+final String arr = arr_example; // String | IATA or ICAO
+final String exclude = exclude_example; // String | Flight id to leave out
+
+try {
+    final response = api.flightControllerGetRouteHistoryV1(dep, arr, exclude);
+    print(response);
+} on DioException catch (e) {
+    print('Exception when calling FlightApi->flightControllerGetRouteHistoryV1: $e\n');
+}
+```
+
+### Parameters
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **dep** | **String**| IATA or ICAO | 
+ **arr** | **String**| IATA or ICAO | 
+ **exclude** | **String**| Flight id to leave out | [optional] 
+
+### Return type
+
+[**RouteHistoryEntity**](RouteHistoryEntity.md)
 
 ### Authorization
 

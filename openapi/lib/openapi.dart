@@ -89,6 +89,7 @@ export 'package:openapi/src/model/records_entity.dart';
 export 'package:openapi/src/model/register_dto.dart';
 export 'package:openapi/src/model/register_entity.dart';
 export 'package:openapi/src/model/route_airport_entity.dart';
+export 'package:openapi/src/model/route_history_entity.dart';
 export 'package:openapi/src/model/route_info_entity.dart';
 export 'package:openapi/src/model/runway_use_entity.dart';
 export 'package:openapi/src/model/runways_entity.dart';

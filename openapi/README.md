@@ -83,6 +83,7 @@ Class | Method | HTTP request | Description
 [*FlightApi*](doc/FlightApi.md) | [**flightControllerGetFlightHistoryV1**](doc/FlightApi.md#flightcontrollergetflighthistoryv1) | **GET** /v1/flight/history | Paged flight history
 [*FlightApi*](doc/FlightApi.md) | [**flightControllerGetFlightTrackV1**](doc/FlightApi.md#flightcontrollergetflighttrackv1) | **GET** /v1/flight/track | Get flight track/path
 [*FlightApi*](doc/FlightApi.md) | [**flightControllerGetFlightV1**](doc/FlightApi.md#flightcontrollergetflightv1) | **GET** /v1/flight | Get flight details
+[*FlightApi*](doc/FlightApi.md) | [**flightControllerGetRouteHistoryV1**](doc/FlightApi.md#flightcontrollergetroutehistoryv1) | **GET** /v1/flight/route-history | My flights on one route
 [*FlightApi*](doc/FlightApi.md) | [**flightControllerSearchFlightsV1**](doc/FlightApi.md#flightcontrollersearchflightsv1) | **GET** /v1/flight/search | Search flights
 [*FlightApi*](doc/FlightApi.md) | [**flightControllerUpdateFlightBookingV1**](doc/FlightApi.md#flightcontrollerupdateflightbookingv1) | **PUT** /v1/flight/booking/{bookingId} | Update a flight booking
 [*FlightsApi*](doc/FlightsApi.md) | [**flightsControllerGetAirlineV1**](doc/FlightsApi.md#flightscontrollergetairlinev1) | **POST** /v1/flights/airline | Get airline
@@ -165,6 +166,7 @@ Class | Method | HTTP request | Description
  - [RegisterDTO](doc/RegisterDTO.md)
  - [RegisterEntity](doc/RegisterEntity.md)
  - [RouteAirportEntity](doc/RouteAirportEntity.md)
+ - [RouteHistoryEntity](doc/RouteHistoryEntity.md)
  - [RouteInfoEntity](doc/RouteInfoEntity.md)
  - [RunwayUseEntity](doc/RunwayUseEntity.md)
  - [RunwaysEntity](doc/RunwaysEntity.md)
