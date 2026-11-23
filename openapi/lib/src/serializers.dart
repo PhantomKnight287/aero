@@ -37,6 +37,9 @@ import 'package:openapi/src/model/continent_entity.dart';
 import 'package:openapi/src/model/country_entity.dart';
 import 'package:openapi/src/model/create_flight_booking_dto.dart';
 import 'package:openapi/src/model/decoded_weather_entity.dart';
+import 'package:openapi/src/model/delay_airline_entity.dart';
+import 'package:openapi/src/model/delay_airport_entity.dart';
+import 'package:openapi/src/model/delay_buckets_entity.dart';
 import 'package:openapi/src/model/delay_summary_entity.dart';
 import 'package:openapi/src/model/extremes_entity.dart';
 import 'package:openapi/src/model/fligh_type.dart';
@@ -131,6 +134,9 @@ part 'serializers.g.dart';
   CountryEntity,
   CreateFlightBookingDTO,
   DecodedWeatherEntity,
+  DelayAirlineEntity,
+  DelayAirportEntity,
+  DelayBucketsEntity,
   DelaySummaryEntity,
   ExtremesEntity,
   FlighType,
@@ -233,6 +239,10 @@ Serializers serializers = (_$serializers.toBuilder()
         () => ListBuilder<FlightPositionEntity>(),
       )
       ..addBuilderFactory(
+        const FullType(BuiltList, [FullType(DelayAirlineEntity)]),
+        () => ListBuilder<DelayAirlineEntity>(),
+      )
+      ..addBuilderFactory(
         const FullType(BuiltList, [FullType(TopAirportEntity)]),
         () => ListBuilder<TopAirportEntity>(),
       )
@@ -257,8 +267,16 @@ Serializers serializers = (_$serializers.toBuilder()
         () => ListBuilder<FlightResponseEntity>(),
       )
       ..addBuilderFactory(
+        const FullType(BuiltList, [FullType(StatsRecordEntity)]),
+        () => ListBuilder<StatsRecordEntity>(),
+      )
+      ..addBuilderFactory(
         const FullType(BuiltList, [FullType(num)]),
         () => ListBuilder<num>(),
+      )
+      ..addBuilderFactory(
+        const FullType(BuiltList, [FullType(DelayAirportEntity)]),
+        () => ListBuilder<DelayAirportEntity>(),
       )
       ..addBuilderFactory(
         const FullType(BuiltList, [FullType(MapAirportEntity)]),

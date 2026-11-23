@@ -60,7 +60,17 @@ class FakeStats extends Fake implements ProfileStatsResponseEntity {
     ..arrivedCount = basedOn
     ..delayedCount = 0
     ..minutesLost = minutesLost
-    ..avgDelayMinutes = 0);
+    ..avgDelayMinutes = 0
+    ..netMinutes = minutesLost
+    ..buckets.replace(DelayBucketsEntity((b) => b
+      ..early = 0
+      ..onTime = 0
+      ..late15 = 0
+      ..late30 = 0
+      ..late45 = 0
+      ..cancelled = 0
+      ..diverted = 0
+      ..total = 0)));
 }
 
 final flight = StatsFlightSummaryEntity((b) => b

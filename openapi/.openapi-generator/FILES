@@ -28,6 +28,9 @@ doc/ContinentEntity.md
 doc/CountryEntity.md
 doc/CreateFlightBookingDTO.md
 doc/DecodedWeatherEntity.md
+doc/DelayAirlineEntity.md
+doc/DelayAirportEntity.md
+doc/DelayBucketsEntity.md
 doc/DelaySummaryEntity.md
 doc/ExtremesEntity.md
 doc/FlighType.md
@@ -138,6 +141,9 @@ lib/src/model/country_entity.dart
 lib/src/model/create_flight_booking_dto.dart
 lib/src/model/date.dart
 lib/src/model/decoded_weather_entity.dart
+lib/src/model/delay_airline_entity.dart
+lib/src/model/delay_airport_entity.dart
+lib/src/model/delay_buckets_entity.dart
 lib/src/model/delay_summary_entity.dart
 lib/src/model/extremes_entity.dart
 lib/src/model/fligh_type.dart
@@ -207,3 +213,6 @@ lib/src/model/weather_observation_cloud_entity.dart
 lib/src/model/year_count_entity.dart
 lib/src/serializers.dart
 pubspec.yaml
+test/delay_airline_entity_test.dart
+test/delay_airport_entity_test.dart
+test/delay_buckets_entity_test.dart

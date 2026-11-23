@@ -4506,6 +4506,87 @@
           "flightCount"
         ]
       },
+      "DelayBucketsEntity": {
+        "type": "object",
+        "properties": {
+          "early": {
+            "type": "number"
+          },
+          "onTime": {
+            "type": "number"
+          },
+          "late15": {
+            "type": "number"
+          },
+          "late30": {
+            "type": "number"
+          },
+          "late45": {
+            "type": "number"
+          },
+          "cancelled": {
+            "type": "number"
+          },
+          "diverted": {
+            "type": "number"
+          },
+          "total": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "early",
+          "onTime",
+          "late15",
+          "late30",
+          "late45",
+          "cancelled",
+          "diverted",
+          "total"
+        ]
+      },
+      "DelayAirlineEntity": {
+        "type": "object",
+        "properties": {
+          "airline": {
+            "$ref": "#/components/schemas/StatsAirlineEntity"
+          },
+          "late": {
+            "type": "number"
+          },
+          "total": {
+            "type": "number"
+          },
+          "minutesLate": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "airline",
+          "late",
+          "total",
+          "minutesLate"
+        ]
+      },
+      "DelayAirportEntity": {
+        "type": "object",
+        "properties": {
+          "airport": {
+            "$ref": "#/components/schemas/StatsAirportEntity"
+          },
+          "lateDepartures": {
+            "type": "number"
+          },
+          "total": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "airport",
+          "lateDepartures",
+          "total"
+        ]
+      },
       "DelaySummaryEntity": {
         "type": "object",
         "properties": {
@@ -4523,6 +4604,40 @@
           },
           "avgDelayMinutes": {
             "type": "number"
+          },
+          "netMinutes": {
+            "type": "number",
+            "description": "Signed sum of arrival delays (negative = early)"
+          },
+          "buckets": {
+            "$ref": "#/components/schemas/DelayBucketsEntity"
+          },
+          "worst": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/StatsRecordEntity"
+              }
+            ]
+          },
+          "airlines": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DelayAirlineEntity"
+            }
+          },
+          "airports": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DelayAirportEntity"
+            }
+          },
+          "flights": {
+            "description": "Delayed flights, worst first",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StatsRecordEntity"
+            }
           }
         },
         "required": [
@@ -4530,7 +4645,12 @@
           "arrivedCount",
           "delayedCount",
           "minutesLost",
-          "avgDelayMinutes"
+          "avgDelayMinutes",
+          "netMinutes",
+          "buckets",
+          "airlines",
+          "airports",
+          "flights"
         ]
       },
       "RunwayUseEntity": {

@@ -38,6 +38,9 @@ Serializers _$serializers = (Serializers().toBuilder()
       ..add(CreateFlightBookingDTOSeatTypeEnum.serializer)
       ..add(CreateFlightBookingDTOSeatingClassEnum.serializer)
       ..add(DecodedWeatherEntity.serializer)
+      ..add(DelayAirlineEntity.serializer)
+      ..add(DelayAirportEntity.serializer)
+      ..add(DelayBucketsEntity.serializer)
       ..add(DelaySummaryEntity.serializer)
       ..add(ExtremesEntity.serializer)
       ..add(FlighType.serializer)
@@ -124,6 +127,15 @@ Serializers _$serializers = (Serializers().toBuilder()
           const FullType(
               BuiltList, const [const FullType(AirportDelayReasonEntity)]),
           () => ListBuilder<AirportDelayReasonEntity>())
+      ..addBuilderFactory(
+          const FullType(BuiltList, const [const FullType(DelayAirlineEntity)]),
+          () => ListBuilder<DelayAirlineEntity>())
+      ..addBuilderFactory(
+          const FullType(BuiltList, const [const FullType(DelayAirportEntity)]),
+          () => ListBuilder<DelayAirportEntity>())
+      ..addBuilderFactory(
+          const FullType(BuiltList, const [const FullType(StatsRecordEntity)]),
+          () => ListBuilder<StatsRecordEntity>())
       ..addBuilderFactory(
           const FullType(
               BuiltList, const [const FullType(FlightBookingEntity)]),
