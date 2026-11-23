@@ -120,14 +120,14 @@ void main() {
     expect(t.takeException(), isNull);
   });
 
-  testWidgets('hub hides delay CTA in part 1', (t) async {
+  testWidgets('hub shows delay CTA', (t) async {
     await t.pumpWidget(app(FlightStatsScreen(
         controller: controller(3, [flight], minutesLost: 600, basedOn: 3))));
     await t.pumpAndSettle();
     expect(find.text('All flight stats'), findsOneWidget);
     expect(find.text('10 h'), findsOneWidget);
     expect(find.text('lost to delays'), findsOneWidget);
-    expect(find.text('All delay stats'), findsNothing);
+    expect(find.text('All delay stats'), findsOneWidget);
   });
 
   testWidgets('delay card shows minutes under an hour', (t) async {

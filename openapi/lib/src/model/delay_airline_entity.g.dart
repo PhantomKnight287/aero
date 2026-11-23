@@ -10,7 +10,7 @@ class _$DelayAirlineEntity extends DelayAirlineEntity {
   @override
   final StatsAirlineEntity airline;
   @override
-  final num late_;
+  final num lateArrivals;
   @override
   final num total;
   @override
@@ -22,7 +22,7 @@ class _$DelayAirlineEntity extends DelayAirlineEntity {
 
   _$DelayAirlineEntity._(
       {required this.airline,
-      required this.late_,
+      required this.lateArrivals,
       required this.total,
       required this.minutesLate})
       : super._();
@@ -40,7 +40,7 @@ class _$DelayAirlineEntity extends DelayAirlineEntity {
     if (identical(other, this)) return true;
     return other is DelayAirlineEntity &&
         airline == other.airline &&
-        late_ == other.late_ &&
+        lateArrivals == other.lateArrivals &&
         total == other.total &&
         minutesLate == other.minutesLate;
   }
@@ -49,7 +49,7 @@ class _$DelayAirlineEntity extends DelayAirlineEntity {
   int get hashCode {
     var _$hash = 0;
     _$hash = $jc(_$hash, airline.hashCode);
-    _$hash = $jc(_$hash, late_.hashCode);
+    _$hash = $jc(_$hash, lateArrivals.hashCode);
     _$hash = $jc(_$hash, total.hashCode);
     _$hash = $jc(_$hash, minutesLate.hashCode);
     _$hash = $jf(_$hash);
@@ -60,7 +60,7 @@ class _$DelayAirlineEntity extends DelayAirlineEntity {
   String toString() {
     return (newBuiltValueToStringHelper(r'DelayAirlineEntity')
           ..add('airline', airline)
-          ..add('late_', late_)
+          ..add('lateArrivals', lateArrivals)
           ..add('total', total)
           ..add('minutesLate', minutesLate))
         .toString();
@@ -76,9 +76,9 @@ class DelayAirlineEntityBuilder
       _$this._airline ??= StatsAirlineEntityBuilder();
   set airline(StatsAirlineEntityBuilder? airline) => _$this._airline = airline;
 
-  num? _late_;
-  num? get late_ => _$this._late_;
-  set late_(num? late_) => _$this._late_ = late_;
+  num? _lateArrivals;
+  num? get lateArrivals => _$this._lateArrivals;
+  set lateArrivals(num? lateArrivals) => _$this._lateArrivals = lateArrivals;
 
   num? _total;
   num? get total => _$this._total;
@@ -96,7 +96,7 @@ class DelayAirlineEntityBuilder
     final $v = _$v;
     if ($v != null) {
       _airline = $v.airline.toBuilder();
-      _late_ = $v.late_;
+      _lateArrivals = $v.lateArrivals;
       _total = $v.total;
       _minutesLate = $v.minutesLate;
       _$v = null;
@@ -123,8 +123,8 @@ class DelayAirlineEntityBuilder
       _$result = _$v ??
           _$DelayAirlineEntity._(
             airline: airline.build(),
-            late_: BuiltValueNullFieldError.checkNotNull(
-                late_, r'DelayAirlineEntity', 'late_'),
+            lateArrivals: BuiltValueNullFieldError.checkNotNull(
+                lateArrivals, r'DelayAirlineEntity', 'lateArrivals'),
             total: BuiltValueNullFieldError.checkNotNull(
                 total, r'DelayAirlineEntity', 'total'),
             minutesLate: BuiltValueNullFieldError.checkNotNull(

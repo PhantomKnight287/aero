@@ -36,6 +36,17 @@ abstract final class AeroAccent {
   static const aircraftInk = Color(0xff1b2a55);
   static const onPassportMuted = Color(0xffc9c2ff);
   static const onDelayMuted = Color(0xffffb4a8);
+  static const late = Color(0xffe5483b); // late-rate bars, delay figures
+  /// Arrival breakdown: early, on time, 15m, 30m, 45m+, cancelled, diverted.
+  static const delayBuckets = [
+    Color(0xff2e9e5b),
+    Color(0xff6fd37a),
+    Color(0xfff5c542),
+    Color(0xfff0962e),
+    late,
+    Color(0xff9e9e9e),
+    Color(0xff8e1b14),
+  ];
   static const passportTint = Color(0xfff2f0fb); // comparison bar track
   // Passport card: flag ring (mid-gradient), machine-readable band, CTA rule.
   static const passportRing = Color(0xff1d1260);

@@ -9,7 +9,7 @@ import 'package:openapi/api.dart';
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **airline** | [**StatsAirlineEntity**](StatsAirlineEntity.md) |  | 
-**late_** | **num** |  | 
+**lateArrivals** | **num** |  | 
 **total** | **num** |  | 
 **minutesLate** | **num** |  | 
 

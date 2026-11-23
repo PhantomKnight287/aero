@@ -46,8 +46,8 @@ describe('delayReport', () => {
       arr(100, { airline: al('AI') }), arr(50, { airline: al('') }),
     ], 0);
     expect(r.airlines.map(({ airline, ...x }) => ({ k: airline.key, ...x }))).toEqual([
-      { k: 'AI', late: 1, total: 1, minutesLate: 100 },
-      { k: 'EK', late: 1, total: 2, minutesLate: 20 },
+      { k: 'AI', lateArrivals: 1, total: 1, minutesLate: 100 },
+      { k: 'EK', lateArrivals: 1, total: 2, minutesLate: 20 },
     ]);
   });
 

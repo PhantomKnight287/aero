@@ -213,6 +213,3 @@ lib/src/model/weather_observation_cloud_entity.dart
 lib/src/model/year_count_entity.dart
 lib/src/serializers.dart
 pubspec.yaml
-test/delay_airline_entity_test.dart
-test/delay_airport_entity_test.dart
-test/delay_buckets_entity_test.dart

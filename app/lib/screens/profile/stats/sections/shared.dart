@@ -23,8 +23,18 @@ final tabularCaption =
     AeroText.caption.copyWith(fontFeatures: AeroText.tabular);
 
 /// "based on N flights" note for FlightAware-sourced sections.
-Widget basedOn(num n) =>
-    Text('based on ${count(n)} flights', style: tabularCaption);
+Widget basedOn(num n, {String suffix = ''}) =>
+    Text('based on ${count(n)} flights$suffix', style: tabularCaption);
+
+/// Pops an [OpenFlightRequest] for [f] up to the hub; null when the flight
+/// has no usable date.
+VoidCallback? popFlight(BuildContext context, StatsFlightSummaryEntity f) {
+  // Same departure-local day the hub's flight log opens with.
+  final date = flightDay(f);
+  if (date == null) return null;
+  return () => context.pop(OpenFlightRequest(
+      flightNo: f.flightNo, date: date, faFlightId: f.faFlightId));
+}
 
 /// A record row that pops an [OpenFlightRequest] up to the hub.
 Widget recordRow(
@@ -34,20 +44,11 @@ Widget recordRow(
   String Function(num value) format,
 ) {
   if (r == null) return const SizedBox.shrink();
-  final f = r.flight;
-  // Same departure-local day the hub's flight log opens with.
-  final date = flightDay(f);
   return RecordRow(
     caption: caption,
-    flight: f,
+    flight: r.flight,
     value: format(r.value),
-    onTap: date == null
-        ? null
-        : () => context.pop(OpenFlightRequest(
-              flightNo: f.flightNo,
-              date: date,
-              faFlightId: f.faFlightId,
-            )),
+    onTap: popFlight(context, r.flight),
   );
 }
 

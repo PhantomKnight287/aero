@@ -4551,7 +4551,7 @@
           "airline": {
             "$ref": "#/components/schemas/StatsAirlineEntity"
           },
-          "late": {
+          "lateArrivals": {
             "type": "number"
           },
           "total": {
@@ -4563,7 +4563,7 @@
         },
         "required": [
           "airline",
-          "late",
+          "lateArrivals",
           "total",
           "minutesLate"
         ]

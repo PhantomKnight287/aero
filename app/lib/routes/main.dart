@@ -5,6 +5,7 @@ import 'package:aero/screens/home/main.dart';
 import 'package:aero/screens/loading/loading.dart';
 import 'package:aero/screens/profile/main.dart';
 import 'package:aero/screens/profile/app_icon/main.dart';
+import 'package:aero/screens/profile/stats/delay_report.dart';
 import 'package:aero/screens/profile/stats/flight_stats_report.dart';
 import 'package:aero/screens/profile/stats/main.dart';
 import 'package:aero/screens/wearables/list/main.dart';
@@ -57,6 +58,12 @@ class AeroRouter {
         path: "/profile/stats/flights",
         builder: (context, state) {
           return FlightStatsReport(year: state.extra as int?);
+        },
+      ),
+      GoRoute(
+        path: "/profile/stats/delays",
+        builder: (context, state) {
+          return DelayReport(year: state.extra as int?);
         },
       ),
       GoRoute(

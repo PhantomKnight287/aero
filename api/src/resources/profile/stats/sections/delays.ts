@@ -34,12 +34,12 @@ export function delayReport(fs: StatsFlight[], cancelled: number) {
   const flights: StatsRecord[] = arrived.filter((r) => r.value > LATE).sort((a, b) => b.value - a.value);
   const minutesLost = sum(flights.map((r) => r.value));
 
-  const airlineMap = new Map<string, { airline: StatsAirline; late: number; total: number; minutesLate: number }>();
+  const airlineMap = new Map<string, { airline: StatsAirline; lateArrivals: number; total: number; minutesLate: number }>();
   for (const { flight: f, value } of arrived) {
     if (!f.airline.key) continue;
-    const e = airlineMap.get(f.airline.key) ?? { airline: f.airline, late: 0, total: 0, minutesLate: 0 };
+    const e = airlineMap.get(f.airline.key) ?? { airline: f.airline, lateArrivals: 0, total: 0, minutesLate: 0 };
     e.total++;
-    if (value > LATE) { e.late++; e.minutesLate += value; }
+    if (value > LATE) { e.lateArrivals++; e.minutesLate += value; }
     airlineMap.set(f.airline.key, e);
   }
 
@@ -62,7 +62,7 @@ export function delayReport(fs: StatsFlight[], cancelled: number) {
     netMinutes: sum(arrived.map((r) => r.value)),
     buckets,
     worst: flights[0] ?? null,
-    airlines: [...airlineMap.values()].sort(byRate((x) => x.late, (x) => x.minutesLate)),
+    airlines: [...airlineMap.values()].sort(byRate((x) => x.lateArrivals, (x) => x.minutesLate)),
     airports: [...airportMap.values()].sort(byRate((x) => x.lateDepartures)),
     flights,
   };

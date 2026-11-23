@@ -1,11 +1,10 @@
-import 'package:aero/formatters/time.dart';
 import 'package:aero/formatters/units.dart';
 import 'package:aero/screens/profile/stats/open_flight_request.dart';
+import 'package:aero/screens/profile/stats/sections/delay_sections.dart';
 import 'package:aero/screens/profile/stats/stats_controller.dart';
 import 'package:aero/screens/profile/stats/widgets/passport_card.dart';
 import 'package:aero/screens/profile/stats/widgets/past_flight_row.dart';
 import 'package:aero/screens/profile/stats/widgets/summary_card.dart';
-import 'package:aero/screens/profile/stats/widgets/unit_text.dart';
 import 'package:aero/screens/profile/stats/widgets/year_filter.dart';
 import 'package:aero/services/profile.dart';
 import 'package:aero/ui/components/aero_pill_button.dart';
@@ -53,9 +52,8 @@ class _FlightStatsScreenState extends State<FlightStatsScreen> {
     super.dispose();
   }
 
-  Future<void> _openReport() async {
-    final r = await context.push<OpenFlightRequest>('/profile/stats/flights',
-        extra: c.year);
+  Future<void> _openReport([String path = '/profile/stats/flights']) async {
+    final r = await context.push<OpenFlightRequest>(path, extra: c.year);
     if (r != null && mounted) context.pop(r);
   }
 
@@ -96,7 +94,7 @@ class _FlightStatsScreenState extends State<FlightStatsScreen> {
           (stats?.passport.totalFlights ?? 0) == 0)
         const _Empty(),
       if (stats != null && stats.passport.totalFlights > 0) ...[
-        PassportCard(stats: stats, onOpen: _openReport),
+        PassportCard(stats: stats, onOpen: () => _openReport()),
         if (stats.delays.basedOn > 0 &&
             stats.delays.minutesLost.round() > 0) ...[
           const SizedBox(height: AeroSpace.md),
@@ -164,34 +162,12 @@ class _FlightStatsScreenState extends State<FlightStatsScreen> {
     return out;
   }
 
-  Widget _delayCard(DelaySummaryEntity d) {
-    final mins = d.minutesLost.round();
-    final hero = AeroText.hero.copyWith(color: AeroColors.onInk);
-    return SummaryCard(
-      gradient: AeroAccent.delayGradient,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          UnitText(
-              mins < 60
-                  ? [(formatCount(mins), false), (' m', true)]
-                  : [(formatCount(mins / 60), false), (' h', true)],
-              style: hero,
-              unitColor: AeroAccent.onDelayMuted),
-          const SizedBox(height: AeroSpace.xs),
-          Text('lost to delays',
-              style: AeroText.heading.copyWith(color: AeroColors.onInk)),
-          if (d.delayedCount > 0)
-            Text(
-                'Delayed flights averaged '
-                '${formatLongDuration(d.avgDelayMinutes.round())} late',
-                style: AeroText.body.copyWith(
-                    color: AeroAccent.onDelayMuted,
-                    fontFeatures: AeroText.tabular)),
-        ],
-      ),
-    );
-  }
+  Widget _delayCard(DelaySummaryEntity d) => SummaryCard(
+        gradient: AeroAccent.delayGradient,
+        ctaLabel: 'All delay stats',
+        onCta: () => _openReport('/profile/stats/delays'),
+        child: DelayLost(d: d),
+      );
 
   Widget _aircraftCard(AircraftStatsEntity a) {
     final image = a.mostFlownAircraftImage;

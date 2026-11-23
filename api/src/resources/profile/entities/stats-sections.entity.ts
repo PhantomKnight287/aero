@@ -120,7 +120,7 @@ export class DelayBucketsEntity {
 
 export class DelayAirlineEntity {
   @ApiProperty({ type: StatsAirlineEntity }) airline: StatsAirlineEntity;
-  @ApiProperty() late: number;
+  @ApiProperty() lateArrivals: number;
   @ApiProperty() total: number;
   @ApiProperty() minutesLate: number;
 }

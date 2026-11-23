@@ -14,12 +14,16 @@ class RecordRow extends StatelessWidget {
   final String value;
   final VoidCallback? onTap;
 
+  /// Value colour; ink by default, red for delays.
+  final Color valueColor;
+
   const RecordRow({
     super.key,
     required this.caption,
     required this.flight,
     required this.value,
     this.onTap,
+    this.valueColor = AeroColors.ink,
   });
 
   @override
@@ -33,7 +37,8 @@ class RecordRow extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(caption.toUpperCase(), style: AeroText.label),
+              if (caption.isNotEmpty)
+                Text(caption.toUpperCase(), style: AeroText.label),
               Text(flightAirports(flight), style: AeroText.heading),
               Text(
                   [flightIdents(flight), flightDate(flight)]
@@ -49,7 +54,7 @@ class RecordRow extends StatelessWidget {
         UnitText.parse(value,
             unitScale: 0.85,
             style: AeroText.body.copyWith(
-                color: AeroColors.ink,
+                color: valueColor,
                 fontWeight: FontWeight.w600,
                 fontFeatures: AeroText.tabular)),
         if (onTap != null)

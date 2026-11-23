@@ -13,7 +13,7 @@ part 'delay_airline_entity.g.dart';
 ///
 /// Properties:
 /// * [airline] 
-/// * [late_] 
+/// * [lateArrivals] 
 /// * [total] 
 /// * [minutesLate] 
 @BuiltValue()
@@ -21,8 +21,8 @@ abstract class DelayAirlineEntity implements Built<DelayAirlineEntity, DelayAirl
   @BuiltValueField(wireName: r'airline')
   StatsAirlineEntity get airline;
 
-  @BuiltValueField(wireName: r'late')
-  num get late_;
+  @BuiltValueField(wireName: r'lateArrivals')
+  num get lateArrivals;
 
   @BuiltValueField(wireName: r'total')
   num get total;
@@ -58,9 +58,9 @@ class _$DelayAirlineEntitySerializer implements PrimitiveSerializer<DelayAirline
       object.airline,
       specifiedType: const FullType(StatsAirlineEntity),
     );
-    yield r'late';
+    yield r'lateArrivals';
     yield serializers.serialize(
-      object.late_,
+      object.lateArrivals,
       specifiedType: const FullType(num),
     );
     yield r'total';
@@ -103,12 +103,12 @@ class _$DelayAirlineEntitySerializer implements PrimitiveSerializer<DelayAirline
           ) as StatsAirlineEntity;
           result.airline.replace(valueDes);
           break;
-        case r'late':
+        case r'lateArrivals':
           final valueDes = serializers.deserialize(
             value,
             specifiedType: const FullType(num),
           ) as num;
-          result.late_ = valueDes;
+          result.lateArrivals = valueDes;
           break;
         case r'total':
           final valueDes = serializers.deserialize(
