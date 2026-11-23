@@ -30,6 +30,10 @@ class DelayLost extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final mins = d.minutesLost.round();
+    if (mins == 0) {
+      return Text('No time lost to delays',
+          style: AeroText.title.copyWith(color: AeroColors.onInk));
+    }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -78,7 +82,7 @@ class DelayHeroCard extends StatelessWidget {
           Text('flights delayed', style: AeroText.title.copyWith(color: onInk)),
           Text(
               '${count(d.delayedCount)} of ${count(d.arrivedCount)} flights '
-              'arrived later than scheduled',
+              'arrived more than 15m late',
               style: muted),
           if (d.minutesLost > 0) ...[
             const SizedBox(height: AeroSpace.xl),

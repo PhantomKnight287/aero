@@ -26,7 +26,10 @@ Map<String, dynamic> airline(String name, int late, int total, int mins) => {
     };
 
 ProfileStatsResponseEntity delayFixture(
-    {int airlines = 3, int basedOn = 29, String firstAirline = 'Air India'}) {
+    {int airlines = 3,
+    int basedOn = 29,
+    int cancelled = 0,
+    String firstAirline = 'Air India'}) {
   final json = {
     'basedOn': basedOn,
     'arrivedCount': basedOn,
@@ -40,9 +43,9 @@ ProfileStatsResponseEntity delayFixture(
       'late15': 1,
       'late30': 2,
       'late45': 6,
-      'cancelled': 0,
-      'diverted': 2,
-      'total': basedOn == 0 ? 0 : 28,
+      'cancelled': cancelled,
+      'diverted': basedOn == 0 ? 0 : 2,
+      'total': (basedOn == 0 ? 0 : 28) + cancelled,
     },
     'worst':
         basedOn == 0 ? null : {'flight': flight('AI185', 'AI'), 'value': 392},
@@ -89,7 +92,7 @@ void main() {
   testWidgets('delay report shows every section', (t) async {
     await pumpDelays(t, delayFixture());
     expect(find.text('48%'), findsOneWidget);
-    expect(find.text('14 of 29 flights arrived later than scheduled'),
+    expect(find.text('14 of 29 flights arrived more than 15m late'),
         findsOneWidget);
     for (final s in [
       'Arrival performance',
@@ -123,6 +126,12 @@ void main() {
     expect(
         find.text('No FlightAware times for this period yet.'), findsOneWidget);
     expect(find.text('Arrival performance'), findsNothing);
+  });
+
+  testWidgets('cancelled-only period has no 0% card', (t) async {
+    await pumpDelays(t, delayFixture(basedOn: 0, cancelled: 1));
+    expect(find.text('flights delayed'), findsNothing);
+    expect(find.text('Arrival performance'), findsOneWidget);
   });
 
   testWidgets('long airline name does not overflow', (t) async {

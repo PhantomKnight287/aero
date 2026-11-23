@@ -28,7 +28,8 @@ class DelayReport extends StatelessWidget {
           ];
         }
         return [
-          DelayHeroCard(d: d),
+          // Cancelled/diverted-only periods have no arrivals to rate.
+          if (d.arrivedCount > 0) DelayHeroCard(d: d),
           DelayBreakdownSection(d: d),
           if (WorstAirlinesSection.shows(d)) WorstAirlinesSection(d: d),
           if (AirlinePerformanceSection.shows(d))

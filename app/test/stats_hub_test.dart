@@ -64,13 +64,13 @@ class FakeStats extends Fake implements ProfileStatsResponseEntity {
     ..netMinutes = minutesLost
     ..buckets.replace(DelayBucketsEntity((b) => b
       ..early = 0
-      ..onTime = 0
+      ..onTime = basedOn
       ..late15 = 0
       ..late30 = 0
       ..late45 = 0
       ..cancelled = 0
       ..diverted = 0
-      ..total = 0)));
+      ..total = basedOn)));
 }
 
 final flight = StatsFlightSummaryEntity((b) => b
@@ -138,18 +138,27 @@ void main() {
     expect(find.text('lost to delays'), findsOneWidget);
   });
 
-  testWidgets('delay card hidden when nothing was lost', (t) async {
+  testWidgets('on-time year still shows the delay card and its CTA', (t) async {
     await t.pumpWidget(app(FlightStatsScreen(
         controller: controller(3, [flight], minutesLost: 0, basedOn: 3))));
     await t.pumpAndSettle();
-    expect(find.textContaining('lost to delays'), findsNothing);
+    expect(find.text('No time lost to delays'), findsOneWidget);
+    expect(find.text('All delay stats'), findsOneWidget);
   });
 
-  testWidgets('delay card hidden when the loss rounds to 0 m', (t) async {
+  testWidgets('a loss that rounds to 0 m reads as none lost', (t) async {
     await t.pumpWidget(app(FlightStatsScreen(
         controller: controller(3, [flight], minutesLost: 0.4, basedOn: 3))));
     await t.pumpAndSettle();
-    expect(find.textContaining('lost to delays'), findsNothing);
+    expect(find.text('No time lost to delays'), findsOneWidget);
+    expect(find.text('0 m'), findsNothing);
+  });
+
+  testWidgets('no delay card without FlightAware times', (t) async {
+    await t.pumpWidget(app(FlightStatsScreen(
+        controller: controller(3, [flight], minutesLost: 0, basedOn: 0))));
+    await t.pumpAndSettle();
+    expect(find.text('All delay stats'), findsNothing);
   });
 
   testWidgets('tapping a flight with no parseable date does nothing',
