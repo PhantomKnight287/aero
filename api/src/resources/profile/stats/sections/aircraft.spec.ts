@@ -31,6 +31,16 @@ describe('aircraftReport', () => {
     expect(r.basedOn).toBe(2);
   });
 
+  it('ambiguous registry name learns no code', () => {
+    const r = aircraftReport(
+      [mk({ id: 'a', typeCode: 'B77W', reg: 'P' }), mk({ id: 'b', typeCode: 'B772', reg: 'Q' }), mk({ id: 'c', reg: 'R' })],
+      idx({ P: { typeName: 'Boeing 777' }, Q: { typeName: 'Boeing 777' }, R: { typeName: 'Boeing 777' } }),
+    );
+    expect(r.types.map((t) => [t.typeCode, t.typeName, t.flightCount])).toEqual([
+      ['B77W', 'Boeing 777-300ER', 1], ['B772', 'Boeing 777-200', 1], [undefined, 'Boeing 777', 1],
+    ]);
+  });
+
   it('registry model code is never used as a type code', () => {
     const r = aircraftReport([mk({ reg: 'X' })], idx({ X: { modelCode: '330-343E', typeName: 'Airbus A330' } }));
     expect(r.types).toEqual([expect.objectContaining({ typeCode: undefined, typeName: 'Airbus A330', flightCount: 1 })]);

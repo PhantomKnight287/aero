@@ -52,7 +52,9 @@ class AircraftTypesSection extends StatelessWidget {
               ])
           : null,
       child: StatBarList(
-        labelWidth: 56,
+        // A code fits 56; a code-less row shows its registry name.
+        labelWidth:
+            types.take(_preview).any((t) => t.typeCode == null) ? 120 : 56,
         color: AeroAccent.passport,
         rows: [for (final t in types.take(_preview)) bar(t)],
       ),

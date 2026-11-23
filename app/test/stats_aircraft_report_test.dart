@@ -156,6 +156,18 @@ void main() {
     expect(t.takeException(), isNull);
   });
 
+  testWidgets('code-less type label gets room for its name', (t) async {
+    final s = aircraftFixture()
+        .rebuild((b) => b.aircraft.types.add(AircraftTypeEntity((t) => t
+          ..typeName = 'Boeing 777'
+          ..flightCount = 1)));
+    await pumpAircraft(t, s);
+    final box = t.widget<SizedBox>(find
+        .ancestor(of: find.text('Boeing 777'), matching: find.byType(SizedBox))
+        .first);
+    expect(box.width, greaterThanOrEqualTo(110));
+  });
+
   testWidgets('empty aircraft data', (t) async {
     await pumpAircraft(t, aircraftFixture(empty: true));
     expect(find.text('No aircraft data for this period yet.'), findsOneWidget);

@@ -12,15 +12,20 @@ const round1 = (n: number) => Math.round(n * 10) / 10;
 export function aircraftReport(fs: StatsFlight[], idx: AircraftIndex) {
   const regName = (f: StatsFlight) => (f.reg ? idx.byReg.get(f.reg)?.typeName : undefined) ?? f.typeName;
 
-  // A code-less flight borrows the ICAO code of another flight whose
-  // registry type name matches (registry names are coarser than codes).
-  const codeByName = new Map<string, string>();
+  // A code-less flight borrows the ICAO code of other flights whose registry
+  // type name matches, but only when that name always meant one code:
+  // registry names are coarse ('Boeing 777' covers B772/B773/B77L).
+  const codesByName = new Map<string, Set<string>>();
   for (const f of fs) {
     const n = regName(f);
-    if (f.typeCode && n && !codeByName.has(n)) codeByName.set(n, f.typeCode);
+    if (f.typeCode && n) codesByName.set(n, (codesByName.get(n) ?? new Set()).add(f.typeCode));
   }
+  const learned = (n?: string) => {
+    const set = n ? codesByName.get(n) : undefined;
+    return set?.size === 1 ? [...set][0] : undefined;
+  };
   const codeOf = (f: StatsFlight) =>
-    f.typeCode ?? codeByName.get(regName(f) ?? '') ?? codeForModel(regName(f));
+    f.typeCode ?? learned(regName(f)) ?? codeForModel(regName(f));
 
   type Type = { typeCode?: string; typeName: string; image?: string; flights: StatsFlight[] };
   const types = new Map<string, Type>();
