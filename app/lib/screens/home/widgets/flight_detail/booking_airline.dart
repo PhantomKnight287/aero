@@ -70,26 +70,3 @@ class BookingSection extends StatelessWidget {
     );
   }
 }
-
-/// Airline name, codes and the flight's ATC callsign.
-class AirlineSection extends StatelessWidget {
-  final FlightResponseEntity info;
-
-  const AirlineSection({super.key, required this.info});
-
-  @override
-  Widget build(BuildContext context) {
-    final a = info.airline;
-    final codes =
-        [a.iata, a.icao].whereType<String>().where((s) => s.isNotEmpty);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Text(a.name, style: AeroText.sectionTitle),
-        const SizedBox(height: AeroSpace.sm),
-        if (codes.isNotEmpty) _Line('Codes', codes.join(' · ')),
-        if (info.callSign.isNotEmpty) _Line('ATC callsign', info.callSign),
-      ],
-    );
-  }
-}

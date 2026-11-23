@@ -362,7 +362,7 @@ class _RegistrationHistory extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text('Registration History', style: AeroText.heading),
+        Text('REGISTRATION HISTORY', style: AeroText.label),
         const SizedBox(height: AeroSpace.sm),
         Container(
           padding: const EdgeInsets.all(AeroSpace.md),

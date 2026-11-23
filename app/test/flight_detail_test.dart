@@ -160,27 +160,31 @@ void main() {
     await pump(t, inFlight());
     expect(find.text('St Louis to Phoenix'), findsOneWidget);
     expect(find.textContaining('SWA4187'), findsWidgets);
-    expect(find.text('STL · KSTL · St Louis Lambert Intl'), findsOneWidget);
-    expect(find.text('7m late · departed 2h 44m ago'), findsOneWidget);
+    expect(find.text('STL · KSTL'), findsOneWidget);
+    expect(find.text('St Louis Lambert Intl'), findsOneWidget);
+    expect(find.text('7m late'), findsOneWidget);
+    expect(find.text('Gate E4'), findsOneWidget);
+    expect(find.text('Terminal 2'), findsOneWidget);
   });
 
-  testWidgets('late arrival big time is warn; scheduled struck through',
-      (t) async {
+  testWidgets('times stay ink; only lateness is coloured', (t) async {
     await pump(t, inFlight());
-    // 19:06Z is 12:06 in Phoenix.
-    final big = t.widget<Text>(find.text('12:06').first);
-    expect(big.style?.color, AeroColors.warn);
+    // 19:06Z is 12:06 PM in Phoenix.
+    final big = t.widget<Text>(find.text('12:06 PM').first);
+    expect(big.style?.color, AeroColors.ink);
     final struck = find.byWidgetPredicate((w) =>
         w is Text &&
-        w.data == '11:40' &&
+        w.data == '11:40 AM' &&
         w.style?.decoration == TextDecoration.lineThrough);
     expect(struck, findsOneWidget);
+    expect(t.widget<Text>(find.text('26m late')).style?.color, AeroColors.warn);
+    // 7m late is not "late" (> 15 min), so it stays muted.
+    expect(t.widget<Text>(find.text('7m late')).style?.color, AeroColors.muted);
   });
 
   testWidgets('unknown arrival gate shows --', (t) async {
     await pump(t, inFlight());
-    expect(find.textContaining('--'), findsOneWidget);
-    expect(find.textContaining('E4'), findsWidgets);
+    expect(find.text('Gate --'), findsOneWidget);
   });
 
   testWidgets('menu opens a sheet with all six actions', (t) async {
@@ -201,7 +205,7 @@ void main() {
 
   testWidgets('tapping the departure airport row opens its airport', (t) async {
     await pump(t, inFlight());
-    await t.tap(find.text('STL · KSTL · St Louis Lambert Intl'));
+    await t.tap(find.text('STL · KSTL'));
     expect(tappedAirport?.iata, 'STL');
   });
 

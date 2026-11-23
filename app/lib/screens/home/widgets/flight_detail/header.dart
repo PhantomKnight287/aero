@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:openapi/openapi.dart';
 
+import 'flight_status.dart';
+
 class FlightAction {
   final IconData icon;
   final String label;
@@ -18,15 +20,27 @@ class FlightAction {
 /// codeshares, the actions menu and close.
 class FlightHeader extends StatelessWidget {
   final FlightResponseEntity info;
+  final LiveStatus status;
+  final DateTime now;
   final List<FlightAction> actions;
   final VoidCallback onClose;
 
   const FlightHeader({
     super.key,
     required this.info,
+    required this.status,
+    required this.now,
     required this.actions,
     required this.onClose,
   });
+
+  /// The one place status is coloured: a small dot.
+  Color get _dot => switch (status.phase) {
+        FlightPhase.cancelled || FlightPhase.diverted => AeroColors.danger,
+        _ => status.overall == Punctuality.late
+            ? AeroColors.warn
+            : AeroColors.success,
+      };
 
   String _kicker() {
     final fa = info.flightAwareData;
@@ -74,7 +88,29 @@ class FlightHeader extends StatelessWidget {
                   '${_city(info.departure.airport)} to ${_city(info.arrival.airport)}',
                   style: AeroText.title),
               if (shares.isNotEmpty)
-                Text('also sold as ${shares.join(', ')}',
+                Text(
+                    'also sold as ${shares.take(2).join(', ')}'
+                    '${shares.length > 2 ? ' +${shares.length - 2}' : ''}',
+                    style: AeroText.caption,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis),
+              const SizedBox(height: AeroSpace.sm),
+              Row(children: [
+                Container(
+                  width: 8,
+                  height: 8,
+                  decoration:
+                      BoxDecoration(color: _dot, shape: BoxShape.circle),
+                ),
+                const SizedBox(width: AeroSpace.sm),
+                Expanded(
+                  child: Text(status.bandText(now),
+                      style: AeroText.heading
+                          .copyWith(fontFeatures: AeroText.tabular)),
+                ),
+              ]),
+              if (now.difference(info.date).inDays > 7)
+                Text('Older than 7 days — times may no longer update.',
                     style: AeroText.caption),
             ],
           ),

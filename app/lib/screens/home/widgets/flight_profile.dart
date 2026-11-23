@@ -106,7 +106,7 @@ class _FlightProfileState extends State<FlightProfile> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text('Flight profile', style: AeroText.heading),
+        Text('Flight profile', style: AeroText.sectionTitle),
         const SizedBox(height: AeroSpace.sm),
         Container(
           padding: const EdgeInsets.all(AeroSpace.md),

@@ -4,6 +4,7 @@ import 'package:aero/notifiers/units.dart';
 import 'package:aero/screens/home/widgets/timezone_shift.dart';
 import 'package:aero/ui/components/aero_pressable.dart';
 import 'package:aero/ui/tokens.dart';
+import 'package:aero/utils/flight_timing.dart';
 import 'package:flutter/material.dart';
 import 'package:openapi/openapi.dart';
 import 'package:provider/provider.dart';
@@ -68,13 +69,40 @@ class GoodToKnow extends StatelessWidget {
         _weather(a, unit),
       ],
     ].whereType<Widget>().toList();
+    final at = DateTime.tryParse(info.departure.scheduledTime.utc);
+    final shifts = at != null &&
+        zoneShift(at, info.departure.airport.timeZone,
+                info.arrival.airport.timeZone) !=
+            null;
+    final all = <Widget>[
+      if (shifts)
+        TimezoneShift(
+            departure: info.departure, arrival: info.arrival, bare: true),
+      ...rows,
+    ];
+    if (all.isEmpty) return const SizedBox.shrink();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text('Good to know', style: AeroText.sectionTitle),
         const SizedBox(height: AeroSpace.sm),
-        TimezoneShift(departure: info.departure, arrival: info.arrival),
-        for (final r in rows) ...[const SizedBox(height: AeroSpace.sm), r],
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: AeroSpace.md),
+          decoration: const BoxDecoration(
+              color: AeroColors.surfaceAlt, borderRadius: AeroRadius.mdAll),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              for (var i = 0; i < all.length; i++) ...[
+                if (i > 0) const Divider(height: 1, color: AeroColors.line),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: AeroSpace.md),
+                  child: all[i],
+                ),
+              ],
+            ],
+          ),
+        ),
       ],
     );
   }
@@ -97,30 +125,25 @@ class _Row extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final row = Container(
-      padding: const EdgeInsets.all(AeroSpace.md),
-      decoration: const BoxDecoration(
-          color: AeroColors.surfaceAlt, borderRadius: AeroRadius.mdAll),
-      child: Row(children: [
-        Icon(icon, size: 20, color: color),
-        const SizedBox(width: AeroSpace.md),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(text,
-                  style: AeroText.body.copyWith(
-                      color: AeroColors.ink,
-                      fontWeight: FontWeight.w600,
-                      fontFeatures: AeroText.tabular)),
-              if (detail != null) Text(detail!, style: AeroText.caption),
-            ],
-          ),
+    final row = Row(children: [
+      Icon(icon, size: 20, color: color),
+      const SizedBox(width: AeroSpace.md),
+      Expanded(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(text,
+                style: AeroText.body.copyWith(
+                    color: AeroColors.ink,
+                    fontWeight: FontWeight.w600,
+                    fontFeatures: AeroText.tabular)),
+            if (detail != null) Text(detail!, style: AeroText.caption),
+          ],
         ),
-        if (onTap != null)
-          const Icon(Icons.chevron_right, size: 20, color: AeroColors.muted),
-      ]),
-    );
+      ),
+      if (onTap != null)
+        const Icon(Icons.chevron_right, size: 20, color: AeroColors.muted),
+    ]);
     if (onTap == null) return row;
     return Semantics(
       button: true,

@@ -17,11 +17,15 @@ class FlightTimetable extends StatefulWidget {
   final String? departureTz;
   final String? arrivalTz;
 
+  /// ATC callsign shown in the footer.
+  final String? callSign;
+
   const FlightTimetable({
     super.key,
     required this.fa,
     required this.departureTz,
     required this.arrivalTz,
+    this.callSign,
   });
 
   @override
@@ -59,6 +63,8 @@ class _FlightTimetableState extends State<FlightTimetable> {
           fa.scheduledIn, fa.estimatedIn, fa.actualIn, null),
     ];
     if (phases.every((p) => p.best == null)) return const SizedBox.shrink();
+    // The pill column only takes room when some phase is late.
+    final chipWidth = phases.any((p) => p.delta != null) ? _chipWidth : 0.0;
 
     String? between(TimingValue? v, String label, [Duration? scheduled]) {
       if (v == null) return null;
@@ -101,10 +107,13 @@ class _FlightTimetableState extends State<FlightTimetable> {
                           textAlign: TextAlign.right, style: AeroText.label)),
                   const SizedBox(width: AeroSpace.md),
                   Text('Actual', style: AeroText.label),
-                  const SizedBox(width: _chipWidth + AeroSpace.sm),
+                  SizedBox(width: chipWidth + AeroSpace.sm),
                 ]),
                 for (var i = 0; i < phases.length; i++) ...[
-                  _PhaseRow(phase: phases[i], expanded: _expanded),
+                  _PhaseRow(
+                      phase: phases[i],
+                      expanded: _expanded,
+                      chipWidth: chipWidth),
                   if (_expanded && i < gaps.length && gaps[i] != null)
                     _GapRow(gaps[i]!),
                 ],
@@ -112,6 +121,10 @@ class _FlightTimetableState extends State<FlightTimetable> {
                   const SizedBox(height: AeroSpace.sm),
                   _BlockLine(timing),
                 ],
+                if (widget.callSign != null && widget.callSign!.isNotEmpty)
+                  Text('ATC callsign ${widget.callSign}',
+                      style: AeroText.caption
+                          .copyWith(fontFeatures: AeroText.tabular)),
                 const SizedBox(height: AeroSpace.md),
                 Align(
                   alignment: Alignment.centerLeft,
@@ -152,20 +165,22 @@ class _Phase {
     final resolved = actual ?? estimated;
     if (scheduled == null || resolved == null) return null;
     final mins = resolved.difference(scheduled!).inMinutes;
-    if (mins.abs() < 2) return ('On time', AeroColors.success);
+    // Colour marks lateness only; on time and early stay quiet.
+    if (mins < 2) return null;
     final text = formatDurationShort(Duration(minutes: mins.abs()));
-    if (mins < 0) return ('$text early', AeroColors.success);
     return ('$text late', mins <= 15 ? AeroColors.warn : AeroColors.danger);
   }
 }
 
-const _schedWidth = 72.0;
-const _chipWidth = 92.0;
+const _schedWidth = 60.0;
+const _chipWidth = 76.0;
 
 class _PhaseRow extends StatelessWidget {
   final _Phase phase;
   final bool expanded;
-  const _PhaseRow({required this.phase, required this.expanded});
+  final double chipWidth;
+  const _PhaseRow(
+      {required this.phase, required this.expanded, required this.chipWidth});
 
   @override
   Widget build(BuildContext context) {
@@ -228,7 +243,7 @@ class _PhaseRow extends StatelessWidget {
                   // Fixed-width chip column keeps the times aligned.
                   const SizedBox(width: AeroSpace.sm),
                   SizedBox(
-                    width: _chipWidth,
+                    width: chipWidth,
                     child: Align(
                       alignment: Alignment.centerRight,
                       child: delta == null

@@ -12,10 +12,14 @@ class TimezoneShift extends StatelessWidget {
   final RouteInfoEntity departure;
   final RouteInfoEntity arrival;
 
+  /// Row only, for use inside a grouped card.
+  final bool bare;
+
   const TimezoneShift({
     super.key,
     required this.departure,
     required this.arrival,
+    this.bare = false,
   });
 
   static String _city(RouteAirportEntity a) => a.municipalityName.isNotEmpty
@@ -51,36 +55,38 @@ class TimezoneShift extends StatelessWidget {
       if (shift.destinationDst) _city(arrival.airport),
     ];
 
+    final row = Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Icon(Symbols.schedule, size: 20, color: AeroColors.ink),
+        const SizedBox(width: AeroSpace.md),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(describeShift(shift.change),
+                  style: AeroText.body.copyWith(
+                      color: AeroColors.ink, fontWeight: FontWeight.w600)),
+              const SizedBox(height: 2),
+              Text(subtitle, style: AeroText.caption),
+              if (dst.isNotEmpty) ...[
+                const SizedBox(height: 2),
+                Text('Summer time in effect in ${dst.join(' and ')}',
+                    style: AeroText.micro),
+              ],
+            ],
+          ),
+        ),
+      ],
+    );
+    if (bare) return row;
     return Container(
       padding: const EdgeInsets.all(AeroSpace.md),
       decoration: const BoxDecoration(
         color: AeroColors.surfaceAlt,
         borderRadius: AeroRadius.mdAll,
       ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Icon(Symbols.schedule, size: 20, color: AeroColors.ink),
-          const SizedBox(width: AeroSpace.md),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(describeShift(shift.change),
-                    style: AeroText.body.copyWith(
-                        color: AeroColors.ink, fontWeight: FontWeight.w600)),
-                const SizedBox(height: 2),
-                Text(subtitle, style: AeroText.caption),
-                if (dst.isNotEmpty) ...[
-                  const SizedBox(height: 2),
-                  Text('Summer time in effect in ${dst.join(' and ')}',
-                      style: AeroText.micro),
-                ],
-              ],
-            ),
-          ),
-        ],
-      ),
+      child: row,
     );
   }
 }

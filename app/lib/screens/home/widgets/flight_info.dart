@@ -27,7 +27,6 @@ import 'flight_detail/good_to_know.dart';
 import 'flight_detail/header.dart';
 import 'flight_detail/route_block.dart';
 import 'flight_detail/route_history.dart';
-import 'flight_detail/status_band.dart';
 
 /// Flight detail sheet, in Flighty's order: header, status, route block,
 /// good to know, timetable, profile, aircraft, route history, booking,
@@ -218,16 +217,16 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
         _info.bookings?.isNotEmpty == true ? _info.bookings!.first : null;
 
     final sections = <Widget>[
-      FlightHeader(info: _info, actions: _actions, onClose: widget.onClose),
-      StatusBand(
+      FlightHeader(
+        info: _info,
         status: status,
         now: now,
-        stale: now.difference(_info.date).inDays > 7,
+        actions: _actions,
+        onClose: widget.onClose,
       ),
       RouteBlock(
         info: _info,
         status: status,
-        now: now,
         onAirportTap: widget.onAirportTap,
       ),
       GoodToKnow(info: _info, onAirportTap: widget.onAirportTap),
@@ -237,6 +236,7 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
           fa: _info.flightAwareData!,
           departureTz: dep.timeZone,
           arrivalTz: arr.timeZone,
+          callSign: _info.callSign,
         ),
       if (widget.flightPositions.length >= 20)
         FlightProfile(
@@ -262,7 +262,6 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
         onOpenFlight: widget.onOpenFlight,
       ),
       if (booking != null) BookingSection(booking: booking),
-      AirlineSection(info: _info),
       if (_info.airline.icao == 'EXS' && _info.airline.iata == 'LS')
         Center(
             child: Text('Nothing beats a Jet2 holiday', style: AeroText.micro)),
@@ -274,7 +273,7 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           for (var i = 0; i < sections.length; i++) ...[
-            if (i > 0) SizedBox(height: i <= 2 ? AeroSpace.lg : AeroSpace.xl),
+            if (i > 0) SizedBox(height: i == 1 ? AeroSpace.lg : AeroSpace.xl),
             sections[i],
           ],
         ],
