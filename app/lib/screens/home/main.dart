@@ -6,6 +6,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:openapi/openapi.dart';
 import 'package:aero/screens/home/home_controller.dart';
 import 'package:aero/screens/home/widgets/airport_details_sheet.dart';
+import 'package:aero/ui/components/aero_sheet.dart';
 import 'package:aero/screens/home/widgets/animated_flight_info_bar.dart';
 import 'package:aero/screens/home/widgets/date_selection_list.dart';
 import 'package:aero/screens/home/widgets/booking_details_sheet.dart';
@@ -134,34 +135,27 @@ class _HomeScreenState extends State<HomeScreen>
     }
   }
 
-  void _showAirportDetailsSheet(AirportEntity airport) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
-      builder: (context) => AirportDetailsSheet(airport: airport),
-    );
+  void _showAirportDetailsSheet(AirportEntity airport, {String? timeZone}) {
+    showAeroSheet(
+        context, AirportDetailsSheet(airport: airport, timeZone: timeZone));
   }
 
-  /// The airport sheet only reads `ident`; the rest is filled so the
-  /// built_value is complete.
+  /// The sheet swaps in the airports-table record once its details load;
+  /// country is left blank because the flight's code is only an ICAO prefix.
   void _showRouteAirportSheet(RouteAirportEntity a) {
     _showAirportDetailsSheet(AirportEntity((b) => b
       ..id = a.icao
       ..ident = a.icao.isNotEmpty ? a.icao : a.iata
       ..type = AirportType.largeAirport
       ..continent = ''
-      ..isoCountry = a.countryCode
+      ..isoCountry = ''
       ..isoRegion = ''
       ..municipality = a.municipalityName
       ..iataCode = a.iata
       ..gpsCode = a.icao
       ..name = a.name
       ..lat = a.location.lat.toString()
-      ..long = a.location.lon.toString()));
+      ..long = a.location.lon.toString()), timeZone: a.timeZone);
   }
 
     void _showBookingDetailsSheet() {

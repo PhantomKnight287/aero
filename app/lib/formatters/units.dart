@@ -15,9 +15,11 @@ enum AltitudeUnit { ft, m, fl }
 
 enum TempUnit { c, f }
 
+enum PressureUnit { hpa, inhg }
+
 enum TimeMode { airport, device, utc }
 
-enum UnitDimension { distance, speed, altitude, temperature, time }
+enum UnitDimension { distance, speed, altitude, temperature, pressure, time }
 
 /// Next value in [values] after [current], wrapping around.
 T nextOf<T extends Enum>(List<T> values, T current) =>
@@ -35,6 +37,8 @@ String unitLabel(Enum unit) => switch (unit) {
       AltitudeUnit.fl => 'FL',
       TempUnit.c => '°C',
       TempUnit.f => '°F',
+      PressureUnit.hpa => 'hPa',
+      PressureUnit.inhg => 'inHg',
       TimeMode.airport => 'airport time',
       TimeMode.device => 'your time',
       TimeMode.utc => 'UTC',
@@ -46,6 +50,7 @@ String dimensionLabel(UnitDimension d) => switch (d) {
       UnitDimension.speed => 'Speed',
       UnitDimension.altitude => 'Altitude',
       UnitDimension.temperature => 'Temperature',
+      UnitDimension.pressure => 'Pressure',
       UnitDimension.time => 'Times',
     };
 
@@ -129,6 +134,12 @@ String formatElevation(num ft, AltitudeUnit u) =>
 
 String formatTemp(num c, TempUnit u) =>
     '${convertTemp(c, u).round()}${unitLabel(u)}';
+
+/// Altimeter setting; API values are hPa.
+String formatPressure(num hpa, PressureUnit u) => switch (u) {
+      PressureUnit.hpa => '${_n(hpa)} hPa',
+      PressureUnit.inhg => '${formatDecimal(hpa / 33.8639, digits: 2)} inHg',
+    };
 
 bool _tzReady = false;
 

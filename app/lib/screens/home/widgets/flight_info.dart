@@ -1,11 +1,9 @@
-import 'dart:io';
-
 import 'package:aero/constants/main.dart';
-import 'package:aero/notifiers/units.dart';
 import 'package:aero/screens/home/widgets/aircraft_section.dart';
 import 'package:aero/screens/home/widgets/flight_profile.dart';
 import 'package:aero/screens/home/widgets/flight_timetable.dart';
-import 'package:aero/screens/home/widgets/shareable_flight_card.dart';
+import 'package:aero/screens/home/widgets/share/share_sheet.dart';
+import 'package:aero/ui/components/aero_sheet.dart';
 import 'package:aero/services/alerts_service.dart';
 import 'package:aero/services/profile.dart';
 import 'package:aero/ui/tokens.dart';
@@ -16,10 +14,6 @@ import 'package:flutter/services.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:openapi/openapi.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:provider/provider.dart';
-import 'package:screenshot/screenshot.dart';
-import 'package:share_plus/share_plus.dart';
 
 import 'flight_detail/booking_airline.dart';
 import 'flight_detail/flight_status.dart';
@@ -76,8 +70,6 @@ class FlightInfoWidget extends StatefulWidget {
 }
 
 class _FlightInfoWidgetState extends State<FlightInfoWidget> {
-  final _screenshotController = ScreenshotController();
-
   FlightResponseEntity get _info => widget.info;
 
   static String _code(RouteAirportEntity a) =>
@@ -105,34 +97,7 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
     }
   }
 
-  Future<void> _shareFlightCard() async {
-    try {
-      final units = context.read<UnitsNotifier>();
-      final imageBytes = await _screenshotController.captureFromWidget(
-        InheritedTheme.captureAll(
-          context,
-          MediaQuery(
-            data: MediaQuery.of(context),
-            child: ShareableFlightCard(
-              info: _info,
-              distanceUnit: units.distance,
-              timeMode: units.time,
-            ),
-          ),
-        ),
-        pixelRatio: 2.0,
-        delay: const Duration(milliseconds: 100),
-      );
-      if (imageBytes.isEmpty) return;
-      final tempDir = await getTemporaryDirectory();
-      final file = File(
-          '${tempDir.path}/flight_card_${DateTime.now().millisecondsSinceEpoch}.png');
-      await file.writeAsBytes(imageBytes);
-      await Share.shareXFiles([XFile(file.path)], text: 'Check out my flight!');
-    } catch (e) {
-      showErrorToast('Failed to share flight card: $e');
-    }
-  }
+  void _shareFlightCard() => showAeroSheet(context, ShareSheet(info: _info));
 
   Future<void> _sendToWearable() async {
     final departure = _info.departure;

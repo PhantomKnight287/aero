@@ -66,6 +66,7 @@ class _RouteHistorySectionState extends State<RouteHistorySection> {
                       Text(formatLongDuration(h.blockMinutes.toInt()),
                           style: _value))),
             ]),
+            const SizedBox(height: AeroSpace.md),
             for (final f in h.recent) ...[
               const Divider(height: 1, color: AeroColors.line),
               PastFlightRow(

@@ -57,12 +57,6 @@ class ProfileScreen extends StatelessWidget {
               ),
               const SizedBox(height: AeroSpace.sm),
               _ProfileMenuItem(
-                icon: Icons.watch_outlined,
-                title: 'Connected Wear OS Devices',
-                onTap: () => GoRouter.of(context).push('/wearables'),
-              ),
-              const SizedBox(height: AeroSpace.sm),
-              _ProfileMenuItem(
                 icon: Icons.image_outlined,
                 title: 'App Icon',
                 onTap: () => GoRouter.of(context).push('/profile/app-icon'),

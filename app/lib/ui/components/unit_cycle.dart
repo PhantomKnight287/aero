@@ -49,6 +49,11 @@ class UnitCycle extends StatelessWidget {
             duration: reduceMotion ? Duration.zero : AeroMotion.press,
             switchInCurve: AeroMotion.easeOut,
             switchOutCurve: AeroMotion.easeOut,
+            // Start-aligned: the default centres values given a full row.
+            layoutBuilder: (current, previous) => Stack(
+              alignment: AlignmentDirectional.centerStart,
+              children: [...previous, if (current != null) current],
+            ),
             child: KeyedSubtree(
               key: ValueKey(units.unitOf(dimension)),
               child: builder(context, units),

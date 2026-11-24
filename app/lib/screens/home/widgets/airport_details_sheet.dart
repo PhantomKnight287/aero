@@ -1,964 +1,767 @@
 import 'dart:math';
 
-import 'package:aero/formatters/units.dart';
-import 'package:aero/ui/components/unit_cycle.dart';
-import 'package:flutter/material.dart';
-import 'package:gap/gap.dart';
-import 'package:material_symbols_icons/symbols.dart';
-import 'package:openapi/openapi.dart';
 import 'package:aero/constants/main.dart';
+import 'package:aero/formatters/time.dart';
+import 'package:aero/formatters/units.dart';
+import 'package:aero/notifiers/units.dart';
+import 'package:aero/ui/components/aero_pill_button.dart';
+import 'package:aero/ui/components/aero_sheet.dart';
+import 'package:aero/ui/components/country_flag.dart';
+import 'package:aero/ui/components/unit_cycle.dart';
+import 'package:aero/ui/tokens.dart';
+import 'package:flutter/material.dart';
+import 'package:openapi/openapi.dart';
+import 'package:provider/provider.dart';
 
-/// Bottom sheet for a tapped airport marker. Renders the basic info we already
-/// have (name/ident/IATA/location) immediately, then fetches live detail
-/// (delays + fully decoded METAR/TAF) from the backend in the background.
+/// Bottom sheet for an airport: identity and facts, delays, decoded METAR
+/// and TAF. The airport record from the details call (country, region,
+/// elevation) replaces whatever the caller knew.
 class AirportDetailsSheet extends StatefulWidget {
   final AirportEntity airport;
 
-  const AirportDetailsSheet({super.key, required this.airport});
+  /// IANA zone for airport-time clocks; unknown zones show UTC.
+  final String? timeZone;
+
+  /// Pins "now" for tests.
+  final DateTime? now;
+
+  const AirportDetailsSheet(
+      {super.key, required this.airport, this.timeZone, this.now});
 
   @override
   State<AirportDetailsSheet> createState() => _AirportDetailsSheetState();
 }
 
 class _AirportDetailsSheetState extends State<AirportDetailsSheet> {
-  final _airportsApi = openapi.getAirportsApi();
-
   bool _loading = true;
-  bool _failed = false;
   AirportDetailsEntity? _details;
 
   @override
   void initState() {
     super.initState();
-    _loadDetails();
+    _load();
   }
 
-  Future<void> _loadDetails() async {
+  Future<void> _load() async {
+    AirportDetailsEntity? details;
     try {
-      final res = await _airportsApi.airportsControllerGetAirportDetailsV1(
-        ident: widget.airport.ident,
-      );
-      if (!mounted) return;
-      setState(() {
-        _details = res.data;
-        _loading = false;
-      });
-    } catch (_) {
-      if (!mounted) return;
-      setState(() {
-        _failed = true;
-        _loading = false;
-      });
-    }
+      details = (await openapi
+              .getAirportsApi()
+              .airportsControllerGetAirportDetailsV1(
+                  ident: widget.airport.ident))
+          .data;
+    } catch (_) {}
+    if (!mounted) return;
+    setState(() {
+      _details = details;
+      _loading = false;
+    });
   }
-
-  // ---------------------------------------------------------------------------
-  // JsonObject helpers (decoded payloads are free-form JSON)
-  // ---------------------------------------------------------------------------
-
-  Map<dynamic, dynamic>? _asMap(Object? v) => v is Map ? v : null;
-  List<dynamic> _asList(Object? v) => v is List ? v : const [];
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-    return Container(
-      constraints: BoxConstraints(maxHeight: size.height * 0.88),
-      child: SafeArea(
-        top: false,
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(16, 10, 16, 24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Center(
-                child: Container(
-                  width: 40,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade300,
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-              ),
-              const Gap(14),
-              _buildHeader(context),
-              const Gap(10),
-              _buildAirportFacts(context),
-              const Gap(12),
-              if (_loading)
-                _buildLoading(context)
-              else if (_failed)
-                _buildUnavailable('Live information is unavailable right now.')
-              else
-                _buildDetails(context),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  // ---------------------------------------------------------------------------
-  // Header + static airport facts (available immediately)
-  // ---------------------------------------------------------------------------
-
-  Widget _buildHeader(BuildContext context) {
-    final airport = widget.airport;
-    final iata = airport.iataCode;
+    final a = _details?.airport ?? widget.airport;
     final subtitle = [
-      airport.ident,
-      if (iata != null && iata.isNotEmpty) iata,
-      if (airport.municipality != null && airport.municipality!.isNotEmpty)
-        airport.municipality!,
-    ].join('  •  ');
+      if (_has(a.iataCode)) a.iataCode!,
+      a.ident,
+      if (_has(a.municipality)) a.municipality!,
+      _typeName(a.type),
+    ].join(' · ');
 
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          width: 44,
-          height: 44,
-          decoration: BoxDecoration(
-            color: Colors.blueGrey.shade700,
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: const Icon(Symbols.local_airport, color: Colors.white),
-        ),
-        const Gap(12),
-        Expanded(
+    return ConstrainedBox(
+      constraints:
+          BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.88),
+      child: SingleChildScrollView(
+        child: AeroSheet(
+          title: a.name,
+          subtitle: subtitle,
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text(
-                airport.name,
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const Gap(2),
-              Text(
-                subtitle,
-                style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
-              ),
+              _Facts(airport: a),
+              ..._live(context),
             ],
           ),
         ),
-        _typeBadge(context, airport.type),
-      ],
-    );
-  }
-
-  Widget _typeBadge(BuildContext context, AirportType type) {
-    final label = _formatEnum(type.name);
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(6),
-      ),
-      child: Text(
-        label,
-        style: TextStyle(
-          fontSize: 11,
-          fontWeight: FontWeight.w700,
-          color: Theme.of(context).colorScheme.primary,
-        ),
       ),
     );
   }
 
-  Widget _buildAirportFacts(BuildContext context) {
-    final a = widget.airport;
-    return Wrap(
-      spacing: 8,
-      runSpacing: 8,
-      children: [
-        if (a.elevation != null && a.elevation!.isNotEmpty)
-          UnitCycle(
-            dimension: UnitDimension.altitude,
-            builder: (context, u) => _statChip(
-              context,
-              'ELEV',
-              num.tryParse(a.elevation!) == null
-                  ? '${a.elevation} ft'
-                  : formatElevation(num.parse(a.elevation!), u.altitude),
-            ),
+  List<Widget> _live(BuildContext context) {
+    if (_loading) {
+      return [
+        for (var i = 0; i < 2; i++) ...[
+          const SizedBox(height: AeroSpace.xl),
+          Container(
+            height: 120,
+            decoration: const BoxDecoration(
+                color: AeroColors.surfaceAlt, borderRadius: AeroRadius.mdAll),
           ),
-        _statChip(context, 'COUNTRY', a.isoCountry),
-        _statChip(context, 'REGION', a.isoRegion),
-        _statChip(context, 'CONTINENT', a.continent),
-        if (a.gpsCode != null && a.gpsCode!.isNotEmpty)
-          _statChip(context, 'GPS', a.gpsCode!),
-        _statChip(
-          context,
-          'COORDS',
-          '${_fmtCoord(a.lat)}, ${_fmtCoord(a.long)}',
-        ),
-      ],
-    );
-  }
-
-  // ---------------------------------------------------------------------------
-  // Live detail
-  // ---------------------------------------------------------------------------
-
-  Widget _buildDetails(BuildContext context) {
-    final details = _details;
-    if (details == null) {
-      return _buildUnavailable('Live information is unavailable right now.');
+        ],
+      ];
     }
-
-    final delays = _asMap(details.delays?.value);
-    final metar = details.metar;
-    final taf = details.taf;
-    final metarDecoded = _asMap(metar?.decoded?.value);
-    final tafDecoded = _asMap(taf?.decoded?.value);
-
-    final hasAnything =
-        delays != null || (metar?.raw != null) || (taf?.raw != null);
-
-    if (!hasAnything) {
-      return _buildUnavailable(
-        'No live weather or delay information is published for this airport.',
-      );
+    final d = _details;
+    final delays = _map(d?.delays?.value);
+    final metar = d?.metar?.raw;
+    final taf = d?.taf?.raw;
+    if (delays == null && metar == null && taf == null) {
+      return [
+        const SizedBox(height: AeroSpace.xl),
+        Text(
+            d == null
+                ? 'Live information is unavailable right now.'
+                : 'No weather or delay information is published for this airport.',
+            style: AeroText.body),
+      ];
     }
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        if (delays != null) ...[
-          _sectionTitle('Delays'),
-          const Gap(4),
-          _buildDelayCard(context, delays),
-          const Gap(12),
-        ],
-        if (metar != null && metar.raw != null) ...[
-          _sectionTitle('METAR'),
-          const Gap(4),
-          _buildMetarCard(context, metar.raw!, metarDecoded),
-          const Gap(12),
-        ],
-        if (taf != null && taf.raw != null) ...[
-          _sectionTitle('TAF'),
-          const Gap(4),
-          _buildTafCard(context, taf.raw!, tafDecoded),
-        ],
+    final now = (widget.now ?? DateTime.now()).toUtc();
+    return [
+      if (delays != null) ...[
+        const SizedBox(height: AeroSpace.xl),
+        _Delays(delays: delays),
       ],
-    );
+      if (metar != null) ...[
+        const SizedBox(height: AeroSpace.xl),
+        _Metar(
+            raw: metar,
+            d: _map(d!.metar!.decoded?.value),
+            now: now,
+            timeZone: widget.timeZone),
+      ],
+      if (taf != null) ...[
+        const SizedBox(height: AeroSpace.xl),
+        _Taf(
+            raw: taf,
+            d: _map(d!.taf!.decoded?.value),
+            now: now,
+            timeZone: widget.timeZone,
+            explainSm: metar == null),
+      ],
+    ];
   }
+}
 
-  // ----- Delays -----
+// ---------------------------------------------------------------------------
+// Sections
+// ---------------------------------------------------------------------------
 
-  Widget _buildDelayCard(BuildContext context, Map<dynamic, dynamic> delays) {
-    final theme = Theme.of(context);
-    final color = _delayColor(delays['color']?.toString());
-    final category = delays['category']?.toString() ?? 'unknown';
-    final delaySecs =
-        (delays['delay_secs'] is num) ? (delays['delay_secs'] as num) : 0;
-    final reasons = _asList(delays['reasons'])
-        .map((r) => _asMap(r)?['reason']?.toString() ?? r.toString())
-        .where((s) => s.isNotEmpty)
-        .toList();
+class _Facts extends StatelessWidget {
+  final AirportEntity airport;
 
-    return _card(
-      context,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+  const _Facts({required this.airport});
+
+  @override
+  Widget build(BuildContext context) {
+    final a = airport;
+    final elevation = num.tryParse(a.elevation ?? '');
+    final country = a.isoCountry.toUpperCase();
+    final region =
+        a.isoRegion.contains('-') ? a.isoRegion.split('-').last : a.isoRegion;
+    return _Panel(
+      child: Wrap(
+        spacing: AeroSpace.xl,
+        runSpacing: AeroSpace.md,
         children: [
-          _iconTile(Symbols.timer, color),
-          const Gap(12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Text(
-                      category == 'none'
-                          ? 'No delays reported'
-                          : _formatEnum(category),
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w700,
-                        fontSize: 13,
-                      ),
-                    ),
-                    const Spacer(),
-                    _pill(
-                      delaySecs > 0
-                          ? _fmtSeconds(delaySecs.toInt())
-                          : 'On time',
-                      color,
-                    ),
-                  ],
-                ),
-                if (reasons.isNotEmpty)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 4),
-                    child: Text(
-                      reasons.join(' • '),
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: theme.textTheme.bodySmall?.color
-                            ?.withValues(alpha: 0.75),
-                      ),
-                    ),
-                  ),
-              ],
+          if (elevation != null)
+            _Fact(
+              'Elevation',
+              UnitCycle(
+                dimension: UnitDimension.altitude,
+                builder: (_, u) =>
+                    _value(formatElevation(elevation, u.altitude)),
+              ),
             ),
-          ),
+          _Fact('Coordinates', _value('${_coord(a.lat)}, ${_coord(a.long)}')),
+          if (country.isNotEmpty)
+            _Fact(
+              'Country',
+              Row(mainAxisSize: MainAxisSize.min, children: [
+                CountryFlag(iso2: country, size: 16),
+                const SizedBox(width: AeroSpace.xs),
+                _value(_has(region) ? '$country · $region' : country),
+              ]),
+            ),
+          if (_continents[a.continent] != null)
+            _Fact('Continent', _value(_continents[a.continent]!)),
         ],
       ),
     );
   }
+}
 
-  // ----- METAR -----
+class _Delays extends StatelessWidget {
+  final Map delays;
 
-  Widget _buildMetarCard(
-    BuildContext context,
-    String raw,
-    Map<dynamic, dynamic>? d,
-  ) {
-    final theme = Theme.of(context);
-    final flightCategory = d?['flightCategory']?.toString();
-    final obs = _asMap(d?['observation_time'] ?? d?['observationTime']);
-    final temp = _numOrNull(d?['temperatureC']);
-    final dew = _numOrNull(d?['dewpointC']);
-    final altimeter = _asMap(d?['altimeter']);
-    final hPa = _numOrNull(altimeter?['hPa']);
-    final inHg = _numOrNull(altimeter?['inHg']);
+  const _Delays({required this.delays});
 
-    final flags = <String>[
+  @override
+  Widget build(BuildContext context) {
+    final secs = delays['delay_secs'] is num ? delays['delay_secs'] as num : 0;
+    final category = delays['category']?.toString() ?? '';
+    final reasons = _list(delays['reasons']).map(_map).whereType<Map>();
+    final head = secs <= 0 || category == 'none'
+        ? 'No delays reported'
+        : '${_sentence(category)} delays · ${formatLongDuration(secs ~/ 60)}';
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text('Delays', style: AeroText.sectionTitle),
+        const SizedBox(height: AeroSpace.sm),
+        _Panel(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(children: [
+                Container(
+                  width: 8,
+                  height: 8,
+                  decoration: BoxDecoration(
+                      color: _delayColor(delays['color']?.toString()),
+                      shape: BoxShape.circle),
+                ),
+                const SizedBox(width: AeroSpace.sm),
+                Expanded(child: Text(head, style: _strong)),
+              ]),
+              for (final r in reasons)
+                Padding(
+                  padding: const EdgeInsets.only(
+                      left: AeroSpace.lg, top: AeroSpace.xs),
+                  child: Text(
+                      [
+                        r['reason']?.toString() ?? '',
+                        if (r['delay_secs'] is num &&
+                            (r['delay_secs'] as num) > 0)
+                          formatLongDuration((r['delay_secs'] as num) ~/ 60),
+                      ].where((s) => s.isNotEmpty).join(' · '),
+                      style: AeroText.caption),
+                ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _Metar extends StatelessWidget {
+  final String raw;
+  final Map? d;
+  final DateTime now;
+  final String? timeZone;
+
+  const _Metar(
+      {required this.raw, required this.d, required this.now, this.timeZone});
+
+  @override
+  Widget build(BuildContext context) {
+    final u = context.watch<UnitsNotifier>();
+    final use24 = MediaQuery.of(context).alwaysUse24HourFormat;
+    final d = this.d;
+    final category = d?['flightCategory']?.toString();
+    final obs = _map(d?['observation_time'] ?? d?['observationTime']);
+    final at = obs == null ? null : _stamp(obs, now);
+    final temp = _num(d?['temperatureC']);
+    final dew = _num(d?['dewpointC']);
+    final alt = _map(d?['altimeter']);
+    final inHg = _num(alt?['inHg']);
+    final hpa = _num(alt?['hPa']) ?? (inHg == null ? null : inHg * 33.8639);
+    final vis = _map(d?['visibility']);
+    final weather = _weatherList(_list(d?['weather']));
+    final clouds = _sky(_map(d?['sky']), u.altitude);
+    final flags = [
       if (d?['isCavok'] == true) 'CAVOK',
       if (d?['isNoSignificantChange'] == true) 'NOSIG',
       if (d?['isAutomated'] == true) 'AUTO',
       if (d?['isCorrected'] == true) 'COR',
     ];
+    final summary = weather ??
+        (d?['isCavok'] == true ? 'Ceiling and visibility OK' : clouds) ??
+        'Clear';
+    final ago = at == null ? null : now.difference(at).inMinutes;
 
-    final weather = _formatWeatherList(_asList(d?['weather']));
-    final clouds = _formatSky(_asMap(d?['sky']));
-
-    return _card(
-      context,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              _iconTile(Symbols.partly_cloudy_day, theme.colorScheme.primary),
-              const Gap(10),
-              Expanded(
-                child: Text(
-                  obs != null
-                      ? 'Observed ${_fmtDhm(obs)}Z'
-                      : 'Current observation',
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w700,
-                    fontSize: 13,
-                  ),
-                ),
-              ),
-              if (flightCategory != null)
-                _pill(flightCategory, _flightCatColor(flightCategory)),
-            ],
-          ),
-          const Gap(10),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              _statChip(context, 'WIND', _formatWind(_asMap(d?['wind']))),
-              _statChip(
-                context,
-                'VISIBILITY',
-                _formatVisibility(_asMap(d?['visibility'])),
-              ),
-              if (temp != null)
-                UnitCycle(
-                  dimension: UnitDimension.temperature,
-                  builder: (context, u) => _statChip(
-                      context, 'TEMP', formatTemp(temp, u.temperature)),
-                ),
-              if (dew != null)
-                UnitCycle(
-                  dimension: UnitDimension.temperature,
-                  builder: (context, u) => _statChip(
-                      context, 'DEWPOINT', formatTemp(dew, u.temperature)),
-                ),
-              if (temp != null && dew != null)
-                _statChip(context, 'HUMIDITY', '${_relHumidity(temp, dew)}%'),
-              if (hPa != null || inHg != null)
-                _statChip(
-                  context,
-                  'QNH',
-                  [
-                    if (hPa != null) '${_fmtNum(hPa)} hPa',
-                    if (inHg != null) '${formatDecimal(inHg, digits: 2)} inHg',
-                  ].join('  '),
-                ),
-            ],
-          ),
-          if (weather != null) ...[
-            const Gap(10),
-            _labelledLine(context, Symbols.rainy, 'Weather', weather),
-          ],
-          if (clouds != null) ...[
-            const Gap(10),
-            _labelledLine(context, Symbols.cloud, 'Clouds', clouds),
-          ],
-          if (flags.isNotEmpty) ...[
-            const Gap(10),
-            Wrap(
-              spacing: 6,
-              runSpacing: 6,
-              children: flags.map((f) => _flag(context, f)).toList(),
-            ),
-          ],
-          const Gap(12),
-          _rawBox(context, raw),
-        ],
-      ),
-    );
-  }
-
-  // ----- TAF -----
-
-  Widget _buildTafCard(
-    BuildContext context,
-    String raw,
-    Map<dynamic, dynamic>? d,
-  ) {
-    final theme = Theme.of(context);
-    final issued = _asMap(d?['issuedAt']);
-    final from = _asMap(d?['validFrom']);
-    final to = _asMap(d?['validTo']);
-    final periods = _asList(d?['forecast']);
-
-    final headerBits = <String>[
-      if (issued != null) 'Issued ${_fmtDhm(issued)}Z',
-      if (from != null && to != null)
-        'Valid ${_fmtDhm(from)} → ${_fmtDhm(to)}Z',
-    ];
-
-    final amendFlags = <String>[
-      if (d?['isAmended'] == true) 'AMENDED',
-      if (d?['isCorrected'] == true) 'CORRECTED',
-      if (d?['isCancelled'] == true) 'CANCELLED',
-    ];
-
-    return _card(
-      context,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              _iconTile(Symbols.schedule, theme.colorScheme.primary),
-              const Gap(10),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Forecast',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w700,
-                        fontSize: 13,
-                      ),
-                    ),
-                    if (headerBits.isNotEmpty)
-                      Text(
-                        headerBits.join('  •  '),
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: theme.textTheme.bodySmall?.color
-                              ?.withValues(alpha: 0.75),
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-              for (final f in amendFlags) ...[
-                const Gap(4),
-                _pill(f, Colors.orange),
-              ],
-            ],
-          ),
-          const Gap(10),
-          ...periods.asMap().entries.map((e) {
-            final isFirst = e.key == 0;
-            return Padding(
-              padding: EdgeInsets.only(top: isFirst ? 0 : 8),
-              child: _buildTafPeriod(context, _asMap(e.value), isFirst),
-            );
-          }),
-          const Gap(12),
-          _rawBox(context, raw),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTafPeriod(
-    BuildContext context,
-    Map<dynamic, dynamic>? p,
-    bool isBase,
-  ) {
-    if (p == null) return const SizedBox.shrink();
-    final theme = Theme.of(context);
-    final changeType = p['changeType']?.toString();
-    final prob = _numOrNull(p['probability']);
-    final start = _asMap(p['start']);
-    final end = _asMap(p['end']);
-
-    final label = isBase
-        ? 'BASE'
-        : [
-            if (prob != null) 'PROB${_fmtNum(prob)}',
-            changeType ?? 'FM',
-          ].join(' ');
-    final labelColor = _changeColor(isBase ? 'BASE' : (changeType ?? 'FM'));
-
-    final timeRange = (start != null && end != null)
-        ? '${_fmtDhm(start)} → ${_fmtDhm(end)}Z'
-        : (start != null ? 'From ${_fmtDhm(start)}Z' : null);
-
-    final weather = _formatWeatherList(_asList(p['weather']));
-    final clouds = _formatSky(_asMap(p['sky']));
-    final extraFlags = <String>[
-      if (p['isCavok'] == true) 'CAVOK',
-      if (p['isNoSignificantWeather'] == true) 'NSW',
-    ];
-
-    return Container(
-      padding: const EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.4),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              _pill(label, labelColor),
-              const Gap(8),
-              if (timeRange != null)
-                Expanded(
-                  child: Text(
-                    timeRange,
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w600,
-                      color: theme.textTheme.bodySmall?.color
-                          ?.withValues(alpha: 0.8),
-                    ),
-                  ),
-                ),
-            ],
-          ),
-          const Gap(8),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              _statChip(context, 'WIND', _formatWind(_asMap(p['wind']))),
-              _statChip(
-                context,
-                'VISIBILITY',
-                _formatVisibility(_asMap(p['visibility'])),
-              ),
-            ],
-          ),
-          if (weather != null) ...[
-            const Gap(8),
-            _labelledLine(context, Symbols.rainy, 'Weather', weather),
-          ],
-          if (clouds != null) ...[
-            const Gap(8),
-            _labelledLine(context, Symbols.cloud, 'Clouds', clouds),
-          ],
-          if (extraFlags.isNotEmpty) ...[
-            const Gap(8),
-            Wrap(
-              spacing: 6,
-              runSpacing: 6,
-              children: extraFlags.map((f) => _flag(context, f)).toList(),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-
-  // ---------------------------------------------------------------------------
-  // Shared small widgets
-  // ---------------------------------------------------------------------------
-
-  Widget _sectionTitle(String text) => Padding(
-        padding: const EdgeInsets.only(bottom: 2),
-        child: Text(
-          text,
-          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-        ),
-      );
-
-  Widget _card(BuildContext context, {required Widget child}) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: Theme.of(context).dividerColor.withValues(alpha: 0.4),
-        ),
-      ),
-      child: child,
-    );
-  }
-
-  Widget _iconTile(IconData icon, Color color) {
-    return Container(
-      width: 32,
-      height: 32,
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.15),
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Icon(icon, size: 18, color: color),
-    );
-  }
-
-  Widget _statChip(BuildContext context, String label, String value) {
-    final theme = Theme.of(context);
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 9.5,
-              fontWeight: FontWeight.w700,
-              letterSpacing: 0.4,
-              color: theme.textTheme.bodySmall?.color?.withValues(alpha: 0.55),
-            ),
-          ),
-          const Gap(1),
-          Text(
-            value,
-            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _pill(String text, Color color) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(6),
-      ),
-      child: Text(
-        text,
-        style: TextStyle(
-          color: color,
-          fontSize: 11,
-          fontWeight: FontWeight.w700,
-        ),
-      ),
-    );
-  }
-
-  Widget _flag(BuildContext context, String text) {
-    final theme = Theme.of(context);
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.6),
-        borderRadius: BorderRadius.circular(4),
-      ),
-      child: Text(
-        text,
-        style: TextStyle(
-          fontSize: 10,
-          fontWeight: FontWeight.w700,
-          letterSpacing: 0.3,
-          color: theme.textTheme.bodySmall?.color?.withValues(alpha: 0.8),
-        ),
-      ),
-    );
-  }
-
-  Widget _labelledLine(
-    BuildContext context,
-    IconData icon,
-    String label,
-    String value,
-  ) {
-    final theme = Theme.of(context);
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Icon(icon, size: 16, color: theme.colorScheme.primary),
-        const Gap(8),
-        Expanded(
-          child: RichText(
-            text: TextSpan(
-              style: TextStyle(
-                fontSize: 12.5,
-                color: theme.textTheme.bodyMedium?.color,
+        Row(children: [
+          Expanded(child: Text('Weather now', style: AeroText.sectionTitle)),
+          if (category != null)
+            Text(category,
+                style:
+                    AeroText.heading.copyWith(color: _categoryColor(category))),
+        ]),
+        const SizedBox(height: AeroSpace.sm),
+        _Panel(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.baseline,
+                textBaseline: TextBaseline.alphabetic,
+                children: [
+                  if (temp != null) ...[
+                    UnitCycle(
+                      dimension: UnitDimension.temperature,
+                      builder: (_, u) => Text(formatTemp(temp, u.temperature),
+                          style: AeroText.figure),
+                    ),
+                    const SizedBox(width: AeroSpace.sm),
+                  ],
+                  Expanded(child: Text(summary, style: _strong)),
+                ],
               ),
-              children: [
-                TextSpan(
-                  text: '$label: ',
-                  style: const TextStyle(fontWeight: FontWeight.w700),
+              if (at != null)
+                UnitCycle(
+                  dimension: UnitDimension.time,
+                  builder: (_, u) => Text(
+                      [
+                        'observed ${formatClock(at, airportTz: timeZone, mode: u.time, use24: use24)}',
+                        if (ago != null && ago >= 0 && ago < 1440)
+                          '${formatLongDuration(ago)} ago',
+                      ].join(' · '),
+                      style: AeroText.caption
+                          .copyWith(fontFeatures: AeroText.tabular)),
                 ),
-                TextSpan(text: value),
-              ],
-            ),
+              const SizedBox(height: AeroSpace.md),
+              _Row('Wind', UnitDimension.speed,
+                  (u) => _wind(_map(d?['wind']), u.speed)),
+              _Row('Visibility', UnitDimension.distance,
+                  (u) => _visibility(vis, u.distance),
+                  note: (u) => u.distance == DistanceUnit.mi && vis != null
+                      ? _smNote
+                      : null),
+              if (dew != null)
+                _Row(
+                    'Dewpoint',
+                    UnitDimension.temperature,
+                    (u) => [
+                          formatTemp(dew, u.temperature),
+                          if (temp != null) '${_humidity(temp, dew)}% humidity',
+                        ].join(' · ')),
+              if (hpa != null)
+                _Row('Pressure', UnitDimension.pressure,
+                    (u) => formatPressure(hpa, u.pressure)),
+              if (clouds != null)
+                _Row('Clouds', UnitDimension.altitude,
+                    (u) => _sky(_map(d?['sky']), u.altitude)!),
+              if (weather != null) _Row('Weather', null, (_) => weather),
+              if (flags.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(top: AeroSpace.xs),
+                  child: Text(flags.join(' · '), style: AeroText.caption),
+                ),
+              const SizedBox(height: AeroSpace.md),
+              _Raw(label: 'METAR', raw: raw),
+            ],
           ),
         ),
       ],
     );
   }
+}
 
-  Widget _rawBox(BuildContext context, String raw) {
-    final theme = Theme.of(context);
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
-        borderRadius: BorderRadius.circular(6),
-      ),
-      child: SelectableText(
-        raw,
-        style: const TextStyle(
-          fontFamily: 'monospace',
-          fontSize: 12,
-          height: 1.45,
+class _Taf extends StatelessWidget {
+  final String raw;
+  final Map? d;
+  final DateTime now;
+  final String? timeZone;
+
+  /// No METAR above to explain "SM", so this panel does.
+  final bool explainSm;
+
+  const _Taf(
+      {required this.raw,
+      required this.d,
+      required this.now,
+      this.timeZone,
+      this.explainSm = false});
+
+  @override
+  Widget build(BuildContext context) {
+    final u = context.watch<UnitsNotifier>();
+    final use24 = MediaQuery.of(context).alwaysUse24HourFormat;
+    String clock(Map? t) => t == null
+        ? '—'
+        : formatClock(_stamp(t, now),
+            airportTz: timeZone, mode: u.time, use24: use24);
+    final d = this.d;
+    final issued = _map(d?['issuedAt']);
+    final from = _map(d?['validFrom']);
+    final to = _map(d?['validTo']);
+    final periods = _list(d?['forecast']).map(_map).whereType<Map>().toList();
+    final head = [
+      if (from != null && to != null) 'valid ${clock(from)} → ${clock(to)}',
+      if (issued != null) 'issued ${clock(issued)}',
+      if (d?['isAmended'] == true) 'amended',
+      if (d?['isCorrected'] == true) 'corrected',
+      if (d?['isCancelled'] == true) 'cancelled',
+    ].join(' · ');
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text('Forecast', style: AeroText.sectionTitle),
+        if (head.isNotEmpty)
+          UnitCycle(
+            dimension: UnitDimension.time,
+            builder: (_, __) => Text(head,
+                style:
+                    AeroText.caption.copyWith(fontFeatures: AeroText.tabular)),
+          ),
+        const SizedBox(height: AeroSpace.sm),
+        _Panel(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              for (var i = 0; i < periods.length; i++) ...[
+                if (i > 0) const Divider(height: 1, color: AeroColors.line),
+                _Period(p: periods[i], isBase: i == 0, units: u, clock: clock),
+              ],
+              if (explainSm && u.distance == DistanceUnit.mi)
+                Text(_smNote, style: AeroText.caption),
+              const SizedBox(height: AeroSpace.md),
+              _Raw(label: 'TAF', raw: raw),
+            ],
+          ),
         ),
+      ],
+    );
+  }
+}
+
+/// One TAF line: when on the left, what on the right. Units follow the
+/// rows above (tap Wind, Visibility or Clouds there to switch).
+class _Period extends StatelessWidget {
+  final Map p;
+  final bool isBase;
+  final UnitsNotifier units;
+  final String Function(Map?) clock;
+
+  const _Period(
+      {required this.p,
+      required this.isBase,
+      required this.units,
+      required this.clock});
+
+  @override
+  Widget build(BuildContext context) {
+    final change = p['changeType']?.toString();
+    final prob = _num(p['probability']);
+    final start = _map(p['start']);
+    final end = _map(p['end']);
+    final kind = isBase
+        ? null
+        : [
+            if (prob != null) 'PROB${formatCount(prob)}',
+            if (change != null && change != 'FM') change,
+          ].join(' ');
+    final when = isBase
+        ? 'Now'
+        : start == null
+            ? '—'
+            : (change == 'FM' || end == null)
+                ? clock(start)
+                : '${clock(start)}–${clock(end)}';
+
+    final what = [
+      _wind(_map(p['wind']), units.speed),
+      _visibility(_map(p['visibility']), units.distance),
+      _weatherList(_list(p['weather'])),
+      _sky(_map(p['sky']), units.altitude),
+      if (p['isCavok'] == true) 'CAVOK',
+      if (p['isNoSignificantWeather'] == true) 'No significant weather',
+    ].whereType<String>().where((s) => s != '—').join(' · ');
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: AeroSpace.sm),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 92,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(when,
+                    style: _strong.copyWith(fontFeatures: AeroText.tabular)),
+                if (kind != null && kind.isNotEmpty)
+                  Text(kind, style: AeroText.caption),
+              ],
+            ),
+          ),
+          Expanded(
+              child: Text(what.isEmpty ? '—' : what,
+                  style: AeroText.body.copyWith(color: AeroColors.ink))),
+        ],
       ),
     );
   }
+}
 
-  Widget _buildUnavailable(String message) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Row(
+// ---------------------------------------------------------------------------
+// Small pieces
+// ---------------------------------------------------------------------------
+
+final _strong =
+    AeroText.body.copyWith(color: AeroColors.ink, fontWeight: FontWeight.w600);
+
+Widget _value(String s) =>
+    Text(s, style: AeroText.body.copyWith(color: AeroColors.ink));
+
+class _Panel extends StatelessWidget {
+  final Widget child;
+
+  const _Panel({required this.child});
+
+  @override
+  Widget build(BuildContext context) => Container(
+        padding: const EdgeInsets.all(AeroSpace.md),
+        decoration: const BoxDecoration(
+            color: AeroColors.surfaceAlt, borderRadius: AeroRadius.mdAll),
+        child: child,
+      );
+}
+
+class _Fact extends StatelessWidget {
+  final String label;
+  final Widget value;
+
+  const _Fact(this.label, this.value);
+
+  @override
+  Widget build(BuildContext context) => Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Symbols.cloud_off, size: 18, color: Colors.grey.shade500),
-          const Gap(8),
+          Text(label,
+              style: AeroText.caption.copyWith(fontWeight: FontWeight.w600)),
+          const SizedBox(height: 2),
+          value,
+        ],
+      );
+}
+
+/// Label | value row inside a panel. With a [dimension] the value is a
+/// [UnitCycle]: tap it to switch that unit everywhere.
+class _Row extends StatelessWidget {
+  final String label;
+  final UnitDimension? dimension;
+  final String Function(UnitsNotifier) value;
+  final String? Function(UnitsNotifier)? note;
+
+  const _Row(this.label, this.dimension, this.value, {this.note});
+
+  @override
+  Widget build(BuildContext context) {
+    Widget body(UnitsNotifier u) {
+      final n = note?.call(u);
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _value(value(u)),
+          if (n != null) Text(n, style: AeroText.caption),
+        ],
+      );
+    }
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: AeroSpace.xs),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(width: 92, child: Text(label, style: AeroText.body)),
           Expanded(
-            child: Text(
-              message,
-              style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
-            ),
+            child: dimension == null
+                ? body(context.watch<UnitsNotifier>())
+                : UnitCycle(dimension: dimension!, builder: (_, u) => body(u)),
           ),
         ],
       ),
     );
   }
+}
 
-  Widget _buildLoading(BuildContext context) {
+/// "Show raw METAR" pill; the raw string in mono when open.
+class _Raw extends StatefulWidget {
+  final String label;
+  final String raw;
+
+  const _Raw({required this.label, required this.raw});
+
+  @override
+  State<_Raw> createState() => _RawState();
+}
+
+class _RawState extends State<_Raw> {
+  bool _open = false;
+
+  @override
+  Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: List.generate(2, (i) {
-        return Container(
-          margin: const EdgeInsets.only(bottom: 12),
-          height: 120,
-          decoration: BoxDecoration(
-            color: Theme.of(context)
-                .colorScheme
-                .surfaceContainerHighest
-                .withValues(alpha: 0.4),
-            borderRadius: BorderRadius.circular(12),
-          ),
-        );
-      }),
+      children: [
+        AeroPillButton(
+          icon: Icons.code,
+          label: '${_open ? 'Hide' : 'Show'} raw ${widget.label}',
+          trailing: _open ? Icons.expand_less : Icons.expand_more,
+          onTap: () => setState(() => _open = !_open),
+        ),
+        if (_open) ...[
+          const SizedBox(height: AeroSpace.sm),
+          SelectableText(widget.raw,
+              style: AeroText.mono.copyWith(letterSpacing: 0)),
+        ],
+      ],
     );
   }
+}
 
-  // ---------------------------------------------------------------------------
-  // Formatting helpers
-  // ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
+// Formatting (decoded payloads are free-form JSON)
+// ---------------------------------------------------------------------------
 
-  num? _numOrNull(Object? v) => v is num ? v : null;
+bool _has(String? s) => s != null && s.isNotEmpty;
+Map? _map(Object? v) => v is Map ? v : null;
+List _list(Object? v) => v is List ? v : const [];
+num? _num(Object? v) => v is num ? v : null;
 
-  String _fmtNum(num n) =>
-      n == n.roundToDouble() ? n.toInt().toString() : n.toString();
+String _n(num n) => n == n.roundToDouble() ? formatCount(n) : formatDecimal(n);
 
-  String _fmtCoord(String value) {
-    final d = double.tryParse(value);
-    return d == null ? value : formatDecimal(d, digits: 4);
+String _coord(String v) {
+  final d = double.tryParse(v);
+  return d == null ? v : formatDecimal(d, digits: 4);
+}
+
+const _smNote = 'SM is the statute mile, the ordinary land mile '
+    '(1.609 km) used in US weather reports.';
+
+/// A day/hour/minute stamp (METAR/TAF give no month or year) as UTC: the
+/// month that puts it nearest [now].
+DateTime _stamp(Map t, DateTime now) {
+  final day = _num(t['day'])?.toInt() ?? now.day;
+  final h = _num(t['hour'])?.toInt() ?? 0;
+  final m = _num(t['minute'])?.toInt() ?? 0;
+  final options = [-1, 0, 1]
+      .map((dm) => DateTime.utc(now.year, now.month + dm, day, h, m))
+      .toList()
+    ..sort(
+        (a, b) => a.difference(now).abs().compareTo(b.difference(now).abs()));
+  return options.first;
+}
+
+int _humidity(num t, num td) {
+  final a = exp((17.625 * td) / (243.04 + td));
+  final b = exp((17.625 * t) / (243.04 + t));
+  return (100 * (a / b)).round().clamp(0, 100);
+}
+
+String _wind(Map? w, SpeedUnit u) {
+  if (w == null) return '—';
+  if (w['isCalm'] == true) return 'Calm';
+  final speed = _num(w['speedKt']);
+  final gust = _num(w['gustKt']);
+  final dir = _num(w['directionDeg']);
+  final from = w['isVariable'] == true
+      ? 'Variable'
+      : dir == null
+          ? null
+          : '${_n(dir)}° ${_cardinal(dir)}';
+  return [
+    if (from != null) from,
+    if (speed != null) formatSpeed(speed, u),
+    if (gust != null) 'gusts ${formatSpeed(gust, u)}',
+  ].join(' · ');
+}
+
+String _cardinal(num deg) {
+  const dirs = [
+    'N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', //
+    'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW',
+  ];
+  return dirs[((deg % 360) / 22.5).round() % 16];
+}
+
+/// km shows metres under 5 km (how visibility is reported outside the US);
+/// mi is the statute mile, labelled SM as in the reports.
+String _visibility(Map? v, DistanceUnit u) {
+  if (v == null) return '—';
+  final sm = _num(v['visibilitySm']);
+  final m = _num(v['visibilityM']) ?? (sm == null ? null : sm * 1609.344);
+  if (m == null) return '—';
+  final prefix =
+      v['isLessThan'] == true ? '<' : (v['isMoreThan'] == true ? '≥' : '');
+  String figure(num x) => x >= 10
+      ? formatCount(x)
+      : formatDecimal(x, digits: x < 1 ? 2 : 1)
+          .replaceFirst(RegExp(r'[.,]0+$'), '');
+  final value = switch (u) {
+    DistanceUnit.km =>
+      m < 5000 ? '${formatCount(m)} m' : '${figure(m / 1000)} km',
+    DistanceUnit.mi => '${figure(sm ?? m / 1609.344)} SM',
+    DistanceUnit.nm => '${figure(m / 1852)} nm',
+  };
+  return '$prefix$value';
+}
+
+String? _weatherList(List list) {
+  final parts = list
+      .map((w) => _weather(_map(w)))
+      .whereType<String>()
+      .where((s) => s.isNotEmpty)
+      .toList();
+  return parts.isEmpty ? null : parts.join(', ');
+}
+
+String? _weather(Map? w) {
+  if (w == null) return null;
+  final bits = [
+    if (w['intensity'] == 'LIGHT') 'Light',
+    if (w['intensity'] == 'HEAVY') 'Heavy',
+    if (w['isVicinity'] == true) 'Nearby',
+    if (w['descriptor'] != null) _wx(w['descriptor'].toString()),
+    ..._list(w['phenomena']).map((p) => _wx(p.toString())),
+  ];
+  final out = bits.join(' ');
+  final sentence = out.isEmpty ? null : _sentence(out.toLowerCase());
+  return sentence ?? w['raw']?.toString();
+}
+
+/// Cloud bases are above ground, so FL (a pressure altitude) shows feet.
+String? _sky(Map? sky, AltitudeUnit u) {
+  if (sky == null) return null;
+  final layers = _list(sky['layers']).map(_map).whereType<Map>();
+  if (layers.isEmpty) {
+    final vv = _num(sky['verticalVisibilityFt']);
+    return vv == null ? null : 'Vertical visibility ${formatElevation(vv, u)}';
   }
+  return layers.map((l) {
+    final cover = _coverage(l['coverage']?.toString());
+    final alt = _num(l['altitudeFtAgl']);
+    final type = switch (l['type']?.toString().toUpperCase()) {
+      'CB' => ' cumulonimbus',
+      'TCU' => ' towering cumulus',
+      null || '' => '',
+      final t => ' $t',
+    };
+    return alt == null
+        ? '$cover$type'
+        : '$cover ${formatElevation(alt, u)}$type';
+  }).join(', ');
+}
 
-  String _fmtDhm(Map<dynamic, dynamic> t) {
-    final h = _numOrNull(t['hour'])?.toInt() ?? 0;
-    final m = _numOrNull(t['minute'])?.toInt() ?? 0;
-    return '${h.toString().padLeft(2, '0')}:${m.toString().padLeft(2, '0')}';
-  }
+String _coverage(String? c) => switch (c) {
+      'FEW' => 'Few',
+      'SCT' => 'Scattered',
+      'BKN' => 'Broken',
+      'OVC' => 'Overcast',
+      'NSC' => 'No significant cloud',
+      'NCD' => 'No cloud detected',
+      'SKC' || 'CLR' => 'Clear',
+      'VV' => 'Vertical visibility',
+      _ => c ?? '—',
+    };
 
-  String _fmtSeconds(int seconds) {
-    final mins = (seconds / 60).round();
-    if (mins < 60) return '${mins}m';
-    final h = mins ~/ 60;
-    final r = mins % 60;
-    return r == 0 ? '${h}h' : '${h}h ${r}m';
-  }
-
-  int _relHumidity(num t, num td) {
-    final num1 = exp((17.625 * td) / (243.04 + td));
-    final num2 = exp((17.625 * t) / (243.04 + t));
-    return (100 * (num1 / num2)).round().clamp(0, 100);
-  }
-
-  String _formatWind(Map<dynamic, dynamic>? wind) {
-    if (wind == null) return '—';
-    if (wind['isCalm'] == true) return 'Calm';
-    final speed = _numOrNull(wind['speedKt']);
-    final gust = _numOrNull(wind['gustKt']);
-    final dir = _numOrNull(wind['directionDeg']);
-    final variable = wind['isVariable'] == true;
-
-    final dirStr = variable
-        ? 'VRB'
-        : (dir != null ? '${_fmtNum(dir)}° ${_cardinal(dir)}' : '—');
-    final spdStr = speed != null ? '${_fmtNum(speed)}kt' : '';
-    final gustStr = gust != null ? ' G${_fmtNum(gust)}kt' : '';
-    return '$dirStr $spdStr$gustStr'.trim();
-  }
-
-  String _cardinal(num deg) {
-    const dirs = [
-      'N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', //
-      'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW',
-    ];
-    return dirs[((deg % 360) / 22.5).round() % 16];
-  }
-
-  String _formatVisibility(Map<dynamic, dynamic>? vis) {
-    if (vis == null) return '—';
-    final m = _numOrNull(vis['visibilityM']);
-    final sm = _numOrNull(vis['visibilitySm']);
-    final prefix = vis['isLessThan'] == true
-        ? '<'
-        : (vis['isMoreThan'] == true ? '≥' : '');
-    if (m != null) {
-      final smCalc = (m / 1609.344);
-      final smStr = smCalc >= 1
-          ? formatDecimal(smCalc)
-          : formatDecimal(smCalc, digits: 2);
-      return '$prefix${_fmtNum(m)} m  ($smStr SM)';
-    }
-    if (sm != null) return '$prefix${_fmtNum(sm)} SM';
-    return '—';
-  }
-
-  String? _formatWeatherList(List<dynamic> list) {
-    if (list.isEmpty) return null;
-    final parts = list
-        .map((w) => _formatWeather(_asMap(w)))
-        .where((s) => s != null && s.isNotEmpty)
-        .cast<String>()
-        .toList();
-    return parts.isEmpty ? null : parts.join(', ');
-  }
-
-  String? _formatWeather(Map<dynamic, dynamic>? w) {
-    if (w == null) return null;
-    final intensity = w['intensity']?.toString();
-    final isVicinity = w['isVicinity'] == true;
-    final descriptor = w['descriptor']?.toString();
-    final phenomena = _asList(w['phenomena']).map((p) => p.toString()).toList();
-
-    final bits = <String>[];
-    if (intensity == 'LIGHT') bits.add('Light');
-    if (intensity == 'HEAVY') bits.add('Heavy');
-    if (isVicinity) bits.add('Nearby');
-    if (descriptor != null) bits.add(_wxCode(descriptor));
-    bits.addAll(phenomena.map(_wxCode));
-    final out = bits.where((s) => s.isNotEmpty).join(' ');
-    return out.isEmpty ? (w['raw']?.toString()) : out;
-  }
-
-  String? _formatSky(Map<dynamic, dynamic>? sky) {
-    if (sky == null) return null;
-    final layers = _asList(sky['layers']);
-    if (layers.isEmpty) {
-      if (sky['verticalVisibilityFt'] != null) {
-        return 'Vertical visibility ${_fmtNum(_numOrNull(sky['verticalVisibilityFt'])!)} ft';
-      }
-      return null;
-    }
-    return layers
-        .map((l) => _formatLayer(_asMap(l)))
-        .where((s) => s != null)
-        .cast<String>()
-        .join(',  ');
-  }
-
-  String? _formatLayer(Map<dynamic, dynamic>? l) {
-    if (l == null) return null;
-    final coverage = _coverageName(l['coverage']?.toString());
-    final alt = _numOrNull(l['altitudeFtAgl']);
-    final type = l['type']?.toString();
-    final typeStr =
-        (type != null && type.isNotEmpty) ? ' ${_cloudType(type)}' : '';
-    if (alt == null) return '$coverage$typeStr';
-    return '$coverage @ ${_fmtNum(alt)}ft$typeStr';
-  }
-
-  // ----- code dictionaries -----
-
-  String _coverageName(String? c) {
-    switch (c) {
-      case 'FEW':
-        return 'Few';
-      case 'SCT':
-        return 'Scattered';
-      case 'BKN':
-        return 'Broken';
-      case 'OVC':
-        return 'Overcast';
-      case 'NSC':
-        return 'No significant cloud';
-      case 'NCD':
-        return 'No cloud detected';
-      case 'SKC':
-      case 'CLR':
-        return 'Clear';
-      case 'VV':
-        return 'Vertical vis';
-      default:
-        return c ?? '—';
-    }
-  }
-
-  String _cloudType(String t) {
-    switch (t.toUpperCase()) {
-      case 'CB':
-        return '(Cumulonimbus)';
-      case 'TCU':
-        return '(Towering cumulus)';
-      default:
-        return '($t)';
-    }
-  }
-
-  String _wxCode(String code) {
-    const map = {
+String _wx(String code) =>
+    const {
       'MI': 'Shallow',
       'PR': 'Partial',
       'BC': 'Patches',
@@ -975,7 +778,7 @@ class _AirportDetailsSheetState extends State<AirportDetailsSheet> {
       'PL': 'Ice pellets',
       'GR': 'Hail',
       'GS': 'Small hail',
-      'UP': 'Unknown precip',
+      'UP': 'Unknown precipitation',
       'BR': 'Mist',
       'FG': 'Fog',
       'FU': 'Smoke',
@@ -989,58 +792,44 @@ class _AirportDetailsSheetState extends State<AirportDetailsSheet> {
       'FC': 'Funnel cloud',
       'SS': 'Sandstorm',
       'DS': 'Duststorm',
-    };
-    return map[code.toUpperCase()] ?? code;
-  }
+    }[code.toUpperCase()] ??
+    code;
 
-  Color _delayColor(String? c) {
-    switch (c) {
-      case 'red':
-        return Colors.red;
-      case 'yellow':
-        return Colors.orange;
-      case 'green':
-        return Colors.green;
-      default:
-        return Colors.grey;
-    }
-  }
+const _continents = {
+  'AF': 'Africa',
+  'AN': 'Antarctica',
+  'AS': 'Asia',
+  'EU': 'Europe',
+  'NA': 'North America',
+  'OC': 'Oceania',
+  'SA': 'South America',
+};
 
-  Color _flightCatColor(String category) {
-    switch (category.toUpperCase()) {
-      case 'VFR':
-        return Colors.green;
-      case 'MVFR':
-        return Colors.blue;
-      case 'IFR':
-        return Colors.red;
-      case 'LIFR':
-        return Colors.purple;
-      default:
-        return Colors.grey;
-    }
-  }
-
-  Color _changeColor(String type) {
-    switch (type.toUpperCase()) {
-      case 'BASE':
-        return Colors.blueGrey;
-      case 'BECMG':
-        return Colors.indigo;
-      case 'TEMPO':
-        return Colors.orange;
-      case 'FM':
-        return Colors.teal;
-      default:
-        return Colors.blueGrey;
-    }
-  }
-
-  String _formatEnum(String name) {
-    return name
-        .split(RegExp(r'[_\s]'))
-        .where((w) => w.isNotEmpty)
-        .map((w) => '${w[0].toUpperCase()}${w.substring(1)}')
-        .join(' ');
-  }
+String _typeName(AirportType t) {
+  final words = t.name
+      .replaceAllMapped(RegExp('[A-Z]'), (m) => ' ${m[0]}')
+      .split(RegExp(r'[_\s]+'))
+      .where((w) => w.isNotEmpty)
+      .join(' ')
+      .toLowerCase();
+  return _sentence(words);
 }
+
+String _sentence(String s) => s.isEmpty
+    ? s
+    : '${s[0].toUpperCase()}${s.substring(1).replaceAll('_', ' ')}';
+
+/// Status colour only: green fine, orange moderate, red severe.
+Color _delayColor(String? c) => switch (c) {
+      'red' => AeroColors.danger,
+      'yellow' => AeroColors.warn,
+      'green' => AeroColors.success,
+      _ => AeroColors.muted,
+    };
+
+Color _categoryColor(String c) => switch (c.toUpperCase()) {
+      'VFR' => AeroColors.success,
+      'MVFR' => AeroColors.warn,
+      'IFR' || 'LIFR' => AeroColors.danger,
+      _ => AeroColors.ink,
+    };

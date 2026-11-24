@@ -27,6 +27,12 @@ abstract final class AeroColors {
   static const glass = Color(0x80000000);
   static const glassEdge = Color(0x4dffffff);
   static const onInkMuted = Color(0xccffffff);
+
+  // Departures-board share card only (amber split-flap look).
+  static const board = Color(0xffffc629);
+  static const boardPanel = Color(0xff1b1b1d);
+  static const boardRow = Color(0xff2a2a2d);
+  static const boardMuted = Color(0xff8e8e93);
 }
 
 /// Report accents: allowed only on stats cards and stats charts.
@@ -107,6 +113,13 @@ abstract final class AeroText {
       height: 1.1,
       letterSpacing: -0.6,
       color: AeroColors.ink);
+  /// Boarding-pass route codes on share cards.
+  static final passCode = TextStyle(
+      fontFamily: AeroFonts.calSans,
+      fontSize: 56,
+      height: 0.95,
+      letterSpacing: -1,
+      color: AeroColors.onInk);
   static final title = TextStyle(
       fontFamily: AeroFonts.calSans,
       fontSize: 20,

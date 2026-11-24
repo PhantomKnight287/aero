@@ -11,6 +11,7 @@ import 'package:aero/ui/tokens.dart';
 import 'package:aero/utils/aircraft_registry.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:openapi/openapi.dart';
 
 /// Opens a flight by identifier and (local) departure date; [faFlightId]
@@ -85,7 +86,10 @@ class _AircraftSectionState extends State<AircraftSection> {
           if (_subtitle.isNotEmpty) Text(_subtitle, style: AeroText.caption),
           const SizedBox(height: AeroSpace.sm),
         ],
+        if (aircraft?.registration != null) _buildAircraftCard(aircraft!),
         if (widget.history?.registration != null) ...[
+          if (aircraft?.registration != null)
+            const SizedBox(height: AeroSpace.md),
           _Rotation(
             info: widget.info,
             history: widget.history!,
@@ -94,9 +98,7 @@ class _AircraftSectionState extends State<AircraftSection> {
             onLoadRecent: widget.onLoadRecent,
             onOpenFlight: widget.onOpenFlight,
           ),
-          const SizedBox(height: AeroSpace.md),
         ],
-        if (aircraft?.registration != null) _buildAircraftCard(aircraft!),
         if (widget.history?.ownFlights.isNotEmpty == true) ...[
           const SizedBox(height: AeroSpace.md),
           _OwnFlightsRow(
@@ -139,9 +141,7 @@ class _AircraftSectionState extends State<AircraftSection> {
             borderRadius: AeroRadius.smAll,
             child: aircraft.image == null || aircraft.image!.isEmpty
                 ? const _NoPhoto()
-                : CachedNetworkImage(
-                    imageUrl: aircraft.image!,
-                    errorWidget: (_, __, ___) => const _NoPhoto()),
+                : _Photo(url: aircraft.image!),
           ),
           const SizedBox(height: AeroSpace.md),
           Wrap(
@@ -345,6 +345,85 @@ class _PayloadRow extends StatelessWidget {
   }
 }
 
+/// Tap opens the photo full screen; the corner icon says so up front.
+class _Photo extends StatelessWidget {
+  final String url;
+
+  const _Photo({required this.url});
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      button: true,
+      label: 'View photo full screen',
+      child: GestureDetector(
+        onTap: () => Navigator.of(context)
+            .push(PageRouteBuilder(
+              opaque: false,
+              barrierColor: AeroColors.ink,
+              pageBuilder: (_, __, ___) => _PhotoViewer(url: url),
+              transitionsBuilder: (_, a, __, child) =>
+                  FadeTransition(opacity: a, child: child),
+            ))
+            // The map below has no AnnotatedRegion of its own, so the
+            // viewer's light icons would stick around: restore dark.
+            .then((_) => SystemChrome.setSystemUIOverlayStyle(
+                SystemUiOverlayStyle.dark)),
+        child: Stack(children: [
+          Hero(
+            tag: url,
+            child: CachedNetworkImage(
+                imageUrl: url, errorWidget: (_, __, ___) => const _NoPhoto()),
+          ),
+          Positioned(
+            right: AeroSpace.sm,
+            bottom: AeroSpace.sm,
+            child: Container(
+              padding: const EdgeInsets.all(AeroSpace.xs),
+              decoration: const BoxDecoration(
+                  color: AeroColors.glass, shape: BoxShape.circle),
+              child: const Icon(Icons.open_in_full,
+                  size: 16, color: AeroColors.onInk),
+            ),
+          ),
+        ]),
+      ),
+    );
+  }
+}
+
+/// Black backdrop, pinch to zoom, close or back to leave.
+class _PhotoViewer extends StatelessWidget {
+  final String url;
+
+  const _PhotoViewer({required this.url});
+
+  @override
+  Widget build(BuildContext context) {
+    return AnnotatedRegion(
+        value: SystemUiOverlayStyle.light,
+        child: Stack(children: [
+          Positioned.fill(
+            child: InteractiveViewer(
+              maxScale: 5,
+              child: Center(
+                child: Hero(tag: url, child: CachedNetworkImage(imageUrl: url)),
+              ),
+            ),
+          ),
+          Positioned(
+            top: MediaQuery.of(context).padding.top + AeroSpace.sm,
+            right: AeroSpace.sm,
+            child: IconButton(
+              tooltip: 'Close',
+              onPressed: () => Navigator.of(context).pop(),
+              icon: const Icon(Icons.close, color: AeroColors.onInk),
+            ),
+          ),
+        ]));
+  }
+}
+
 class _RegistrationHistory extends StatelessWidget {
   final List<AircraftRegistrationEntity> registrations;
   const _RegistrationHistory({required this.registrations});
@@ -464,11 +543,11 @@ const _minTurnaround = Duration(minutes: 45);
 String _idents(String? iata, String? icao, String fallback) =>
     {iata ?? fallback, icao ?? fallback}.where((s) => s.isNotEmpty).join(' · ');
 
-/// "35 min late" / "3 min early" / "on time" from seconds of delay.
+/// "3h 11m late" / "3m early" / "on time" from seconds of delay.
 String _delayText(num? seconds) {
   final m = (seconds ?? 0) ~/ 60;
-  if (m >= 1) return '$m min late';
-  if (m <= -1) return '${-m} min early';
+  if (m >= 1) return '${formatLongDuration(m)} late';
+  if (m <= -1) return '${formatLongDuration(-m)} early';
   return 'on time';
 }
 
@@ -622,8 +701,8 @@ class _Rotation extends StatelessWidget {
           AeroColors.danger,
           AeroColors.dangerTint,
           gap.isNegative
-              ? 'Arrives ${-gap.inMinutes} min after your scheduled departure'
-              : 'Only ${gap.inMinutes} min between its arrival and your departure'
+              ? 'Arrives ${formatLongDuration(-gap.inMinutes)} after your scheduled departure'
+              : 'Only ${formatLongDuration(gap.inMinutes)} between its arrival and your departure'
         );
       }
     }

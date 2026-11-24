@@ -143,7 +143,7 @@ void main() {
   testWidgets('sections in Flighty order', (t) async {
     await pump(t, inFlight());
     final order = [
-      find.text('In flight · lands in 40m'),
+      find.text('In flight'),
       find.text('Good to know'),
       find.text('Timetable'),
       find.text('Boeing 737 MAX 8'),
@@ -167,17 +167,22 @@ void main() {
     expect(find.text('Terminal 2'), findsOneWidget);
   });
 
-  testWidgets('times stay ink; only lateness is coloured', (t) async {
+  testWidgets('late times are red, early green, small delays stay ink',
+      (t) async {
     await pump(t, inFlight());
     // 19:06Z is 12:06 PM in Phoenix.
     final big = t.widget<Text>(find.text('12:06 PM').first);
-    expect(big.style?.color, AeroColors.ink);
+    expect(big.style?.color, AeroColors.danger);
     final struck = find.byWidgetPredicate((w) =>
         w is Text &&
         w.data == '11:40 AM' &&
         w.style?.decoration == TextDecoration.lineThrough);
     expect(struck, findsOneWidget);
-    expect(t.widget<Text>(find.text('26m late')).style?.color, AeroColors.warn);
+    expect(
+        t.widget<Text>(find.text('26m late')).style?.color, AeroColors.danger);
+    // 9:42 is 7m late: departure time stays ink.
+    expect(t.widget<Text>(find.text('09:42 AM').first).style?.color,
+        isNot(AeroColors.danger));
     // 7m late is not "late" (> 15 min), so it stays muted.
     expect(t.widget<Text>(find.text('7m late')).style?.color, AeroColors.muted);
   });

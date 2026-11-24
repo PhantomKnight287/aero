@@ -14,6 +14,7 @@ class UnitsNotifier extends ChangeNotifier {
     UnitDimension.speed: SpeedUnit.kt,
     UnitDimension.altitude: AltitudeUnit.ft,
     UnitDimension.temperature: TempUnit.c,
+    UnitDimension.pressure: PressureUnit.hpa,
     UnitDimension.time: TimeMode.airport,
   };
   bool _hintShown = false;
@@ -22,6 +23,7 @@ class UnitsNotifier extends ChangeNotifier {
   SpeedUnit get speed => _units[UnitDimension.speed] as SpeedUnit;
   AltitudeUnit get altitude => _units[UnitDimension.altitude] as AltitudeUnit;
   TempUnit get temperature => _units[UnitDimension.temperature] as TempUnit;
+  PressureUnit get pressure => _units[UnitDimension.pressure] as PressureUnit;
   TimeMode get time => _units[UnitDimension.time] as TimeMode;
   bool get hintShown => _hintShown;
 
@@ -32,6 +34,7 @@ class UnitsNotifier extends ChangeNotifier {
         UnitDimension.speed => SpeedUnit.values,
         UnitDimension.altitude => AltitudeUnit.values,
         UnitDimension.temperature => TempUnit.values,
+        UnitDimension.pressure => PressureUnit.values,
         UnitDimension.time => TimeMode.values,
       };
 

@@ -13,15 +13,10 @@
     "raw_radius": 7
   },
   "lib/screens/home/main.dart": {
-    "material_color": 24,
-    "raw_radius": 20,
+    "material_color": 23,
+    "raw_radius": 19,
     "snackbar": 1,
     "raw_font_size": 2
-  },
-  "lib/screens/home/widgets/airport_details_sheet.dart": {
-    "material_color": 21,
-    "raw_radius": 11,
-    "raw_font_size": 17
   },
   "lib/screens/home/widgets/booking_details_sheet.dart": {
     "material_color": 25,
@@ -52,12 +47,6 @@
   "lib/screens/home/widgets/selected_filters.dart": {
     "hex_color": 4,
     "raw_radius": 4
-  },
-  "lib/screens/home/widgets/shareable_flight_card.dart": {
-    "hex_color": 9,
-    "raw_radius": 3,
-    "material_color": 13,
-    "raw_font_size": 14
   },
   "lib/screens/profile/app_icon/main.dart": {
     "snackbar": 2,

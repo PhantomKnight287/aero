@@ -83,4 +83,9 @@ void main() {
             airportTz: 'Asia/Dubai', mode: TimeMode.utc, use24: false),
         'Nov 15, 22:00Z');
   });
+
+  test('pressure in hPa and inHg', () {
+    expect(formatPressure(1021, PressureUnit.hpa), '1,021 hPa');
+    expect(formatPressure(1021, PressureUnit.inhg), '30.15 inHg');
+  });
 }

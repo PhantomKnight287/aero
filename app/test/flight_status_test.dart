@@ -85,7 +85,9 @@ void main() {
     test('scheduled', () {
       final s = flightStatus(flight(), at(12, 23));
       expect(s.phase, FlightPhase.scheduled);
-      expect(s.bandText(at(12, 23)), 'Departs in 3h 12m');
+      expect(s.bandText(at(12, 23)), 'Scheduled');
+      expect(s.progress(at(12, 23)), 0);
+      expect(s.barCaption(at(12, 23)), ('departs in 3h 12m', null));
     });
     test('boarding soon', () {
       expect(flightStatus(flight(), at(15, 5)).bandText(at(15, 5)),
@@ -99,8 +101,10 @@ void main() {
     test('in flight', () {
       final f = flight(
           actualOut: at(15, 42), actualOff: at(15, 52), estimatedIn: at(19, 6));
-      expect(flightStatus(f, at(18, 26)).bandText(at(18, 26)),
-          'In flight · lands in 40m');
+      final s = flightStatus(f, at(18, 26));
+      expect(s.bandText(at(18, 26)), 'In flight');
+      expect(s.barCaption(at(18, 26)), ('departed 2h 44m ago', '40m left'));
+      expect(s.progress(at(18, 26)), closeTo(164 / 204, 1e-9));
     });
     test('landed', () {
       final f = flight(
@@ -123,6 +127,7 @@ void main() {
       expect(s.phase, FlightPhase.cancelled);
       expect(s.overall, Punctuality.cancelled);
       expect(s.bandText(at(12, 0)), 'Cancelled');
+      expect(s.progress(at(12, 0)), isNull);
       expect(s.sideLine(true, at(12, 0)), isNot(contains('ago')));
     });
     test('diverted', () {

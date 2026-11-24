@@ -2,12 +2,14 @@ import 'package:aero/formatters/units.dart';
 import 'package:aero/ui/components/aero_pressable.dart';
 import 'package:aero/ui/components/aero_sheet.dart';
 import 'package:aero/ui/components/airline_logo.dart';
+import 'package:aero/ui/components/unit_cycle.dart';
 import 'package:aero/ui/tokens.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:openapi/openapi.dart';
 
 import 'flight_status.dart';
+import 'progress_bar.dart';
 
 class FlightAction {
   final IconData icon;
@@ -71,7 +73,10 @@ class FlightHeader extends StatelessWidget {
           ? fa!.codesharesIata
           : fa?.codesharesIcao),
     ].map((s) => s.trim()).where((s) => s.isNotEmpty).toList();
-    return Row(
+    final caption = AeroText.caption.copyWith(fontFeatures: AeroText.tabular);
+    final progress = status.progress(now);
+    final (sinceDep, toArr) = status.barCaption(now) ?? (null, null);
+    final head = Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
@@ -98,24 +103,6 @@ class FlightHeader extends StatelessWidget {
                     style: AeroText.caption,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis),
-              const SizedBox(height: AeroSpace.sm),
-              Row(children: [
-                Container(
-                  width: 8,
-                  height: 8,
-                  decoration:
-                      BoxDecoration(color: _dot, shape: BoxShape.circle),
-                ),
-                const SizedBox(width: AeroSpace.sm),
-                Expanded(
-                  child: Text(status.bandText(now),
-                      style: AeroText.heading
-                          .copyWith(fontFeatures: AeroText.tabular)),
-                ),
-              ]),
-              if (now.difference(info.date).inDays > 7)
-                Text('Older than 7 days — times may no longer update.',
-                    style: AeroText.caption),
             ],
           ),
         ),
@@ -148,8 +135,64 @@ class FlightHeader extends StatelessWidget {
         ),
       ],
     );
+    final before = status.phase == FlightPhase.scheduled ||
+        status.phase == FlightPhase.boardingSoon;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        head,
+        const SizedBox(height: AeroSpace.lg),
+        Row(children: [
+          Container(
+            width: 8,
+            height: 8,
+            decoration: BoxDecoration(color: _dot, shape: BoxShape.circle),
+          ),
+          const SizedBox(width: AeroSpace.sm),
+          Expanded(
+            child: UnitCycle(
+              dimension: UnitDimension.time,
+              builder: (_, u) {
+                final clock = formatClock(status.departure.best,
+                    airportTz: info.departure.airport.timeZone,
+                    mode: u.time,
+                    use24: MediaQuery.of(context).alwaysUse24HourFormat);
+                // Full width: AnimatedSwitcher centres its child.
+                return SizedBox(
+                  width: double.infinity,
+                  child: Text(
+                      before
+                          ? '${status.bandText(now)} · departs $clock'
+                          : status.bandText(now),
+                      style: AeroText.heading
+                          .copyWith(fontFeatures: AeroText.tabular)),
+                );
+              },
+            ),
+          ),
+        ]),
+        if (progress != null) ...[
+          const SizedBox(height: AeroSpace.sm),
+          RouteProgressBar(
+            from: _code(info.departure.airport),
+            to: _code(info.arrival.airport),
+            progress: progress,
+          ),
+          if (sinceDep != null)
+            Row(children: [
+              Expanded(child: Text(sinceDep, style: caption)),
+              if (toArr != null) Text(toArr, style: caption),
+            ]),
+        ],
+        if (now.difference(info.date).inDays > 7)
+          Text('Older than 7 days — times may no longer update.',
+              style: AeroText.caption),
+      ],
+    );
   }
 }
+
+String _code(RouteAirportEntity a) => a.iata.isNotEmpty ? a.iata : a.icao;
 
 class _ActionRow extends StatelessWidget {
   final FlightAction action;

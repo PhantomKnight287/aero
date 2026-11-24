@@ -11,7 +11,8 @@ import 'flight_status.dart';
 /// Colour for lateness text only; on time and early stay neutral.
 Color? delayColor(SideTimes t) => switch (t.punctuality) {
       Punctuality.cancelled => AeroColors.danger,
-      Punctuality.late => AeroColors.warn,
+      Punctuality.late => AeroColors.danger,
+      Punctuality.early => AeroColors.success,
       _ => null,
     };
 
@@ -153,6 +154,7 @@ class _Side extends StatelessWidget {
               children: [
                 Text(clock(times.best),
                     style: AeroText.figureLg.copyWith(
+                        color: delay,
                         decoration: times.cancelled
                             ? TextDecoration.lineThrough
                             : null)),

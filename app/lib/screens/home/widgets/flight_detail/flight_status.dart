@@ -62,18 +62,15 @@ class LiveStatus {
       : arrival.punctuality;
 
   String bandText(DateTime now) {
-    String until(DateTime t) => _span(t.difference(now));
     switch (phase) {
       case FlightPhase.scheduled:
-        return 'Departs in ${until(departure.best)}';
+        return 'Scheduled';
       case FlightPhase.boardingSoon:
         return 'Boarding soon';
       case FlightPhase.taxiingOut:
         return 'Taxiing';
       case FlightPhase.inFlight:
-        return arrival.best.isAfter(now)
-            ? 'In flight · lands in ${until(arrival.best)}'
-            : 'In flight · landing now';
+        return 'In flight';
       case FlightPhase.landed:
         return 'Landed ${_span(now.difference(landedAt ?? arrival.best))} ago';
       case FlightPhase.arrived:
@@ -84,6 +81,44 @@ class LiveStatus {
         return divertedToIata == null
             ? 'Diverted'
             : 'Diverted to $divertedToIata';
+    }
+  }
+
+  /// Share of gate-to-gate time gone, 0..1; null when no bar fits.
+  double? progress(DateTime now) {
+    switch (phase) {
+      case FlightPhase.cancelled:
+      case FlightPhase.diverted:
+        return null;
+      case FlightPhase.landed:
+      case FlightPhase.arrived:
+        return 1;
+      default:
+        final total = arrival.best.difference(departure.best).inSeconds;
+        if (total <= 0) return 0;
+        return (now.difference(departure.best).inSeconds / total)
+            .clamp(0.0, 1.0);
+    }
+  }
+
+  /// Countdown under the bar ends: ('departed 2h 10m ago', '4h 8m left').
+  (String, String?)? barCaption(DateTime now) {
+    switch (phase) {
+      case FlightPhase.scheduled:
+      case FlightPhase.boardingSoon:
+        return departure.best.isAfter(now)
+            ? ('departs in ${_span(departure.best.difference(now))}', null)
+            : null;
+      case FlightPhase.taxiingOut:
+      case FlightPhase.inFlight:
+        return (
+          'departed ${_span(now.difference(departure.best))} ago',
+          arrival.best.isAfter(now)
+              ? '${_span(arrival.best.difference(now))} left'
+              : 'landing now',
+        );
+      default:
+        return null;
     }
   }
 

@@ -69,6 +69,10 @@ FlightSummaryEntity own(int i) => FlightSummaryEntity((b) => b
 
 Future<void> pump(WidgetTester tester, Widget child) async {
   SharedPreferences.setMockInitialValues({});
+  // Tall view: the rotation sits below the photo card.
+  tester.view.physicalSize = const Size(800, 3000);
+  tester.view.devicePixelRatio = 1;
+  addTearDown(tester.view.reset);
   final units = UnitsNotifier();
   await units.load();
   await tester.pumpWidget(ChangeNotifierProvider.value(
@@ -86,7 +90,7 @@ void main() {
       (tester) async {
     await pump(tester, AircraftSection(info: flight, history: history));
     expect(find.text('TIGHT TURNAROUND'), findsOneWidget);
-    expect(find.text('Only 25 min between its arrival and your departure'),
+    expect(find.text('Only 25m between its arrival and your departure'),
         findsOneWidget);
     expect(find.text('This flight'), findsOneWidget);
     expect(find.text('Hong Kong → Dubai'), findsOneWidget);
@@ -104,8 +108,7 @@ void main() {
       ),
     );
     expect(find.text('ARRIVED'), findsOneWidget);
-    expect(
-        find.text('The inbound aircraft arrived 35 min late'), findsOneWidget);
+    expect(find.text('The inbound aircraft arrived 35m late'), findsOneWidget);
     expect(find.textContaining('min between'), findsNothing);
   });
 
