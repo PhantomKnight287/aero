@@ -10,6 +10,9 @@ import 'package:toastification/toastification.dart';
 import 'package:aero/notifiers/units.dart';
 import 'package:aero/ui/theme.dart';
 import 'package:workmanager/workmanager.dart';
+import 'package:aero/services/main.dart';
+import 'package:aero/services/wear_payload.dart';
+import 'package:wear_bridge/wear_bridge.dart';
 
 // Workmanager callback handler
 @pragma('vm:entry-point')
@@ -18,6 +21,20 @@ void callbackDispatcher() {
     try {
       if (task == 'widgetUpdateTask') {
         await WidgetUpdateService.updateWidget();
+      } else if (task == 'wearSyncTask') {
+        final units = UnitsNotifier();
+        await units.load();
+        await WearSync.run(
+          fetch: (k) => FlightDataService().getFlightInfoWithNumber(
+            k['iata'] as String,
+            k['icao'] as String,
+            date: DateTime.parse(k['date'] as String),
+            forceUpdate: true,
+            faFlightId: k['faId'] as String?,
+          ),
+          send: (p) => WearBridge.send('/register-flight', p),
+          distanceUnit: units.distance,
+        );
       }
       return Future.value(true);
     } catch (e) {
@@ -50,6 +67,15 @@ void main() async {
     constraints: Constraints(
       networkType: NetworkType.connected,
     ),
+  );
+
+  // Flights sent to the watch follow their changes until they land
+  // (see WearSync for the limits).
+  await Workmanager().registerPeriodicTask(
+    'wear-sync',
+    'wearSyncTask',
+    frequency: const Duration(minutes: 15),
+    constraints: Constraints(networkType: NetworkType.connected),
   );
 
   // Device locale for numbers and dates; en_US if intl lacks its symbols.

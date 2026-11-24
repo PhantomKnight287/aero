@@ -122,26 +122,6 @@ class MainActivity : FlutterActivity() {
                     }
                 }
 
-                "registerFlight" -> {
-                    CoroutineScope(Dispatchers.Main).launch {
-                        try {
-                            val payload = call.arguments as? Map<*, *>
-                                ?: throw IllegalArgumentException("Invalid flight payload")
-                            val jsonString = JSONObject(payload).toString()
-                            val dataToSend = jsonString.toByteArray(Charsets.UTF_8)
-                            sendMessageToWatch(
-                                applicationContext,
-                                "/register-flight",
-                                dataToSend,
-                            )
-                            Log.e("RegisterFlight", jsonString)
-                            result.success(null)
-                        } catch (e: Exception) {
-                            e.printStackTrace()
-                            result.error("ERROR", e.message, null)
-                        }
-                    }
-                }
                 "changeAppIcon"->{
                     try {
                         // Accept icon ID as argument, or read from SharedPreferences if not provided

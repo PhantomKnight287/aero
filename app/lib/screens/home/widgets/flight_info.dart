@@ -1,4 +1,7 @@
-import 'package:aero/constants/main.dart';
+import 'package:wear_bridge/wear_bridge.dart';
+import 'package:provider/provider.dart';
+import 'package:aero/notifiers/units.dart';
+import 'package:aero/services/wear_payload.dart';
 import 'package:aero/screens/home/widgets/aircraft_section.dart';
 import 'package:aero/screens/home/widgets/flight_profile.dart';
 import 'package:aero/screens/home/widgets/flight_timetable.dart';
@@ -99,56 +102,37 @@ class _FlightInfoWidgetState extends State<FlightInfoWidget> {
 
   void _shareFlightCard() => showAeroSheet(context, ShareSheet(info: _info));
 
+  Future<int> _push() => WearBridge.send(
+        '/register-flight',
+        wearPayload(
+          _info,
+          history: widget.aircraftHistory,
+          distanceUnit: context.read<UnitsNotifier>().distance,
+        ),
+      );
+
   Future<void> _sendToWearable() async {
-    final departure = _info.departure;
-    final flightNumber = _info.flightNo;
-    final airline = _info.airline;
-    final fa = _info.flightAwareData;
-    final depAirport = departure.airport;
-    final arrAirport = _info.arrival.airport;
-    final departureDate =
-        DateTime.parse((departure.revisedTime ?? departure.scheduledTime).utc);
-    final airlineIata = airline.iata ?? '';
-    final airlineIcao = airline.icao ?? '';
-
-    String? fallbackIdent(String? primary, String carrier, String stripped) {
-      if (primary != null && primary.isNotEmpty) return primary;
-      if (carrier.isEmpty) return null;
-      return '$carrier${stripped.isNotEmpty ? stripped : flightNumber}';
-    }
-
-    String code(RouteAirportEntity a) => a.iata.isNotEmpty ? a.iata : a.icao;
-    String city(RouteAirportEntity a) =>
-        a.municipalityName.isNotEmpty ? a.municipalityName : a.name;
-
-    final payload = {
-      'flight': {
-        'id': _info.id,
-        'flightNo': flightNumber,
-        'identIata': fallbackIdent(fa?.identIata, airlineIata,
-            flightNumber.replaceFirst(airlineIata, '')),
-        'identIcao': fallbackIdent(fa?.identIcao, airlineIcao,
-            flightNumber.replaceFirst(airlineIcao, '')),
-        'date': departureDate.toIso8601String(),
-        'departureAirportIata': code(depAirport),
-        'departureCity': city(depAirport),
-        'arrivalAirportIata': code(arrAirport),
-        'arrivalCity': city(arrAirport),
-      },
-      'airline': {
-        'name': airline.name,
-        'iata': airline.iata,
-        'icao': airline.icao,
-        'image': airline.image,
-      },
-    };
     try {
-      await const MethodChannel(METHOD_CHANNEL)
-          .invokeMethod('registerFlight', payload);
+      await _push();
+      await WearSent.add(_info);
       showSuccessToast(description: 'Flight sent to wearable');
     } catch (e) {
       showErrorToast(e);
     }
+  }
+
+  /// A flight already on the watch follows its refreshes: new gate,
+  /// delay or inbound reaches the wrist without tapping send again.
+  @override
+  void didUpdateWidget(FlightInfoWidget old) {
+    super.didUpdateWidget(old);
+    if (old.info == widget.info &&
+        old.aircraftHistory == widget.aircraftHistory) {
+      return;
+    }
+    WearSent.has(_info.id).then((sent) {
+      if (sent && mounted) _push().catchError((_) => 0);
+    });
   }
 
   List<FlightAction> get _actions => [

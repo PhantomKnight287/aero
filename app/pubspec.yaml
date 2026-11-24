@@ -7,6 +7,8 @@ environment:
   sdk: ^3.6.0
 
 dependencies:
+  wear_bridge:
+    path: packages/wear_bridge
   dio: ^5.7.0
   flutter:
     sdk: flutter
