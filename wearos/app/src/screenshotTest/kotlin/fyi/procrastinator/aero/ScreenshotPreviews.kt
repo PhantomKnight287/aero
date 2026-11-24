@@ -4,6 +4,8 @@ import androidx.compose.runtime.Composable
 import androidx.wear.compose.ui.tooling.preview.WearPreviewLargeRound
 import androidx.wear.compose.ui.tooling.preview.WearPreviewSmallRound
 import com.android.tools.screenshot.PreviewTest
+import fyi.procrastinator.aero.presentation.screens.ambient.AmbientEmptyPreview
+import fyi.procrastinator.aero.presentation.screens.ambient.AmbientInFlightPreview
 import fyi.procrastinator.aero.presentation.screens.detail.DetailAircraftPreview
 import fyi.procrastinator.aero.presentation.screens.detail.DetailArrivedPreview
 import fyi.procrastinator.aero.presentation.screens.detail.DetailPanelsPreview
@@ -47,3 +49,9 @@ fun Panels() = DetailPanelsPreview()
 
 @PreviewTest @WearPreviewLargeRound @Composable
 fun AircraftAndInbound() = DetailAircraftPreview()
+
+@PreviewTest @WearPreviewLargeRound @WearPreviewSmallRound @Composable
+fun Ambient() = AmbientInFlightPreview()
+
+@PreviewTest @WearPreviewLargeRound @Composable
+fun AmbientEmpty() = AmbientEmptyPreview()

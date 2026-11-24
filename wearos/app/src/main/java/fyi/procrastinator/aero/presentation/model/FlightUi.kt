@@ -1,5 +1,7 @@
 package fyi.procrastinator.aero.presentation.model
 
+import java.time.Instant
+
 /**
  * What the watch screens draw, already formatted. Kept apart from the Room
  * entities so real data can be mapped in later without touching the UI.
@@ -34,6 +36,9 @@ data class FlightUi(
     val registration: String? = null,
     val inbound: InboundUi? = null,
     val divertedTo: String? = null,
+    /** Raw best times, for the tile timeline and complication countdowns. */
+    val departsAt: Instant? = null,
+    val arrivesAt: Instant? = null,
 ) {
     val idents get() = listOfNotNull(ident, identIcao).joinToString(" · ")
 

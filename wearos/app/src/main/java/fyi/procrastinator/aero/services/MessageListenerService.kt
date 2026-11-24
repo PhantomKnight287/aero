@@ -1,6 +1,7 @@
 package fyi.procrastinator.aero.services
 
 import android.content.Intent
+import android.text.format.DateFormat
 import android.util.Log
 import com.google.android.gms.wearable.MessageEvent
 import com.google.android.gms.wearable.WearableListenerService
@@ -9,7 +10,10 @@ import fyi.procrastinator.aero.database.dao.AirlineDAO
 import fyi.procrastinator.aero.database.dao.TrackedFlightDao
 import fyi.procrastinator.aero.database.entity.Airline
 import fyi.procrastinator.aero.database.entity.TrackedFlight
+import fyi.procrastinator.aero.complication.MainComplicationService
 import fyi.procrastinator.aero.presentation.MainActivity
+import fyi.procrastinator.aero.presentation.model.FlightChanges
+import fyi.procrastinator.aero.tile.MainTileService
 import java.nio.charset.StandardCharsets
 import java.time.Instant
 import kotlinx.coroutines.CoroutineScope
@@ -64,8 +68,26 @@ class MessageListenerService : WearableListenerService() {
                 val airline = airlineFromJson(airlineJson)
                 val trackedFlight = flightFromJson(flightJson, airline.uid)
 
+                // Compare with the copy we have before replacing it.
+                val previous = trackedFlightDao.byRemoteId(trackedFlight.remoteId)
+                    ?.let { JSONObject(it.payload) }
+                val changes = FlightChanges.of(
+                    previous, flightJson, DateFormat.is24HourFormat(applicationContext),
+                )
+
                 airlineDao.upsertAirline(airline)
                 trackedFlightDao.upsertTrackedFlight(trackedFlight)
+
+                FlightAlerts.post(
+                    applicationContext,
+                    trackedFlight.remoteId,
+                    "${trackedFlight.identIata ?: trackedFlight.flightNumber} · " +
+                        "${trackedFlight.departureAirportIata}→${trackedFlight.arrivalAirportIata}",
+                    changes,
+                )
+                // Show the new state right away instead of at the next refresh.
+                MainTileService.refresh(applicationContext)
+                MainComplicationService.refresh(applicationContext)
             } catch (e: Exception) {
                 Log.e(TAG, "Failed to persist tracked flight", e)
             }

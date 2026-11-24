@@ -20,6 +20,11 @@ android {
     }
 
     buildTypes {
+        // Matches the phone's debug build: Wear OS only delivers messages
+        // between apps with the same package name and signing key.
+        debug {
+            applicationIdSuffix = ".debug"
+        }
         release {
             isMinifyEnabled = false
             proguardFiles(
@@ -50,6 +55,7 @@ dependencies {
     implementation(libs.ui)
     implementation(libs.ui.graphics)
     implementation(libs.ui.tooling.preview)
+    implementation(libs.wear)
     implementation(libs.wear.compose.material3)
     implementation(libs.wear.compose.foundation)
     implementation(libs.wear.compose.ui.tooling)

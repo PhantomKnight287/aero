@@ -96,10 +96,16 @@ fun AirlineMark(iata: String, logoUrl: String?, fallbackUrl: String? = null, siz
  */
 @Composable
 /** [progress] null draws the empty track only: cancelled and diverted flights. */
-fun FlightArc(progress: Float?, modifier: Modifier = Modifier, inset: Dp = 30.dp) {
+fun FlightArc(
+    progress: Float?,
+    modifier: Modifier = Modifier,
+    inset: Dp = 30.dp,
+    /** Ambient: hairline strokes and a bare plane, no filled disc (burn-in). */
+    ambient: Boolean = false,
+) {
     val plane = rememberVectorPainter(ImageVector.vectorResource(R.drawable.ic_flight))
     Canvas(modifier) {
-        val stroke = 3.dp.toPx()
+        val stroke = (if (ambient) 1.5f else 3f).dp.toPx()
         // Feet [inset] in from the sides, so the codes below can sit under them.
         // Feet stop above the bottom edge so the plane clears the codes below.
         val lift = 14.dp.toPx()
@@ -124,13 +130,17 @@ fun FlightArc(progress: Float?, modifier: Modifier = Modifier, inset: Dp = 30.dp
             center.y + r * sin(angle).toFloat(),
         )
         val disc = 11.dp.toPx()
-        drawCircle(AeroColors.text, disc, at)
+        if (ambient) drawCircle(AeroColors.ink, disc, at) // cut the track behind the plane
+        else drawCircle(AeroColors.text, disc, at)
         val icon = 14.dp.toPx()
         // Nose up at the left foot, level at the top, down at the right foot.
         rotate(degrees = 180f * p, pivot = at) {
             translate(at.x - icon / 2, at.y - icon / 2) {
                 with(plane) {
-                    draw(Size(icon, icon), colorFilter = ColorFilter.tint(AeroColors.ink))
+                    draw(
+                        Size(icon, icon),
+                        colorFilter = ColorFilter.tint(if (ambient) AeroColors.text else AeroColors.ink),
+                    )
                 }
             }
         }

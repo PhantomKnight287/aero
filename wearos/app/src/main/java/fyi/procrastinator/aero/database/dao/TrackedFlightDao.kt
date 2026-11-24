@@ -16,6 +16,14 @@ interface TrackedFlightDao {
     @Query("SELECT * FROM tracked_flights ORDER BY flight_date DESC, flight_id DESC")
     fun getTrackedFlights(): Flow<List<TrackedFlightWithAirline>>
 
+    @Query("SELECT * FROM tracked_flights WHERE remote_id = :remoteId")
+    suspend fun byRemoteId(remoteId: String): TrackedFlight?
+
+    /** One-shot read for the tile and complication services. */
+    @Transaction
+    @Query("SELECT * FROM tracked_flights")
+    suspend fun trackedFlightsOnce(): List<TrackedFlightWithAirline>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsertTrackedFlight(flight: TrackedFlight)
 

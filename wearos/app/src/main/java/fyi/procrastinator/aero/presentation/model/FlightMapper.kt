@@ -101,6 +101,8 @@ object FlightMapper {
             registration = flight.str("registration"),
             inbound = flight.optJSONObject("inbound")?.let { inbound(it, use24) },
             divertedTo = flight.str("divertedTo"),
+            departsAt = depBest,
+            arrivesAt = arrBest,
         )
     }
 
