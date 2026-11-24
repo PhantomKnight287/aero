@@ -27,6 +27,7 @@ Aero is a full-stack flight tracking application that brings real-time flight in
 **Key Highlights:**
 
 - 🛫 Real-time flight tracking with live updates
+- 🌦️ Decoded airport weather (METAR/TAF) with switchable units
 - 📊 Comprehensive flight statistics and analytics
 - 📱 Native mobile apps with home screen widgets
 - ⌚ Wear OS companion for quick flight info
@@ -47,6 +48,10 @@ Aero is a full-stack flight tracking application that brings real-time flight in
 <tr>
 <td><img src="./landing/public/features/live_on_map.png" height="300"></td>
 <td><img src="./landing/public/features/plane_image.png" height="300"></td>
+</tr>
+<tr>
+<td><img src="./landing/public/features/airport_weather.png" height="300"></td>
+<td><img src="./landing/public/features/stats.png" height="300"></td>
 </tr>
 </table>
 

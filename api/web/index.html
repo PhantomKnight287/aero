@@ -2,51 +2,68 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    
-    <!-- Primary Meta Tags -->
-    <title>Aero | Live Flight Tracker</title>
-    <meta name="title" content="Aero | Live Flight Tracker" />
-    <meta name="description" content="Track your flights, from different airlines, all in one app. Aero is the flight companion you've been waiting for. Track your live flights, log your past adventures, and tell a story about your journey." />
-    <meta name="keywords" content="flight tracker, flight tracking, airline tracker, flight app, live flight tracking, flight status, airport tracker, aero, flight companion" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+
+    <title>Aero · Every flight, in full detail</title>
+    <meta name="description" content="Free, open-source flight tracker for Android. Live position, IATA and ICAO codes, gate to runway times, the aircraft and where it flew in from, decoded airport weather, and shareable flight cards." />
+    <meta name="keywords" content="flight tracker, live flight tracking, flight status, METAR, TAF, aircraft registration, inbound aircraft, boarding pass, open source, android" />
     <meta name="author" content="phantomknight287" />
-    <meta name="robots" content="index, follow" />
-    <meta name="language" content="English" />
-    
-    <!-- Favicon -->
-    <link rel="icon" type="image/png" href="/icons/0-4.png" />
-    <link rel="apple-touch-icon" href="/icons/0-4.png" />
-    
-    <!-- Open Graph / Facebook -->
+    <meta name="robots" content="index, follow, max-image-preview:large" />
+    <link rel="canonical" href="https://aero.procrastinator.fyi/" />
+
+    <!-- Icons and theme -->
+    <link rel="icon" type="image/png" href="/icons/0-1.png" />
+    <link rel="apple-touch-icon" href="/icons/0-1.png" />
+    <meta name="theme-color" content="#ffffff" />
+    <meta name="color-scheme" content="light" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="application-name" content="Aero" />
+    <meta name="apple-mobile-web-app-title" content="Aero" />
+
+    <!-- Fonts are on the critical path for the headline -->
+    <link rel="preload" href="/fonts/CalSans.ttf" as="font" type="font/ttf" crossorigin />
+    <link rel="preload" href="/fonts/Inter.ttf" as="font" type="font/ttf" crossorigin />
+
+    <!-- Open Graph -->
     <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Aero" />
+    <meta property="og:locale" content="en_US" />
     <meta property="og:url" content="https://aero.procrastinator.fyi/" />
-    <meta property="og:title" content="Aero | Live Flight Tracker" />
-    <meta property="og:description" content="Track your flights, from different airlines, all in one app. Aero is the flight companion you've been waiting for." />
-    <meta property="og:image" content="https://aero.procrastinator.fyi/features/og.png" />
+    <meta property="og:title" content="Aero · Every flight, in full detail" />
+    <meta property="og:description" content="Free, open-source flight tracker. Live tracking, gate to runway times, the aircraft and decoded airport weather." />
+    <meta property="og:image" content="https://aero.procrastinator.fyi/og.png" />
+    <meta property="og:image:secure_url" content="https://aero.procrastinator.fyi/og.png" />
+    <meta property="og:image:type" content="image/png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <meta property="og:image:type" content="image/png" />
-    <meta property="og:site_name" content="Aero" />
-    
-    <!-- Twitter -->
+    <meta property="og:image:alt" content="Aero tracking UA1581 from Los Angeles to Newark, with boarding pass and departures board share cards" />
+
+    <!-- Twitter / X -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:url" content="https://aero.procrastinator.fyi/" />
-    <meta name="twitter:title" content="Aero | Live Flight Tracker" />
-    <meta name="twitter:description" content="Track your flights, from different airlines, all in one app. Aero is the flight companion you've been waiting for." />
-    <meta name="twitter:image" content="https://aero.procrastinator.fyi/features/og.png" />
-    <meta name="twitter:image:alt" content="Aero - Live Flight Tracker App Icon" />
-    
-    <!-- Theme Color -->
-    <meta name="theme-color" content="#000000" />
-    
-    <!-- Additional Meta Tags -->
-    <meta name="application-name" content="Aero" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="apple-mobile-web-app-title" content="Aero" />
-    <meta name="mobile-web-app-capable" content="yes" />
-    <script type="module" crossorigin src="/assets/index-DBjHSWZS.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-CypCYKzD.css">
+    <meta name="twitter:title" content="Aero · Every flight, in full detail" />
+    <meta name="twitter:description" content="Free, open-source flight tracker. Live tracking, gate to runway times, the aircraft and decoded airport weather." />
+    <meta name="twitter:image" content="https://aero.procrastinator.fyi/og.png" />
+    <meta name="twitter:image:alt" content="Aero tracking UA1581 from Los Angeles to Newark, with boarding pass and departures board share cards" />
+
+    <!-- Structured data: lets search show it as an app -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "Aero",
+        "description": "Free, open-source flight tracker with live tracking, gate to runway times, aircraft details and decoded airport weather.",
+        "url": "https://aero.procrastinator.fyi/",
+        "image": "https://aero.procrastinator.fyi/og.png",
+        "applicationCategory": "TravelApplication",
+        "operatingSystem": "Android, Wear OS",
+        "isAccessibleForFree": true,
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+        "license": "https://github.com/phantomknight287/aero/blob/main/LICENSE",
+        "codeRepository": "https://github.com/phantomknight287/aero"
+      }
+    </script>
+    <script type="module" crossorigin src="/assets/index-C-dTdODt.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-Btrah3GN.css">
   </head>
   <body>
     <div id="root"></div>
