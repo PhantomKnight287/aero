@@ -8,7 +8,10 @@ data class FlightUi(
     val id: String,
     val airline: String,
     val airlineIata: String,
+    /** Our SVG logo, else FlightAware's PNG. */
     val logoUrl: String? = null,
+    /** Tried when [logoUrl] fails (the PNG, when the SVG was first). */
+    val logoFallbackUrl: String? = null,
     /** 'UA1581' */
     val ident: String,
     /** 'UAL1581' */

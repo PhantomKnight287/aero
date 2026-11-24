@@ -11,7 +11,8 @@ import fyi.procrastinator.aero.database.dao.TrackedFlightDao
 import fyi.procrastinator.aero.database.entity.Airline
 import fyi.procrastinator.aero.database.entity.TrackedFlight
 
-@Database(entities = [Airline::class, TrackedFlight::class], version = 1)
+// v2: remote_id + payload. Destructive migration is fine: the phone re-sends.
+@Database(entities = [Airline::class, TrackedFlight::class], version = 2)
 @TypeConverters(DateConverter::class)
 abstract class AeroDatabase : RoomDatabase() {
     abstract fun airlineDao(): AirlineDAO

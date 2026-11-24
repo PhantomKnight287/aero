@@ -32,7 +32,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material3.Text
-import coil3.compose.AsyncImage
+import coil3.compose.SubcomposeAsyncImage
 import fyi.procrastinator.aero.R
 import fyi.procrastinator.aero.presentation.model.FlightUi
 import fyi.procrastinator.aero.presentation.model.Phase
@@ -61,17 +61,14 @@ fun StatusDot(color: Color, modifier: Modifier = Modifier) {
     Box(modifier.size(7.dp).clip(CircleShape).background(color))
 }
 
-/** Airline logo, or its code on a tile when there's none (previews, offline). */
+/**
+ * Airline logo: our SVG, then FlightAware's PNG, then the code on a tile
+ * (also shown while loading, and in previews).
+ */
 @Composable
-fun AirlineMark(iata: String, logoUrl: String?, size: Int = 28) {
+fun AirlineMark(iata: String, logoUrl: String?, fallbackUrl: String? = null, size: Int = 28) {
     val shape = RoundedCornerShape((size / 4).dp)
-    if (logoUrl != null) {
-        AsyncImage(
-            model = logoUrl,
-            contentDescription = null,
-            modifier = Modifier.size(size.dp).clip(shape),
-        )
-    } else {
+    val tile = @Composable {
         Box(
             Modifier.size(size.dp).clip(shape).background(AeroColors.panelHigh),
             contentAlignment = Alignment.Center,
@@ -79,6 +76,18 @@ fun AirlineMark(iata: String, logoUrl: String?, size: Int = 28) {
             Text(iata, style = AeroText.label.copy(color = AeroColors.text))
         }
     }
+    @Composable
+    fun image(url: String?, orElse: @Composable () -> Unit) {
+        if (url == null) return orElse()
+        SubcomposeAsyncImage(
+            model = url,
+            contentDescription = null,
+            modifier = Modifier.size(size.dp).clip(shape),
+            loading = { tile() },
+            error = { orElse() },
+        )
+    }
+    image(logoUrl) { image(fallbackUrl) { tile() } }
 }
 
 /**

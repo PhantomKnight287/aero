@@ -21,7 +21,8 @@ import androidx.room.Relation
     ],
     indices = [
         Index("airline_uid"),
-        Index(value = ["flight_no", "flight_date"], unique = true)
+        // One row per phone flight: a re-send replaces it (new gate, delay).
+        Index(value = ["remote_id"], unique = true)
     ]
 )
 data class TrackedFlight(
@@ -46,6 +47,12 @@ data class TrackedFlight(
     val arrivalAirportIata: String,
     @ColumnInfo(name = "arrival_city")
     val arrivalCity: String,
+    /** The phone's flight id. */
+    @ColumnInfo(name = "remote_id")
+    val remoteId: String,
+    /** The phone's whole `flight` JSON (v2); the screens are built from it. */
+    @ColumnInfo(name = "payload")
+    val payload: String,
 )
 
 data class TrackedFlightWithAirline(

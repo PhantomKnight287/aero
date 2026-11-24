@@ -34,7 +34,6 @@ class MessageListenerService : WearableListenerService() {
 
     override fun onMessageReceived(event: MessageEvent) {
         super.onMessageReceived(event)
-        Log.e("ReceivedMessage","Path=${event.path}");
         when (event.path) {
             "/boot" -> launchApp()
             "/register-flight" -> handleRegisterFlight(event.data)
@@ -51,7 +50,6 @@ class MessageListenerService : WearableListenerService() {
     private fun handleRegisterFlight(payload: ByteArray?) {
         if (payload == null) return
         val rawJson = payload.toString(StandardCharsets.UTF_8)
-        Log.e("RawJson", rawJson)
         serviceScope.launch {
             try {
                 val json = JSONObject(rawJson)
@@ -112,6 +110,8 @@ class MessageListenerService : WearableListenerService() {
             departureCity = json.optString("departureCity").ifBlank { "--" },
             arrivalAirportIata = json.optString("arrivalAirportIata").ifBlank { "--" },
             arrivalCity = json.optString("arrivalCity").ifBlank { "--" },
+            remoteId = json.optString("id").ifBlank { flightNumber },
+            payload = json.toString(),
         )
     }
 

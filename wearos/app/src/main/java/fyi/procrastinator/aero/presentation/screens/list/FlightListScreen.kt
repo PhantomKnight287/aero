@@ -88,7 +88,7 @@ private fun FlightCard(
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                AirlineMark(flight.airlineIata, flight.logoUrl, size = 18)
+                AirlineMark(flight.airlineIata, flight.logoUrl, flight.logoFallbackUrl, size = 18)
                 Spacer(Modifier.width(6.dp))
                 Text(
                     "${flight.ident} · ${flight.date}",
