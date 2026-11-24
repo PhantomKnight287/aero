@@ -10,6 +10,8 @@ class _$AirportDetailsEntity extends AirportDetailsEntity {
   @override
   final String ident;
   @override
+  final AirportEntity? airport;
+  @override
   final JsonObject? delays;
   @override
   final DecodedWeatherEntity? metar;
@@ -21,7 +23,7 @@ class _$AirportDetailsEntity extends AirportDetailsEntity {
       (AirportDetailsEntityBuilder()..update(updates))._build();
 
   _$AirportDetailsEntity._(
-      {required this.ident, this.delays, this.metar, this.taf})
+      {required this.ident, this.airport, this.delays, this.metar, this.taf})
       : super._();
   @override
   AirportDetailsEntity rebuild(
@@ -37,6 +39,7 @@ class _$AirportDetailsEntity extends AirportDetailsEntity {
     if (identical(other, this)) return true;
     return other is AirportDetailsEntity &&
         ident == other.ident &&
+        airport == other.airport &&
         delays == other.delays &&
         metar == other.metar &&
         taf == other.taf;
@@ -46,6 +49,7 @@ class _$AirportDetailsEntity extends AirportDetailsEntity {
   int get hashCode {
     var _$hash = 0;
     _$hash = $jc(_$hash, ident.hashCode);
+    _$hash = $jc(_$hash, airport.hashCode);
     _$hash = $jc(_$hash, delays.hashCode);
     _$hash = $jc(_$hash, metar.hashCode);
     _$hash = $jc(_$hash, taf.hashCode);
@@ -57,6 +61,7 @@ class _$AirportDetailsEntity extends AirportDetailsEntity {
   String toString() {
     return (newBuiltValueToStringHelper(r'AirportDetailsEntity')
           ..add('ident', ident)
+          ..add('airport', airport)
           ..add('delays', delays)
           ..add('metar', metar)
           ..add('taf', taf))
@@ -71,6 +76,11 @@ class AirportDetailsEntityBuilder
   String? _ident;
   String? get ident => _$this._ident;
   set ident(String? ident) => _$this._ident = ident;
+
+  AirportEntityBuilder? _airport;
+  AirportEntityBuilder get airport =>
+      _$this._airport ??= AirportEntityBuilder();
+  set airport(AirportEntityBuilder? airport) => _$this._airport = airport;
 
   JsonObject? _delays;
   JsonObject? get delays => _$this._delays;
@@ -94,6 +104,7 @@ class AirportDetailsEntityBuilder
     final $v = _$v;
     if ($v != null) {
       _ident = $v.ident;
+      _airport = $v.airport?.toBuilder();
       _delays = $v.delays;
       _metar = $v.metar?.toBuilder();
       _taf = $v.taf?.toBuilder();
@@ -122,6 +133,7 @@ class AirportDetailsEntityBuilder
           _$AirportDetailsEntity._(
             ident: BuiltValueNullFieldError.checkNotNull(
                 ident, r'AirportDetailsEntity', 'ident'),
+            airport: _airport?.build(),
             delays: delays,
             metar: _metar?.build(),
             taf: _taf?.build(),
@@ -129,6 +141,9 @@ class AirportDetailsEntityBuilder
     } catch (_) {
       late String _$failedField;
       try {
+        _$failedField = 'airport';
+        _airport?.build();
+
         _$failedField = 'metar';
         _metar?.build();
         _$failedField = 'taf';

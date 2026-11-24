@@ -3,6 +3,7 @@
 //
 
 // ignore_for_file: unused_element
+import 'package:openapi/src/model/airport_entity.dart';
 import 'package:openapi/src/model/decoded_weather_entity.dart';
 import 'package:built_value/json_object.dart';
 import 'package:built_value/built_value.dart';
@@ -14,6 +15,7 @@ part 'airport_details_entity.g.dart';
 ///
 /// Properties:
 /// * [ident] - Airport identifier (ICAO)
+/// * [airport] - Airport record from the airports table (country, region, elevation, type). Null when the ident is not in the table.
 /// * [delays] - FlightAware airport delay information, if any
 /// * [metar] - Latest METAR observation (raw + decoded)
 /// * [taf] - TAF forecast (raw + decoded)
@@ -22,6 +24,10 @@ abstract class AirportDetailsEntity implements Built<AirportDetailsEntity, Airpo
   /// Airport identifier (ICAO)
   @BuiltValueField(wireName: r'ident')
   String get ident;
+
+  /// Airport record from the airports table (country, region, elevation, type). Null when the ident is not in the table.
+  @BuiltValueField(wireName: r'airport')
+  AirportEntity? get airport;
 
   /// FlightAware airport delay information, if any
   @BuiltValueField(wireName: r'delays')
@@ -63,6 +69,13 @@ class _$AirportDetailsEntitySerializer implements PrimitiveSerializer<AirportDet
       object.ident,
       specifiedType: const FullType(String),
     );
+    if (object.airport != null) {
+      yield r'airport';
+      yield serializers.serialize(
+        object.airport,
+        specifiedType: const FullType.nullable(AirportEntity),
+      );
+    }
     if (object.delays != null) {
       yield r'delays';
       yield serializers.serialize(
@@ -113,6 +126,14 @@ class _$AirportDetailsEntitySerializer implements PrimitiveSerializer<AirportDet
             specifiedType: const FullType(String),
           ) as String;
           result.ident = valueDes;
+          break;
+        case r'airport':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType.nullable(AirportEntity),
+          ) as AirportEntity?;
+          if (valueDes == null) continue;
+          result.airport.replace(valueDes);
           break;
         case r'delays':
           final valueDes = serializers.deserialize(

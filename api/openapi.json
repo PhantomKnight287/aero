@@ -2314,6 +2314,15 @@
             "example": "VIDP",
             "description": "Airport identifier (ICAO)"
           },
+          "airport": {
+            "description": "Airport record from the airports table (country, region, elevation, type). Null when the ident is not in the table.",
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/AirportEntity"
+              }
+            ]
+          },
           "delays": {
             "type": "object",
             "description": "FlightAware airport delay information, if any",

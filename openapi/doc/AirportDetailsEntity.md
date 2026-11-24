@@ -9,6 +9,7 @@ import 'package:openapi/api.dart';
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **ident** | **String** | Airport identifier (ICAO) | 
+**airport** | [**AirportEntity**](AirportEntity.md) | Airport record from the airports table (country, region, elevation, type). Null when the ident is not in the table. | [optional] 
 **delays** | [**JsonObject**](.md) | FlightAware airport delay information, if any | [optional] 
 **metar** | [**DecodedWeatherEntity**](DecodedWeatherEntity.md) | Latest METAR observation (raw + decoded) | [optional] 
 **taf** | [**DecodedWeatherEntity**](DecodedWeatherEntity.md) | TAF forecast (raw + decoded) | [optional] 

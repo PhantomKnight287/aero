@@ -114,13 +114,21 @@ export class AirportsService {
    * Every source is best-effort — a failure in one never fails the request.
    */
   async getAirportDetails(ident: string): Promise<AirportDetailsEntity> {
-    const [delaysResult, forecastResult, observationResult] =
+    const [airportResult, delaysResult, forecastResult, observationResult] =
       await Promise.allSettled([
+        // Callers opening from a flight only know the ICAO/IATA code; the
+        // table is the source of truth for country, region and elevation.
+        prisma.airport.findFirst({
+          omit: { createdAt: true, updatedAt: true },
+          where: { OR: [{ ident }, { gpsCode: ident }, { iataCode: ident }] },
+        }),
         this.flightAware.getAirportDelays(ident),
         this.flightAware.getAirportWeatherForecast(ident),
         this.flightAware.getAirportLatestObservation(ident),
       ]);
 
+    const airportRow =
+      airportResult.status === 'fulfilled' ? airportResult.value : null;
     const delays =
       delaysResult.status === 'fulfilled' ? delaysResult.value : null;
     const forecast =
@@ -142,6 +150,13 @@ export class AirportsService {
 
     return {
       ident,
+      airport: airportRow && {
+        ...airportRow,
+        // Decimals serialise as strings everywhere else; match AirportEntity.
+        elevation: airportRow.elevation?.toString(),
+        lat: airportRow.lat.toString(),
+        long: airportRow.long.toString(),
+      },
       delays,
       metar: await this.decode(metarRaw, 'metar'),
       taf: await this.decode(tafRaw, 'taf'),

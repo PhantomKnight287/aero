@@ -44,6 +44,11 @@ export class AppModule implements NestModule {
       .exclude('/assets/(.*)')
       .exclude('/features/(.*)')
       .exclude('/icons/(.*)')
+      // Landing page assets (api/web): screenshots, share cards, fonts, OG image.
+      .exclude('/screens/(.*)')
+      .exclude('/cards/(.*)')
+      .exclude('/fonts/(.*)')
+      .exclude('/og.png')
       .forRoutes('*');
   }
 }

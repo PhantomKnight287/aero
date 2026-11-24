@@ -1,5 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
+import { AirportEntity } from './airport.entity';
+
 /** A raw aviation weather string alongside its decoded structured form. */
 export class DecodedWeatherEntity {
   @ApiPropertyOptional({
@@ -21,6 +23,15 @@ export class DecodedWeatherEntity {
 export class AirportDetailsEntity {
   @ApiProperty({ example: 'VIDP', description: 'Airport identifier (ICAO)' })
   ident: string;
+
+  @ApiPropertyOptional({
+    description:
+      'Airport record from the airports table (country, region, elevation, type). ' +
+      'Null when the ident is not in the table.',
+    type: AirportEntity,
+    nullable: true,
+  })
+  airport?: AirportEntity | null;
 
   @ApiPropertyOptional({
     description: 'FlightAware airport delay information, if any',
