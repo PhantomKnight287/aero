@@ -1,5 +1,5 @@
 import { useLayoutEffect, useRef, useState } from "react";
-import { STATES, frameAt, type StoryState, type Tone } from "@/data/flightStory";
+import { STATES, fmtAlt, fmtSpeed, frameAt, type StoryState, type Tone } from "@/data/flightStory";
 import { SectionTitle, Watch } from "./primitives";
 
 const PLANE =
@@ -52,10 +52,15 @@ export function FlightStory() {
     };
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onScroll);
+    // Scroll restoration can land after the first measure; catch it here.
+    window.addEventListener("load", onScroll);
+    window.addEventListener("pageshow", onScroll);
     return () => {
       cancelAnimationFrame(frame);
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onScroll);
+      window.removeEventListener("load", onScroll);
+      window.removeEventListener("pageshow", onScroll);
     };
   }, [reduced]);
 
@@ -113,7 +118,7 @@ export function FlightStory() {
                   aria-current={i === index ? "step" : undefined}
                   className={`rounded-full px-3 py-1 text-sm transition-colors ${
                     i === index
-                      ? "bg-ink font-semibold text-white"
+                      ? "bg-ink font-semibold text-paper"
                       : i < index
                         ? "text-ink hover:bg-panel"
                         : "text-muted hover:bg-panel"
@@ -125,7 +130,7 @@ export function FlightStory() {
             </div>
             <div className="mt-4 grid items-center gap-4 sm:mt-8 sm:gap-6 lg:grid-cols-[1fr_280px] lg:gap-12">
               <Strip s={s} plane={plane} />
-              <Watch className="mx-auto w-[150px] sm:w-[240px] lg:w-[280px] [@media(max-height:640px)]:w-[120px]">
+              <Watch className="mx-auto w-[150px] sm:w-[240px] lg:w-[280px] [@media(max-height:640px)]:w-[100px]">
                 <WatchFace s={s} plane={plane} />
               </Watch>
             </div>
@@ -156,6 +161,9 @@ function TimeLine({ t, right = false }: { t: StoryState["dep"]; right?: boolean 
 
 /** The app's flight header, spelled out for one moment of the flight. */
 function Strip({ s, plane }: { s: StoryState; plane: number }) {
+  const [altUnit, setAltUnit] = useState(0);
+  const [speedUnit, setSpeedUnit] = useState(0);
+  const unit = "rounded px-1 underline decoration-dashed decoration-muted underline-offset-4 hover:bg-line";
   return (
     <div className="rounded-2xl bg-panel p-5 sm:p-6">
       <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1">
@@ -178,7 +186,7 @@ function Strip({ s, plane }: { s: StoryState; plane: number }) {
             style={{ width: `${plane}%` }}
           />
           <span
-            className="absolute top-1/2 flex h-6 w-6 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-ink text-white"
+            className="absolute top-1/2 flex h-6 w-6 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-ink text-paper"
             style={{ left: `${plane}%` }}
           >
             <svg viewBox="0 0 24 24" className="h-3.5 w-3.5 rotate-90" fill="currentColor" aria-hidden>
@@ -195,9 +203,29 @@ function Strip({ s, plane }: { s: StoryState; plane: number }) {
         <TimeLine t={s.dep} />
         <TimeLine t={s.arr} right />
       </div>
-      <p key={`${s.key}-line`} className="swap mt-4 border-t border-line pt-3 text-sm text-ink-soft">
-        {s.line}
-      </p>
+      <div key={`${s.key}-line`} className="swap mt-4 border-t border-line pt-3 text-sm text-ink-soft">
+        <p className="flex flex-wrap items-center gap-x-1.5">
+          {s.line}
+          {s.alt != null && s.speed != null && (
+            <>
+              <span className="text-muted">·</span>
+              <button className={`${unit} tabular`} onClick={() => setAltUnit((u) => (u + 1) % 3)} title="Tap to switch units">
+                {fmtAlt(s.alt, altUnit)}
+              </button>
+              <span className="text-muted">·</span>
+              <button className={`${unit} tabular`} onClick={() => setSpeedUnit((u) => (u + 1) % 3)} title="Tap to switch units">
+                {fmtSpeed(s.speed, speedUnit)}
+              </button>
+            </>
+          )}
+        </p>
+        {s.metar && (
+          <p className="mt-2 rounded-lg bg-paper px-3 py-2 text-xs ring-1 ring-line">
+            <span className="font-mono text-muted [@media(max-height:640px)]:hidden">{s.metar.raw}</span>
+            <span className="mt-0.5 block text-ink-soft [@media(max-height:640px)]:mt-0">{s.metar.decoded}</span>
+          </p>
+        )}
+      </div>
     </div>
   );
 }

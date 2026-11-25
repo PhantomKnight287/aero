@@ -18,7 +18,7 @@ export function Phone({
   // keeps its proportions from a 90 px thumbnail to a 280 px hero.
   return (
     <div className={`@container ${className}`}>
-      <div className="rounded-[16cqw] bg-ink p-[2.8cqw] shadow-[0_30px_60px_-20px_rgba(0,0,0,0.35)] ring-1 ring-black/10">
+      <div className="rounded-[16cqw] bg-black p-[2.8cqw] shadow-[0_30px_60px_-20px_rgba(0,0,0,0.35)] ring-1 ring-black/10 dark:ring-white/15">
         <div className="relative overflow-hidden rounded-[13.4cqw] bg-panel">
           <img
             src={src}
@@ -27,7 +27,7 @@ export function Phone({
             className="block aspect-[3/7] w-full object-cover object-top"
           />
           {/* punch-hole camera */}
-          <span className="absolute left-1/2 top-[1.1%] h-[2.4%] w-[5.4%] -translate-x-1/2 rounded-full bg-ink" />
+          <span className="absolute left-1/2 top-[1.1%] h-[2.4%] w-[5.4%] -translate-x-1/2 rounded-full bg-black" />
         </div>
       </div>
     </div>

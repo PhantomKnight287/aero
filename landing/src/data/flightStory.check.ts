@@ -7,3 +7,14 @@ const i = S.findIndex((s) => s.key === "inflight"); const n = S.length;
 a(frameAt((i + 0.5) / n).plane === 25, "lerp mid in-flight");
 a(frameAt(0).plane === 0, "start at 0");
 console.log("ok");
+
+import { fmtAlt, fmtSpeed } from "./flightStory.ts";
+a(fmtAlt(37000, 0) === "FL370", "alt FL");
+a(fmtAlt(37000, 1) === "37,000 ft", "alt ft");
+a(fmtAlt(37000, 2) === "11,278 m", "alt m");
+a(fmtSpeed(489, 0) === "489 kt", "kt");
+a(fmtSpeed(489, 1) === "906 km/h", "km/h");
+a(fmtSpeed(489, 2) === "563 mph", "mph");
+a(S[1].key === "inbound" && S[1].dep.tone === "warn", "inbound step at risk");
+a(S.filter((x) => x.metar).map((x) => x.key).join() === "landed,arrived", "metar on landed+arrived");
+console.log("units ok");

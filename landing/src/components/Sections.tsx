@@ -93,24 +93,33 @@ export function Details() {
   );
 }
 
-export function Icons() {
+export function Icons({ icon, onPick }: { icon: string; onPick: (icon: string) => void }) {
   return (
     <section id="icons" className="scroll-mt-16 border-t border-line py-24">
       <div className="mx-auto max-w-6xl px-5">
-        <SectionTitle kicker="App icons" title="Make it yours." />
+        <SectionTitle kicker="App icons" title="Make it yours.">
+          Twelve icons in the app. Tap one to try it on this page.
+        </SectionTitle>
         <Reveal className="mt-12 grid grid-cols-4 gap-5 sm:grid-cols-6 lg:grid-cols-12">
-          {icons.map((icon, i) => (
-            <figure key={icon} className="text-center">
+          {icons.map((ic, i) => (
+            <button
+              key={ic}
+              onClick={() => onPick(ic)}
+              aria-pressed={ic === icon}
+              className="group text-center"
+            >
               <img
-                src={`/icons/${icon}`}
+                src={`/icons/${ic}`}
                 alt={`App icon ${i + 1}`}
                 loading="lazy"
-                className="mx-auto aspect-square w-full max-w-20 rounded-[22%] shadow-sm ring-1 ring-black/5 transition-transform duration-300 hover:-translate-y-1"
+                className={`mx-auto aspect-square w-full max-w-20 rounded-[22%] shadow-sm ring-black/5 transition-transform duration-300 group-hover:-translate-y-1 group-active:scale-95 ${
+                  ic === icon ? "ring-2 ring-ink ring-offset-2 ring-offset-paper" : "ring-1"
+                }`}
               />
-              <figcaption className="mt-2 text-xs text-muted">
-                {i === DEFAULT_ICON_INDEX ? "Default" : " "}
-              </figcaption>
-            </figure>
+              <span className="mt-2 block text-xs text-muted">
+                {ic === icon ? "Selected" : i === DEFAULT_ICON_INDEX ? "Default" : "\u00a0"}
+              </span>
+            </button>
           ))}
         </Reveal>
       </div>
@@ -121,7 +130,7 @@ export function Icons() {
 export function SelfHost() {
   return (
     <section id="self-host" className="scroll-mt-16 px-5 pb-24">
-      <Reveal className="mx-auto grid max-w-6xl items-center gap-10 rounded-3xl bg-ink p-8 text-white sm:p-12 lg:grid-cols-2">
+      <Reveal className="mx-auto grid max-w-6xl items-center gap-10 rounded-3xl bg-black p-8 text-white dark:ring-1 dark:ring-white/10 sm:p-12 lg:grid-cols-2">
         <div>
           <h2 className="font-display text-4xl tracking-tight sm:text-5xl">
             Free. Open source.
@@ -136,7 +145,7 @@ export function SelfHost() {
             href={GITHUB}
             target="_blank"
             rel="noopener noreferrer"
-            className="mt-8 inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 font-medium text-ink transition-transform active:scale-[0.97]"
+            className="mt-8 inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 font-medium text-black transition-transform active:scale-[0.97]"
           >
             <GithubMark />
             View on GitHub
@@ -160,12 +169,12 @@ export function SelfHost() {
   );
 }
 
-export function Footer() {
+export function Footer({ icon }: { icon: string }) {
   return (
     <footer className="border-t border-line">
       <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-5 py-8 text-sm text-muted">
         <div className="flex items-center gap-2.5">
-          <img src={`/icons/${icons[DEFAULT_ICON_INDEX]}`} alt="" className="h-6 w-6 rounded-[7px]" />
+          <img src={`/icons/${icon}`} alt="" className="h-6 w-6 rounded-[7px]" />
           <span>Aero · flight tracking in full detail</span>
         </div>
         <a href={GITHUB} target="_blank" rel="noopener noreferrer" className="hover:text-ink">

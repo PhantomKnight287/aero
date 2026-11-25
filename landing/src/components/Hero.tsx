@@ -1,13 +1,12 @@
-import { icons, DEFAULT_ICON_INDEX } from "@/data/icons";
 import { GITHUB, GithubMark, Phone } from "./primitives";
 
-export function Nav() {
+export function Nav({ icon }: { icon: string }) {
   return (
-    <header className="sticky top-0 z-50 border-b border-line/70 bg-white/75 backdrop-blur-xl">
+    <header className="sticky top-0 z-50 border-b border-line/70 bg-paper/75 backdrop-blur-xl">
       <nav className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5">
         <a href="#" className="flex items-center gap-2.5">
           <img
-            src={`/icons/${icons[DEFAULT_ICON_INDEX]}`}
+            src={`/icons/${icon}`}
             alt=""
             className="h-8 w-8 rounded-[9px]"
           />
@@ -29,7 +28,7 @@ export function Nav() {
           href={GITHUB}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 rounded-full bg-ink px-4 py-2 text-sm font-medium text-white transition-transform active:scale-[0.97]"
+          className="inline-flex items-center gap-2 rounded-full bg-ink px-4 py-2 text-sm font-medium text-paper transition-transform active:scale-[0.97]"
         >
           <GithubMark className="h-4 w-4" />
           GitHub
@@ -68,7 +67,7 @@ export function Hero() {
               href={GITHUB}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 rounded-full bg-ink px-6 py-3 font-medium text-white transition-transform active:scale-[0.97]"
+              className="inline-flex items-center gap-2 rounded-full bg-ink px-6 py-3 font-medium text-paper transition-transform active:scale-[0.97]"
             >
               <GithubMark />
               Get it on GitHub

@@ -58,3 +58,16 @@ crossfade timing.
 - Late shown as its own step between In flight and Landed.
 - Missing watch states use nearest screenshot rather than adding new previews.
 - Section placed where `FlightStrip` is now (directly under hero).
+
+## Round 2 (approved 2026-11-25)
+1. Inbound step between Scheduled and Boarding: amber dot, "Inbound 25m late",
+   departure "At risk" (warn); Boarding recovers ("Quick turn · back on time").
+2. METAR chip on Landed/Arrived: raw `KEWR 232051Z 22014KT 10SM BKN045 08/M02 A3002`
+   + decoded line.
+3. Tappable units on In flight / Delayed: altitude FL370 → 37,000 ft → 11,278 m;
+   speed 489 kt → 906 km/h → 563 mph. Pure formatters covered by the check file.
+6. Clicking an app icon sets nav logo, footer logo and favicon (state in App, no persistence).
+7. Dark mode via `prefers-color-scheme` only: override ink/ink-soft/muted/line/panel vars,
+   new `paper` token for white-on-ink; phone frame and Self-host block stay literal black.
+8. Re-measure story progress on `load` and `pageshow`.
+Skipped: manual theme toggle, persisted icon choice.

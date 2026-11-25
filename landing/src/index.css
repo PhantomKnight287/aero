@@ -20,6 +20,7 @@
   --font-display: "CalSans", "Inter", sans-serif;
   --font-mono: ui-monospace, "SF Mono", Menlo, monospace;
 
+  --color-paper: #ffffff;
   --color-ink: #000000;
   --color-ink-soft: #1f1f1f;
   --color-muted: #6b6b6b;
@@ -33,6 +34,19 @@
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
 }
 
+/* Dark mode follows the system: swap the neutrals, keep status colours. */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-paper: #0a0a0a;
+    --color-ink: #f5f5f5;
+    --color-ink-soft: #d4d4d4;
+    --color-muted: #9a9a9a;
+    --color-line: #2a2a2a;
+    --color-panel: #161616;
+    color-scheme: dark;
+  }
+}
+
 html {
   scroll-behavior: smooth;
   -webkit-font-smoothing: antialiased;
@@ -40,7 +54,7 @@ html {
 }
 
 body {
-  @apply bg-white font-sans text-ink;
+  @apply bg-paper font-sans text-ink;
 }
 
 .tabular {

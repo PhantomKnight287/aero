@@ -31,6 +31,11 @@ export type StoryState = {
   arr: Time;
   /** Where the plane sits on the route, in %, across this state. */
   plane: [number, number];
+  /** Live altitude (ft) and ground speed (kt), shown as tappable units. */
+  alt?: number;
+  speed?: number;
+  /** Arrival airport METAR, raw and in plain words. */
+  metar?: { raw: string; decoded: string };
 };
 
 const onTime = (time: string): Time => ({ time, delta: "On time", tone: "muted" });
@@ -50,12 +55,24 @@ export const STATES: StoryState[] = [
     plane: [0, 0],
   },
   {
+    key: "inbound",
+    label: "Inbound",
+    status: "Scheduled",
+    tone: "warn",
+    sub: "Inbound 25m late",
+    line: "N797UA inbound from SFO, landed 25m late",
+    clock: "09:31",
+    dep: { time: "10:30", delta: "At risk", tone: "warn" },
+    arr: onTime("15:38"),
+    plane: [0, 0],
+  },
+  {
     key: "boarding",
     label: "Boarding",
     status: "Boarding",
     tone: "success",
     sub: "Gate 77",
-    line: "Boarding at gate 77 · doors close 10:15",
+    line: "Quick turn · back on time · boarding at gate 77",
     clock: "09:58",
     dep: onTime("10:30"),
     arr: onTime("15:38"),
@@ -79,7 +96,9 @@ export const STATES: StoryState[] = [
     status: "In flight",
     tone: "success",
     sub: "2h 40m left",
-    line: "Departed 2h 10m ago · FL370 · 489 kt",
+    line: "Departed 2h 10m ago",
+    alt: 37000,
+    speed: 489,
     clock: "12:34",
     dep: depEarly,
     arr: { time: "15:15", sched: "15:38", delta: "23m early", tone: "success" },
@@ -91,7 +110,9 @@ export const STATES: StoryState[] = [
     status: "In flight",
     tone: "warn",
     sub: "Holding · 38m left",
-    line: "Holding over Newark · arrival pushed back",
+    line: "Holding over Newark",
+    alt: 14000,
+    speed: 230,
     clock: "14:41",
     dep: depEarly,
     arr: { time: "15:52", sched: "15:38", delta: "14m late", tone: "danger" },
@@ -108,6 +129,10 @@ export const STATES: StoryState[] = [
     dep: depEarly,
     arr: { time: "15:49", sched: "15:38", delta: "11m late", tone: "danger" },
     plane: [92, 100],
+    metar: {
+      raw: "KEWR 232051Z 22014KT 10SM BKN045 08/M02 A3002",
+      decoded: "Wind SW 14 kt · 10 mi · broken 4,500 ft · 8°C · 30.02 inHg",
+    },
   },
   {
     key: "arrived",
@@ -120,6 +145,10 @@ export const STATES: StoryState[] = [
     dep: depEarly,
     arr: { time: "15:54", sched: "15:38", delta: "16m late", tone: "danger" },
     plane: [100, 100],
+    metar: {
+      raw: "KEWR 232051Z 22014KT 10SM BKN045 08/M02 A3002",
+      decoded: "Wind SW 14 kt · 10 mi · broken 4,500 ft · 8°C · 30.02 inHg",
+    },
   },
 ];
 
@@ -131,4 +160,18 @@ export function frameAt(progress: number): { index: number; plane: number } {
   const local = Math.min(p - index, 1);
   const [from, to] = STATES[index].plane;
   return { index, plane: from + (to - from) * local };
+}
+
+/** Altitude in flight level, feet or metres (unit 0, 1, 2). */
+export function fmtAlt(ft: number, unit: number): string {
+  if (unit === 0) return `FL${String(Math.round(ft / 100)).padStart(3, "0")}`;
+  if (unit === 1) return `${ft.toLocaleString("en-US")} ft`;
+  return `${Math.round(ft * 0.3048).toLocaleString("en-US")} m`;
+}
+
+/** Ground speed in knots, km/h or mph (unit 0, 1, 2). */
+export function fmtSpeed(kt: number, unit: number): string {
+  if (unit === 0) return `${kt} kt`;
+  if (unit === 1) return `${Math.round(kt * 1.852)} km/h`;
+  return `${Math.round(kt * 1.15078)} mph`;
 }
