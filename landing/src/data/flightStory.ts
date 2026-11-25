@@ -80,7 +80,7 @@ export const STATES: StoryState[] = [
     tone: "success",
     sub: "2h 40m left",
     line: "Departed 2h 10m ago · FL370 · 489 kt",
-    clock: "10:09",
+    clock: "12:34",
     dep: depEarly,
     arr: { time: "15:15", sched: "15:38", delta: "23m early", tone: "success" },
     plane: [4, 46],

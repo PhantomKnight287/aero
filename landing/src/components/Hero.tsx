@@ -101,60 +101,6 @@ export function Hero() {
           />
         </div>
       </div>
-      <FlightStrip />
     </section>
-  );
-}
-
-/** The app's header, spelled out: the kind of detail every flight gets. */
-function FlightStrip() {
-  return (
-    <div className="mx-auto max-w-6xl px-5 pb-20">
-      <div className="rounded-2xl bg-panel p-5 sm:p-6">
-        <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1">
-          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted tabular">
-            UA1581 · UAL1581 · Mon 23 Nov · Boeing 777-200 · N797UA
-          </p>
-          <p className="flex items-center gap-2 text-sm font-semibold">
-            <span className="h-2 w-2 rounded-full bg-success" /> In flight
-          </p>
-        </div>
-        <div className="mt-4 flex items-center gap-4">
-          <div>
-            <p className="font-display text-3xl">LAX</p>
-            <p className="text-xs text-muted">KLAX · Gate 77</p>
-          </div>
-          <div className="relative h-6 flex-1">
-            <div className="absolute inset-x-0 top-1/2 h-[3px] -translate-y-1/2 rounded bg-line" />
-            <div className="absolute left-0 top-1/2 h-[3px] w-[46%] -translate-y-1/2 rounded bg-ink" />
-            <span
-              className="fly absolute top-1/2 flex h-6 w-6 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-ink text-white"
-              style={{ left: "46%" }}
-            >
-              <svg viewBox="0 0 24 24" className="h-3.5 w-3.5 rotate-90" fill="currentColor" aria-hidden>
-                <path d="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5Z" />
-              </svg>
-            </span>
-          </div>
-          <div className="text-right">
-            <p className="font-display text-3xl">EWR</p>
-            <p className="text-xs text-muted">KEWR · Gate C125</p>
-          </div>
-        </div>
-        <div className="mt-3 flex justify-between text-sm tabular">
-          <p>
-            <span className="font-semibold text-success">10:24</span>{" "}
-            <span className="text-muted line-through">10:30</span>{" "}
-            <span className="text-success">6m early</span>
-          </p>
-          <p className="hidden text-muted sm:block">departed 2h 10m ago · 2h 40m left</p>
-          <p>
-            <span className="text-success">23m early</span>{" "}
-            <span className="text-muted line-through">15:38</span>{" "}
-            <span className="font-semibold text-success">15:15</span>
-          </p>
-        </div>
-      </div>
-    </div>
   );
 }

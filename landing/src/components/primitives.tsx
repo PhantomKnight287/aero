@@ -34,6 +34,33 @@ export function Phone({
   );
 }
 
+/** Round watch frame. Takes a screenshot via `src`, or any drawn face as children. */
+export function Watch({
+  src,
+  alt = "",
+  className = "",
+  children,
+}: {
+  src?: string;
+  alt?: string;
+  className?: string;
+  children?: ReactNode;
+}) {
+  return (
+    <div className={`@container ${className}`}>
+      <div className="aspect-square rounded-full bg-[#2b2b2b] p-[4cqw] shadow-[0_30px_60px_-20px_rgba(0,0,0,0.45)] ring-1 ring-black/20">
+        <div className="h-full w-full overflow-hidden rounded-full bg-black">
+          {src ? (
+            <img src={src} alt={alt} loading="lazy" className="block h-full w-full" />
+          ) : (
+            children
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /** Fades content up as it enters the viewport, once. */
 export function Reveal({
   children,

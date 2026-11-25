@@ -70,17 +70,18 @@ body {
   }
 }
 
-/* The progress bar's plane eases along once, like a flight in miniature. */
-@keyframes fly {
+/* Story values fade in when the flight changes state. */
+@keyframes swap {
   from {
-    left: 0%;
+    opacity: 0;
+    transform: translateY(4px);
   }
 }
-.fly {
-  animation: fly 2.4s var(--ease-out) both;
+.swap {
+  animation: swap 280ms var(--ease-out);
 }
 @media (prefers-reduced-motion: reduce) {
-  .fly {
+  .swap {
     animation: none;
   }
 }
