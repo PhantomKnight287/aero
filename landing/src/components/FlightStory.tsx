@@ -32,7 +32,7 @@ function useReducedMotion() {
  */
 export function FlightStory() {
   const reduced = useReducedMotion();
-  const ref = useRef<HTMLElement>(null);
+  const ref = useRef<HTMLDivElement>(null);
   const [progress, setProgress] = useState(0);
 
   // Layout effect so a reload mid-section paints the right state first.
@@ -99,38 +99,36 @@ export function FlightStory() {
   };
 
   return (
-    <section
-      id="story"
-      ref={ref}
-      className="border-t border-line"
-      style={{ height: `${n * 80}vh` }}
-    >
-      <div className="sticky top-16 flex h-[calc(100svh-4rem)] items-center overflow-hidden">
-        <div className="mx-auto w-full max-w-6xl px-5">
-          {title}
-          <div className="mt-6 flex flex-wrap gap-x-1 gap-y-1 sm:mt-8">
-            {STATES.map((st, i) => (
-              <button
-                key={st.key}
-                onClick={() => jump(i)}
-                aria-current={i === index ? "step" : undefined}
-                className={`rounded-full px-3 py-1 text-sm transition-colors ${
-                  i === index
-                    ? "bg-ink font-semibold text-white"
-                    : i < index
-                      ? "text-ink hover:bg-panel"
-                      : "text-muted hover:bg-panel"
-                }`}
-              >
-                {st.label}
-              </button>
-            ))}
-          </div>
-          <div className="mt-4 grid items-center gap-4 sm:mt-8 sm:gap-6 lg:grid-cols-[1fr_280px] lg:gap-12">
-            <Strip s={s} plane={plane} />
-            <Watch className="mx-auto w-[150px] sm:w-[240px] lg:w-[280px]">
-              <WatchFace s={s} plane={plane} />
-            </Watch>
+    <section id="story" className="scroll-mt-16 border-t border-line pt-24">
+      {/* Title scrolls normally so the pinned panel fits short phones. */}
+      <div className="mx-auto max-w-6xl px-5">{title}</div>
+      <div ref={ref} style={{ height: `${n * 80}vh` }}>
+        <div className="sticky top-16 flex h-[calc(100svh-4rem)] items-center overflow-hidden">
+          <div className="mx-auto w-full max-w-6xl px-5">
+            <div className="flex flex-wrap gap-x-1 gap-y-1">
+              {STATES.map((st, i) => (
+                <button
+                  key={st.key}
+                  onClick={() => jump(i)}
+                  aria-current={i === index ? "step" : undefined}
+                  className={`rounded-full px-3 py-1 text-sm transition-colors ${
+                    i === index
+                      ? "bg-ink font-semibold text-white"
+                      : i < index
+                        ? "text-ink hover:bg-panel"
+                        : "text-muted hover:bg-panel"
+                  }`}
+                >
+                  {st.label}
+                </button>
+              ))}
+            </div>
+            <div className="mt-4 grid items-center gap-4 sm:mt-8 sm:gap-6 lg:grid-cols-[1fr_280px] lg:gap-12">
+              <Strip s={s} plane={plane} />
+              <Watch className="mx-auto w-[150px] sm:w-[240px] lg:w-[280px] [@media(max-height:640px)]:w-[120px]">
+                <WatchFace s={s} plane={plane} />
+              </Watch>
+            </div>
           </div>
         </div>
       </div>
@@ -161,7 +159,7 @@ function Strip({ s, plane }: { s: StoryState; plane: number }) {
   return (
     <div className="rounded-2xl bg-panel p-5 sm:p-6">
       <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1">
-        <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted tabular">
+        <p className="hidden text-xs font-semibold uppercase tracking-[0.12em] text-muted tabular sm:block">
           UA1581 · UAL1581 · Mon 23 Nov · Boeing 777-200 · N797UA
         </p>
         <p key={s.key} className="swap flex items-center gap-2 text-sm font-semibold">
