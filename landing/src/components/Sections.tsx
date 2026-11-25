@@ -4,7 +4,6 @@ import {
   LayoutGrid,
   PlaneLanding,
   Smartphone,
-  Watch,
 } from "lucide-react";
 import { icons, DEFAULT_ICON_INDEX } from "@/data/icons";
 import { GITHUB, GithubMark, Reveal, SectionTitle } from "./primitives";
@@ -60,11 +59,6 @@ const details = [
     icon: BarChart3,
     title: "Delay report",
     body: "Hours lost to delays, the average, and which airlines and airports cost you most.",
-  },
-  {
-    icon: Watch,
-    title: "Wear OS",
-    body: "Send a flight to your watch for gate, times and status on your wrist.",
   },
   {
     icon: Smartphone,

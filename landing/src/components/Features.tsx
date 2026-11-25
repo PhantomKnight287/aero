@@ -1,4 +1,4 @@
-import { Chip, Phone, Reveal, SectionTitle } from "./primitives";
+import { Chip, Phone, Reveal, SectionTitle, Watch } from "./primitives";
 
 const features = [
   {
@@ -55,6 +55,18 @@ const features = [
       "Route map",
     ],
   },
+  {
+    title: "On your wrist",
+    body: "Your flights follow you to Wear OS, synced from the phone and kept current. Status, gate and times at a glance, the aircraft and its inbound flight a scroll away, and an ambient face that stays on.",
+    watches: ["/watch/list.webp", "/watch/panels.webp", "/watch/ambient.webp"],
+    chips: [
+      "Wear OS",
+      "Synced from phone",
+      "Gate · times · status",
+      "Aircraft and inbound",
+      "Ambient mode",
+    ],
+  },
 ];
 
 export function Features() {
@@ -93,7 +105,15 @@ export function Features() {
                   aria-hidden
                   className="absolute inset-x-6 bottom-0 top-10 rounded-[2.5rem] bg-panel"
                 />
-                <Phone src={f.screen} alt={f.title} className="relative w-[250px]" />
+                {f.watches ? (
+                  <div className="relative h-[340px] w-full max-w-[380px]">
+                    <Watch src={f.watches[1]} alt="Aero on Wear OS: gate and times" className="absolute left-0 top-0 w-[150px] -rotate-6 sm:w-[170px]" />
+                    <Watch src={f.watches[2]} alt="Aero on Wear OS: ambient mode" className="absolute bottom-0 right-0 w-[150px] rotate-6 sm:w-[170px]" />
+                    <Watch src={f.watches[0]} alt="Aero on Wear OS: your flights" className="absolute left-1/2 top-1/2 w-[210px] -translate-x-1/2 -translate-y-1/2 sm:w-[230px]" />
+                  </div>
+                ) : (
+                  <Phone src={f.screen} alt={f.title} className="relative w-[250px]" />
+                )}
               </div>
             </Reveal>
           ))}
